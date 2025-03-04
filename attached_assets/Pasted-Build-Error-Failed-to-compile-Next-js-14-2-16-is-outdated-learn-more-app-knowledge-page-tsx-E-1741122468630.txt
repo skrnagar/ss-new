@@ -1,0 +1,77 @@
+Build Error
+Failed to compile
+
+Next.js (14.2.16) is outdated (learn more)
+./app/knowledge/page.tsx
+Error: 
+  × the name `Button` is defined multiple times
+     ╭─[/home/runner/workspace/app/knowledge/page.tsx:1:1]
+   1 │ import { Button } from "@/components/ui/button"
+     ·          ───┬──
+     ·             ╰── previous definition of `Button` here
+   2 │ import { Card, CardContent } from "@/components/ui/card"
+   3 │ import { Input } from "@/components/ui/input"
+   4 │ import { Search, FileText, FileCheck, FilePlus, FileWarning, Filter, Download, Star, Share2 } from "lucide-react"
+   5 │ 
+   6 │ export default function KnowledgePage() {
+   7 │   const resources = [
+   8 │     {
+   9 │       id: 1,
+  10 │       title: "Comprehensive HIRA Template",
+  11 │       type: "HIRA",
+  12 │       industry: "Manufacturing",
+  13 │       author: "Sarah Johnson",
+  14 │       downloads: 1245,
+  15 │       rating: 4.8,
+  16 │       icon: FileCheck,
+  17 │     },
+  18 │     {
+  19 │       id: 2,
+  20 │       title: "Job Safety Analysis for Construction Sites",
+  21 │       type: "JSA",
+  22 │       industry: "Construction",
+  23 │       author: "Michael Chen",
+  24 │       downloads: 987,
+  25 │       rating: 4.6,
+  26 │       icon: FileWarning,
+  27 │     },
+  28 │     {
+  29 │       id: 3,
+  30 │       title: "Environmental Compliance Checklist 2023",
+  31 │       type: "Checklist",
+  32 │       industry: "All Industries",
+  33 │       author: "Priya Patel",
+  34 │       downloads: 2156,
+  35 │       rating: 4.9,
+  36 │       icon: FileCheck,
+  37 │     },
+  38 │     {
+  39 │       id: 4,
+  40 │       title: "Safety Plan Template for Chemical Handling",
+  41 │       type: "Safety Plan",
+  42 │       industry: "Chemical",
+  43 │       author: "James Wilson",
+  44 │       downloads: 876,
+  45 │       rating: 4.7,
+  46 │       icon: FilePlus,
+  47 │     },
+  48 │     {
+  49 │       id: 5,
+  50 │       title: "ISO 14001 Implementation Guide",
+  51 │       type: "Guide",
+  52 │       industry: "All Industries",
+  53 │       author: "Emma Rodriguez",
+  54 │       downloads: 1532,
+  55 │       rating: 4.9,
+  56 │       icon: FileText,
+  57 │     },
+  58 │     {
+  59 │       id: 6,
+  60 │       title: "Workplace Ergonomics Assessment Tool",
+  61 │       type: "Assessment",
+  62 │       industry: "Office",
+  63 │       author: "David Kim",
+  64 │       downloads: 765,
+  65 │       rating: 4.5,
+  66 │       icon: FileWarning,
+  67 │     },
