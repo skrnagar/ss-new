@@ -1,3 +1,4 @@
+
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -10,7 +11,7 @@ export default async function Home() {
   // Check if user is authenticated and redirect to feed
   const supabase = createClient()
   const { data: { session } } = await supabase.auth.getSession()
-
+  
   if (session) {
     redirect('/feed')
   }
@@ -42,214 +43,214 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* Features */}
-      <section className="py-20 bg-muted/50">
+      {/* Features Section */}
+      <section className="py-16 bg-background">
         <div className="container">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold mb-4">Why Join Safety Shaper?</h2>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-              The professional network designed specifically for ESG and EHS professionals to connect, learn, and grow.
-            </p>
-          </div>
+          <h2 className="text-3xl font-bold text-center mb-12">Why Join Safety Shaper?</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <Card>
               <CardContent className="pt-6">
                 <div className="flex flex-col items-center text-center">
-                  <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+                  <div className="bg-primary/10 p-3 rounded-full mb-4">
+                    <Shield className="h-8 w-8 text-primary" />
+                  </div>
+                  <h3 className="text-xl font-semibold mb-2">Specialized Network</h3>
+                  <p className="text-muted-foreground">
+                    Connect with professionals who understand the unique challenges of ESG and EHS roles.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="pt-6">
+                <div className="flex flex-col items-center text-center">
+                  <div className="bg-primary/10 p-3 rounded-full mb-4">
+                    <BookOpen className="h-8 w-8 text-primary" />
+                  </div>
+                  <h3 className="text-xl font-semibold mb-2">Knowledge Hub</h3>
+                  <p className="text-muted-foreground">
+                    Access a wealth of resources, best practices, and regulatory updates specific to your field.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="pt-6">
+                <div className="flex flex-col items-center text-center">
+                  <div className="bg-primary/10 p-3 rounded-full mb-4">
+                    <Briefcase className="h-8 w-8 text-primary" />
+                  </div>
+                  <h3 className="text-xl font-semibold mb-2">Career Growth</h3>
+                  <p className="text-muted-foreground">
+                    Discover job opportunities tailored to your expertise and build your professional reputation.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Statistics Section */}
+      <section className="py-16 bg-muted">
+        <div className="container">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+            <div>
+              <div className="text-4xl font-bold text-primary mb-2">10K+</div>
+              <p className="text-muted-foreground">Professionals</p>
+            </div>
+            <div>
+              <div className="text-4xl font-bold text-primary mb-2">500+</div>
+              <p className="text-muted-foreground">Companies</p>
+            </div>
+            <div>
+              <div className="text-4xl font-bold text-primary mb-2">50+</div>
+              <p className="text-muted-foreground">Industry Groups</p>
+            </div>
+            <div>
+              <div className="text-4xl font-bold text-primary mb-2">200+</div>
+              <p className="text-muted-foreground">Resources</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Areas Section */}
+      <section className="py-16 bg-background">
+        <div className="container">
+          <h2 className="text-3xl font-bold text-center mb-4">Focus Areas</h2>
+          <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
+            Our platform caters to professionals across the full spectrum of Environmental, Social, Governance, and
+            Health & Safety disciplines.
+          </p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <Card>
+              <CardContent className="pt-6">
+                <div className="flex items-start">
+                  <div className="bg-primary/10 p-2 rounded-full mr-4">
+                    <Leaf className="h-6 w-6 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold mb-2">Environmental</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Sustainability, resource management, and environmental compliance.
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="pt-6">
+                <div className="flex items-start">
+                  <div className="bg-primary/10 p-2 rounded-full mr-4">
                     <Users className="h-6 w-6 text-primary" />
                   </div>
-                  <h3 className="text-xl font-medium mb-2">Network with Peers</h3>
-                  <p className="text-muted-foreground">
-                    Connect with other ESG and EHS professionals across industries to share experiences and insights.
-                  </p>
+                  <div>
+                    <h3 className="font-semibold mb-2">Social</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Labor practices, community engagement, and human rights.
+                    </p>
+                  </div>
                 </div>
               </CardContent>
             </Card>
+
             <Card>
               <CardContent className="pt-6">
-                <div className="flex flex-col items-center text-center">
-                  <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+                <div className="flex items-start">
+                  <div className="bg-primary/10 p-2 rounded-full mr-4">
+                    <BarChart className="h-6 w-6 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold mb-2">Governance</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Ethics, corporate governance, and regulatory compliance.
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="pt-6">
+                <div className="flex items-start">
+                  <div className="bg-primary/10 p-2 rounded-full mr-4">
+                    <Shield className="h-6 w-6 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold mb-2">Health & Safety</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Occupational safety, risk management, and health programs.
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="pt-6">
+                <div className="flex items-start">
+                  <div className="bg-primary/10 p-2 rounded-full mr-4">
+                    <Award className="h-6 w-6 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold mb-2">Certifications</h3>
+                    <p className="text-sm text-muted-foreground">
+                      ISO standards, industry certifications, and accreditations.
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="pt-6">
+                <div className="flex items-start">
+                  <div className="bg-primary/10 p-2 rounded-full mr-4">
+                    <ClipboardCheck className="h-6 w-6 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold mb-2">Compliance</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Regulatory compliance, auditing, and reporting frameworks.
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="pt-6">
+                <div className="flex items-start">
+                  <div className="bg-primary/10 p-2 rounded-full mr-4">
+                    <Heart className="h-6 w-6 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold mb-2">Wellbeing</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Employee wellness, mental health, and work-life balance.
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="pt-6">
+                <div className="flex items-start">
+                  <div className="bg-primary/10 p-2 rounded-full mr-4">
                     <Briefcase className="h-6 w-6 text-primary" />
                   </div>
-                  <h3 className="text-xl font-medium mb-2">Discover Opportunities</h3>
-                  <p className="text-muted-foreground">
-                    Find job openings, consulting gigs, and career advancement opportunities in the ESG and EHS fields.
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="pt-6">
-                <div className="flex flex-col items-center text-center">
-                  <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-                    <BookOpen className="h-6 w-6 text-primary" />
+                  <div>
+                    <h3 className="font-semibold mb-2">Jobs</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Career opportunities and professional development.
+                    </p>
                   </div>
-                  <h3 className="text-xl font-medium mb-2">Knowledge Sharing</h3>
-                  <p className="text-muted-foreground">
-                    Access and contribute to a growing library of resources, case studies, and best practices.
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
-
-      {/* Core Modules Section */}
-      <section id="core-modules" className="py-20">
-        <div className="container">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold mb-4">Core Platform Modules</h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Safety Shaper offers comprehensive tools designed specifically for ESG and EHS professionals.
-            </p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="flex gap-4">
-              <div className="rounded-full bg-primary/10 p-3 h-fit">
-                <Shield className="h-6 w-6 text-primary" />
-              </div>
-              <div>
-                <h3 className="text-xl font-semibold mb-2">User Profiles</h3>
-                <p className="text-muted-foreground mb-2">
-                  Create detailed professional profiles showcasing your certifications, skills, and experience in the
-                  ESG and EHS fields.
-                </p>
-                <Link href="/profiles" className="text-primary hover:underline font-medium">
-                  Learn more
-                </Link>
-              </div>
-            </div>
-
-            <div className="flex gap-4">
-              <div className="rounded-full bg-secondary/10 p-3 h-fit">
-                <Users className="h-6 w-6 text-secondary" />
-              </div>
-              <div>
-                <h3 className="text-xl font-semibold mb-2">Community & Groups</h3>
-                <p className="text-muted-foreground mb-2">
-                  Join industry-specific groups to discuss challenges, share solutions, and collaborate with peers.
-                </p>
-                <Link href="/groups" className="text-primary hover:underline font-medium">
-                  Explore groups
-                </Link>
-              </div>
-            </div>
-
-            <div className="flex gap-4">
-              <div className="rounded-full bg-primary/10 p-3 h-fit">
-                <BookOpen className="h-6 w-6 text-primary" />
-              </div>
-              <div>
-                <h3 className="text-xl font-semibold mb-2">Knowledge Center</h3>
-                <p className="text-muted-foreground mb-2">
-                  Access a comprehensive library of resources including HIRA, JSA, Safety Plans, and regulatory
-                  documents.
-                </p>
-                <Link href="/knowledge" className="text-primary hover:underline font-medium">
-                  Browse resources
-                </Link>
-              </div>
-            </div>
-
-            <div className="flex gap-4">
-              <div className="rounded-full bg-secondary/10 p-3 h-fit">
-                <Briefcase className="h-6 w-6 text-secondary" />
-              </div>
-              <div>
-                <h3 className="text-xl font-semibold mb-2">Job Portal</h3>
-                <p className="text-muted-foreground mb-2">
-                  Find specialized ESG and EHS job opportunities or post openings for qualified professionals.
-                </p>
-                <Link href="/jobs" className="text-primary hover:underline font-medium">
-                  View jobs
-                </Link>
-              </div>
-            </div>
-
-            <div className="flex gap-4">
-              <div className="rounded-full bg-primary/10 p-3 h-fit">
-                <Award className="h-6 w-6 text-primary" />
-              </div>
-              <div>
-                <h3 className="text-xl font-semibold mb-2">Reward System</h3>
-                <p className="text-muted-foreground mb-2">
-                  Earn recognition through points, badges, and leaderboard rankings for your contributions.
-                </p>
-                <Link href="/rewards" className="text-primary hover:underline font-medium">
-                  See rewards
-                </Link>
-              </div>
-            </div>
-
-            <div className="flex gap-4">
-              <div className="rounded-full bg-secondary/10 p-3 h-fit">
-                <ClipboardCheck className="h-6 w-6 text-secondary" />
-              </div>
-              <div>
-                <h3 className="text-xl font-semibold mb-2">Audit & Compliance</h3>
-                <p className="text-muted-foreground mb-2">
-                  Manage compliance requirements with specialized tools, checklists, and real-time status indicators.
-                </p>
-                <Link href="/compliance" className="text-primary hover:underline font-medium">
-                  Explore tools
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ESG Focus Section */}
-      <section className="py-20 bg-light">
-        <div className="container">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold mb-4">ESG Focus Areas</h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Safety Shaper helps professionals address key Environmental, Social, and Governance challenges.
-            </p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <Card className="border-none shadow-md">
-              <CardContent className="pt-6">
-                <div className="flex flex-col items-center text-center">
-                  <div className="rounded-full bg-secondary/10 p-3 mb-4">
-                    <Leaf className="h-8 w-8 text-secondary" />
-                  </div>
-                  <h3 className="text-xl font-semibold mb-2">Environmental</h3>
-                  <p className="text-muted-foreground">
-                    Connect with experts on climate change, pollution prevention, resource conservation, and
-                    environmental compliance.
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="border-none shadow-md">
-              <CardContent className="pt-6">
-                <div className="flex flex-col items-center text-center">
-                  <div className="rounded-full bg-primary/10 p-3 mb-4">
-                    <Heart className="h-8 w-8 text-primary" />
-                  </div>
-                  <h3 className="text-xl font-semibold mb-2">Social</h3>
-                  <p className="text-muted-foreground">
-                    Share best practices on workplace safety, employee wellbeing, community engagement, and social
-                    responsibility.
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="border-none shadow-md">
-              <CardContent className="pt-6">
-                <div className="flex flex-col items-center text-center">
-                  <div className="rounded-full bg-secondary/10 p-3 mb-4">
-                    <BarChart className="h-8 w-8 text-secondary" />
-                  </div>
-                  <h3 className="text-xl font-semibold mb-2">Governance</h3>
-                  <p className="text-muted-foreground">
-                    Discuss corporate governance, ethical standards, regulatory compliance, and transparency frameworks.
-                  </p>
                 </div>
               </CardContent>
             </Card>
@@ -258,16 +259,18 @@ export default async function Home() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-primary text-white">
+      <section className="py-16 bg-primary text-white text-center">
         <div className="container">
-          <div className="text-center max-w-3xl mx-auto">
-            <h2 className="text-3xl font-bold mb-4">Ready to Shape a Safer Future?</h2>
-            <p className="text-lg mb-8">
-              Join thousands of ESG and EHS professionals on Safety Shaper and be part of a community dedicated to
-              creating safer, more sustainable workplaces and communities.
-            </p>
-            <Button size="lg" className="bg-secondary hover:bg-secondary/90 text-white" asChild>
-              <Link href="/auth/login?tab=register">Join Safety Shaper Today</Link>
+          <h2 className="text-3xl font-bold mb-6">Ready to Connect with ESG & EHS Professionals?</h2>
+          <p className="text-xl mb-8 max-w-2xl mx-auto">
+            Join thousands of professionals shaping a safer and more sustainable future.
+          </p>
+          <div className="flex justify-center gap-4">
+            <Button asChild size="lg" variant="secondary">
+              <Link href="/auth/login">Join Now</Link>
+            </Button>
+            <Button asChild size="lg" variant="outline" className="bg-transparent text-white hover:bg-white/10">
+              <Link href="/auth/login">Sign In</Link>
             </Button>
           </div>
         </div>
