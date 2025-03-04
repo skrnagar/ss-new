@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState } from "react"
@@ -9,7 +8,7 @@ import {
   ThumbsUp,
   MessageSquare,
   Share2,
-  Image,
+  Image as ImageIcon,
   FileText,
   Video,
   User,
@@ -152,7 +151,7 @@ export default function FeedPage() {
               </div>
               <div className="flex items-center justify-between mt-4 pt-2 border-t">
                 <Button variant="ghost" size="sm">
-                  <Image className="h-4 w-4 mr-2" />
+                  <ImageIcon className="h-4 w-4 mr-2" />
                   Photo
                 </Button>
                 <Button variant="ghost" size="sm">

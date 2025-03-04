@@ -1,4 +1,3 @@
-
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -11,7 +10,7 @@ export default async function Home() {
   // Check if user is authenticated and redirect to feed
   const supabase = createClient()
   const { data: { session } } = await supabase.auth.getSession()
-  
+
   if (session) {
     redirect('/feed')
   }
