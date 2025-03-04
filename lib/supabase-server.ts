@@ -1,25 +1,50 @@
 
 import { cookies } from 'next/headers'
-import { createServerClient } from '@supabase/ssr'
 
+// This is a mock implementation for development
+// Replace with actual Supabase client when you have your credentials
 export function createClient() {
-  const cookieStore = cookies()
-  
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get(name: string) {
-          return cookieStore.get(name)?.value
-        },
-        set(name: string, value: string, options: any) {
-          cookieStore.set({ name, value, ...options })
-        },
-        remove(name: string, options: any) {
-          cookieStore.set({ name, value: "", ...options })
-        },
+  return {
+    auth: {
+      getSession: async () => {
+        return { 
+          data: { 
+            session: null 
+          } 
+        };
       },
-    }
-  )
+      getUser: async () => {
+        return { 
+          data: { 
+            user: null 
+          } 
+        };
+      },
+      exchangeCodeForSession: async (code: string) => {
+        return { data: {}, error: null }
+      }
+    },
+    from: (table: string) => ({
+      select: () => ({
+        eq: () => ({
+          single: async () => ({ data: null }),
+          order: () => ({
+            limit: () => ({
+              data: []
+            })
+          })
+        })
+      }),
+      insert: () => ({
+        select: () => ({
+          single: async () => ({ data: null })
+        })
+      }),
+      update: () => ({
+        eq: () => ({
+          single: async () => ({ data: null })
+        })
+      })
+    })
+  };
 }
