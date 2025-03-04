@@ -1,0 +1,39 @@
+supabase.ts:24 Auth state changed: SIGNED_IN {provider_token: 'ya29.a0AeXRPp4CealZl5BoKDd2mv17G_mLjrbHTNIdgAfih32…kAaCgYKAawSARASFQHGX2MifTlk86ODOZwLPRvgt1pNOA0178', access_token: 'eyJhbGciOiJIUzI1NiIsImtpZCI6Ijd0V0NTeXhoWEFlWDNCNj…xzZX0.kzdJxYhPg5GmIJKRtpJOwY3rhCb60Ya3LP-fyCQYiuY', expires_in: 36000, expires_at: 1741154876, refresh_token: '491VTu4wH2qLvJ5T1UXvYg', …}
+hook.js:608 Warning: Extra attributes from the server: data-new-gr-c-s-check-loaded,data-gr-ext-installed Error Component Stack
+    at body (<anonymous>)
+    at html (<anonymous>)
+    at RootLayout [Server] (<anonymous>)
+    at RedirectErrorBoundary (redirect-boundary.js:74:9)
+    at RedirectBoundary (redirect-boundary.js:82:11)
+    at NotFoundErrorBoundary (not-found-boundary.js:76:9)
+    at NotFoundBoundary (not-found-boundary.js:84:11)
+    at DevRootNotFoundBoundary (dev-root-not-found-boundary.js:33:11)
+    at ReactDevOverlay (ReactDevOverlay.js:87:9)
+    at HotReload (hot-reloader-client.js:321:11)
+    at Router (app-router.js:207:11)
+    at ErrorBoundaryHandler (error-boundary.js:113:9)
+    at ErrorBoundary (error-boundary.js:160:11)
+    at AppRouter (app-router.js:585:13)
+    at ServerRoot (app-index.js:112:27)
+    at Root (app-index.js:117:11)
+overrideMethod @ hook.js:608
+window.console.error @ app-index.js:33
+console.error @ hydration-error-info.js:63
+printWarning @ react-dom.development.js:94
+error @ react-dom.development.js:68
+warnForExtraAttributes @ react-dom.development.js:32731
+diffHydratedProperties @ react-dom.development.js:35117
+hydrateInstance @ react-dom.development.js:36127
+prepareToHydrateHostInstance @ react-dom.development.js:7246
+completeWork @ react-dom.development.js:19725
+completeUnitOfWork @ react-dom.development.js:25963
+performUnitOfWork @ react-dom.development.js:25759
+workLoopConcurrent @ react-dom.development.js:25734
+renderRootConcurrent @ react-dom.development.js:25690
+performConcurrentWorkOnRoot @ react-dom.development.js:24504
+workLoop @ scheduler.development.js:256
+flushWork @ scheduler.development.js:225
+performWorkUntilDeadline @ scheduler.development.js:534Understand this errorAI
+supabase.ts:24 Auth state changed: INITIAL_SESSION {provider_token: 'ya29.a0AeXRPp4CealZl5BoKDd2mv17G_mLjrbHTNIdgAfih32…kAaCgYKAawSARASFQHGX2MifTlk86ODOZwLPRvgt1pNOA0178', access_token: 'eyJhbGciOiJIUzI1NiIsImtpZCI6Ijd0V0NTeXhoWEFlWDNCNj…xzZX0.kzdJxYhPg5GmIJKRtpJOwY3rhCb60Ya3LP-fyCQYiuY', expires_in: 36000, expires_at: 1741154876, refresh_token: '491VTu4wH2qLvJ5T1UXvYg', …}
+navbar.tsx:59 Auth state changed in navbar: INITIAL_SESSION {id: 'f5da3b6d-6d8f-4b95-8dd3-30ad4c04a4bd', aud: 'authenticated', role: 'authenticated', email: 'skngrp@gmail.com', email_confirmed_at: '2025-02-15T05:29:58.630003Z', …}
+writer.min.js:6526 Running Ginger Widget v2.11.318
