@@ -8,7 +8,7 @@ export async function GET(request: Request) {
   try {
     const requestUrl = new URL(request.url)
     const code = requestUrl.searchParams.get('code')
-    const redirectTo = requestUrl.searchParams.get('redirectTo') || '/feed'
+    const redirectTo = requestUrl.searchParams.get('redirectUrl') || '/feed'  // Change redirectTo to redirectUrl
 
     if (code) {
       const cookieStore = cookies()
@@ -51,9 +51,19 @@ export async function GET(request: Request) {
 
     // Make sure we have a valid redirect URL
     let finalRedirectUrl = redirectTo;
-    if (finalRedirectUrl.startsWith('/')) {
-      finalRedirectUrl = new URL(finalRedirectUrl, request.url).toString();
+    
+    // Handle the redirectUrl encoded in query parameter from login page
+    if (!finalRedirectUrl && requestUrl.searchParams.get('redirectUrl')) {
+      finalRedirectUrl = requestUrl.searchParams.get('redirectUrl');
     }
+    
+    if (finalRedirectUrl && finalRedirectUrl.startsWith('/')) {
+      finalRedirectUrl = new URL(finalRedirectUrl, request.url).toString();
+    } else if (!finalRedirectUrl) {
+      finalRedirectUrl = new URL('/feed', request.url).toString();
+    }
+    
+    console.log('Callback redirecting to:', finalRedirectUrl);
 
     console.log('Redirecting to:', finalRedirectUrl);
     return NextResponse.redirect(finalRedirectUrl);

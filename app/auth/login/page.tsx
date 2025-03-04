@@ -1,4 +1,3 @@
-
 "use client"
 
 import * as React from "react"
@@ -16,6 +15,7 @@ import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useToast } from "@/hooks/use-toast"
 import { supabase } from "@/lib/supabase"
+import { useEffect, useState } from 'react';
 
 const formSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
@@ -32,6 +32,17 @@ export default function LoginPage() {
   const router = useRouter()
   const { toast } = useToast()
   const [loading, setLoading] = React.useState(false)
+  const [redirectUrl, setRedirectUrl] = useState('/feed'); // Default redirect
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const redirect = urlParams.get('redirectUrl');
+    if (redirect) {
+      setRedirectUrl(redirect);
+    }
+    console.log('Login page - redirect URL:', redirectUrl);
+  }, []);
+
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -73,8 +84,7 @@ export default function LoginPage() {
         description: "Redirecting to your dashboard...",
       })
 
-      // Redirect to feed page after successful login using router.push instead of window.location
-      router.push("/feed")
+      router.push(redirectUrl); // Use the stored redirect URL
     } catch (error) {
       toast({
         title: "An error occurred",
@@ -117,7 +127,6 @@ export default function LoginPage() {
       // If email verification is not required, redirect to profile setup
       if (!data.session) return
 
-      // Redirect to profile setup immediately using router
       router.replace("/profile/setup")
     } catch (error) {
       toast({
@@ -131,13 +140,10 @@ export default function LoginPage() {
   }
 
   async function signInWithGoogle() {
-    const searchParams = new URLSearchParams(window.location.search);
-    const redirectUrl = searchParams.get('redirectUrl') || '/feed';
-    
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/auth/callback?redirectTo=${encodeURIComponent(redirectUrl)}`,
+        redirectTo: `${window.location.origin}/auth/callback?redirectUrl=${encodeURIComponent(redirectUrl)}`,
       },
     })
 
@@ -151,13 +157,10 @@ export default function LoginPage() {
   }
 
   async function signInWithLinkedIn() {
-    const searchParams = new URLSearchParams(window.location.search);
-    const redirectUrl = searchParams.get('redirectUrl') || '/feed';
-    
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'linkedin',
       options: {
-        redirectTo: `${window.location.origin}/auth/callback?redirectTo=${encodeURIComponent(redirectUrl)}`,
+        redirectTo: `${window.location.origin}/auth/callback?redirectUrl=${encodeURIComponent(redirectUrl)}`,
       },
     })
 
