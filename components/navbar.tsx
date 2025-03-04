@@ -39,30 +39,47 @@ export function Navbar() {
   const isMobile = useMobile()
 
   useEffect(() => {
-    // Initial auth check
-    const checkUser = async () => {
-      const { data } = await supabase.auth.getSession()
-      setUser(data.session?.user || null)
+    // Initialize with current session
+    const initializeAuth = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession()
+        setUser(session?.user || null)
+        setLoading(false)
+      } catch (error) {
+        console.error('Error getting session:', error)
+        setLoading(false)
+      }
     }
 
-    checkUser()
+    initializeAuth()
 
-    // Set up auth state listener
+    // Subscribe to auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
-        console.log('Auth state changed in navbar:', event, session)
+        console.log('Auth state changed in navbar:', event, session?.user)
         setUser(session?.user || null)
+        if (session?.user) {
+          try {
+            // Fetch user profile after sign in
+            const { data } = supabase
+              .from('profiles')
+              .select('*')
+              .eq('id', session.user.id)
+              .single()
 
-        // Force refresh if signed out to ensure proper UI update
-        if (event === 'SIGNED_OUT') {
-          window.location.href = '/'
+            setProfile(data)
+          } catch (profileError) {
+            console.error('Error fetching profile after sign in:', profileError)
+          }
+        } else {
+          setProfile(null);
         }
       }
     )
 
-    // Clean up subscription on unmount
+    // Cleanup subscription
     return () => {
-      subscription.unsubscribe()
+      subscription?.unsubscribe()
     }
   }, [])
 
@@ -75,12 +92,12 @@ export function Navbar() {
           'Content-Type': 'application/json',
         },
       });
-
+      
       if (response.ok) {
         toast({
           title: "Signed out successfully",
         })
-
+        
         // Use replace to completely reset navigation history
         router.replace('/')
       } else {
