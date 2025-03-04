@@ -24,6 +24,3 @@ export function useIsMobile() {
 
   return isMobile
 }
-
-// Add an alias for the hook to maintain compatibility
-export const useMobile = useIsMobile
