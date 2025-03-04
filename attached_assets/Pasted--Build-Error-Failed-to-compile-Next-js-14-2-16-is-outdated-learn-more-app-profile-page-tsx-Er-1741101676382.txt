@@ -1,0 +1,3457 @@
+
+Build Error
+Failed to compile
+
+Next.js (14.2.16) is outdated (learn more)
+./app/profile/page.tsx
+Error: 
+  × the name `Button` is defined multiple times
+     ╭─[/home/runner/workspace/app/profile/page.tsx:1:1]
+   1 │ import { Button } from "@/components/ui/button"
+     ·          ───┬──
+     ·             ╰── previous definition of `Button` here
+   2 │ import { Card, CardContent, CardHeader } from "@/components/ui/card"
+   3 │ import {
+   4 │   User,
+   5 │   MapPin,
+   6 │   Briefcase,
+   7 │   Calendar,
+   8 │   Mail,
+   9 │   Phone,
+  10 │   Globe,
+  11 │   Award,
+  12 │   BookOpen,
+  13 │   MessageSquare,
+  14 │   ThumbsUp,
+  15 │   Share2,
+  16 │ } from "lucide-react"
+  17 │ 
+  18 │ export default function ProfilePage() {
+  19 │   const profile = {
+  20 │     name: "Sarah Johnson",
+  21 │     role: "ESG Compliance Manager",
+  22 │     company: "GreenTech Solutions",
+  23 │     location: "San Francisco, CA",
+  24 │     email: "sarah.johnson@example.com",
+  25 │     phone: "+1 (555) 123-4567",
+  26 │     website: "www.sarahjohnson.com",
+  27 │     about:
+  28 │       "Experienced ESG Compliance Manager with 8+ years of experience in environmental sustainability and corporate governance. Passionate about helping organizations implement effective ESG strategies and achieve compliance with regulatory requirements.",
+  29 │     experience: [
+  30 │       {
+  31 │         title: "ESG Compliance Manager",
+  32 │         company: "GreenTech Solutions",
+  33 │         period: "Jan 2020 - Present",
+  34 │         description:
+  35 │           "Lead ESG compliance initiatives and sustainability reporting. Reduced carbon footprint by 25% through innovative programs.",
+  36 │       },
+  37 │       {
+  38 │         title: "Environmental Specialist",
+  39 │         company: "EcoSystems Inc.",
+  40 │         period: "Mar 2016 - Dec 2019",
+  41 │         description:
+  42 │           "Managed environmental compliance programs and conducted sustainability audits for clients across various industries.",
+  43 │       },
+  44 │     ],
+  45 │     education: [
+  46 │       {
+  47 │         degree: "Master of Environmental Management",
+  48 │         institution: "Stanford University",
+  49 │         year: "2016",
+  50 │       },
+  51 │       {
+  52 │         degree: "Bachelor of Science in Environmental Science",
+  53 │         institution: "University of California, Berkeley",
+  54 │         year: "2014",
+  55 │       },
+  56 │     ],
+  57 │     certifications: [
+  58 │       "Certified ESG Analyst (CESGA)",
+  59 │       "ISO 14001 Lead Auditor",
+  60 │       "GRI Certified Sustainability Professional",
+  61 │       "LEED Green Associate",
+  62 │     ],
+  63 │     skills: [
+  64 │       "ESG Reporting",
+  65 │       "Sustainability Strategy",
+  66 │       "Environmental Compliance",
+  67 │       "Carbon Footprint Analysis",
+  68 │       "Stakeholder Engagement",
+  69 │       "Regulatory Affairs",
+  70 │       "Data Analysis",
+  71 │       "Project Management",
+  72 │     ],
+  73 │     posts: [
+  74 │       {
+  75 │         id: 1,
+  76 │         content:
+  77 │           "Just completed our quarterly ESG audit with flying colors! Our carbon reduction initiatives have exceeded targets by 15%. Proud of the team for their dedication to sustainability. #ESGCompliance #Sustainability",
+  78 │         time: "2 hours ago",
+  79 │         likes: 42,
+  80 │         comments: 8,
+  81 │         shares: 5,
+  82 │       },
+  83 │       {
+  84 │         id: 2,
+  85 │         content:
+  86 │           "Excited to share that I'll be speaking at the upcoming Sustainable Business Forum next month. Looking forward to discussing the latest trends in ESG reporting and compliance. Let me know if you'll be attending! #SustainableBusiness #ESG",
+  87 │         time: "3 days ago",
+  88 │         likes: 56,
+  89 │         comments: 12,
+  90 │         shares: 9,
+  91 │       },
+  92 │     ],
+  93 │   }
+  94 │ 
+  95 │   return (
+  96 │     <div className="container py-8">
+  97 │       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+  98 │         {/* Left Column - Profile Info */}
+  99 │         <div>
+ 100 │           <Card className="mb-6">
+ 101 │             <CardContent className="p-6">
+ 102 │               <div className="flex flex-col items-center text-center">
+ 103 │                 <div className="w-32 h-32 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+ 104 │                   <User className="h-16 w-16 text-primary" />
+ 105 │                 </div>
+ 106 │                 <h2 className="text-2xl font-bold">{profile.name}</h2>
+ 107 │                 <p className="text-muted-foreground mb-2">
+ 108 │                   {profile.role} at {profile.company}
+ 109 │                 </p>
+ 110 │                 <div className="flex items-center text-sm text-muted-foreground mb-4">
+ 111 │                   <MapPin className="h-4 w-4 mr-1" />
+ 112 │                   <span>{profile.location}</span>
+ 113 │                 </div>
+ 114 │ 
+ 115 │                 <Button variant="secondary" className="w-full mb-4">
+ 116 │                   Connect
+ 117 │                 </Button>
+ 118 │                 <Button variant="outline" className="w-full">
+ 119 │                   <MessageSquare className="mr-2 h-4 w-4" />
+ 120 │                   Message
+ 121 │                 </Button>
+ 122 │               </div>
+ 123 │             </CardContent>
+ 124 │           </Card>
+ 125 │ 
+ 126 │           <Card className="mb-6">
+ 127 │             <CardHeader className="pb-0">
+ 128 │               <h3 className="font-semibold">Contact Information</h3>
+ 129 │             </CardHeader>
+ 130 │             <CardContent className="p-6">
+ 131 │               <div className="space-y-3">
+ 132 │                 <div className="flex items-center">
+ 133 │                   <Mail className="h-4 w-4 text-muted-foreground mr-2" />
+ 134 │                   <span className="text-sm">{profile.email}</span>
+ 135 │                 </div>
+ 136 │                 <div className="flex items-center">
+ 137 │                   <Phone className="h-4 w-4 text-muted-foreground mr-2" />
+ 138 │                   <span className="text-sm">{profile.phone}</span>
+ 139 │                 </div>
+ 140 │                 <div className="flex items-center">
+ 141 │                   <Globe className="h-4 w-4 text-muted-foreground mr-2" />
+ 142 │                   <span className="text-sm">{profile.website}</span>
+ 143 │                 </div>
+ 144 │               </div>
+ 145 │             </CardContent>
+ 146 │           </Card>
+ 147 │ 
+ 148 │           <Card className="mb-6">
+ 149 │             <CardHeader className="pb-0">
+ 150 │               <h3 className="font-semibold">Skills</h3>
+ 151 │             </CardHeader>
+ 152 │             <CardContent className="p-6">
+ 153 │               <div className="flex flex-wrap gap-2">
+ 154 │                 {profile.skills.map((skill, index) => (
+ 155 │                   <span
+ 156 │                     key={index}
+ 157 │                     className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary"
+ 158 │                   >
+ 159 │                     {skill}
+ 160 │                   </span>
+ 161 │                 ))}
+ 162 │               </div>
+ 163 │             </CardContent>
+ 164 │           </Card>
+ 165 │ 
+ 166 │           <Card>
+ 167 │             <CardHeader className="pb-0">
+ 168 │               <h3 className="font-semibold">Certifications</h3>
+ 169 │             </CardHeader>
+ 170 │             <CardContent className="p-6">
+ 171 │               <div className="space-y-3">
+ 172 │                 {profile.certifications.map((cert, index) => (
+ 173 │                   <div key={index} className="flex items-center">
+ 174 │                     <Award className="h-4 w-4 text-primary mr-2" />
+ 175 │                     <span className="text-sm">{cert}</span>
+ 176 │                   </div>
+ 177 │                 ))}
+ 178 │               </div>
+ 179 │             </CardContent>
+ 180 │           </Card>
+ 181 │         </div>
+ 182 │ 
+ 183 │         {/* Right Column - About, Experience, Posts */}
+ 184 │         <div className="md:col-span-2">
+ 185 │           <Card className="mb-6">
+ 186 │             <CardHeader className="pb-0">
+ 187 │               <h3 className="font-semibold">About</h3>
+ 188 │             </CardHeader>
+ 189 │             <CardContent className="p-6">
+ 190 │               <p>{profile.about}</p>
+ 191 │             </CardContent>
+ 192 │           </Card>
+ 193 │ 
+ 194 │           <Card className="mb-6">
+ 195 │             <CardHeader className="pb-0">
+ 196 │               <h3 className="font-semibold">Experience</h3>
+ 197 │             </CardHeader>
+ 198 │             <CardContent className="p-6">
+ 199 │               <div className="space-y-6">
+ 200 │                 {profile.experience.map((exp, index) => (
+ 201 │                   <div key={index} className="border-l-2 border-primary/30 pl-4">
+ 202 │                     <h4 className="font-semibold">{exp.title}</h4>
+ 203 │                     <div className="flex items-center text-sm mb-1">
+ 204 │                       <Briefcase className="h-4 w-4 text-muted-foreground mr-2" />
+ 205 │                       <span>{exp.company}</span>
+ 206 │                     </div>
+ 207 │                     <div className="flex items-center text-sm text-muted-foreground mb-2">
+ 208 │                       <Calendar className="h-4 w-4 mr-2" />
+ 209 │                       <span>{exp.period}</span>
+ 210 │                     </div>
+ 211 │                     <p className="text-sm">{exp.description}</p>
+ 212 │                   </div>
+ 213 │                 ))}
+ 214 │               </div>
+ 215 │             </CardContent>
+ 216 │           </Card>
+ 217 │ 
+ 218 │           <Card className="mb-6">
+ 219 │             <CardHeader className="pb-0">
+ 220 │               <h3 className="font-semibold">Education</h3>
+ 221 │             </CardHeader>
+ 222 │             <CardContent className="p-6">
+ 223 │               <div className="space-y-4">
+ 224 │                 {profile.education.map((edu, index) => (
+ 225 │                   <div key={index} className="border-l-2 border-primary/30 pl-4">
+ 226 │                     <h4 className="font-semibold">{edu.degree}</h4>
+ 227 │                     <div className="flex items-center text-sm mb-1">
+ 228 │                       <BookOpen className="h-4 w-4 text-muted-foreground mr-2" />
+ 229 │                       <span>{edu.institution}</span>
+ 230 │                     </div>
+ 231 │                     <div className="flex items-center text-sm text-muted-foreground">
+ 232 │                       <Calendar className="h-4 w-4 mr-2" />
+ 233 │                       <span>{edu.year}</span>
+ 234 │                     </div>
+ 235 │                   </div>
+ 236 │                 ))}
+ 237 │               </div>
+ 238 │             </CardContent>
+ 239 │           </Card>
+ 240 │ 
+ 241 │           <Card>
+ 242 │             <CardHeader className="pb-0">
+ 243 │               <h3 className="font-semibold">Activity</h3>
+ 244 │             </CardHeader>
+ 245 │             <CardContent className="p-6">
+ 246 │               <div className="space-y-6">
+ 247 │                 {profile.posts.map((post) => (
+ 248 │                   <div key={post.id} className="border-b pb-6 last:border-b-0 last:pb-0">
+ 249 │                     <div className="flex items-center mb-2">
+ 250 │                       <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mr-3">
+ 251 │                         <User className="h-5 w-5 text-primary" />
+ 252 │                       </div>
+ 253 │                       <div>
+ 254 │                         <h4 className="font-semibold">{profile.name}</h4>
+ 255 │                         <p className="text-xs text-muted-foreground">{post.time}</p>
+ 256 │                       </div>
+ 257 │                     </div>
+ 258 │                     <p className="mb-4">{post.content}</p>
+ 259 │                     <div className="flex gap-4">
+ 260 │                       <Button variant="ghost" size="sm" className="text-muted-foreground">
+ 261 │                         <ThumbsUp className="h-4 w-4 mr-2" />
+ 262 │                         {post.likes}
+ 263 │                       </Button>
+ 264 │                       <Button variant="ghost" size="sm" className="text-muted-foreground">
+ 265 │                         <MessageSquare className="h-4 w-4 mr-2" />
+ 266 │                         {post.comments}
+ 267 │                       </Button>
+ 268 │                       <Button variant="ghost" size="sm" className="text-muted-foreground">
+ 269 │                         <Share2 className="h-4 w-4 mr-2" />
+ 270 │                         {post.shares}
+ 271 │                       </Button>
+ 272 │                     </div>
+ 273 │                   </div>
+ 274 │                 ))}
+ 275 │               </div>
+ 276 │             </CardContent>
+ 277 │           </Card>
+ 278 │         </div>
+ 279 │       </div>
+ 280 │     </div>
+ 281 │   )
+ 282 │ }
+ 283 │ 
+ 284 │ "use client"
+ 285 │ 
+ 286 │ import * as React from "react"
+ 287 │ import { Button } from "@/components/ui/button"
+     ·          ───┬──
+     ·             ╰── `Button` redefined here
+ 288 │ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+ 289 │ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+ 290 │ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+     ╰────
+
+  × the name `Card` is defined multiple times
+     ╭─[/home/runner/workspace/app/profile/page.tsx:1:1]
+   1 │ import { Button } from "@/components/ui/button"
+   2 │ import { Card, CardContent, CardHeader } from "@/components/ui/card"
+     ·          ──┬─
+     ·            ╰── previous definition of `Card` here
+   3 │ import {
+   4 │   User,
+   5 │   MapPin,
+   6 │   Briefcase,
+   7 │   Calendar,
+   8 │   Mail,
+   9 │   Phone,
+  10 │   Globe,
+  11 │   Award,
+  12 │   BookOpen,
+  13 │   MessageSquare,
+  14 │   ThumbsUp,
+  15 │   Share2,
+  16 │ } from "lucide-react"
+  17 │ 
+  18 │ export default function ProfilePage() {
+  19 │   const profile = {
+  20 │     name: "Sarah Johnson",
+  21 │     role: "ESG Compliance Manager",
+  22 │     company: "GreenTech Solutions",
+  23 │     location: "San Francisco, CA",
+  24 │     email: "sarah.johnson@example.com",
+  25 │     phone: "+1 (555) 123-4567",
+  26 │     website: "www.sarahjohnson.com",
+  27 │     about:
+  28 │       "Experienced ESG Compliance Manager with 8+ years of experience in environmental sustainability and corporate governance. Passionate about helping organizations implement effective ESG strategies and achieve compliance with regulatory requirements.",
+  29 │     experience: [
+  30 │       {
+  31 │         title: "ESG Compliance Manager",
+  32 │         company: "GreenTech Solutions",
+  33 │         period: "Jan 2020 - Present",
+  34 │         description:
+  35 │           "Lead ESG compliance initiatives and sustainability reporting. Reduced carbon footprint by 25% through innovative programs.",
+  36 │       },
+  37 │       {
+  38 │         title: "Environmental Specialist",
+  39 │         company: "EcoSystems Inc.",
+  40 │         period: "Mar 2016 - Dec 2019",
+  41 │         description:
+  42 │           "Managed environmental compliance programs and conducted sustainability audits for clients across various industries.",
+  43 │       },
+  44 │     ],
+  45 │     education: [
+  46 │       {
+  47 │         degree: "Master of Environmental Management",
+  48 │         institution: "Stanford University",
+  49 │         year: "2016",
+  50 │       },
+  51 │       {
+  52 │         degree: "Bachelor of Science in Environmental Science",
+  53 │         institution: "University of California, Berkeley",
+  54 │         year: "2014",
+  55 │       },
+  56 │     ],
+  57 │     certifications: [
+  58 │       "Certified ESG Analyst (CESGA)",
+  59 │       "ISO 14001 Lead Auditor",
+  60 │       "GRI Certified Sustainability Professional",
+  61 │       "LEED Green Associate",
+  62 │     ],
+  63 │     skills: [
+  64 │       "ESG Reporting",
+  65 │       "Sustainability Strategy",
+  66 │       "Environmental Compliance",
+  67 │       "Carbon Footprint Analysis",
+  68 │       "Stakeholder Engagement",
+  69 │       "Regulatory Affairs",
+  70 │       "Data Analysis",
+  71 │       "Project Management",
+  72 │     ],
+  73 │     posts: [
+  74 │       {
+  75 │         id: 1,
+  76 │         content:
+  77 │           "Just completed our quarterly ESG audit with flying colors! Our carbon reduction initiatives have exceeded targets by 15%. Proud of the team for their dedication to sustainability. #ESGCompliance #Sustainability",
+  78 │         time: "2 hours ago",
+  79 │         likes: 42,
+  80 │         comments: 8,
+  81 │         shares: 5,
+  82 │       },
+  83 │       {
+  84 │         id: 2,
+  85 │         content:
+  86 │           "Excited to share that I'll be speaking at the upcoming Sustainable Business Forum next month. Looking forward to discussing the latest trends in ESG reporting and compliance. Let me know if you'll be attending! #SustainableBusiness #ESG",
+  87 │         time: "3 days ago",
+  88 │         likes: 56,
+  89 │         comments: 12,
+  90 │         shares: 9,
+  91 │       },
+  92 │     ],
+  93 │   }
+  94 │ 
+  95 │   return (
+  96 │     <div className="container py-8">
+  97 │       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+  98 │         {/* Left Column - Profile Info */}
+  99 │         <div>
+ 100 │           <Card className="mb-6">
+ 101 │             <CardContent className="p-6">
+ 102 │               <div className="flex flex-col items-center text-center">
+ 103 │                 <div className="w-32 h-32 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+ 104 │                   <User className="h-16 w-16 text-primary" />
+ 105 │                 </div>
+ 106 │                 <h2 className="text-2xl font-bold">{profile.name}</h2>
+ 107 │                 <p className="text-muted-foreground mb-2">
+ 108 │                   {profile.role} at {profile.company}
+ 109 │                 </p>
+ 110 │                 <div className="flex items-center text-sm text-muted-foreground mb-4">
+ 111 │                   <MapPin className="h-4 w-4 mr-1" />
+ 112 │                   <span>{profile.location}</span>
+ 113 │                 </div>
+ 114 │ 
+ 115 │                 <Button variant="secondary" className="w-full mb-4">
+ 116 │                   Connect
+ 117 │                 </Button>
+ 118 │                 <Button variant="outline" className="w-full">
+ 119 │                   <MessageSquare className="mr-2 h-4 w-4" />
+ 120 │                   Message
+ 121 │                 </Button>
+ 122 │               </div>
+ 123 │             </CardContent>
+ 124 │           </Card>
+ 125 │ 
+ 126 │           <Card className="mb-6">
+ 127 │             <CardHeader className="pb-0">
+ 128 │               <h3 className="font-semibold">Contact Information</h3>
+ 129 │             </CardHeader>
+ 130 │             <CardContent className="p-6">
+ 131 │               <div className="space-y-3">
+ 132 │                 <div className="flex items-center">
+ 133 │                   <Mail className="h-4 w-4 text-muted-foreground mr-2" />
+ 134 │                   <span className="text-sm">{profile.email}</span>
+ 135 │                 </div>
+ 136 │                 <div className="flex items-center">
+ 137 │                   <Phone className="h-4 w-4 text-muted-foreground mr-2" />
+ 138 │                   <span className="text-sm">{profile.phone}</span>
+ 139 │                 </div>
+ 140 │                 <div className="flex items-center">
+ 141 │                   <Globe className="h-4 w-4 text-muted-foreground mr-2" />
+ 142 │                   <span className="text-sm">{profile.website}</span>
+ 143 │                 </div>
+ 144 │               </div>
+ 145 │             </CardContent>
+ 146 │           </Card>
+ 147 │ 
+ 148 │           <Card className="mb-6">
+ 149 │             <CardHeader className="pb-0">
+ 150 │               <h3 className="font-semibold">Skills</h3>
+ 151 │             </CardHeader>
+ 152 │             <CardContent className="p-6">
+ 153 │               <div className="flex flex-wrap gap-2">
+ 154 │                 {profile.skills.map((skill, index) => (
+ 155 │                   <span
+ 156 │                     key={index}
+ 157 │                     className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary"
+ 158 │                   >
+ 159 │                     {skill}
+ 160 │                   </span>
+ 161 │                 ))}
+ 162 │               </div>
+ 163 │             </CardContent>
+ 164 │           </Card>
+ 165 │ 
+ 166 │           <Card>
+ 167 │             <CardHeader className="pb-0">
+ 168 │               <h3 className="font-semibold">Certifications</h3>
+ 169 │             </CardHeader>
+ 170 │             <CardContent className="p-6">
+ 171 │               <div className="space-y-3">
+ 172 │                 {profile.certifications.map((cert, index) => (
+ 173 │                   <div key={index} className="flex items-center">
+ 174 │                     <Award className="h-4 w-4 text-primary mr-2" />
+ 175 │                     <span className="text-sm">{cert}</span>
+ 176 │                   </div>
+ 177 │                 ))}
+ 178 │               </div>
+ 179 │             </CardContent>
+ 180 │           </Card>
+ 181 │         </div>
+ 182 │ 
+ 183 │         {/* Right Column - About, Experience, Posts */}
+ 184 │         <div className="md:col-span-2">
+ 185 │           <Card className="mb-6">
+ 186 │             <CardHeader className="pb-0">
+ 187 │               <h3 className="font-semibold">About</h3>
+ 188 │             </CardHeader>
+ 189 │             <CardContent className="p-6">
+ 190 │               <p>{profile.about}</p>
+ 191 │             </CardContent>
+ 192 │           </Card>
+ 193 │ 
+ 194 │           <Card className="mb-6">
+ 195 │             <CardHeader className="pb-0">
+ 196 │               <h3 className="font-semibold">Experience</h3>
+ 197 │             </CardHeader>
+ 198 │             <CardContent className="p-6">
+ 199 │               <div className="space-y-6">
+ 200 │                 {profile.experience.map((exp, index) => (
+ 201 │                   <div key={index} className="border-l-2 border-primary/30 pl-4">
+ 202 │                     <h4 className="font-semibold">{exp.title}</h4>
+ 203 │                     <div className="flex items-center text-sm mb-1">
+ 204 │                       <Briefcase className="h-4 w-4 text-muted-foreground mr-2" />
+ 205 │                       <span>{exp.company}</span>
+ 206 │                     </div>
+ 207 │                     <div className="flex items-center text-sm text-muted-foreground mb-2">
+ 208 │                       <Calendar className="h-4 w-4 mr-2" />
+ 209 │                       <span>{exp.period}</span>
+ 210 │                     </div>
+ 211 │                     <p className="text-sm">{exp.description}</p>
+ 212 │                   </div>
+ 213 │                 ))}
+ 214 │               </div>
+ 215 │             </CardContent>
+ 216 │           </Card>
+ 217 │ 
+ 218 │           <Card className="mb-6">
+ 219 │             <CardHeader className="pb-0">
+ 220 │               <h3 className="font-semibold">Education</h3>
+ 221 │             </CardHeader>
+ 222 │             <CardContent className="p-6">
+ 223 │               <div className="space-y-4">
+ 224 │                 {profile.education.map((edu, index) => (
+ 225 │                   <div key={index} className="border-l-2 border-primary/30 pl-4">
+ 226 │                     <h4 className="font-semibold">{edu.degree}</h4>
+ 227 │                     <div className="flex items-center text-sm mb-1">
+ 228 │                       <BookOpen className="h-4 w-4 text-muted-foreground mr-2" />
+ 229 │                       <span>{edu.institution}</span>
+ 230 │                     </div>
+ 231 │                     <div className="flex items-center text-sm text-muted-foreground">
+ 232 │                       <Calendar className="h-4 w-4 mr-2" />
+ 233 │                       <span>{edu.year}</span>
+ 234 │                     </div>
+ 235 │                   </div>
+ 236 │                 ))}
+ 237 │               </div>
+ 238 │             </CardContent>
+ 239 │           </Card>
+ 240 │ 
+ 241 │           <Card>
+ 242 │             <CardHeader className="pb-0">
+ 243 │               <h3 className="font-semibold">Activity</h3>
+ 244 │             </CardHeader>
+ 245 │             <CardContent className="p-6">
+ 246 │               <div className="space-y-6">
+ 247 │                 {profile.posts.map((post) => (
+ 248 │                   <div key={post.id} className="border-b pb-6 last:border-b-0 last:pb-0">
+ 249 │                     <div className="flex items-center mb-2">
+ 250 │                       <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mr-3">
+ 251 │                         <User className="h-5 w-5 text-primary" />
+ 252 │                       </div>
+ 253 │                       <div>
+ 254 │                         <h4 className="font-semibold">{profile.name}</h4>
+ 255 │                         <p className="text-xs text-muted-foreground">{post.time}</p>
+ 256 │                       </div>
+ 257 │                     </div>
+ 258 │                     <p className="mb-4">{post.content}</p>
+ 259 │                     <div className="flex gap-4">
+ 260 │                       <Button variant="ghost" size="sm" className="text-muted-foreground">
+ 261 │                         <ThumbsUp className="h-4 w-4 mr-2" />
+ 262 │                         {post.likes}
+ 263 │                       </Button>
+ 264 │                       <Button variant="ghost" size="sm" className="text-muted-foreground">
+ 265 │                         <MessageSquare className="h-4 w-4 mr-2" />
+ 266 │                         {post.comments}
+ 267 │                       </Button>
+ 268 │                       <Button variant="ghost" size="sm" className="text-muted-foreground">
+ 269 │                         <Share2 className="h-4 w-4 mr-2" />
+ 270 │                         {post.shares}
+ 271 │                       </Button>
+ 272 │                     </div>
+ 273 │                   </div>
+ 274 │                 ))}
+ 275 │               </div>
+ 276 │             </CardContent>
+ 277 │           </Card>
+ 278 │         </div>
+ 279 │       </div>
+ 280 │     </div>
+ 281 │   )
+ 282 │ }
+ 283 │ 
+ 284 │ "use client"
+ 285 │ 
+ 286 │ import * as React from "react"
+ 287 │ import { Button } from "@/components/ui/button"
+ 288 │ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+     ·          ──┬─
+     ·            ╰── `Card` redefined here
+ 289 │ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+ 290 │ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+ 291 │ import { Badge } from "@/components/ui/badge"
+     ╰────
+
+  × the name `CardContent` is defined multiple times
+     ╭─[/home/runner/workspace/app/profile/page.tsx:1:1]
+   1 │ import { Button } from "@/components/ui/button"
+   2 │ import { Card, CardContent, CardHeader } from "@/components/ui/card"
+     ·                ─────┬─────
+     ·                     ╰── previous definition of `CardContent` here
+   3 │ import {
+   4 │   User,
+   5 │   MapPin,
+   6 │   Briefcase,
+   7 │   Calendar,
+   8 │   Mail,
+   9 │   Phone,
+  10 │   Globe,
+  11 │   Award,
+  12 │   BookOpen,
+  13 │   MessageSquare,
+  14 │   ThumbsUp,
+  15 │   Share2,
+  16 │ } from "lucide-react"
+  17 │ 
+  18 │ export default function ProfilePage() {
+  19 │   const profile = {
+  20 │     name: "Sarah Johnson",
+  21 │     role: "ESG Compliance Manager",
+  22 │     company: "GreenTech Solutions",
+  23 │     location: "San Francisco, CA",
+  24 │     email: "sarah.johnson@example.com",
+  25 │     phone: "+1 (555) 123-4567",
+  26 │     website: "www.sarahjohnson.com",
+  27 │     about:
+  28 │       "Experienced ESG Compliance Manager with 8+ years of experience in environmental sustainability and corporate governance. Passionate about helping organizations implement effective ESG strategies and achieve compliance with regulatory requirements.",
+  29 │     experience: [
+  30 │       {
+  31 │         title: "ESG Compliance Manager",
+  32 │         company: "GreenTech Solutions",
+  33 │         period: "Jan 2020 - Present",
+  34 │         description:
+  35 │           "Lead ESG compliance initiatives and sustainability reporting. Reduced carbon footprint by 25% through innovative programs.",
+  36 │       },
+  37 │       {
+  38 │         title: "Environmental Specialist",
+  39 │         company: "EcoSystems Inc.",
+  40 │         period: "Mar 2016 - Dec 2019",
+  41 │         description:
+  42 │           "Managed environmental compliance programs and conducted sustainability audits for clients across various industries.",
+  43 │       },
+  44 │     ],
+  45 │     education: [
+  46 │       {
+  47 │         degree: "Master of Environmental Management",
+  48 │         institution: "Stanford University",
+  49 │         year: "2016",
+  50 │       },
+  51 │       {
+  52 │         degree: "Bachelor of Science in Environmental Science",
+  53 │         institution: "University of California, Berkeley",
+  54 │         year: "2014",
+  55 │       },
+  56 │     ],
+  57 │     certifications: [
+  58 │       "Certified ESG Analyst (CESGA)",
+  59 │       "ISO 14001 Lead Auditor",
+  60 │       "GRI Certified Sustainability Professional",
+  61 │       "LEED Green Associate",
+  62 │     ],
+  63 │     skills: [
+  64 │       "ESG Reporting",
+  65 │       "Sustainability Strategy",
+  66 │       "Environmental Compliance",
+  67 │       "Carbon Footprint Analysis",
+  68 │       "Stakeholder Engagement",
+  69 │       "Regulatory Affairs",
+  70 │       "Data Analysis",
+  71 │       "Project Management",
+  72 │     ],
+  73 │     posts: [
+  74 │       {
+  75 │         id: 1,
+  76 │         content:
+  77 │           "Just completed our quarterly ESG audit with flying colors! Our carbon reduction initiatives have exceeded targets by 15%. Proud of the team for their dedication to sustainability. #ESGCompliance #Sustainability",
+  78 │         time: "2 hours ago",
+  79 │         likes: 42,
+  80 │         comments: 8,
+  81 │         shares: 5,
+  82 │       },
+  83 │       {
+  84 │         id: 2,
+  85 │         content:
+  86 │           "Excited to share that I'll be speaking at the upcoming Sustainable Business Forum next month. Looking forward to discussing the latest trends in ESG reporting and compliance. Let me know if you'll be attending! #SustainableBusiness #ESG",
+  87 │         time: "3 days ago",
+  88 │         likes: 56,
+  89 │         comments: 12,
+  90 │         shares: 9,
+  91 │       },
+  92 │     ],
+  93 │   }
+  94 │ 
+  95 │   return (
+  96 │     <div className="container py-8">
+  97 │       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+  98 │         {/* Left Column - Profile Info */}
+  99 │         <div>
+ 100 │           <Card className="mb-6">
+ 101 │             <CardContent className="p-6">
+ 102 │               <div className="flex flex-col items-center text-center">
+ 103 │                 <div className="w-32 h-32 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+ 104 │                   <User className="h-16 w-16 text-primary" />
+ 105 │                 </div>
+ 106 │                 <h2 className="text-2xl font-bold">{profile.name}</h2>
+ 107 │                 <p className="text-muted-foreground mb-2">
+ 108 │                   {profile.role} at {profile.company}
+ 109 │                 </p>
+ 110 │                 <div className="flex items-center text-sm text-muted-foreground mb-4">
+ 111 │                   <MapPin className="h-4 w-4 mr-1" />
+ 112 │                   <span>{profile.location}</span>
+ 113 │                 </div>
+ 114 │ 
+ 115 │                 <Button variant="secondary" className="w-full mb-4">
+ 116 │                   Connect
+ 117 │                 </Button>
+ 118 │                 <Button variant="outline" className="w-full">
+ 119 │                   <MessageSquare className="mr-2 h-4 w-4" />
+ 120 │                   Message
+ 121 │                 </Button>
+ 122 │               </div>
+ 123 │             </CardContent>
+ 124 │           </Card>
+ 125 │ 
+ 126 │           <Card className="mb-6">
+ 127 │             <CardHeader className="pb-0">
+ 128 │               <h3 className="font-semibold">Contact Information</h3>
+ 129 │             </CardHeader>
+ 130 │             <CardContent className="p-6">
+ 131 │               <div className="space-y-3">
+ 132 │                 <div className="flex items-center">
+ 133 │                   <Mail className="h-4 w-4 text-muted-foreground mr-2" />
+ 134 │                   <span className="text-sm">{profile.email}</span>
+ 135 │                 </div>
+ 136 │                 <div className="flex items-center">
+ 137 │                   <Phone className="h-4 w-4 text-muted-foreground mr-2" />
+ 138 │                   <span className="text-sm">{profile.phone}</span>
+ 139 │                 </div>
+ 140 │                 <div className="flex items-center">
+ 141 │                   <Globe className="h-4 w-4 text-muted-foreground mr-2" />
+ 142 │                   <span className="text-sm">{profile.website}</span>
+ 143 │                 </div>
+ 144 │               </div>
+ 145 │             </CardContent>
+ 146 │           </Card>
+ 147 │ 
+ 148 │           <Card className="mb-6">
+ 149 │             <CardHeader className="pb-0">
+ 150 │               <h3 className="font-semibold">Skills</h3>
+ 151 │             </CardHeader>
+ 152 │             <CardContent className="p-6">
+ 153 │               <div className="flex flex-wrap gap-2">
+ 154 │                 {profile.skills.map((skill, index) => (
+ 155 │                   <span
+ 156 │                     key={index}
+ 157 │                     className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary"
+ 158 │                   >
+ 159 │                     {skill}
+ 160 │                   </span>
+ 161 │                 ))}
+ 162 │               </div>
+ 163 │             </CardContent>
+ 164 │           </Card>
+ 165 │ 
+ 166 │           <Card>
+ 167 │             <CardHeader className="pb-0">
+ 168 │               <h3 className="font-semibold">Certifications</h3>
+ 169 │             </CardHeader>
+ 170 │             <CardContent className="p-6">
+ 171 │               <div className="space-y-3">
+ 172 │                 {profile.certifications.map((cert, index) => (
+ 173 │                   <div key={index} className="flex items-center">
+ 174 │                     <Award className="h-4 w-4 text-primary mr-2" />
+ 175 │                     <span className="text-sm">{cert}</span>
+ 176 │                   </div>
+ 177 │                 ))}
+ 178 │               </div>
+ 179 │             </CardContent>
+ 180 │           </Card>
+ 181 │         </div>
+ 182 │ 
+ 183 │         {/* Right Column - About, Experience, Posts */}
+ 184 │         <div className="md:col-span-2">
+ 185 │           <Card className="mb-6">
+ 186 │             <CardHeader className="pb-0">
+ 187 │               <h3 className="font-semibold">About</h3>
+ 188 │             </CardHeader>
+ 189 │             <CardContent className="p-6">
+ 190 │               <p>{profile.about}</p>
+ 191 │             </CardContent>
+ 192 │           </Card>
+ 193 │ 
+ 194 │           <Card className="mb-6">
+ 195 │             <CardHeader className="pb-0">
+ 196 │               <h3 className="font-semibold">Experience</h3>
+ 197 │             </CardHeader>
+ 198 │             <CardContent className="p-6">
+ 199 │               <div className="space-y-6">
+ 200 │                 {profile.experience.map((exp, index) => (
+ 201 │                   <div key={index} className="border-l-2 border-primary/30 pl-4">
+ 202 │                     <h4 className="font-semibold">{exp.title}</h4>
+ 203 │                     <div className="flex items-center text-sm mb-1">
+ 204 │                       <Briefcase className="h-4 w-4 text-muted-foreground mr-2" />
+ 205 │                       <span>{exp.company}</span>
+ 206 │                     </div>
+ 207 │                     <div className="flex items-center text-sm text-muted-foreground mb-2">
+ 208 │                       <Calendar className="h-4 w-4 mr-2" />
+ 209 │                       <span>{exp.period}</span>
+ 210 │                     </div>
+ 211 │                     <p className="text-sm">{exp.description}</p>
+ 212 │                   </div>
+ 213 │                 ))}
+ 214 │               </div>
+ 215 │             </CardContent>
+ 216 │           </Card>
+ 217 │ 
+ 218 │           <Card className="mb-6">
+ 219 │             <CardHeader className="pb-0">
+ 220 │               <h3 className="font-semibold">Education</h3>
+ 221 │             </CardHeader>
+ 222 │             <CardContent className="p-6">
+ 223 │               <div className="space-y-4">
+ 224 │                 {profile.education.map((edu, index) => (
+ 225 │                   <div key={index} className="border-l-2 border-primary/30 pl-4">
+ 226 │                     <h4 className="font-semibold">{edu.degree}</h4>
+ 227 │                     <div className="flex items-center text-sm mb-1">
+ 228 │                       <BookOpen className="h-4 w-4 text-muted-foreground mr-2" />
+ 229 │                       <span>{edu.institution}</span>
+ 230 │                     </div>
+ 231 │                     <div className="flex items-center text-sm text-muted-foreground">
+ 232 │                       <Calendar className="h-4 w-4 mr-2" />
+ 233 │                       <span>{edu.year}</span>
+ 234 │                     </div>
+ 235 │                   </div>
+ 236 │                 ))}
+ 237 │               </div>
+ 238 │             </CardContent>
+ 239 │           </Card>
+ 240 │ 
+ 241 │           <Card>
+ 242 │             <CardHeader className="pb-0">
+ 243 │               <h3 className="font-semibold">Activity</h3>
+ 244 │             </CardHeader>
+ 245 │             <CardContent className="p-6">
+ 246 │               <div className="space-y-6">
+ 247 │                 {profile.posts.map((post) => (
+ 248 │                   <div key={post.id} className="border-b pb-6 last:border-b-0 last:pb-0">
+ 249 │                     <div className="flex items-center mb-2">
+ 250 │                       <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mr-3">
+ 251 │                         <User className="h-5 w-5 text-primary" />
+ 252 │                       </div>
+ 253 │                       <div>
+ 254 │                         <h4 className="font-semibold">{profile.name}</h4>
+ 255 │                         <p className="text-xs text-muted-foreground">{post.time}</p>
+ 256 │                       </div>
+ 257 │                     </div>
+ 258 │                     <p className="mb-4">{post.content}</p>
+ 259 │                     <div className="flex gap-4">
+ 260 │                       <Button variant="ghost" size="sm" className="text-muted-foreground">
+ 261 │                         <ThumbsUp className="h-4 w-4 mr-2" />
+ 262 │                         {post.likes}
+ 263 │                       </Button>
+ 264 │                       <Button variant="ghost" size="sm" className="text-muted-foreground">
+ 265 │                         <MessageSquare className="h-4 w-4 mr-2" />
+ 266 │                         {post.comments}
+ 267 │                       </Button>
+ 268 │                       <Button variant="ghost" size="sm" className="text-muted-foreground">
+ 269 │                         <Share2 className="h-4 w-4 mr-2" />
+ 270 │                         {post.shares}
+ 271 │                       </Button>
+ 272 │                     </div>
+ 273 │                   </div>
+ 274 │                 ))}
+ 275 │               </div>
+ 276 │             </CardContent>
+ 277 │           </Card>
+ 278 │         </div>
+ 279 │       </div>
+ 280 │     </div>
+ 281 │   )
+ 282 │ }
+ 283 │ 
+ 284 │ "use client"
+ 285 │ 
+ 286 │ import * as React from "react"
+ 287 │ import { Button } from "@/components/ui/button"
+ 288 │ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+     ·                ─────┬─────
+     ·                     ╰── `CardContent` redefined here
+ 289 │ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+ 290 │ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+ 291 │ import { Badge } from "@/components/ui/badge"
+     ╰────
+
+  × the name `CardHeader` is defined multiple times
+     ╭─[/home/runner/workspace/app/profile/page.tsx:1:1]
+   1 │ import { Button } from "@/components/ui/button"
+   2 │ import { Card, CardContent, CardHeader } from "@/components/ui/card"
+     ·                             ─────┬────
+     ·                                  ╰── previous definition of `CardHeader` here
+   3 │ import {
+   4 │   User,
+   5 │   MapPin,
+   6 │   Briefcase,
+   7 │   Calendar,
+   8 │   Mail,
+   9 │   Phone,
+  10 │   Globe,
+  11 │   Award,
+  12 │   BookOpen,
+  13 │   MessageSquare,
+  14 │   ThumbsUp,
+  15 │   Share2,
+  16 │ } from "lucide-react"
+  17 │ 
+  18 │ export default function ProfilePage() {
+  19 │   const profile = {
+  20 │     name: "Sarah Johnson",
+  21 │     role: "ESG Compliance Manager",
+  22 │     company: "GreenTech Solutions",
+  23 │     location: "San Francisco, CA",
+  24 │     email: "sarah.johnson@example.com",
+  25 │     phone: "+1 (555) 123-4567",
+  26 │     website: "www.sarahjohnson.com",
+  27 │     about:
+  28 │       "Experienced ESG Compliance Manager with 8+ years of experience in environmental sustainability and corporate governance. Passionate about helping organizations implement effective ESG strategies and achieve compliance with regulatory requirements.",
+  29 │     experience: [
+  30 │       {
+  31 │         title: "ESG Compliance Manager",
+  32 │         company: "GreenTech Solutions",
+  33 │         period: "Jan 2020 - Present",
+  34 │         description:
+  35 │           "Lead ESG compliance initiatives and sustainability reporting. Reduced carbon footprint by 25% through innovative programs.",
+  36 │       },
+  37 │       {
+  38 │         title: "Environmental Specialist",
+  39 │         company: "EcoSystems Inc.",
+  40 │         period: "Mar 2016 - Dec 2019",
+  41 │         description:
+  42 │           "Managed environmental compliance programs and conducted sustainability audits for clients across various industries.",
+  43 │       },
+  44 │     ],
+  45 │     education: [
+  46 │       {
+  47 │         degree: "Master of Environmental Management",
+  48 │         institution: "Stanford University",
+  49 │         year: "2016",
+  50 │       },
+  51 │       {
+  52 │         degree: "Bachelor of Science in Environmental Science",
+  53 │         institution: "University of California, Berkeley",
+  54 │         year: "2014",
+  55 │       },
+  56 │     ],
+  57 │     certifications: [
+  58 │       "Certified ESG Analyst (CESGA)",
+  59 │       "ISO 14001 Lead Auditor",
+  60 │       "GRI Certified Sustainability Professional",
+  61 │       "LEED Green Associate",
+  62 │     ],
+  63 │     skills: [
+  64 │       "ESG Reporting",
+  65 │       "Sustainability Strategy",
+  66 │       "Environmental Compliance",
+  67 │       "Carbon Footprint Analysis",
+  68 │       "Stakeholder Engagement",
+  69 │       "Regulatory Affairs",
+  70 │       "Data Analysis",
+  71 │       "Project Management",
+  72 │     ],
+  73 │     posts: [
+  74 │       {
+  75 │         id: 1,
+  76 │         content:
+  77 │           "Just completed our quarterly ESG audit with flying colors! Our carbon reduction initiatives have exceeded targets by 15%. Proud of the team for their dedication to sustainability. #ESGCompliance #Sustainability",
+  78 │         time: "2 hours ago",
+  79 │         likes: 42,
+  80 │         comments: 8,
+  81 │         shares: 5,
+  82 │       },
+  83 │       {
+  84 │         id: 2,
+  85 │         content:
+  86 │           "Excited to share that I'll be speaking at the upcoming Sustainable Business Forum next month. Looking forward to discussing the latest trends in ESG reporting and compliance. Let me know if you'll be attending! #SustainableBusiness #ESG",
+  87 │         time: "3 days ago",
+  88 │         likes: 56,
+  89 │         comments: 12,
+  90 │         shares: 9,
+  91 │       },
+  92 │     ],
+  93 │   }
+  94 │ 
+  95 │   return (
+  96 │     <div className="container py-8">
+  97 │       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+  98 │         {/* Left Column - Profile Info */}
+  99 │         <div>
+ 100 │           <Card className="mb-6">
+ 101 │             <CardContent className="p-6">
+ 102 │               <div className="flex flex-col items-center text-center">
+ 103 │                 <div className="w-32 h-32 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+ 104 │                   <User className="h-16 w-16 text-primary" />
+ 105 │                 </div>
+ 106 │                 <h2 className="text-2xl font-bold">{profile.name}</h2>
+ 107 │                 <p className="text-muted-foreground mb-2">
+ 108 │                   {profile.role} at {profile.company}
+ 109 │                 </p>
+ 110 │                 <div className="flex items-center text-sm text-muted-foreground mb-4">
+ 111 │                   <MapPin className="h-4 w-4 mr-1" />
+ 112 │                   <span>{profile.location}</span>
+ 113 │                 </div>
+ 114 │ 
+ 115 │                 <Button variant="secondary" className="w-full mb-4">
+ 116 │                   Connect
+ 117 │                 </Button>
+ 118 │                 <Button variant="outline" className="w-full">
+ 119 │                   <MessageSquare className="mr-2 h-4 w-4" />
+ 120 │                   Message
+ 121 │                 </Button>
+ 122 │               </div>
+ 123 │             </CardContent>
+ 124 │           </Card>
+ 125 │ 
+ 126 │           <Card className="mb-6">
+ 127 │             <CardHeader className="pb-0">
+ 128 │               <h3 className="font-semibold">Contact Information</h3>
+ 129 │             </CardHeader>
+ 130 │             <CardContent className="p-6">
+ 131 │               <div className="space-y-3">
+ 132 │                 <div className="flex items-center">
+ 133 │                   <Mail className="h-4 w-4 text-muted-foreground mr-2" />
+ 134 │                   <span className="text-sm">{profile.email}</span>
+ 135 │                 </div>
+ 136 │                 <div className="flex items-center">
+ 137 │                   <Phone className="h-4 w-4 text-muted-foreground mr-2" />
+ 138 │                   <span className="text-sm">{profile.phone}</span>
+ 139 │                 </div>
+ 140 │                 <div className="flex items-center">
+ 141 │                   <Globe className="h-4 w-4 text-muted-foreground mr-2" />
+ 142 │                   <span className="text-sm">{profile.website}</span>
+ 143 │                 </div>
+ 144 │               </div>
+ 145 │             </CardContent>
+ 146 │           </Card>
+ 147 │ 
+ 148 │           <Card className="mb-6">
+ 149 │             <CardHeader className="pb-0">
+ 150 │               <h3 className="font-semibold">Skills</h3>
+ 151 │             </CardHeader>
+ 152 │             <CardContent className="p-6">
+ 153 │               <div className="flex flex-wrap gap-2">
+ 154 │                 {profile.skills.map((skill, index) => (
+ 155 │                   <span
+ 156 │                     key={index}
+ 157 │                     className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary"
+ 158 │                   >
+ 159 │                     {skill}
+ 160 │                   </span>
+ 161 │                 ))}
+ 162 │               </div>
+ 163 │             </CardContent>
+ 164 │           </Card>
+ 165 │ 
+ 166 │           <Card>
+ 167 │             <CardHeader className="pb-0">
+ 168 │               <h3 className="font-semibold">Certifications</h3>
+ 169 │             </CardHeader>
+ 170 │             <CardContent className="p-6">
+ 171 │               <div className="space-y-3">
+ 172 │                 {profile.certifications.map((cert, index) => (
+ 173 │                   <div key={index} className="flex items-center">
+ 174 │                     <Award className="h-4 w-4 text-primary mr-2" />
+ 175 │                     <span className="text-sm">{cert}</span>
+ 176 │                   </div>
+ 177 │                 ))}
+ 178 │               </div>
+ 179 │             </CardContent>
+ 180 │           </Card>
+ 181 │         </div>
+ 182 │ 
+ 183 │         {/* Right Column - About, Experience, Posts */}
+ 184 │         <div className="md:col-span-2">
+ 185 │           <Card className="mb-6">
+ 186 │             <CardHeader className="pb-0">
+ 187 │               <h3 className="font-semibold">About</h3>
+ 188 │             </CardHeader>
+ 189 │             <CardContent className="p-6">
+ 190 │               <p>{profile.about}</p>
+ 191 │             </CardContent>
+ 192 │           </Card>
+ 193 │ 
+ 194 │           <Card className="mb-6">
+ 195 │             <CardHeader className="pb-0">
+ 196 │               <h3 className="font-semibold">Experience</h3>
+ 197 │             </CardHeader>
+ 198 │             <CardContent className="p-6">
+ 199 │               <div className="space-y-6">
+ 200 │                 {profile.experience.map((exp, index) => (
+ 201 │                   <div key={index} className="border-l-2 border-primary/30 pl-4">
+ 202 │                     <h4 className="font-semibold">{exp.title}</h4>
+ 203 │                     <div className="flex items-center text-sm mb-1">
+ 204 │                       <Briefcase className="h-4 w-4 text-muted-foreground mr-2" />
+ 205 │                       <span>{exp.company}</span>
+ 206 │                     </div>
+ 207 │                     <div className="flex items-center text-sm text-muted-foreground mb-2">
+ 208 │                       <Calendar className="h-4 w-4 mr-2" />
+ 209 │                       <span>{exp.period}</span>
+ 210 │                     </div>
+ 211 │                     <p className="text-sm">{exp.description}</p>
+ 212 │                   </div>
+ 213 │                 ))}
+ 214 │               </div>
+ 215 │             </CardContent>
+ 216 │           </Card>
+ 217 │ 
+ 218 │           <Card className="mb-6">
+ 219 │             <CardHeader className="pb-0">
+ 220 │               <h3 className="font-semibold">Education</h3>
+ 221 │             </CardHeader>
+ 222 │             <CardContent className="p-6">
+ 223 │               <div className="space-y-4">
+ 224 │                 {profile.education.map((edu, index) => (
+ 225 │                   <div key={index} className="border-l-2 border-primary/30 pl-4">
+ 226 │                     <h4 className="font-semibold">{edu.degree}</h4>
+ 227 │                     <div className="flex items-center text-sm mb-1">
+ 228 │                       <BookOpen className="h-4 w-4 text-muted-foreground mr-2" />
+ 229 │                       <span>{edu.institution}</span>
+ 230 │                     </div>
+ 231 │                     <div className="flex items-center text-sm text-muted-foreground">
+ 232 │                       <Calendar className="h-4 w-4 mr-2" />
+ 233 │                       <span>{edu.year}</span>
+ 234 │                     </div>
+ 235 │                   </div>
+ 236 │                 ))}
+ 237 │               </div>
+ 238 │             </CardContent>
+ 239 │           </Card>
+ 240 │ 
+ 241 │           <Card>
+ 242 │             <CardHeader className="pb-0">
+ 243 │               <h3 className="font-semibold">Activity</h3>
+ 244 │             </CardHeader>
+ 245 │             <CardContent className="p-6">
+ 246 │               <div className="space-y-6">
+ 247 │                 {profile.posts.map((post) => (
+ 248 │                   <div key={post.id} className="border-b pb-6 last:border-b-0 last:pb-0">
+ 249 │                     <div className="flex items-center mb-2">
+ 250 │                       <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mr-3">
+ 251 │                         <User className="h-5 w-5 text-primary" />
+ 252 │                       </div>
+ 253 │                       <div>
+ 254 │                         <h4 className="font-semibold">{profile.name}</h4>
+ 255 │                         <p className="text-xs text-muted-foreground">{post.time}</p>
+ 256 │                       </div>
+ 257 │                     </div>
+ 258 │                     <p className="mb-4">{post.content}</p>
+ 259 │                     <div className="flex gap-4">
+ 260 │                       <Button variant="ghost" size="sm" className="text-muted-foreground">
+ 261 │                         <ThumbsUp className="h-4 w-4 mr-2" />
+ 262 │                         {post.likes}
+ 263 │                       </Button>
+ 264 │                       <Button variant="ghost" size="sm" className="text-muted-foreground">
+ 265 │                         <MessageSquare className="h-4 w-4 mr-2" />
+ 266 │                         {post.comments}
+ 267 │                       </Button>
+ 268 │                       <Button variant="ghost" size="sm" className="text-muted-foreground">
+ 269 │                         <Share2 className="h-4 w-4 mr-2" />
+ 270 │                         {post.shares}
+ 271 │                       </Button>
+ 272 │                     </div>
+ 273 │                   </div>
+ 274 │                 ))}
+ 275 │               </div>
+ 276 │             </CardContent>
+ 277 │           </Card>
+ 278 │         </div>
+ 279 │       </div>
+ 280 │     </div>
+ 281 │   )
+ 282 │ }
+ 283 │ 
+ 284 │ "use client"
+ 285 │ 
+ 286 │ import * as React from "react"
+ 287 │ import { Button } from "@/components/ui/button"
+ 288 │ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+     ·                                              ─────┬────
+     ·                                                   ╰── `CardHeader` redefined here
+ 289 │ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+ 290 │ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+ 291 │ import { Badge } from "@/components/ui/badge"
+     ╰────
+
+  × the name `Briefcase` is defined multiple times
+     ╭─[/home/runner/workspace/app/profile/page.tsx:3:1]
+   3 │ import {
+   4 │   User,
+   5 │   MapPin,
+   6 │   Briefcase,
+     ·   ────┬────
+     ·       ╰── previous definition of `Briefcase` here
+   7 │   Calendar,
+   8 │   Mail,
+   9 │   Phone,
+  10 │   Globe,
+  11 │   Award,
+  12 │   BookOpen,
+  13 │   MessageSquare,
+  14 │   ThumbsUp,
+  15 │   Share2,
+  16 │ } from "lucide-react"
+  17 │ 
+  18 │ export default function ProfilePage() {
+  19 │   const profile = {
+  20 │     name: "Sarah Johnson",
+  21 │     role: "ESG Compliance Manager",
+  22 │     company: "GreenTech Solutions",
+  23 │     location: "San Francisco, CA",
+  24 │     email: "sarah.johnson@example.com",
+  25 │     phone: "+1 (555) 123-4567",
+  26 │     website: "www.sarahjohnson.com",
+  27 │     about:
+  28 │       "Experienced ESG Compliance Manager with 8+ years of experience in environmental sustainability and corporate governance. Passionate about helping organizations implement effective ESG strategies and achieve compliance with regulatory requirements.",
+  29 │     experience: [
+  30 │       {
+  31 │         title: "ESG Compliance Manager",
+  32 │         company: "GreenTech Solutions",
+  33 │         period: "Jan 2020 - Present",
+  34 │         description:
+  35 │           "Lead ESG compliance initiatives and sustainability reporting. Reduced carbon footprint by 25% through innovative programs.",
+  36 │       },
+  37 │       {
+  38 │         title: "Environmental Specialist",
+  39 │         company: "EcoSystems Inc.",
+  40 │         period: "Mar 2016 - Dec 2019",
+  41 │         description:
+  42 │           "Managed environmental compliance programs and conducted sustainability audits for clients across various industries.",
+  43 │       },
+  44 │     ],
+  45 │     education: [
+  46 │       {
+  47 │         degree: "Master of Environmental Management",
+  48 │         institution: "Stanford University",
+  49 │         year: "2016",
+  50 │       },
+  51 │       {
+  52 │         degree: "Bachelor of Science in Environmental Science",
+  53 │         institution: "University of California, Berkeley",
+  54 │         year: "2014",
+  55 │       },
+  56 │     ],
+  57 │     certifications: [
+  58 │       "Certified ESG Analyst (CESGA)",
+  59 │       "ISO 14001 Lead Auditor",
+  60 │       "GRI Certified Sustainability Professional",
+  61 │       "LEED Green Associate",
+  62 │     ],
+  63 │     skills: [
+  64 │       "ESG Reporting",
+  65 │       "Sustainability Strategy",
+  66 │       "Environmental Compliance",
+  67 │       "Carbon Footprint Analysis",
+  68 │       "Stakeholder Engagement",
+  69 │       "Regulatory Affairs",
+  70 │       "Data Analysis",
+  71 │       "Project Management",
+  72 │     ],
+  73 │     posts: [
+  74 │       {
+  75 │         id: 1,
+  76 │         content:
+  77 │           "Just completed our quarterly ESG audit with flying colors! Our carbon reduction initiatives have exceeded targets by 15%. Proud of the team for their dedication to sustainability. #ESGCompliance #Sustainability",
+  78 │         time: "2 hours ago",
+  79 │         likes: 42,
+  80 │         comments: 8,
+  81 │         shares: 5,
+  82 │       },
+  83 │       {
+  84 │         id: 2,
+  85 │         content:
+  86 │           "Excited to share that I'll be speaking at the upcoming Sustainable Business Forum next month. Looking forward to discussing the latest trends in ESG reporting and compliance. Let me know if you'll be attending! #SustainableBusiness #ESG",
+  87 │         time: "3 days ago",
+  88 │         likes: 56,
+  89 │         comments: 12,
+  90 │         shares: 9,
+  91 │       },
+  92 │     ],
+  93 │   }
+  94 │ 
+  95 │   return (
+  96 │     <div className="container py-8">
+  97 │       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+  98 │         {/* Left Column - Profile Info */}
+  99 │         <div>
+ 100 │           <Card className="mb-6">
+ 101 │             <CardContent className="p-6">
+ 102 │               <div className="flex flex-col items-center text-center">
+ 103 │                 <div className="w-32 h-32 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+ 104 │                   <User className="h-16 w-16 text-primary" />
+ 105 │                 </div>
+ 106 │                 <h2 className="text-2xl font-bold">{profile.name}</h2>
+ 107 │                 <p className="text-muted-foreground mb-2">
+ 108 │                   {profile.role} at {profile.company}
+ 109 │                 </p>
+ 110 │                 <div className="flex items-center text-sm text-muted-foreground mb-4">
+ 111 │                   <MapPin className="h-4 w-4 mr-1" />
+ 112 │                   <span>{profile.location}</span>
+ 113 │                 </div>
+ 114 │ 
+ 115 │                 <Button variant="secondary" className="w-full mb-4">
+ 116 │                   Connect
+ 117 │                 </Button>
+ 118 │                 <Button variant="outline" className="w-full">
+ 119 │                   <MessageSquare className="mr-2 h-4 w-4" />
+ 120 │                   Message
+ 121 │                 </Button>
+ 122 │               </div>
+ 123 │             </CardContent>
+ 124 │           </Card>
+ 125 │ 
+ 126 │           <Card className="mb-6">
+ 127 │             <CardHeader className="pb-0">
+ 128 │               <h3 className="font-semibold">Contact Information</h3>
+ 129 │             </CardHeader>
+ 130 │             <CardContent className="p-6">
+ 131 │               <div className="space-y-3">
+ 132 │                 <div className="flex items-center">
+ 133 │                   <Mail className="h-4 w-4 text-muted-foreground mr-2" />
+ 134 │                   <span className="text-sm">{profile.email}</span>
+ 135 │                 </div>
+ 136 │                 <div className="flex items-center">
+ 137 │                   <Phone className="h-4 w-4 text-muted-foreground mr-2" />
+ 138 │                   <span className="text-sm">{profile.phone}</span>
+ 139 │                 </div>
+ 140 │                 <div className="flex items-center">
+ 141 │                   <Globe className="h-4 w-4 text-muted-foreground mr-2" />
+ 142 │                   <span className="text-sm">{profile.website}</span>
+ 143 │                 </div>
+ 144 │               </div>
+ 145 │             </CardContent>
+ 146 │           </Card>
+ 147 │ 
+ 148 │           <Card className="mb-6">
+ 149 │             <CardHeader className="pb-0">
+ 150 │               <h3 className="font-semibold">Skills</h3>
+ 151 │             </CardHeader>
+ 152 │             <CardContent className="p-6">
+ 153 │               <div className="flex flex-wrap gap-2">
+ 154 │                 {profile.skills.map((skill, index) => (
+ 155 │                   <span
+ 156 │                     key={index}
+ 157 │                     className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary"
+ 158 │                   >
+ 159 │                     {skill}
+ 160 │                   </span>
+ 161 │                 ))}
+ 162 │               </div>
+ 163 │             </CardContent>
+ 164 │           </Card>
+ 165 │ 
+ 166 │           <Card>
+ 167 │             <CardHeader className="pb-0">
+ 168 │               <h3 className="font-semibold">Certifications</h3>
+ 169 │             </CardHeader>
+ 170 │             <CardContent className="p-6">
+ 171 │               <div className="space-y-3">
+ 172 │                 {profile.certifications.map((cert, index) => (
+ 173 │                   <div key={index} className="flex items-center">
+ 174 │                     <Award className="h-4 w-4 text-primary mr-2" />
+ 175 │                     <span className="text-sm">{cert}</span>
+ 176 │                   </div>
+ 177 │                 ))}
+ 178 │               </div>
+ 179 │             </CardContent>
+ 180 │           </Card>
+ 181 │         </div>
+ 182 │ 
+ 183 │         {/* Right Column - About, Experience, Posts */}
+ 184 │         <div className="md:col-span-2">
+ 185 │           <Card className="mb-6">
+ 186 │             <CardHeader className="pb-0">
+ 187 │               <h3 className="font-semibold">About</h3>
+ 188 │             </CardHeader>
+ 189 │             <CardContent className="p-6">
+ 190 │               <p>{profile.about}</p>
+ 191 │             </CardContent>
+ 192 │           </Card>
+ 193 │ 
+ 194 │           <Card className="mb-6">
+ 195 │             <CardHeader className="pb-0">
+ 196 │               <h3 className="font-semibold">Experience</h3>
+ 197 │             </CardHeader>
+ 198 │             <CardContent className="p-6">
+ 199 │               <div className="space-y-6">
+ 200 │                 {profile.experience.map((exp, index) => (
+ 201 │                   <div key={index} className="border-l-2 border-primary/30 pl-4">
+ 202 │                     <h4 className="font-semibold">{exp.title}</h4>
+ 203 │                     <div className="flex items-center text-sm mb-1">
+ 204 │                       <Briefcase className="h-4 w-4 text-muted-foreground mr-2" />
+ 205 │                       <span>{exp.company}</span>
+ 206 │                     </div>
+ 207 │                     <div className="flex items-center text-sm text-muted-foreground mb-2">
+ 208 │                       <Calendar className="h-4 w-4 mr-2" />
+ 209 │                       <span>{exp.period}</span>
+ 210 │                     </div>
+ 211 │                     <p className="text-sm">{exp.description}</p>
+ 212 │                   </div>
+ 213 │                 ))}
+ 214 │               </div>
+ 215 │             </CardContent>
+ 216 │           </Card>
+ 217 │ 
+ 218 │           <Card className="mb-6">
+ 219 │             <CardHeader className="pb-0">
+ 220 │               <h3 className="font-semibold">Education</h3>
+ 221 │             </CardHeader>
+ 222 │             <CardContent className="p-6">
+ 223 │               <div className="space-y-4">
+ 224 │                 {profile.education.map((edu, index) => (
+ 225 │                   <div key={index} className="border-l-2 border-primary/30 pl-4">
+ 226 │                     <h4 className="font-semibold">{edu.degree}</h4>
+ 227 │                     <div className="flex items-center text-sm mb-1">
+ 228 │                       <BookOpen className="h-4 w-4 text-muted-foreground mr-2" />
+ 229 │                       <span>{edu.institution}</span>
+ 230 │                     </div>
+ 231 │                     <div className="flex items-center text-sm text-muted-foreground">
+ 232 │                       <Calendar className="h-4 w-4 mr-2" />
+ 233 │                       <span>{edu.year}</span>
+ 234 │                     </div>
+ 235 │                   </div>
+ 236 │                 ))}
+ 237 │               </div>
+ 238 │             </CardContent>
+ 239 │           </Card>
+ 240 │ 
+ 241 │           <Card>
+ 242 │             <CardHeader className="pb-0">
+ 243 │               <h3 className="font-semibold">Activity</h3>
+ 244 │             </CardHeader>
+ 245 │             <CardContent className="p-6">
+ 246 │               <div className="space-y-6">
+ 247 │                 {profile.posts.map((post) => (
+ 248 │                   <div key={post.id} className="border-b pb-6 last:border-b-0 last:pb-0">
+ 249 │                     <div className="flex items-center mb-2">
+ 250 │                       <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mr-3">
+ 251 │                         <User className="h-5 w-5 text-primary" />
+ 252 │                       </div>
+ 253 │                       <div>
+ 254 │                         <h4 className="font-semibold">{profile.name}</h4>
+ 255 │                         <p className="text-xs text-muted-foreground">{post.time}</p>
+ 256 │                       </div>
+ 257 │                     </div>
+ 258 │                     <p className="mb-4">{post.content}</p>
+ 259 │                     <div className="flex gap-4">
+ 260 │                       <Button variant="ghost" size="sm" className="text-muted-foreground">
+ 261 │                         <ThumbsUp className="h-4 w-4 mr-2" />
+ 262 │                         {post.likes}
+ 263 │                       </Button>
+ 264 │                       <Button variant="ghost" size="sm" className="text-muted-foreground">
+ 265 │                         <MessageSquare className="h-4 w-4 mr-2" />
+ 266 │                         {post.comments}
+ 267 │                       </Button>
+ 268 │                       <Button variant="ghost" size="sm" className="text-muted-foreground">
+ 269 │                         <Share2 className="h-4 w-4 mr-2" />
+ 270 │                         {post.shares}
+ 271 │                       </Button>
+ 272 │                     </div>
+ 273 │                   </div>
+ 274 │                 ))}
+ 275 │               </div>
+ 276 │             </CardContent>
+ 277 │           </Card>
+ 278 │         </div>
+ 279 │       </div>
+ 280 │     </div>
+ 281 │   )
+ 282 │ }
+ 283 │ 
+ 284 │ "use client"
+ 285 │ 
+ 286 │ import * as React from "react"
+ 287 │ import { Button } from "@/components/ui/button"
+ 288 │ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+ 289 │ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+ 290 │ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+ 291 │ import { Badge } from "@/components/ui/badge"
+ 292 │ import { Pencil, Users, Briefcase, Award, FileText, MapPin, Mail, Link as LinkIcon } from "lucide-react"
+     ·                         ────┬────
+     ·                             ╰── `Briefcase` redefined here
+ 293 │ import { Progress } from "@/components/ui/progress"
+ 294 │ import Link from "next/link"
+     ╰────
+
+  × the name `Award` is defined multiple times
+     ╭─[/home/runner/workspace/app/profile/page.tsx:8:1]
+   8 │   Mail,
+   9 │   Phone,
+  10 │   Globe,
+  11 │   Award,
+     ·   ──┬──
+     ·     ╰── previous definition of `Award` here
+  12 │   BookOpen,
+  13 │   MessageSquare,
+  14 │   ThumbsUp,
+  15 │   Share2,
+  16 │ } from "lucide-react"
+  17 │ 
+  18 │ export default function ProfilePage() {
+  19 │   const profile = {
+  20 │     name: "Sarah Johnson",
+  21 │     role: "ESG Compliance Manager",
+  22 │     company: "GreenTech Solutions",
+  23 │     location: "San Francisco, CA",
+  24 │     email: "sarah.johnson@example.com",
+  25 │     phone: "+1 (555) 123-4567",
+  26 │     website: "www.sarahjohnson.com",
+  27 │     about:
+  28 │       "Experienced ESG Compliance Manager with 8+ years of experience in environmental sustainability and corporate governance. Passionate about helping organizations implement effective ESG strategies and achieve compliance with regulatory requirements.",
+  29 │     experience: [
+  30 │       {
+  31 │         title: "ESG Compliance Manager",
+  32 │         company: "GreenTech Solutions",
+  33 │         period: "Jan 2020 - Present",
+  34 │         description:
+  35 │           "Lead ESG compliance initiatives and sustainability reporting. Reduced carbon footprint by 25% through innovative programs.",
+  36 │       },
+  37 │       {
+  38 │         title: "Environmental Specialist",
+  39 │         company: "EcoSystems Inc.",
+  40 │         period: "Mar 2016 - Dec 2019",
+  41 │         description:
+  42 │           "Managed environmental compliance programs and conducted sustainability audits for clients across various industries.",
+  43 │       },
+  44 │     ],
+  45 │     education: [
+  46 │       {
+  47 │         degree: "Master of Environmental Management",
+  48 │         institution: "Stanford University",
+  49 │         year: "2016",
+  50 │       },
+  51 │       {
+  52 │         degree: "Bachelor of Science in Environmental Science",
+  53 │         institution: "University of California, Berkeley",
+  54 │         year: "2014",
+  55 │       },
+  56 │     ],
+  57 │     certifications: [
+  58 │       "Certified ESG Analyst (CESGA)",
+  59 │       "ISO 14001 Lead Auditor",
+  60 │       "GRI Certified Sustainability Professional",
+  61 │       "LEED Green Associate",
+  62 │     ],
+  63 │     skills: [
+  64 │       "ESG Reporting",
+  65 │       "Sustainability Strategy",
+  66 │       "Environmental Compliance",
+  67 │       "Carbon Footprint Analysis",
+  68 │       "Stakeholder Engagement",
+  69 │       "Regulatory Affairs",
+  70 │       "Data Analysis",
+  71 │       "Project Management",
+  72 │     ],
+  73 │     posts: [
+  74 │       {
+  75 │         id: 1,
+  76 │         content:
+  77 │           "Just completed our quarterly ESG audit with flying colors! Our carbon reduction initiatives have exceeded targets by 15%. Proud of the team for their dedication to sustainability. #ESGCompliance #Sustainability",
+  78 │         time: "2 hours ago",
+  79 │         likes: 42,
+  80 │         comments: 8,
+  81 │         shares: 5,
+  82 │       },
+  83 │       {
+  84 │         id: 2,
+  85 │         content:
+  86 │           "Excited to share that I'll be speaking at the upcoming Sustainable Business Forum next month. Looking forward to discussing the latest trends in ESG reporting and compliance. Let me know if you'll be attending! #SustainableBusiness #ESG",
+  87 │         time: "3 days ago",
+  88 │         likes: 56,
+  89 │         comments: 12,
+  90 │         shares: 9,
+  91 │       },
+  92 │     ],
+  93 │   }
+  94 │ 
+  95 │   return (
+  96 │     <div className="container py-8">
+  97 │       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+  98 │         {/* Left Column - Profile Info */}
+  99 │         <div>
+ 100 │           <Card className="mb-6">
+ 101 │             <CardContent className="p-6">
+ 102 │               <div className="flex flex-col items-center text-center">
+ 103 │                 <div className="w-32 h-32 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+ 104 │                   <User className="h-16 w-16 text-primary" />
+ 105 │                 </div>
+ 106 │                 <h2 className="text-2xl font-bold">{profile.name}</h2>
+ 107 │                 <p className="text-muted-foreground mb-2">
+ 108 │                   {profile.role} at {profile.company}
+ 109 │                 </p>
+ 110 │                 <div className="flex items-center text-sm text-muted-foreground mb-4">
+ 111 │                   <MapPin className="h-4 w-4 mr-1" />
+ 112 │                   <span>{profile.location}</span>
+ 113 │                 </div>
+ 114 │ 
+ 115 │                 <Button variant="secondary" className="w-full mb-4">
+ 116 │                   Connect
+ 117 │                 </Button>
+ 118 │                 <Button variant="outline" className="w-full">
+ 119 │                   <MessageSquare className="mr-2 h-4 w-4" />
+ 120 │                   Message
+ 121 │                 </Button>
+ 122 │               </div>
+ 123 │             </CardContent>
+ 124 │           </Card>
+ 125 │ 
+ 126 │           <Card className="mb-6">
+ 127 │             <CardHeader className="pb-0">
+ 128 │               <h3 className="font-semibold">Contact Information</h3>
+ 129 │             </CardHeader>
+ 130 │             <CardContent className="p-6">
+ 131 │               <div className="space-y-3">
+ 132 │                 <div className="flex items-center">
+ 133 │                   <Mail className="h-4 w-4 text-muted-foreground mr-2" />
+ 134 │                   <span className="text-sm">{profile.email}</span>
+ 135 │                 </div>
+ 136 │                 <div className="flex items-center">
+ 137 │                   <Phone className="h-4 w-4 text-muted-foreground mr-2" />
+ 138 │                   <span className="text-sm">{profile.phone}</span>
+ 139 │                 </div>
+ 140 │                 <div className="flex items-center">
+ 141 │                   <Globe className="h-4 w-4 text-muted-foreground mr-2" />
+ 142 │                   <span className="text-sm">{profile.website}</span>
+ 143 │                 </div>
+ 144 │               </div>
+ 145 │             </CardContent>
+ 146 │           </Card>
+ 147 │ 
+ 148 │           <Card className="mb-6">
+ 149 │             <CardHeader className="pb-0">
+ 150 │               <h3 className="font-semibold">Skills</h3>
+ 151 │             </CardHeader>
+ 152 │             <CardContent className="p-6">
+ 153 │               <div className="flex flex-wrap gap-2">
+ 154 │                 {profile.skills.map((skill, index) => (
+ 155 │                   <span
+ 156 │                     key={index}
+ 157 │                     className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary"
+ 158 │                   >
+ 159 │                     {skill}
+ 160 │                   </span>
+ 161 │                 ))}
+ 162 │               </div>
+ 163 │             </CardContent>
+ 164 │           </Card>
+ 165 │ 
+ 166 │           <Card>
+ 167 │             <CardHeader className="pb-0">
+ 168 │               <h3 className="font-semibold">Certifications</h3>
+ 169 │             </CardHeader>
+ 170 │             <CardContent className="p-6">
+ 171 │               <div className="space-y-3">
+ 172 │                 {profile.certifications.map((cert, index) => (
+ 173 │                   <div key={index} className="flex items-center">
+ 174 │                     <Award className="h-4 w-4 text-primary mr-2" />
+ 175 │                     <span className="text-sm">{cert}</span>
+ 176 │                   </div>
+ 177 │                 ))}
+ 178 │               </div>
+ 179 │             </CardContent>
+ 180 │           </Card>
+ 181 │         </div>
+ 182 │ 
+ 183 │         {/* Right Column - About, Experience, Posts */}
+ 184 │         <div className="md:col-span-2">
+ 185 │           <Card className="mb-6">
+ 186 │             <CardHeader className="pb-0">
+ 187 │               <h3 className="font-semibold">About</h3>
+ 188 │             </CardHeader>
+ 189 │             <CardContent className="p-6">
+ 190 │               <p>{profile.about}</p>
+ 191 │             </CardContent>
+ 192 │           </Card>
+ 193 │ 
+ 194 │           <Card className="mb-6">
+ 195 │             <CardHeader className="pb-0">
+ 196 │               <h3 className="font-semibold">Experience</h3>
+ 197 │             </CardHeader>
+ 198 │             <CardContent className="p-6">
+ 199 │               <div className="space-y-6">
+ 200 │                 {profile.experience.map((exp, index) => (
+ 201 │                   <div key={index} className="border-l-2 border-primary/30 pl-4">
+ 202 │                     <h4 className="font-semibold">{exp.title}</h4>
+ 203 │                     <div className="flex items-center text-sm mb-1">
+ 204 │                       <Briefcase className="h-4 w-4 text-muted-foreground mr-2" />
+ 205 │                       <span>{exp.company}</span>
+ 206 │                     </div>
+ 207 │                     <div className="flex items-center text-sm text-muted-foreground mb-2">
+ 208 │                       <Calendar className="h-4 w-4 mr-2" />
+ 209 │                       <span>{exp.period}</span>
+ 210 │                     </div>
+ 211 │                     <p className="text-sm">{exp.description}</p>
+ 212 │                   </div>
+ 213 │                 ))}
+ 214 │               </div>
+ 215 │             </CardContent>
+ 216 │           </Card>
+ 217 │ 
+ 218 │           <Card className="mb-6">
+ 219 │             <CardHeader className="pb-0">
+ 220 │               <h3 className="font-semibold">Education</h3>
+ 221 │             </CardHeader>
+ 222 │             <CardContent className="p-6">
+ 223 │               <div className="space-y-4">
+ 224 │                 {profile.education.map((edu, index) => (
+ 225 │                   <div key={index} className="border-l-2 border-primary/30 pl-4">
+ 226 │                     <h4 className="font-semibold">{edu.degree}</h4>
+ 227 │                     <div className="flex items-center text-sm mb-1">
+ 228 │                       <BookOpen className="h-4 w-4 text-muted-foreground mr-2" />
+ 229 │                       <span>{edu.institution}</span>
+ 230 │                     </div>
+ 231 │                     <div className="flex items-center text-sm text-muted-foreground">
+ 232 │                       <Calendar className="h-4 w-4 mr-2" />
+ 233 │                       <span>{edu.year}</span>
+ 234 │                     </div>
+ 235 │                   </div>
+ 236 │                 ))}
+ 237 │               </div>
+ 238 │             </CardContent>
+ 239 │           </Card>
+ 240 │ 
+ 241 │           <Card>
+ 242 │             <CardHeader className="pb-0">
+ 243 │               <h3 className="font-semibold">Activity</h3>
+ 244 │             </CardHeader>
+ 245 │             <CardContent className="p-6">
+ 246 │               <div className="space-y-6">
+ 247 │                 {profile.posts.map((post) => (
+ 248 │                   <div key={post.id} className="border-b pb-6 last:border-b-0 last:pb-0">
+ 249 │                     <div className="flex items-center mb-2">
+ 250 │                       <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mr-3">
+ 251 │                         <User className="h-5 w-5 text-primary" />
+ 252 │                       </div>
+ 253 │                       <div>
+ 254 │                         <h4 className="font-semibold">{profile.name}</h4>
+ 255 │                         <p className="text-xs text-muted-foreground">{post.time}</p>
+ 256 │                       </div>
+ 257 │                     </div>
+ 258 │                     <p className="mb-4">{post.content}</p>
+ 259 │                     <div className="flex gap-4">
+ 260 │                       <Button variant="ghost" size="sm" className="text-muted-foreground">
+ 261 │                         <ThumbsUp className="h-4 w-4 mr-2" />
+ 262 │                         {post.likes}
+ 263 │                       </Button>
+ 264 │                       <Button variant="ghost" size="sm" className="text-muted-foreground">
+ 265 │                         <MessageSquare className="h-4 w-4 mr-2" />
+ 266 │                         {post.comments}
+ 267 │                       </Button>
+ 268 │                       <Button variant="ghost" size="sm" className="text-muted-foreground">
+ 269 │                         <Share2 className="h-4 w-4 mr-2" />
+ 270 │                         {post.shares}
+ 271 │                       </Button>
+ 272 │                     </div>
+ 273 │                   </div>
+ 274 │                 ))}
+ 275 │               </div>
+ 276 │             </CardContent>
+ 277 │           </Card>
+ 278 │         </div>
+ 279 │       </div>
+ 280 │     </div>
+ 281 │   )
+ 282 │ }
+ 283 │ 
+ 284 │ "use client"
+ 285 │ 
+ 286 │ import * as React from "react"
+ 287 │ import { Button } from "@/components/ui/button"
+ 288 │ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+ 289 │ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+ 290 │ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+ 291 │ import { Badge } from "@/components/ui/badge"
+ 292 │ import { Pencil, Users, Briefcase, Award, FileText, MapPin, Mail, Link as LinkIcon } from "lucide-react"
+     ·                                    ──┬──
+     ·                                      ╰── `Award` redefined here
+ 293 │ import { Progress } from "@/components/ui/progress"
+ 294 │ import Link from "next/link"
+     ╰────
+
+  × the name `MapPin` is defined multiple times
+     ╭─[/home/runner/workspace/app/profile/page.tsx:2:1]
+   2 │ import { Card, CardContent, CardHeader } from "@/components/ui/card"
+   3 │ import {
+   4 │   User,
+   5 │   MapPin,
+     ·   ───┬──
+     ·      ╰── previous definition of `MapPin` here
+   6 │   Briefcase,
+   7 │   Calendar,
+   8 │   Mail,
+   9 │   Phone,
+  10 │   Globe,
+  11 │   Award,
+  12 │   BookOpen,
+  13 │   MessageSquare,
+  14 │   ThumbsUp,
+  15 │   Share2,
+  16 │ } from "lucide-react"
+  17 │ 
+  18 │ export default function ProfilePage() {
+  19 │   const profile = {
+  20 │     name: "Sarah Johnson",
+  21 │     role: "ESG Compliance Manager",
+  22 │     company: "GreenTech Solutions",
+  23 │     location: "San Francisco, CA",
+  24 │     email: "sarah.johnson@example.com",
+  25 │     phone: "+1 (555) 123-4567",
+  26 │     website: "www.sarahjohnson.com",
+  27 │     about:
+  28 │       "Experienced ESG Compliance Manager with 8+ years of experience in environmental sustainability and corporate governance. Passionate about helping organizations implement effective ESG strategies and achieve compliance with regulatory requirements.",
+  29 │     experience: [
+  30 │       {
+  31 │         title: "ESG Compliance Manager",
+  32 │         company: "GreenTech Solutions",
+  33 │         period: "Jan 2020 - Present",
+  34 │         description:
+  35 │           "Lead ESG compliance initiatives and sustainability reporting. Reduced carbon footprint by 25% through innovative programs.",
+  36 │       },
+  37 │       {
+  38 │         title: "Environmental Specialist",
+  39 │         company: "EcoSystems Inc.",
+  40 │         period: "Mar 2016 - Dec 2019",
+  41 │         description:
+  42 │           "Managed environmental compliance programs and conducted sustainability audits for clients across various industries.",
+  43 │       },
+  44 │     ],
+  45 │     education: [
+  46 │       {
+  47 │         degree: "Master of Environmental Management",
+  48 │         institution: "Stanford University",
+  49 │         year: "2016",
+  50 │       },
+  51 │       {
+  52 │         degree: "Bachelor of Science in Environmental Science",
+  53 │         institution: "University of California, Berkeley",
+  54 │         year: "2014",
+  55 │       },
+  56 │     ],
+  57 │     certifications: [
+  58 │       "Certified ESG Analyst (CESGA)",
+  59 │       "ISO 14001 Lead Auditor",
+  60 │       "GRI Certified Sustainability Professional",
+  61 │       "LEED Green Associate",
+  62 │     ],
+  63 │     skills: [
+  64 │       "ESG Reporting",
+  65 │       "Sustainability Strategy",
+  66 │       "Environmental Compliance",
+  67 │       "Carbon Footprint Analysis",
+  68 │       "Stakeholder Engagement",
+  69 │       "Regulatory Affairs",
+  70 │       "Data Analysis",
+  71 │       "Project Management",
+  72 │     ],
+  73 │     posts: [
+  74 │       {
+  75 │         id: 1,
+  76 │         content:
+  77 │           "Just completed our quarterly ESG audit with flying colors! Our carbon reduction initiatives have exceeded targets by 15%. Proud of the team for their dedication to sustainability. #ESGCompliance #Sustainability",
+  78 │         time: "2 hours ago",
+  79 │         likes: 42,
+  80 │         comments: 8,
+  81 │         shares: 5,
+  82 │       },
+  83 │       {
+  84 │         id: 2,
+  85 │         content:
+  86 │           "Excited to share that I'll be speaking at the upcoming Sustainable Business Forum next month. Looking forward to discussing the latest trends in ESG reporting and compliance. Let me know if you'll be attending! #SustainableBusiness #ESG",
+  87 │         time: "3 days ago",
+  88 │         likes: 56,
+  89 │         comments: 12,
+  90 │         shares: 9,
+  91 │       },
+  92 │     ],
+  93 │   }
+  94 │ 
+  95 │   return (
+  96 │     <div className="container py-8">
+  97 │       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+  98 │         {/* Left Column - Profile Info */}
+  99 │         <div>
+ 100 │           <Card className="mb-6">
+ 101 │             <CardContent className="p-6">
+ 102 │               <div className="flex flex-col items-center text-center">
+ 103 │                 <div className="w-32 h-32 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+ 104 │                   <User className="h-16 w-16 text-primary" />
+ 105 │                 </div>
+ 106 │                 <h2 className="text-2xl font-bold">{profile.name}</h2>
+ 107 │                 <p className="text-muted-foreground mb-2">
+ 108 │                   {profile.role} at {profile.company}
+ 109 │                 </p>
+ 110 │                 <div className="flex items-center text-sm text-muted-foreground mb-4">
+ 111 │                   <MapPin className="h-4 w-4 mr-1" />
+ 112 │                   <span>{profile.location}</span>
+ 113 │                 </div>
+ 114 │ 
+ 115 │                 <Button variant="secondary" className="w-full mb-4">
+ 116 │                   Connect
+ 117 │                 </Button>
+ 118 │                 <Button variant="outline" className="w-full">
+ 119 │                   <MessageSquare className="mr-2 h-4 w-4" />
+ 120 │                   Message
+ 121 │                 </Button>
+ 122 │               </div>
+ 123 │             </CardContent>
+ 124 │           </Card>
+ 125 │ 
+ 126 │           <Card className="mb-6">
+ 127 │             <CardHeader className="pb-0">
+ 128 │               <h3 className="font-semibold">Contact Information</h3>
+ 129 │             </CardHeader>
+ 130 │             <CardContent className="p-6">
+ 131 │               <div className="space-y-3">
+ 132 │                 <div className="flex items-center">
+ 133 │                   <Mail className="h-4 w-4 text-muted-foreground mr-2" />
+ 134 │                   <span className="text-sm">{profile.email}</span>
+ 135 │                 </div>
+ 136 │                 <div className="flex items-center">
+ 137 │                   <Phone className="h-4 w-4 text-muted-foreground mr-2" />
+ 138 │                   <span className="text-sm">{profile.phone}</span>
+ 139 │                 </div>
+ 140 │                 <div className="flex items-center">
+ 141 │                   <Globe className="h-4 w-4 text-muted-foreground mr-2" />
+ 142 │                   <span className="text-sm">{profile.website}</span>
+ 143 │                 </div>
+ 144 │               </div>
+ 145 │             </CardContent>
+ 146 │           </Card>
+ 147 │ 
+ 148 │           <Card className="mb-6">
+ 149 │             <CardHeader className="pb-0">
+ 150 │               <h3 className="font-semibold">Skills</h3>
+ 151 │             </CardHeader>
+ 152 │             <CardContent className="p-6">
+ 153 │               <div className="flex flex-wrap gap-2">
+ 154 │                 {profile.skills.map((skill, index) => (
+ 155 │                   <span
+ 156 │                     key={index}
+ 157 │                     className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary"
+ 158 │                   >
+ 159 │                     {skill}
+ 160 │                   </span>
+ 161 │                 ))}
+ 162 │               </div>
+ 163 │             </CardContent>
+ 164 │           </Card>
+ 165 │ 
+ 166 │           <Card>
+ 167 │             <CardHeader className="pb-0">
+ 168 │               <h3 className="font-semibold">Certifications</h3>
+ 169 │             </CardHeader>
+ 170 │             <CardContent className="p-6">
+ 171 │               <div className="space-y-3">
+ 172 │                 {profile.certifications.map((cert, index) => (
+ 173 │                   <div key={index} className="flex items-center">
+ 174 │                     <Award className="h-4 w-4 text-primary mr-2" />
+ 175 │                     <span className="text-sm">{cert}</span>
+ 176 │                   </div>
+ 177 │                 ))}
+ 178 │               </div>
+ 179 │             </CardContent>
+ 180 │           </Card>
+ 181 │         </div>
+ 182 │ 
+ 183 │         {/* Right Column - About, Experience, Posts */}
+ 184 │         <div className="md:col-span-2">
+ 185 │           <Card className="mb-6">
+ 186 │             <CardHeader className="pb-0">
+ 187 │               <h3 className="font-semibold">About</h3>
+ 188 │             </CardHeader>
+ 189 │             <CardContent className="p-6">
+ 190 │               <p>{profile.about}</p>
+ 191 │             </CardContent>
+ 192 │           </Card>
+ 193 │ 
+ 194 │           <Card className="mb-6">
+ 195 │             <CardHeader className="pb-0">
+ 196 │               <h3 className="font-semibold">Experience</h3>
+ 197 │             </CardHeader>
+ 198 │             <CardContent className="p-6">
+ 199 │               <div className="space-y-6">
+ 200 │                 {profile.experience.map((exp, index) => (
+ 201 │                   <div key={index} className="border-l-2 border-primary/30 pl-4">
+ 202 │                     <h4 className="font-semibold">{exp.title}</h4>
+ 203 │                     <div className="flex items-center text-sm mb-1">
+ 204 │                       <Briefcase className="h-4 w-4 text-muted-foreground mr-2" />
+ 205 │                       <span>{exp.company}</span>
+ 206 │                     </div>
+ 207 │                     <div className="flex items-center text-sm text-muted-foreground mb-2">
+ 208 │                       <Calendar className="h-4 w-4 mr-2" />
+ 209 │                       <span>{exp.period}</span>
+ 210 │                     </div>
+ 211 │                     <p className="text-sm">{exp.description}</p>
+ 212 │                   </div>
+ 213 │                 ))}
+ 214 │               </div>
+ 215 │             </CardContent>
+ 216 │           </Card>
+ 217 │ 
+ 218 │           <Card className="mb-6">
+ 219 │             <CardHeader className="pb-0">
+ 220 │               <h3 className="font-semibold">Education</h3>
+ 221 │             </CardHeader>
+ 222 │             <CardContent className="p-6">
+ 223 │               <div className="space-y-4">
+ 224 │                 {profile.education.map((edu, index) => (
+ 225 │                   <div key={index} className="border-l-2 border-primary/30 pl-4">
+ 226 │                     <h4 className="font-semibold">{edu.degree}</h4>
+ 227 │                     <div className="flex items-center text-sm mb-1">
+ 228 │                       <BookOpen className="h-4 w-4 text-muted-foreground mr-2" />
+ 229 │                       <span>{edu.institution}</span>
+ 230 │                     </div>
+ 231 │                     <div className="flex items-center text-sm text-muted-foreground">
+ 232 │                       <Calendar className="h-4 w-4 mr-2" />
+ 233 │                       <span>{edu.year}</span>
+ 234 │                     </div>
+ 235 │                   </div>
+ 236 │                 ))}
+ 237 │               </div>
+ 238 │             </CardContent>
+ 239 │           </Card>
+ 240 │ 
+ 241 │           <Card>
+ 242 │             <CardHeader className="pb-0">
+ 243 │               <h3 className="font-semibold">Activity</h3>
+ 244 │             </CardHeader>
+ 245 │             <CardContent className="p-6">
+ 246 │               <div className="space-y-6">
+ 247 │                 {profile.posts.map((post) => (
+ 248 │                   <div key={post.id} className="border-b pb-6 last:border-b-0 last:pb-0">
+ 249 │                     <div className="flex items-center mb-2">
+ 250 │                       <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mr-3">
+ 251 │                         <User className="h-5 w-5 text-primary" />
+ 252 │                       </div>
+ 253 │                       <div>
+ 254 │                         <h4 className="font-semibold">{profile.name}</h4>
+ 255 │                         <p className="text-xs text-muted-foreground">{post.time}</p>
+ 256 │                       </div>
+ 257 │                     </div>
+ 258 │                     <p className="mb-4">{post.content}</p>
+ 259 │                     <div className="flex gap-4">
+ 260 │                       <Button variant="ghost" size="sm" className="text-muted-foreground">
+ 261 │                         <ThumbsUp className="h-4 w-4 mr-2" />
+ 262 │                         {post.likes}
+ 263 │                       </Button>
+ 264 │                       <Button variant="ghost" size="sm" className="text-muted-foreground">
+ 265 │                         <MessageSquare className="h-4 w-4 mr-2" />
+ 266 │                         {post.comments}
+ 267 │                       </Button>
+ 268 │                       <Button variant="ghost" size="sm" className="text-muted-foreground">
+ 269 │                         <Share2 className="h-4 w-4 mr-2" />
+ 270 │                         {post.shares}
+ 271 │                       </Button>
+ 272 │                     </div>
+ 273 │                   </div>
+ 274 │                 ))}
+ 275 │               </div>
+ 276 │             </CardContent>
+ 277 │           </Card>
+ 278 │         </div>
+ 279 │       </div>
+ 280 │     </div>
+ 281 │   )
+ 282 │ }
+ 283 │ 
+ 284 │ "use client"
+ 285 │ 
+ 286 │ import * as React from "react"
+ 287 │ import { Button } from "@/components/ui/button"
+ 288 │ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+ 289 │ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+ 290 │ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+ 291 │ import { Badge } from "@/components/ui/badge"
+ 292 │ import { Pencil, Users, Briefcase, Award, FileText, MapPin, Mail, Link as LinkIcon } from "lucide-react"
+     ·                                                     ───┬──
+     ·                                                        ╰── `MapPin` redefined here
+ 293 │ import { Progress } from "@/components/ui/progress"
+ 294 │ import Link from "next/link"
+     ╰────
+
+  × the name `Mail` is defined multiple times
+     ╭─[/home/runner/workspace/app/profile/page.tsx:5:1]
+   5 │   MapPin,
+   6 │   Briefcase,
+   7 │   Calendar,
+   8 │   Mail,
+     ·   ──┬─
+     ·     ╰── previous definition of `Mail` here
+   9 │   Phone,
+  10 │   Globe,
+  11 │   Award,
+  12 │   BookOpen,
+  13 │   MessageSquare,
+  14 │   ThumbsUp,
+  15 │   Share2,
+  16 │ } from "lucide-react"
+  17 │ 
+  18 │ export default function ProfilePage() {
+  19 │   const profile = {
+  20 │     name: "Sarah Johnson",
+  21 │     role: "ESG Compliance Manager",
+  22 │     company: "GreenTech Solutions",
+  23 │     location: "San Francisco, CA",
+  24 │     email: "sarah.johnson@example.com",
+  25 │     phone: "+1 (555) 123-4567",
+  26 │     website: "www.sarahjohnson.com",
+  27 │     about:
+  28 │       "Experienced ESG Compliance Manager with 8+ years of experience in environmental sustainability and corporate governance. Passionate about helping organizations implement effective ESG strategies and achieve compliance with regulatory requirements.",
+  29 │     experience: [
+  30 │       {
+  31 │         title: "ESG Compliance Manager",
+  32 │         company: "GreenTech Solutions",
+  33 │         period: "Jan 2020 - Present",
+  34 │         description:
+  35 │           "Lead ESG compliance initiatives and sustainability reporting. Reduced carbon footprint by 25% through innovative programs.",
+  36 │       },
+  37 │       {
+  38 │         title: "Environmental Specialist",
+  39 │         company: "EcoSystems Inc.",
+  40 │         period: "Mar 2016 - Dec 2019",
+  41 │         description:
+  42 │           "Managed environmental compliance programs and conducted sustainability audits for clients across various industries.",
+  43 │       },
+  44 │     ],
+  45 │     education: [
+  46 │       {
+  47 │         degree: "Master of Environmental Management",
+  48 │         institution: "Stanford University",
+  49 │         year: "2016",
+  50 │       },
+  51 │       {
+  52 │         degree: "Bachelor of Science in Environmental Science",
+  53 │         institution: "University of California, Berkeley",
+  54 │         year: "2014",
+  55 │       },
+  56 │     ],
+  57 │     certifications: [
+  58 │       "Certified ESG Analyst (CESGA)",
+  59 │       "ISO 14001 Lead Auditor",
+  60 │       "GRI Certified Sustainability Professional",
+  61 │       "LEED Green Associate",
+  62 │     ],
+  63 │     skills: [
+  64 │       "ESG Reporting",
+  65 │       "Sustainability Strategy",
+  66 │       "Environmental Compliance",
+  67 │       "Carbon Footprint Analysis",
+  68 │       "Stakeholder Engagement",
+  69 │       "Regulatory Affairs",
+  70 │       "Data Analysis",
+  71 │       "Project Management",
+  72 │     ],
+  73 │     posts: [
+  74 │       {
+  75 │         id: 1,
+  76 │         content:
+  77 │           "Just completed our quarterly ESG audit with flying colors! Our carbon reduction initiatives have exceeded targets by 15%. Proud of the team for their dedication to sustainability. #ESGCompliance #Sustainability",
+  78 │         time: "2 hours ago",
+  79 │         likes: 42,
+  80 │         comments: 8,
+  81 │         shares: 5,
+  82 │       },
+  83 │       {
+  84 │         id: 2,
+  85 │         content:
+  86 │           "Excited to share that I'll be speaking at the upcoming Sustainable Business Forum next month. Looking forward to discussing the latest trends in ESG reporting and compliance. Let me know if you'll be attending! #SustainableBusiness #ESG",
+  87 │         time: "3 days ago",
+  88 │         likes: 56,
+  89 │         comments: 12,
+  90 │         shares: 9,
+  91 │       },
+  92 │     ],
+  93 │   }
+  94 │ 
+  95 │   return (
+  96 │     <div className="container py-8">
+  97 │       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+  98 │         {/* Left Column - Profile Info */}
+  99 │         <div>
+ 100 │           <Card className="mb-6">
+ 101 │             <CardContent className="p-6">
+ 102 │               <div className="flex flex-col items-center text-center">
+ 103 │                 <div className="w-32 h-32 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+ 104 │                   <User className="h-16 w-16 text-primary" />
+ 105 │                 </div>
+ 106 │                 <h2 className="text-2xl font-bold">{profile.name}</h2>
+ 107 │                 <p className="text-muted-foreground mb-2">
+ 108 │                   {profile.role} at {profile.company}
+ 109 │                 </p>
+ 110 │                 <div className="flex items-center text-sm text-muted-foreground mb-4">
+ 111 │                   <MapPin className="h-4 w-4 mr-1" />
+ 112 │                   <span>{profile.location}</span>
+ 113 │                 </div>
+ 114 │ 
+ 115 │                 <Button variant="secondary" className="w-full mb-4">
+ 116 │                   Connect
+ 117 │                 </Button>
+ 118 │                 <Button variant="outline" className="w-full">
+ 119 │                   <MessageSquare className="mr-2 h-4 w-4" />
+ 120 │                   Message
+ 121 │                 </Button>
+ 122 │               </div>
+ 123 │             </CardContent>
+ 124 │           </Card>
+ 125 │ 
+ 126 │           <Card className="mb-6">
+ 127 │             <CardHeader className="pb-0">
+ 128 │               <h3 className="font-semibold">Contact Information</h3>
+ 129 │             </CardHeader>
+ 130 │             <CardContent className="p-6">
+ 131 │               <div className="space-y-3">
+ 132 │                 <div className="flex items-center">
+ 133 │                   <Mail className="h-4 w-4 text-muted-foreground mr-2" />
+ 134 │                   <span className="text-sm">{profile.email}</span>
+ 135 │                 </div>
+ 136 │                 <div className="flex items-center">
+ 137 │                   <Phone className="h-4 w-4 text-muted-foreground mr-2" />
+ 138 │                   <span className="text-sm">{profile.phone}</span>
+ 139 │                 </div>
+ 140 │                 <div className="flex items-center">
+ 141 │                   <Globe className="h-4 w-4 text-muted-foreground mr-2" />
+ 142 │                   <span className="text-sm">{profile.website}</span>
+ 143 │                 </div>
+ 144 │               </div>
+ 145 │             </CardContent>
+ 146 │           </Card>
+ 147 │ 
+ 148 │           <Card className="mb-6">
+ 149 │             <CardHeader className="pb-0">
+ 150 │               <h3 className="font-semibold">Skills</h3>
+ 151 │             </CardHeader>
+ 152 │             <CardContent className="p-6">
+ 153 │               <div className="flex flex-wrap gap-2">
+ 154 │                 {profile.skills.map((skill, index) => (
+ 155 │                   <span
+ 156 │                     key={index}
+ 157 │                     className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary"
+ 158 │                   >
+ 159 │                     {skill}
+ 160 │                   </span>
+ 161 │                 ))}
+ 162 │               </div>
+ 163 │             </CardContent>
+ 164 │           </Card>
+ 165 │ 
+ 166 │           <Card>
+ 167 │             <CardHeader className="pb-0">
+ 168 │               <h3 className="font-semibold">Certifications</h3>
+ 169 │             </CardHeader>
+ 170 │             <CardContent className="p-6">
+ 171 │               <div className="space-y-3">
+ 172 │                 {profile.certifications.map((cert, index) => (
+ 173 │                   <div key={index} className="flex items-center">
+ 174 │                     <Award className="h-4 w-4 text-primary mr-2" />
+ 175 │                     <span className="text-sm">{cert}</span>
+ 176 │                   </div>
+ 177 │                 ))}
+ 178 │               </div>
+ 179 │             </CardContent>
+ 180 │           </Card>
+ 181 │         </div>
+ 182 │ 
+ 183 │         {/* Right Column - About, Experience, Posts */}
+ 184 │         <div className="md:col-span-2">
+ 185 │           <Card className="mb-6">
+ 186 │             <CardHeader className="pb-0">
+ 187 │               <h3 className="font-semibold">About</h3>
+ 188 │             </CardHeader>
+ 189 │             <CardContent className="p-6">
+ 190 │               <p>{profile.about}</p>
+ 191 │             </CardContent>
+ 192 │           </Card>
+ 193 │ 
+ 194 │           <Card className="mb-6">
+ 195 │             <CardHeader className="pb-0">
+ 196 │               <h3 className="font-semibold">Experience</h3>
+ 197 │             </CardHeader>
+ 198 │             <CardContent className="p-6">
+ 199 │               <div className="space-y-6">
+ 200 │                 {profile.experience.map((exp, index) => (
+ 201 │                   <div key={index} className="border-l-2 border-primary/30 pl-4">
+ 202 │                     <h4 className="font-semibold">{exp.title}</h4>
+ 203 │                     <div className="flex items-center text-sm mb-1">
+ 204 │                       <Briefcase className="h-4 w-4 text-muted-foreground mr-2" />
+ 205 │                       <span>{exp.company}</span>
+ 206 │                     </div>
+ 207 │                     <div className="flex items-center text-sm text-muted-foreground mb-2">
+ 208 │                       <Calendar className="h-4 w-4 mr-2" />
+ 209 │                       <span>{exp.period}</span>
+ 210 │                     </div>
+ 211 │                     <p className="text-sm">{exp.description}</p>
+ 212 │                   </div>
+ 213 │                 ))}
+ 214 │               </div>
+ 215 │             </CardContent>
+ 216 │           </Card>
+ 217 │ 
+ 218 │           <Card className="mb-6">
+ 219 │             <CardHeader className="pb-0">
+ 220 │               <h3 className="font-semibold">Education</h3>
+ 221 │             </CardHeader>
+ 222 │             <CardContent className="p-6">
+ 223 │               <div className="space-y-4">
+ 224 │                 {profile.education.map((edu, index) => (
+ 225 │                   <div key={index} className="border-l-2 border-primary/30 pl-4">
+ 226 │                     <h4 className="font-semibold">{edu.degree}</h4>
+ 227 │                     <div className="flex items-center text-sm mb-1">
+ 228 │                       <BookOpen className="h-4 w-4 text-muted-foreground mr-2" />
+ 229 │                       <span>{edu.institution}</span>
+ 230 │                     </div>
+ 231 │                     <div className="flex items-center text-sm text-muted-foreground">
+ 232 │                       <Calendar className="h-4 w-4 mr-2" />
+ 233 │                       <span>{edu.year}</span>
+ 234 │                     </div>
+ 235 │                   </div>
+ 236 │                 ))}
+ 237 │               </div>
+ 238 │             </CardContent>
+ 239 │           </Card>
+ 240 │ 
+ 241 │           <Card>
+ 242 │             <CardHeader className="pb-0">
+ 243 │               <h3 className="font-semibold">Activity</h3>
+ 244 │             </CardHeader>
+ 245 │             <CardContent className="p-6">
+ 246 │               <div className="space-y-6">
+ 247 │                 {profile.posts.map((post) => (
+ 248 │                   <div key={post.id} className="border-b pb-6 last:border-b-0 last:pb-0">
+ 249 │                     <div className="flex items-center mb-2">
+ 250 │                       <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mr-3">
+ 251 │                         <User className="h-5 w-5 text-primary" />
+ 252 │                       </div>
+ 253 │                       <div>
+ 254 │                         <h4 className="font-semibold">{profile.name}</h4>
+ 255 │                         <p className="text-xs text-muted-foreground">{post.time}</p>
+ 256 │                       </div>
+ 257 │                     </div>
+ 258 │                     <p className="mb-4">{post.content}</p>
+ 259 │                     <div className="flex gap-4">
+ 260 │                       <Button variant="ghost" size="sm" className="text-muted-foreground">
+ 261 │                         <ThumbsUp className="h-4 w-4 mr-2" />
+ 262 │                         {post.likes}
+ 263 │                       </Button>
+ 264 │                       <Button variant="ghost" size="sm" className="text-muted-foreground">
+ 265 │                         <MessageSquare className="h-4 w-4 mr-2" />
+ 266 │                         {post.comments}
+ 267 │                       </Button>
+ 268 │                       <Button variant="ghost" size="sm" className="text-muted-foreground">
+ 269 │                         <Share2 className="h-4 w-4 mr-2" />
+ 270 │                         {post.shares}
+ 271 │                       </Button>
+ 272 │                     </div>
+ 273 │                   </div>
+ 274 │                 ))}
+ 275 │               </div>
+ 276 │             </CardContent>
+ 277 │           </Card>
+ 278 │         </div>
+ 279 │       </div>
+ 280 │     </div>
+ 281 │   )
+ 282 │ }
+ 283 │ 
+ 284 │ "use client"
+ 285 │ 
+ 286 │ import * as React from "react"
+ 287 │ import { Button } from "@/components/ui/button"
+ 288 │ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+ 289 │ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+ 290 │ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+ 291 │ import { Badge } from "@/components/ui/badge"
+ 292 │ import { Pencil, Users, Briefcase, Award, FileText, MapPin, Mail, Link as LinkIcon } from "lucide-react"
+     ·                                                             ──┬─
+     ·                                                               ╰── `Mail` redefined here
+ 293 │ import { Progress } from "@/components/ui/progress"
+ 294 │ import Link from "next/link"
+     ╰────
+
+  × the name `ProfilePage` is defined multiple times
+     ╭─[/home/runner/workspace/app/profile/page.tsx:15:1]
+  15 │   Share2,
+  16 │ } from "lucide-react"
+  17 │ 
+  18 │ export default function ProfilePage() {
+     ·                         ─────┬─────
+     ·                              ╰── previous definition of `ProfilePage` here
+  19 │   const profile = {
+  20 │     name: "Sarah Johnson",
+  21 │     role: "ESG Compliance Manager",
+  22 │     company: "GreenTech Solutions",
+  23 │     location: "San Francisco, CA",
+  24 │     email: "sarah.johnson@example.com",
+  25 │     phone: "+1 (555) 123-4567",
+  26 │     website: "www.sarahjohnson.com",
+  27 │     about:
+  28 │       "Experienced ESG Compliance Manager with 8+ years of experience in environmental sustainability and corporate governance. Passionate about helping organizations implement effective ESG strategies and achieve compliance with regulatory requirements.",
+  29 │     experience: [
+  30 │       {
+  31 │         title: "ESG Compliance Manager",
+  32 │         company: "GreenTech Solutions",
+  33 │         period: "Jan 2020 - Present",
+  34 │         description:
+  35 │           "Lead ESG compliance initiatives and sustainability reporting. Reduced carbon footprint by 25% through innovative programs.",
+  36 │       },
+  37 │       {
+  38 │         title: "Environmental Specialist",
+  39 │         company: "EcoSystems Inc.",
+  40 │         period: "Mar 2016 - Dec 2019",
+  41 │         description:
+  42 │           "Managed environmental compliance programs and conducted sustainability audits for clients across various industries.",
+  43 │       },
+  44 │     ],
+  45 │     education: [
+  46 │       {
+  47 │         degree: "Master of Environmental Management",
+  48 │         institution: "Stanford University",
+  49 │         year: "2016",
+  50 │       },
+  51 │       {
+  52 │         degree: "Bachelor of Science in Environmental Science",
+  53 │         institution: "University of California, Berkeley",
+  54 │         year: "2014",
+  55 │       },
+  56 │     ],
+  57 │     certifications: [
+  58 │       "Certified ESG Analyst (CESGA)",
+  59 │       "ISO 14001 Lead Auditor",
+  60 │       "GRI Certified Sustainability Professional",
+  61 │       "LEED Green Associate",
+  62 │     ],
+  63 │     skills: [
+  64 │       "ESG Reporting",
+  65 │       "Sustainability Strategy",
+  66 │       "Environmental Compliance",
+  67 │       "Carbon Footprint Analysis",
+  68 │       "Stakeholder Engagement",
+  69 │       "Regulatory Affairs",
+  70 │       "Data Analysis",
+  71 │       "Project Management",
+  72 │     ],
+  73 │     posts: [
+  74 │       {
+  75 │         id: 1,
+  76 │         content:
+  77 │           "Just completed our quarterly ESG audit with flying colors! Our carbon reduction initiatives have exceeded targets by 15%. Proud of the team for their dedication to sustainability. #ESGCompliance #Sustainability",
+  78 │         time: "2 hours ago",
+  79 │         likes: 42,
+  80 │         comments: 8,
+  81 │         shares: 5,
+  82 │       },
+  83 │       {
+  84 │         id: 2,
+  85 │         content:
+  86 │           "Excited to share that I'll be speaking at the upcoming Sustainable Business Forum next month. Looking forward to discussing the latest trends in ESG reporting and compliance. Let me know if you'll be attending! #SustainableBusiness #ESG",
+  87 │         time: "3 days ago",
+  88 │         likes: 56,
+  89 │         comments: 12,
+  90 │         shares: 9,
+  91 │       },
+  92 │     ],
+  93 │   }
+  94 │ 
+  95 │   return (
+  96 │     <div className="container py-8">
+  97 │       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+  98 │         {/* Left Column - Profile Info */}
+  99 │         <div>
+ 100 │           <Card className="mb-6">
+ 101 │             <CardContent className="p-6">
+ 102 │               <div className="flex flex-col items-center text-center">
+ 103 │                 <div className="w-32 h-32 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+ 104 │                   <User className="h-16 w-16 text-primary" />
+ 105 │                 </div>
+ 106 │                 <h2 className="text-2xl font-bold">{profile.name}</h2>
+ 107 │                 <p className="text-muted-foreground mb-2">
+ 108 │                   {profile.role} at {profile.company}
+ 109 │                 </p>
+ 110 │                 <div className="flex items-center text-sm text-muted-foreground mb-4">
+ 111 │                   <MapPin className="h-4 w-4 mr-1" />
+ 112 │                   <span>{profile.location}</span>
+ 113 │                 </div>
+ 114 │ 
+ 115 │                 <Button variant="secondary" className="w-full mb-4">
+ 116 │                   Connect
+ 117 │                 </Button>
+ 118 │                 <Button variant="outline" className="w-full">
+ 119 │                   <MessageSquare className="mr-2 h-4 w-4" />
+ 120 │                   Message
+ 121 │                 </Button>
+ 122 │               </div>
+ 123 │             </CardContent>
+ 124 │           </Card>
+ 125 │ 
+ 126 │           <Card className="mb-6">
+ 127 │             <CardHeader className="pb-0">
+ 128 │               <h3 className="font-semibold">Contact Information</h3>
+ 129 │             </CardHeader>
+ 130 │             <CardContent className="p-6">
+ 131 │               <div className="space-y-3">
+ 132 │                 <div className="flex items-center">
+ 133 │                   <Mail className="h-4 w-4 text-muted-foreground mr-2" />
+ 134 │                   <span className="text-sm">{profile.email}</span>
+ 135 │                 </div>
+ 136 │                 <div className="flex items-center">
+ 137 │                   <Phone className="h-4 w-4 text-muted-foreground mr-2" />
+ 138 │                   <span className="text-sm">{profile.phone}</span>
+ 139 │                 </div>
+ 140 │                 <div className="flex items-center">
+ 141 │                   <Globe className="h-4 w-4 text-muted-foreground mr-2" />
+ 142 │                   <span className="text-sm">{profile.website}</span>
+ 143 │                 </div>
+ 144 │               </div>
+ 145 │             </CardContent>
+ 146 │           </Card>
+ 147 │ 
+ 148 │           <Card className="mb-6">
+ 149 │             <CardHeader className="pb-0">
+ 150 │               <h3 className="font-semibold">Skills</h3>
+ 151 │             </CardHeader>
+ 152 │             <CardContent className="p-6">
+ 153 │               <div className="flex flex-wrap gap-2">
+ 154 │                 {profile.skills.map((skill, index) => (
+ 155 │                   <span
+ 156 │                     key={index}
+ 157 │                     className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary"
+ 158 │                   >
+ 159 │                     {skill}
+ 160 │                   </span>
+ 161 │                 ))}
+ 162 │               </div>
+ 163 │             </CardContent>
+ 164 │           </Card>
+ 165 │ 
+ 166 │           <Card>
+ 167 │             <CardHeader className="pb-0">
+ 168 │               <h3 className="font-semibold">Certifications</h3>
+ 169 │             </CardHeader>
+ 170 │             <CardContent className="p-6">
+ 171 │               <div className="space-y-3">
+ 172 │                 {profile.certifications.map((cert, index) => (
+ 173 │                   <div key={index} className="flex items-center">
+ 174 │                     <Award className="h-4 w-4 text-primary mr-2" />
+ 175 │                     <span className="text-sm">{cert}</span>
+ 176 │                   </div>
+ 177 │                 ))}
+ 178 │               </div>
+ 179 │             </CardContent>
+ 180 │           </Card>
+ 181 │         </div>
+ 182 │ 
+ 183 │         {/* Right Column - About, Experience, Posts */}
+ 184 │         <div className="md:col-span-2">
+ 185 │           <Card className="mb-6">
+ 186 │             <CardHeader className="pb-0">
+ 187 │               <h3 className="font-semibold">About</h3>
+ 188 │             </CardHeader>
+ 189 │             <CardContent className="p-6">
+ 190 │               <p>{profile.about}</p>
+ 191 │             </CardContent>
+ 192 │           </Card>
+ 193 │ 
+ 194 │           <Card className="mb-6">
+ 195 │             <CardHeader className="pb-0">
+ 196 │               <h3 className="font-semibold">Experience</h3>
+ 197 │             </CardHeader>
+ 198 │             <CardContent className="p-6">
+ 199 │               <div className="space-y-6">
+ 200 │                 {profile.experience.map((exp, index) => (
+ 201 │                   <div key={index} className="border-l-2 border-primary/30 pl-4">
+ 202 │                     <h4 className="font-semibold">{exp.title}</h4>
+ 203 │                     <div className="flex items-center text-sm mb-1">
+ 204 │                       <Briefcase className="h-4 w-4 text-muted-foreground mr-2" />
+ 205 │                       <span>{exp.company}</span>
+ 206 │                     </div>
+ 207 │                     <div className="flex items-center text-sm text-muted-foreground mb-2">
+ 208 │                       <Calendar className="h-4 w-4 mr-2" />
+ 209 │                       <span>{exp.period}</span>
+ 210 │                     </div>
+ 211 │                     <p className="text-sm">{exp.description}</p>
+ 212 │                   </div>
+ 213 │                 ))}
+ 214 │               </div>
+ 215 │             </CardContent>
+ 216 │           </Card>
+ 217 │ 
+ 218 │           <Card className="mb-6">
+ 219 │             <CardHeader className="pb-0">
+ 220 │               <h3 className="font-semibold">Education</h3>
+ 221 │             </CardHeader>
+ 222 │             <CardContent className="p-6">
+ 223 │               <div className="space-y-4">
+ 224 │                 {profile.education.map((edu, index) => (
+ 225 │                   <div key={index} className="border-l-2 border-primary/30 pl-4">
+ 226 │                     <h4 className="font-semibold">{edu.degree}</h4>
+ 227 │                     <div className="flex items-center text-sm mb-1">
+ 228 │                       <BookOpen className="h-4 w-4 text-muted-foreground mr-2" />
+ 229 │                       <span>{edu.institution}</span>
+ 230 │                     </div>
+ 231 │                     <div className="flex items-center text-sm text-muted-foreground">
+ 232 │                       <Calendar className="h-4 w-4 mr-2" />
+ 233 │                       <span>{edu.year}</span>
+ 234 │                     </div>
+ 235 │                   </div>
+ 236 │                 ))}
+ 237 │               </div>
+ 238 │             </CardContent>
+ 239 │           </Card>
+ 240 │ 
+ 241 │           <Card>
+ 242 │             <CardHeader className="pb-0">
+ 243 │               <h3 className="font-semibold">Activity</h3>
+ 244 │             </CardHeader>
+ 245 │             <CardContent className="p-6">
+ 246 │               <div className="space-y-6">
+ 247 │                 {profile.posts.map((post) => (
+ 248 │                   <div key={post.id} className="border-b pb-6 last:border-b-0 last:pb-0">
+ 249 │                     <div className="flex items-center mb-2">
+ 250 │                       <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mr-3">
+ 251 │                         <User className="h-5 w-5 text-primary" />
+ 252 │                       </div>
+ 253 │                       <div>
+ 254 │                         <h4 className="font-semibold">{profile.name}</h4>
+ 255 │                         <p className="text-xs text-muted-foreground">{post.time}</p>
+ 256 │                       </div>
+ 257 │                     </div>
+ 258 │                     <p className="mb-4">{post.content}</p>
+ 259 │                     <div className="flex gap-4">
+ 260 │                       <Button variant="ghost" size="sm" className="text-muted-foreground">
+ 261 │                         <ThumbsUp className="h-4 w-4 mr-2" />
+ 262 │                         {post.likes}
+ 263 │                       </Button>
+ 264 │                       <Button variant="ghost" size="sm" className="text-muted-foreground">
+ 265 │                         <MessageSquare className="h-4 w-4 mr-2" />
+ 266 │                         {post.comments}
+ 267 │                       </Button>
+ 268 │                       <Button variant="ghost" size="sm" className="text-muted-foreground">
+ 269 │                         <Share2 className="h-4 w-4 mr-2" />
+ 270 │                         {post.shares}
+ 271 │                       </Button>
+ 272 │                     </div>
+ 273 │                   </div>
+ 274 │                 ))}
+ 275 │               </div>
+ 276 │             </CardContent>
+ 277 │           </Card>
+ 278 │         </div>
+ 279 │       </div>
+ 280 │     </div>
+ 281 │   )
+ 282 │ }
+ 283 │ 
+ 284 │ "use client"
+ 285 │ 
+ 286 │ import * as React from "react"
+ 287 │ import { Button } from "@/components/ui/button"
+ 288 │ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+ 289 │ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+ 290 │ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+ 291 │ import { Badge } from "@/components/ui/badge"
+ 292 │ import { Pencil, Users, Briefcase, Award, FileText, MapPin, Mail, Link as LinkIcon } from "lucide-react"
+ 293 │ import { Progress } from "@/components/ui/progress"
+ 294 │ import Link from "next/link"
+ 295 │ 
+ 296 │ export default function ProfilePage() {
+     ·                         ─────┬─────
+     ·                              ╰── `ProfilePage` redefined here
+ 297 │   return (
+ 298 │     <div className="container py-10">
+ 299 │       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+     ╰────
+
+  × the name `default` is exported multiple times
+     ╭─[/home/runner/workspace/app/profile/page.tsx:15:1]
+  15 │       Share2,
+  16 │     } from "lucide-react"
+  17 │     
+  18 │ ╭─▶ export default function ProfilePage() {
+  19 │ │     const profile = {
+  20 │ │       name: "Sarah Johnson",
+  21 │ │       role: "ESG Compliance Manager",
+  22 │ │       company: "GreenTech Solutions",
+  23 │ │       location: "San Francisco, CA",
+  24 │ │       email: "sarah.johnson@example.com",
+  25 │ │       phone: "+1 (555) 123-4567",
+  26 │ │       website: "www.sarahjohnson.com",
+  27 │ │       about:
+  28 │ │         "Experienced ESG Compliance Manager with 8+ years of experience in environmental sustainability and corporate governance. Passionate about helping organizations implement effective ESG strategies and achieve compliance with regulatory requirements.",
+  29 │ │       experience: [
+  30 │ │         {
+  31 │ │           title: "ESG Compliance Manager",
+  32 │ │           company: "GreenTech Solutions",
+  33 │ │           period: "Jan 2020 - Present",
+  34 │ │           description:
+  35 │ │             "Lead ESG compliance initiatives and sustainability reporting. Reduced carbon footprint by 25% through innovative programs.",
+  36 │ │         },
+  37 │ │         {
+  38 │ │           title: "Environmental Specialist",
+  39 │ │           company: "EcoSystems Inc.",
+  40 │ │           period: "Mar 2016 - Dec 2019",
+  41 │ │           description:
+  42 │ │             "Managed environmental compliance programs and conducted sustainability audits for clients across various industries.",
+  43 │ │         },
+  44 │ │       ],
+  45 │ │       education: [
+  46 │ │         {
+  47 │ │           degree: "Master of Environmental Management",
+  48 │ │           institution: "Stanford University",
+  49 │ │           year: "2016",
+  50 │ │         },
+  51 │ │         {
+  52 │ │           degree: "Bachelor of Science in Environmental Science",
+  53 │ │           institution: "University of California, Berkeley",
+  54 │ │           year: "2014",
+  55 │ │         },
+  56 │ │       ],
+  57 │ │       certifications: [
+  58 │ │         "Certified ESG Analyst (CESGA)",
+  59 │ │         "ISO 14001 Lead Auditor",
+  60 │ │         "GRI Certified Sustainability Professional",
+  61 │ │         "LEED Green Associate",
+  62 │ │       ],
+  63 │ │       skills: [
+  64 │ │         "ESG Reporting",
+  65 │ │         "Sustainability Strategy",
+  66 │ │         "Environmental Compliance",
+  67 │ │         "Carbon Footprint Analysis",
+  68 │ │         "Stakeholder Engagement",
+  69 │ │         "Regulatory Affairs",
+  70 │ │         "Data Analysis",
+  71 │ │         "Project Management",
+  72 │ │       ],
+  73 │ │       posts: [
+  74 │ │         {
+  75 │ │           id: 1,
+  76 │ │           content:
+  77 │ │             "Just completed our quarterly ESG audit with flying colors! Our carbon reduction initiatives have exceeded targets by 15%. Proud of the team for their dedication to sustainability. #ESGCompliance #Sustainability",
+  78 │ │           time: "2 hours ago",
+  79 │ │           likes: 42,
+  80 │ │           comments: 8,
+  81 │ │           shares: 5,
+  82 │ │         },
+  83 │ │         {
+  84 │ │           id: 2,
+  85 │ │           content:
+  86 │ │             "Excited to share that I'll be speaking at the upcoming Sustainable Business Forum next month. Looking forward to discussing the latest trends in ESG reporting and compliance. Let me know if you'll be attending! #SustainableBusiness #ESG",
+  87 │ │           time: "3 days ago",
+  88 │ │           likes: 56,
+  89 │ │           comments: 12,
+  90 │ │           shares: 9,
+  91 │ │         },
+  92 │ │       ],
+  93 │ │     }
+  94 │ │   
+  95 │ │     return (
+  96 │ │       <div className="container py-8">
+  97 │ │         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+  98 │ │           {/* Left Column - Profile Info */}
+  99 │ │           <div>
+ 100 │ │             <Card className="mb-6">
+ 101 │ │               <CardContent className="p-6">
+ 102 │ │                 <div className="flex flex-col items-center text-center">
+ 103 │ │                   <div className="w-32 h-32 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+ 104 │ │                     <User className="h-16 w-16 text-primary" />
+ 105 │ │                   </div>
+ 106 │ │                   <h2 className="text-2xl font-bold">{profile.name}</h2>
+ 107 │ │                   <p className="text-muted-foreground mb-2">
+ 108 │ │                     {profile.role} at {profile.company}
+ 109 │ │                   </p>
+ 110 │ │                   <div className="flex items-center text-sm text-muted-foreground mb-4">
+ 111 │ │                     <MapPin className="h-4 w-4 mr-1" />
+ 112 │ │                     <span>{profile.location}</span>
+ 113 │ │                   </div>
+ 114 │ │   
+ 115 │ │                   <Button variant="secondary" className="w-full mb-4">
+ 116 │ │                     Connect
+ 117 │ │                   </Button>
+ 118 │ │                   <Button variant="outline" className="w-full">
+ 119 │ │                     <MessageSquare className="mr-2 h-4 w-4" />
+ 120 │ │                     Message
+ 121 │ │                   </Button>
+ 122 │ │                 </div>
+ 123 │ │               </CardContent>
+ 124 │ │             </Card>
+ 125 │ │   
+ 126 │ │             <Card className="mb-6">
+ 127 │ │               <CardHeader className="pb-0">
+ 128 │ │                 <h3 className="font-semibold">Contact Information</h3>
+ 129 │ │               </CardHeader>
+ 130 │ │               <CardContent className="p-6">
+ 131 │ │                 <div className="space-y-3">
+ 132 │ │                   <div className="flex items-center">
+ 133 │ │                     <Mail className="h-4 w-4 text-muted-foreground mr-2" />
+ 134 │ │                     <span className="text-sm">{profile.email}</span>
+ 135 │ │                   </div>
+ 136 │ │                   <div className="flex items-center">
+ 137 │ │                     <Phone className="h-4 w-4 text-muted-foreground mr-2" />
+ 138 │ │                     <span className="text-sm">{profile.phone}</span>
+ 139 │ │                   </div>
+ 140 │ │                   <div className="flex items-center">
+ 141 │ │                     <Globe className="h-4 w-4 text-muted-foreground mr-2" />
+ 142 │ │                     <span className="text-sm">{profile.website}</span>
+ 143 │ │                   </div>
+ 144 │ │                 </div>
+ 145 │ │               </CardContent>
+ 146 │ │             </Card>
+ 147 │ │   
+ 148 │ │             <Card className="mb-6">
+ 149 │ │               <CardHeader className="pb-0">
+ 150 │ │                 <h3 className="font-semibold">Skills</h3>
+ 151 │ │               </CardHeader>
+ 152 │ │               <CardContent className="p-6">
+ 153 │ │                 <div className="flex flex-wrap gap-2">
+ 154 │ │                   {profile.skills.map((skill, index) => (
+ 155 │ │                     <span
+ 156 │ │                       key={index}
+ 157 │ │                       className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary"
+ 158 │ │                     >
+ 159 │ │                       {skill}
+ 160 │ │                     </span>
+ 161 │ │                   ))}
+ 162 │ │                 </div>
+ 163 │ │               </CardContent>
+ 164 │ │             </Card>
+ 165 │ │   
+ 166 │ │             <Card>
+ 167 │ │               <CardHeader className="pb-0">
+ 168 │ │                 <h3 className="font-semibold">Certifications</h3>
+ 169 │ │               </CardHeader>
+ 170 │ │               <CardContent className="p-6">
+ 171 │ │                 <div className="space-y-3">
+ 172 │ │                   {profile.certifications.map((cert, index) => (
+ 173 │ │                     <div key={index} className="flex items-center">
+ 174 │ │                       <Award className="h-4 w-4 text-primary mr-2" />
+ 175 │ │                       <span className="text-sm">{cert}</span>
+ 176 │ │                     </div>
+ 177 │ │                   ))}
+ 178 │ │                 </div>
+ 179 │ │               </CardContent>
+ 180 │ │             </Card>
+ 181 │ │           </div>
+ 182 │ │   
+ 183 │ │           {/* Right Column - About, Experience, Posts */}
+ 184 │ │           <div className="md:col-span-2">
+ 185 │ │             <Card className="mb-6">
+ 186 │ │               <CardHeader className="pb-0">
+ 187 │ │                 <h3 className="font-semibold">About</h3>
+ 188 │ │               </CardHeader>
+ 189 │ │               <CardContent className="p-6">
+ 190 │ │                 <p>{profile.about}</p>
+ 191 │ │               </CardContent>
+ 192 │ │             </Card>
+ 193 │ │   
+ 194 │ │             <Card className="mb-6">
+ 195 │ │               <CardHeader className="pb-0">
+ 196 │ │                 <h3 className="font-semibold">Experience</h3>
+ 197 │ │               </CardHeader>
+ 198 │ │               <CardContent className="p-6">
+ 199 │ │                 <div className="space-y-6">
+ 200 │ │                   {profile.experience.map((exp, index) => (
+ 201 │ │                     <div key={index} className="border-l-2 border-primary/30 pl-4">
+ 202 │ │                       <h4 className="font-semibold">{exp.title}</h4>
+ 203 │ │                       <div className="flex items-center text-sm mb-1">
+ 204 │ │                         <Briefcase className="h-4 w-4 text-muted-foreground mr-2" />
+ 205 │ │                         <span>{exp.company}</span>
+ 206 │ │                       </div>
+ 207 │ │                       <div className="flex items-center text-sm text-muted-foreground mb-2">
+ 208 │ │                         <Calendar className="h-4 w-4 mr-2" />
+ 209 │ │                         <span>{exp.period}</span>
+ 210 │ │                       </div>
+ 211 │ │                       <p className="text-sm">{exp.description}</p>
+ 212 │ │                     </div>
+ 213 │ │                   ))}
+ 214 │ │                 </div>
+ 215 │ │               </CardContent>
+ 216 │ │             </Card>
+ 217 │ │   
+ 218 │ │             <Card className="mb-6">
+ 219 │ │               <CardHeader className="pb-0">
+ 220 │ │                 <h3 className="font-semibold">Education</h3>
+ 221 │ │               </CardHeader>
+ 222 │ │               <CardContent className="p-6">
+ 223 │ │                 <div className="space-y-4">
+ 224 │ │                   {profile.education.map((edu, index) => (
+ 225 │ │                     <div key={index} className="border-l-2 border-primary/30 pl-4">
+ 226 │ │                       <h4 className="font-semibold">{edu.degree}</h4>
+ 227 │ │                       <div className="flex items-center text-sm mb-1">
+ 228 │ │                         <BookOpen className="h-4 w-4 text-muted-foreground mr-2" />
+ 229 │ │                         <span>{edu.institution}</span>
+ 230 │ │                       </div>
+ 231 │ │                       <div className="flex items-center text-sm text-muted-foreground">
+ 232 │ │                         <Calendar className="h-4 w-4 mr-2" />
+ 233 │ │                         <span>{edu.year}</span>
+ 234 │ │                       </div>
+ 235 │ │                     </div>
+ 236 │ │                   ))}
+ 237 │ │                 </div>
+ 238 │ │               </CardContent>
+ 239 │ │             </Card>
+ 240 │ │   
+ 241 │ │             <Card>
+ 242 │ │               <CardHeader className="pb-0">
+ 243 │ │                 <h3 className="font-semibold">Activity</h3>
+ 244 │ │               </CardHeader>
+ 245 │ │               <CardContent className="p-6">
+ 246 │ │                 <div className="space-y-6">
+ 247 │ │                   {profile.posts.map((post) => (
+ 248 │ │                     <div key={post.id} className="border-b pb-6 last:border-b-0 last:pb-0">
+ 249 │ │                       <div className="flex items-center mb-2">
+ 250 │ │                         <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mr-3">
+ 251 │ │                           <User className="h-5 w-5 text-primary" />
+ 252 │ │                         </div>
+ 253 │ │                         <div>
+ 254 │ │                           <h4 className="font-semibold">{profile.name}</h4>
+ 255 │ │                           <p className="text-xs text-muted-foreground">{post.time}</p>
+ 256 │ │                         </div>
+ 257 │ │                       </div>
+ 258 │ │                       <p className="mb-4">{post.content}</p>
+ 259 │ │                       <div className="flex gap-4">
+ 260 │ │                         <Button variant="ghost" size="sm" className="text-muted-foreground">
+ 261 │ │                           <ThumbsUp className="h-4 w-4 mr-2" />
+ 262 │ │                           {post.likes}
+ 263 │ │                         </Button>
+ 264 │ │                         <Button variant="ghost" size="sm" className="text-muted-foreground">
+ 265 │ │                           <MessageSquare className="h-4 w-4 mr-2" />
+ 266 │ │                           {post.comments}
+ 267 │ │                         </Button>
+ 268 │ │                         <Button variant="ghost" size="sm" className="text-muted-foreground">
+ 269 │ │                           <Share2 className="h-4 w-4 mr-2" />
+ 270 │ │                           {post.shares}
+ 271 │ │                         </Button>
+ 272 │ │                       </div>
+ 273 │ │                     </div>
+ 274 │ │                   ))}
+ 275 │ │                 </div>
+ 276 │ │               </CardContent>
+ 277 │ │             </Card>
+ 278 │ │           </div>
+ 279 │ │         </div>
+ 280 │ │       </div>
+ 281 │ │     )
+ 282 │ ├─▶ }
+     · ╰──── previous exported here
+ 283 │     
+ 284 │     "use client"
+ 285 │     
+ 286 │     import * as React from "react"
+ 287 │     import { Button } from "@/components/ui/button"
+ 288 │     import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+ 289 │     import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+ 290 │     import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+ 291 │     import { Badge } from "@/components/ui/badge"
+ 292 │     import { Pencil, Users, Briefcase, Award, FileText, MapPin, Mail, Link as LinkIcon } from "lucide-react"
+ 293 │     import { Progress } from "@/components/ui/progress"
+ 294 │     import Link from "next/link"
+ 295 │     
+ 296 │ ╭─▶ export default function ProfilePage() {
+ 297 │ │     return (
+ 298 │ │       <div className="container py-10">
+ 299 │ │         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+ 300 │ │           {/* Profile sidebar */}
+ 301 │ │           <div className="lg:col-span-4 space-y-6">
+ 302 │ │             <Card>
+ 303 │ │               <CardHeader className="relative pb-0">
+ 304 │ │                 <div className="absolute right-4 top-4">
+ 305 │ │                   <Button variant="ghost" size="icon">
+ 306 │ │                     <Pencil className="h-4 w-4" />
+ 307 │ │                   </Button>
+ 308 │ │                 </div>
+ 309 │ │                 <div className="flex flex-col items-center">
+ 310 │ │                   <Avatar className="h-24 w-24 mb-4">
+ 311 │ │                     <AvatarImage src="/placeholder-user.jpg" alt="John Doe" />
+ 312 │ │                     <AvatarFallback>JD</AvatarFallback>
+ 313 │ │                   </Avatar>
+ 314 │ │                   <CardTitle className="text-2xl font-bold">John Doe</CardTitle>
+ 315 │ │                   <CardDescription className="text-md text-center">
+ 316 │ │                     EHS Specialist at Green Energy Solutions
+ 317 │ │                   </CardDescription>
+ 318 │ │                   <div className="flex items-center mt-2">
+ 319 │ │                     <MapPin className="h-4 w-4 mr-1 text-muted-foreground" />
+ 320 │ │                     <span className="text-sm text-muted-foreground">San Francisco, CA</span>
+ 321 │ │                   </div>
+ 322 │ │                   <div className="flex gap-2 mt-4">
+ 323 │ │                     <Badge className="bg-secondary">Audit Specialist</Badge>
+ 324 │ │                     <Badge variant="outline">ISO 45001</Badge>
+ 325 │ │                     <Badge variant="outline">ESG</Badge>
+ 326 │ │                   </div>
+ 327 │ │                 </div>
+ 328 │ │               </CardHeader>
+ 329 │ │               <CardContent className="pt-6">
+ 330 │ │                 <div className="space-y-4">
+ 331 │ │                   <div className="flex items-center justify-between">
+ 332 │ │                     <div className="text-sm font-medium">Profile completion</div>
+ 333 │ │                     <div className="text-sm text-muted-foreground">85%</div>
+ 334 │ │                   </div>
+ 335 │ │                   <Progress value={85} className="h-2" />
+ 336 │ │                   
+ 337 │ │                   <div className="flex justify-between items-center pt-4">
+ 338 │ │                     <Button variant="outline" className="w-full mr-2">
+ 339 │ │                       <Users className="h-4 w-4 mr-2" />
+ 340 │ │                       Connections (284)
+ 341 │ │                     </Button>
+ 342 │ │                     <Button className="w-full bg-primary">
+ 343 │ │                       <Mail className="h-4 w-4 mr-2" />
+ 344 │ │                       Message
+ 345 │ │                     </Button>
+ 346 │ │                   </div>
+ 347 │ │                 </div>
+ 348 │ │               </CardContent>
+ 349 │ │             </Card>
+ 350 │ │             
+ 351 │ │             <Card>
+ 352 │ │               <CardHeader>
+ 353 │ │                 <CardTitle className="text-lg">About</CardTitle>
+ 354 │ │               </CardHeader>
+ 355 │ │               <CardContent>
+ 356 │ │                 <p className="text-sm text-muted-foreground">
+ 357 │ │                   EHS professional with 8+ years of experience in implementing safety programs and ensuring regulatory compliance across multiple industries. Passionate about creating safer workplaces and sustainable practices.
+ 358 │ │                 </p>
+ 359 │ │                 <div className="mt-4 space-y-2">
+ 360 │ │                   <div className="flex items-center">
+ 361 │ │                     <Briefcase className="h-4 w-4 mr-2 text-muted-foreground" />
+ 362 │ │                     <span className="text-sm">EHS Specialist at Green Energy Solutions</span>
+ 363 │ │                   </div>
+ 364 │ │                   <div className="flex items-center">
+ 365 │ │                     <Award className="h-4 w-4 mr-2 text-muted-foreground" />
+ 366 │ │                     <span className="text-sm">Certified Safety Professional (CSP)</span>
+ 367 │ │                   </div>
+ 368 │ │                   <div className="flex items-center">
+ 369 │ │                     <FileText className="h-4 w-4 mr-2 text-muted-foreground" />
+ 370 │ │                     <span className="text-sm">MBA in Sustainable Business</span>
+ 371 │ │                   </div>
+ 372 │ │                   <div className="flex items-center">
+ 373 │ │                     <LinkIcon className="h-4 w-4 mr-2 text-muted-foreground" />
+ 374 │ │                     <Link href="https://example.com/portfolio" className="text-sm text-primary hover:underline">
+ 375 │ │                       https://example.com/portfolio
+ 376 │ │                     </Link>
+ 377 │ │                   </div>
+ 378 │ │                 </div>
+ 379 │ │               </CardContent>
+ 380 │ │             </Card>
+ 381 │ │             
+ 382 │ │             <Card>
+ 383 │ │               <CardHeader>
+ 384 │ │                 <CardTitle className="text-lg">Skills & Expertise</CardTitle>
+ 385 │ │               </CardHeader>
+ 386 │ │               <CardContent>
+ 387 │ │                 <div className="flex flex-wrap gap-2">
+ 388 │ │                   <Badge variant="secondary">ISO 45001</Badge>
+ 389 │ │                   <Badge variant="secondary">Risk Assessment</Badge>
+ 390 │ │                   <Badge variant="secondary">Safety Audits</Badge>
+ 391 │ │                   <Badge variant="secondary">Compliance Management</Badge>
+ 392 │ │                   <Badge variant="secondary">Sustainability Reporting</Badge>
+ 393 │ │                   <Badge variant="secondary">Carbon Footprint</Badge>
+ 394 │ │                   <Badge variant="secondary">ESG Strategy</Badge>
+ 395 │ │                   <Badge variant="secondary">Incident Investigation</Badge>
+ 396 │ │                   <Badge variant="secondary">Safety Culture</Badge>
+ 397 │ │                   <Badge variant="secondary">OSHA</Badge>
+ 398 │ │                   <Badge variant="secondary">Environmental Permits</Badge>
+ 399 │ │                 </div>
+ 400 │ │               </CardContent>
+ 401 │ │             </Card>
+ 402 │ │             
+ 403 │ │             <Card>
+ 404 │ │               <CardHeader>
+ 405 │ │                 <CardTitle className="text-lg">Certifications</CardTitle>
+ 406 │ │               </CardHeader>
+ 407 │ │               <CardContent className="space-y-4">
+ 408 │ │                 <div>
+ 409 │ │                   <div className="font-medium">Certified Safety Professional (CSP)</div>
+ 410 │ │                   <div className="text-sm text-muted-foreground">Board of Certified Safety Professionals</div>
+ 411 │ │                   <div className="text-sm text-muted-foreground">Expires: Dec 2025</div>
+ 412 │ │                 </div>
+ 413 │ │                 <div>
+ 414 │ │                   <div className="font-medium">Certified Environmental Professional (CEP)</div>
+ 415 │ │                   <div className="text-sm text-muted-foreground">Institute of Professional Environmental Practice</div>
+ 416 │ │                   <div className="text-sm text-muted-foreground">Expires: Aug 2024</div>
+ 417 │ │                 </div>
+ 418 │ │                 <div>
+ 419 │ │                   <div className="font-medium">ISO 45001 Lead Auditor</div>
+ 420 │ │                   <div className="text-sm text-muted-foreground">International Organization for Standardization</div>
+ 421 │ │                   <div className="text-sm text-muted-foreground">Issued: May 2022</div>
+ 422 │ │                 </div>
+ 423 │ │               </CardContent>
+ 424 │ │             </Card>
+ 425 │ │           </div>
+ 426 │ │           
+ 427 │ │           {/* Main content */}
+ 428 │ │           <div className="lg:col-span-8 space-y-6">
+ 429 │ │             <Tabs defaultValue="activity">
+ 430 │ │               <TabsList className="w-full">
+ 431 │ │                 <TabsTrigger value="activity" className="flex-1">Activity</TabsTrigger>
+ 432 │ │                 <TabsTrigger value="experience" className="flex-1">Experience</TabsTrigger>
+ 433 │ │                 <TabsTrigger value="contributions" className="flex-1">Contributions</TabsTrigger>
+ 434 │ │                 <TabsTrigger value="badges" className="flex-1">Badges</TabsTrigger>
+ 435 │ │               </TabsList>
+ 436 │ │               
+ 437 │ │               <TabsContent value="activity" className="space-y-4 mt-6">
+ 438 │ │                 <Card>
+ 439 │ │                   <CardContent className="pt-6">
+ 440 │ │                     <div className="flex space-x-4">
+ 441 │ │                       <Avatar>
+ 442 │ │                         <AvatarImage src="/placeholder-user.jpg" alt="John Doe" />
+ 443 │ │                         <AvatarFallback>JD</AvatarFallback>
+ 444 │ │                       </Avatar>
+ 445 │ │                       <div className="flex-1">
+ 446 │ │                         <div className="flex items-center justify-between">
+ 447 │ │                           <div>
+ 448 │ │                             <span className="font-medium">John Doe</span>
+ 449 │ │                             <span className="text-muted-foreground"> shared a document</span>
+ 450 │ │                           </div>
+ 451 │ │                           <span className="text-xs text-muted-foreground">2 days ago</span>
+ 452 │ │                         </div>
+ 453 │ │                         <p className="mt-2">
+ 454 │ │                           Just updated our Safety Management System to align with the new ISO 45001:2018 standard. Check it out!
+ 455 │ │                         </p>
+ 456 │ │                         <div className="mt-4 p-4 bg-muted rounded-md">
+ 457 │ │                           <div className="flex items-center">
+ 458 │ │                             <FileText className="h-10 w-10 mr-3 text-primary" />
+ 459 │ │                             <div>
+ 460 │ │                               <div className="font-medium">Safety Management System - ISO 45001:2018</div>
+ 461 │ │                               <div className="text-sm text-muted-foreground">PDF Document • 2.4MB</div>
+ 462 │ │                             </div>
+ 463 │ │                           </div>
+ 464 │ │                         </div>
+ 465 │ │                         <div className="flex items-center space-x-4 mt-4">
+ 466 │ │                           <Button variant="ghost" size="sm">
+ 467 │ │                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1">
+ 468 │ │                               <path d="M7 10v12"></path><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2h0a3.13 3.13 0 0 1 3 3.88Z"></path>
+ 469 │ │                             </svg>
+ 470 │ │                             Like
+ 471 │ │                           </Button>
+ 472 │ │                           <Button variant="ghost" size="sm">
+ 473 │ │                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1">
+ 474 │ │                               <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+ 475 │ │                             </svg>
+ 476 │ │                             Comment
+ 477 │ │                           </Button>
+ 478 │ │                           <Button variant="ghost" size="sm">
+ 479 │ │                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1">
+ 480 │ │                               <circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+ 481 │ │                             </svg>
+ 482 │ │                             Share
+ 483 │ │                           </Button>
+ 484 │ │                         </div>
+ 485 │ │                       </div>
+ 486 │ │                     </div>
+ 487 │ │                   </CardContent>
+ 488 │ │                 </Card>
+ 489 │ │                 
+ 490 │ │                 <Card>
+ 491 │ │                   <CardContent className="pt-6">
+ 492 │ │                     <div className="flex space-x-4">
+ 493 │ │                       <Avatar>
+ 494 │ │                         <AvatarImage src="/placeholder-user.jpg" alt="John Doe" />
+ 495 │ │                         <AvatarFallback>JD</AvatarFallback>
+ 496 │ │                       </Avatar>
+ 497 │ │                       <div className="flex-1">
+ 498 │ │                         <div className="flex items-center justify-between">
+ 499 │ │                           <div>
+ 500 │ │                             <span className="font-medium">John Doe</span>
+ 501 │ │                             <span className="text-muted-foreground"> posted in </span>
+ 502 │ │                             <span className="font-medium">Renewable Energy Compliance</span>
+ 503 │ │                           </div>
+ 504 │ │                           <span className="text-xs text-muted-foreground">1 week ago</span>
+ 505 │ │                         </div>
+ 506 │ │                         <p className="mt-2">
+ 507 │ │                           Has anyone implemented the new carbon reporting requirements for renewable energy projects? Looking for some guidance on best practices for data collection and verification.
+ 508 │ │                         </p>
+ 509 │ │                         <div className="flex items-center space-x-4 mt-4">
+ 510 │ │                           <Button variant="ghost" size="sm">
+ 511 │ │                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1">
+ 512 │ │                               <path d="M7 10v12"></path><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2h0a3.13 3.13 0 0 1 3 3.88Z"></path>
+ 513 │ │                             </svg>
+ 514 │ │                             Like
+ 515 │ │                           </Button>
+ 516 │ │                           <Button variant="ghost" size="sm">
+ 517 │ │                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1">
+ 518 │ │                               <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+ 519 │ │                             </svg>
+ 520 │ │                             Comment
+ 521 │ │                           </Button>
+ 522 │ │                           <Button variant="ghost" size="sm">
+ 523 │ │                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1">
+ 524 │ │                               <circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+ 525 │ │                             </svg>
+ 526 │ │                             Share
+ 527 │ │                           </Button>
+ 528 │ │                         </div>
+ 529 │ │                       </div>
+ 530 │ │                     </div>
+ 531 │ │                   </CardContent>
+ 532 │ │                 </Card>
+ 533 │ │               </TabsContent>
+ 534 │ │               
+ 535 │ │               <TabsContent value="experience" className="space-y-4 mt-6">
+ 536 │ │                 <Card>
+ 537 │ │                   <CardHeader>
+ 538 │ │                     <CardTitle className="text-lg">Work Experience</CardTitle>
+ 539 │ │                   </CardHeader>
+ 540 │ │                   <CardContent className="space-y-6">
+ 541 │ │                     <div className="border-l-2 border-primary pl-4 space-y-2">
+ 542 │ │                       <div className="flex justify-between">
+ 543 │ │                         <div className="font-medium">EHS Specialist</div>
+ 544 │ │                         <div className="text-sm text-muted-foreground">Jun 2021 - Present</div>
+ 545 │ │                       </div>
+ 546 │ │                       <div className="text-sm font-medium text-primary">Green Energy Solutions</div>
+ 547 │ │                       <p className="text-sm text-muted-foreground">
+ 548 │ │                         Led compliance and safety programs for renewable energy projects across the Western US. Implemented ISO 45001 management systems and reduced incident rates by 35% in the first year.
+ 549 │ │                       </p>
+ 550 │ │                       <div className="flex flex-wrap gap-2 mt-2">
+ 551 │ │                         <Badge variant="outline">ISO 45001</Badge>
+ 552 │ │                         <Badge variant="outline">Incident Investigation</Badge>
+ 553 │ │                         <Badge variant="outline">Environmental Permits</Badge>
+ 554 │ │                       </div>
+ 555 │ │                     </div>
+ 556 │ │                     
+ 557 │ │                     <div className="border-l-2 border-muted pl-4 space-y-2">
+ 558 │ │                       <div className="flex justify-between">
+ 559 │ │                         <div className="font-medium">Safety Manager</div>
+ 560 │ │                         <div className="text-sm text-muted-foreground">Mar 2018 - May 2021</div>
+ 561 │ │                       </div>
+ 562 │ │                       <div className="text-sm font-medium text-primary">BuildRight Construction</div>
+ 563 │ │                       <p className="text-sm text-muted-foreground">
+ 564 │ │                         Managed all aspects of safety and health for commercial construction projects. Developed and implemented safety training programs for 200+ employees.
+ 565 │ │                       </p>
+ 566 │ │                       <div className="flex flex-wrap gap-2 mt-2">
+ 567 │ │                         <Badge variant="outline">OSHA</Badge>
+ 568 │ │                         <Badge variant="outline">Safety Training</Badge>
+ 569 │ │                         <Badge variant="outline">Risk Assessment</Badge>
+ 570 │ │                       </div>
+ 571 │ │                     </div>
+ 572 │ │                     
+ 573 │ │                     <div className="border-l-2 border-muted pl-4 space-y-2">
+ 574 │ │                       <div className="flex justify-between">
+ 575 │ │                         <div className="font-medium">Environmental Specialist</div>
+ 576 │ │                         <div className="text-sm text-muted-foreground">Aug 2015 - Feb 2018</div>
+ 577 │ │                       </div>
+ 578 │ │                       <div className="text-sm font-medium text-primary">EcoSolutions Inc.</div>
+ 579 │ │                       <p className="text-sm text-muted-foreground">
+ 580 │ │                         Conducted environmental impact assessments and ensured compliance with state and federal regulations for manufacturing clients.
+ 581 │ │                       </p>
+ 582 │ │                       <div className="flex flex-wrap gap-2 mt-2">
+ 583 │ │                         <Badge variant="outline">Environmental Compliance</Badge>
+ 584 │ │                         <Badge variant="outline">Waste Management</Badge>
+ 585 │ │                         <Badge variant="outline">Auditing</Badge>
+ 586 │ │                       </div>
+ 587 │ │                     </div>
+ 588 │ │                   </CardContent>
+ 589 │ │                 </Card>
+ 590 │ │                 
+ 591 │ │                 <Card>
+ 592 │ │                   <CardHeader>
+ 593 │ │                     <CardTitle className="text-lg">Education</CardTitle>
+ 594 │ │                   </CardHeader>
+ 595 │ │                   <CardContent className="space-y-6">
+ 596 │ │                     <div className="border-l-2 border-primary pl-4 space-y-2">
+ 597 │ │                       <div className="flex justify-between">
+ 598 │ │                         <div className="font-medium">MBA, Sustainable Business</div>
+ 599 │ │                         <div className="text-sm text-muted-foreground">2013 - 2015</div>
+ 600 │ │                       </div>
+ 601 │ │                       <div className="text-sm font-medium text-primary">Stanford University</div>
+ 602 │ │                       <p className="text-sm text-muted-foreground">
+ 603 │ │                         Focused on sustainable business practices and environmental management systems.
+ 604 │ │                       </p>
+ 605 │ │                     </div>
+ 606 │ │                     
+ 607 │ │                     <div className="border-l-2 border-muted pl-4 space-y-2">
+ 608 │ │                       <div className="flex justify-between">
+ 609 │ │                         <div className="font-medium">BS, Environmental Science</div>
+ 610 │ │                         <div className="text-sm text-muted-foreground">2009 - 2013</div>
+ 611 │ │                       </div>
+ 612 │ │                       <div className="text-sm font-medium text-primary">University of California, Berkeley</div>
+ 613 │ │                       <p className="text-sm text-muted-foreground">
+ 614 │ │                         Minor in Occupational Health and Safety.
+ 615 │ │                       </p>
+ 616 │ │                     </div>
+ 617 │ │                   </CardContent>
+ 618 │ │                 </Card>
+ 619 │ │               </TabsContent>
+ 620 │ │               
+ 621 │ │               <TabsContent value="contributions" className="space-y-4 mt-6">
+ 622 │ │                 <Card>
+ 623 │ │                   <CardHeader>
+ 624 │ │                     <CardTitle className="text-lg">Resource Contributions</CardTitle>
+ 625 │ │                   </CardHeader>
+ 626 │ │                   <CardContent className="space-y-4">
+ 627 │ │                     <div className="flex items-center border rounded-md p-4">
+ 628 │ │                       <FileText className="h-10 w-10 mr-4 text-primary" />
+ 629 │ │                       <div className="flex-1">
+ 630 │ │                         <div className="font-medium">ISO 45001 Implementation Guide</div>
+ 631 │ │                         <div className="text-sm text-muted-foreground">Shared 3 months ago • 452 downloads</div>
+ 632 │ │                       </div>
+ 633 │ │                       <Button variant="outline" size="sm">Download</Button>
+ 634 │ │                     </div>
+ 635 │ │                     
+ 636 │ │                     <div className="flex items-center border rounded-md p-4">
+ 637 │ │                       <FileText className="h-10 w-10 mr-4 text-primary" />
+ 638 │ │                       <div className="flex-1">
+ 639 │ │                         <div className="font-medium">Environmental Compliance Checklist</div>
+ 640 │ │                         <div className="text-sm text-muted-foreground">Shared 5 months ago • 327 downloads</div>
+ 641 │ │                       </div>
+ 642 │ │                       <Button variant="outline" size="sm">Download</Button>
+ 643 │ │                     </div>
+ 644 │ │                     
+ 645 │ │                     <div className="flex items-center border rounded-md p-4">
+ 646 │ │                       <FileText className="h-10 w-10 mr-4 text-primary" />
+ 647 │ │                       <div className="flex-1">
+ 648 │ │                         <div className="font-medium">Safety Audit Templates Bundle</div>
+ 649 │ │                         <div className="text-sm text-muted-foreground">Shared 8 months ago • 716 downloads</div>
+ 650 │ │                       </div>
+ 651 │ │                       <Button variant="outline" size="sm">Download</Button>
+ 652 │ │                     </div>
+ 653 │ │                   </CardContent>
+ 654 │ │                 </Card>
+ 655 │ │                 
+ 656 │ │                 <Card>
+ 657 │ │                   <CardHeader>
+ 658 │ │                     <CardTitle className="text-lg">Community Activity</CardTitle>
+ 659 │ │                   </CardHeader>
+ 660 │ │                   <CardContent>
+ 661 │ │                     <div className="space-y-4">
+ 662 │ │                       <div>
+ 663 │ │                         <div className="font-medium">Questions Answered</div>
+ 664 │ │                         <div className="flex justify-between items-center mt-2">
+ 665 │ │                           <Progress value={75} className="h-2 flex-1 mr-4" />
+ 666 │ │                           <div className="text-sm font-medium">75</div>
+ 667 │ │                         </div>
+ 668 │ │                       </div>
+ 669 │ │                       
+ 670 │ │                       <div>
+ 671 │ │                         <div className="font-medium">Resources Shared</div>
+ 672 │ │                         <div className="flex justify-between items-center mt-2">
+ 673 │ │                           <Progress value={42} className="h-2 flex-1 mr-4" />
+ 674 │ │                           <div className="text-sm font-medium">42</div>
+ 675 │ │                         </div>
+ 676 │ │                       </div>
+ 677 │ │                       
+ 678 │ │                       <div>
+ 679 │ │                         <div className="font-medium">Group Participation</div>
+ 680 │ │                         <div className="flex justify-between items-center mt-2">
+ 681 │ │                           <Progress value={88} className="h-2 flex-1 mr-4" />
+ 682 │ │                           <div className="text-sm font-medium">88%</div>
+ 683 │ │                         </div>
+ 684 │ │                       </div>
+ 685 │ │                     </div>
+ 686 │ │                   </CardContent>
+ 687 │ │                 </Card>
+ 688 │ │               </TabsContent>
+ 689 │ │               
+ 690 │ │               <TabsContent value="badges" className="space-y-4 mt-6">
+ 691 │ │                 <Card>
+ 692 │ │                   <CardHeader>
+ 693 │ │                     <CardTitle className="text-lg">Achievement Badges</CardTitle>
+ 694 │ │                   </CardHeader>
+ 695 │ │                   <CardContent>
+ 696 │ │                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+ 697 │ │                       <div className="flex flex-col items-center p-4 border rounded-md">
+ 698 │ │                         <div className="bg-primary/10 p-3 rounded-full mb-2">
+ 699 │ │                           <Award className="h-8 w-8 text-primary" />
+ 700 │ │                         </div>
+ 701 │ │                         <div className="font-medium text-center">Top Contributor</div>
+ 702 │ │                         <div className="text-xs text-muted-foreground text-center">Earned Jun 2023</div>
+ 703 │ │                       </div>
+ 704 │ │                       
+ 705 │ │                       <div className="flex flex-col items-center p-4 border rounded-md">
+ 706 │ │                         <div className="bg-secondary/10 p-3 rounded-full mb-2">
+ 707 │ │                           <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-secondary">
+ 708 │ │                             <circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline>
+ 709 │ │                           </svg>
+ 710 │ │                         </div>
+ 711 │ │                         <div className="font-medium text-center">Early Adopter</div>
+ 712 │ │                         <div className="text-xs text-muted-foreground text-center">Earned Jan 2023</div>
+ 713 │ │                       </div>
+ 714 │ │                       
+ 715 │ │                       <div className="flex flex-col items-center p-4 border rounded-md">
+ 716 │ │                         <div className="bg-primary/10 p-3 rounded-full mb-2">
+ 717 │ │                           <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary">
+ 718 │ │                             <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+ 719 │ │                           </svg>
+ 720 │ │                         </div>
+ 721 │ │                         <div className="font-medium text-center">Community Builder</div>
+ 722 │ │                         <div className="text-xs text-muted-foreground text-center">Earned Mar 2023</div>
+ 723 │ │                       </div>
+ 724 │ │                       
+ 725 │ │                       <div className="flex flex-col items-center p-4 border rounded-md">
+ 726 │ │                         <div className="bg-secondary/10 p-3 rounded-full mb-2">
+ 727 │ │                           <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-secondary">
+ 728 │ │                             <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+ 729 │ │                           </svg>
+ 730 │ │                         </div>
+ 731 │ │                         <div className="font-medium text-center">Safety Expert</div>
+ 732 │ │                         <div className="text-xs text-muted-foreground text-center">Earned Apr 2023</div>
+ 733 │ │                       </div>
+ 734 │ │                       
+ 735 │ │                       <div className="flex flex-col items-center p-4 border rounded-md">
+ 736 │ │                         <div className="bg-primary/10 p-3 rounded-full mb-2">
+ 737 │ │                           <FileText className="h-8 w-8 text-primary" />
+ 738 │ │                         </div>
+ 739 │ │                         <div className="font-medium text-center">Resource Guru</div>
+ 740 │ │                         <div className="text-xs text-muted-foreground text-center">Earned May 2023</div>
+ 741 │ │                       </div>
+ 742 │ │                       
+ 743 │ │                       <div className="flex flex-col items-center p-4 border rounded-md">
+ 744 │ │                         <div className="bg-secondary/10 p-3 rounded-full mb-2">
+ 745 │ │                           <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-secondary">
+ 746 │ │                             <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+ 747 │ │                           </svg>
+ 748 │ │                         </div>
+ 749 │ │                         <div className="font-medium text-center">Rising Star</div>
+ 750 │ │                         <div className="text-xs text-muted-foreground text-center">Earned Feb 2023</div>
+ 751 │ │                       </div>
+ 752 │ │                     </div>
+ 753 │ │                   </CardContent>
+ 754 │ │                 </Card>
+ 755 │ │               </TabsContent>
+ 756 │ │             </Tabs>
+ 757 │ │           </div>
+ 758 │ │         </div>
+ 759 │ │       </div>
+ 760 │ │     )
+ 761 │ ├─▶ }
+     · ╰──── exported more than once
+     ╰────
+
+Error: 
+  ☞ Exported identifiers must be unique
+
+  × The "use client" directive must be placed before other expressions. Move it to the top of the file to resolve this issue.
+     ╭─[/home/runner/workspace/app/profile/page.tsx:281:1]
+ 281 │   )
+ 282 │ }
+ 283 │ 
+ 284 │ "use client"
+     · ────────────
+ 285 │ 
+ 286 │ import * as React from "react"
+ 287 │ import { Button } from "@/components/ui/button"
+     ╰────
+This error occurred during the build process and can only be dismissed by fixing the error.
