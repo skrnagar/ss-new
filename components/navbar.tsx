@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect } from "react"
@@ -40,66 +39,47 @@ export function Navbar() {
   const isMobile = useMobile()
 
   useEffect(() => {
-    async function getUser() {
+    // Initialize with current session
+    const initializeAuth = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession()
         setUser(session?.user || null)
-        
-        if (session?.user) {
-          try {
-            // Fetch user profile
-            const { data } = await supabase
-              .from('profiles')
-              .select('*')
-              .eq('id', session.user.id)
-              .single()
-            
-            setProfile(data)
-          } catch (profileError) {
-            console.error('Error fetching profile:', profileError)
-          }
-        }
+        setLoading(false)
       } catch (error) {
-        console.error('Error getting user:', error)
-      } finally {
+        console.error('Error getting session:', error)
         setLoading(false)
       }
     }
-    
-    getUser()
-    
-    // Set up auth state change listener
-    const { data: authListener } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        console.log('Auth state changed:', event, session)
-        
-        if (event === 'SIGNED_OUT') {
-          setUser(null)
-          setProfile(null)
-        } else if (event === 'SIGNED_IN' && session) {
-          setUser(session.user)
-          
+
+    initializeAuth()
+
+    // Subscribe to auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        console.log('Auth state changed in navbar:', event, session?.user)
+        setUser(session?.user || null)
+        if (session?.user) {
           try {
             // Fetch user profile after sign in
-            const { data } = await supabase
+            const { data } = supabase
               .from('profiles')
               .select('*')
               .eq('id', session.user.id)
               .single()
-              
+
             setProfile(data)
           } catch (profileError) {
             console.error('Error fetching profile after sign in:', profileError)
           }
+        } else {
+          setProfile(null);
         }
       }
     )
-    
-    // Cleanup subscription on unmount
+
+    // Cleanup subscription
     return () => {
-      if (authListener && typeof authListener.subscription?.unsubscribe === 'function') {
-        authListener.subscription.unsubscribe()
-      }
+      subscription?.unsubscribe()
     }
   }, [])
 
@@ -109,7 +89,7 @@ export function Navbar() {
       toast({
         title: "Signed out successfully",
       })
-      
+
       // Use replace to completely reset navigation history
       router.replace('/')
     } catch (error) {
@@ -143,7 +123,7 @@ export function Navbar() {
             <img src="/placeholder-logo.svg" alt="Safety Shaper Logo" className="mr-2 h-8 w-8" />
             <span className="hidden text-xl font-bold sm:inline-block">Safety Shaper</span>
           </Link>
-          
+
           {user && !isMobile && (
             <NavigationMenu>
               <NavigationMenuList>

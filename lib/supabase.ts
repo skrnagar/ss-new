@@ -12,7 +12,7 @@ if (!supabaseUrl || !supabaseAnonKey) {
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     persistSession: true,
-    storageKey: 'sb-lephbkawjuyyygguxqio-auth-token',
+    storage: typeof window !== 'undefined' ? window.localStorage : undefined,
     detectSessionInUrl: true,
     autoRefreshToken: true,
   },

@@ -7,21 +7,24 @@ import { createMiddlewareClient } from '@supabase/auth-helpers-nextjs'
 const protectedRoutes = ['/feed', '/profile', '/jobs', '/groups', '/knowledge', '/messages', '/notifications']
 
 // Routes that should redirect to feed if already authenticated
-const authRoutes = ['/auth/login', '/auth/register']
+const authRoutes = ['/auth/login', '/auth/register', '/']
 
 export async function middleware(request: NextRequest) {
-  // Create a Supabase client specifically for the middleware
+  // Create a response to modify
   const res = NextResponse.next()
+  
+  // Create a Supabase client specifically for the middleware
   const supabase = createMiddlewareClient({ req: request, res })
   
   // Get the session using the supabase middleware client
-  const { data: { session } } = await supabase.auth.getSession()
+  const { data } = await supabase.auth.getSession()
+  const session = data?.session
   const isAuthenticated = !!session
   
   const url = new URL(request.url)
   const path = url.pathname
   
-  // Skip middleware for auth callback and static assets
+  // Skip middleware for specific paths
   if (path.startsWith('/auth/callback') || 
       path.includes('/_next') || 
       path.includes('/api/') || 
@@ -29,11 +32,6 @@ export async function middleware(request: NextRequest) {
     return res
   }
   
-  // Root page redirect to feed for authenticated users
-  if (path === '/' && isAuthenticated) {
-    return NextResponse.redirect(new URL('/feed', request.url))
-  }
-
   // Check if the route is protected and user is not authenticated
   const isProtectedRoute = protectedRoutes.some(route => 
     path === route || path.startsWith(`${route}/`)
@@ -55,13 +53,12 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/feed', request.url))
   }
 
-  // Continue with the request
   return res
 }
 
 export const config = {
   matcher: [
-    // Match all routes except static files, api routes, and auth callback
-    '/((?!_next/static|_next/image|favicon.ico|api).*)',
+    // Match all routes except static files and api routes
+    '/((?!_next/static|_next/image|favicon.ico).*)',
   ],
 }
