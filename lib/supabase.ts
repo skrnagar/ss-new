@@ -18,13 +18,19 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   },
 })
 
-// Initialize auth listener for debugging
+// Initialize auth listener for debugging but prevent redirect loops
 if (typeof window !== 'undefined') {
+  let isRedirecting = false;
+  
   supabase.auth.onAuthStateChange((event, session) => {
-    console.log('Auth state changed:', event, session)
+    console.log('Auth state changed:', event, session ? 'user authenticated' : 'no session')
+    
+    // Prevent multiple redirects
+    if (isRedirecting) return;
     
     // Force reload protected pages on sign-in to apply the middleware
     if (event === 'SIGNED_IN') {
+      isRedirecting = true;
       const pathName = window.location.pathname
       const searchParams = new URLSearchParams(window.location.search)
       const redirectUrl = searchParams.get('redirectUrl')
@@ -43,6 +49,7 @@ if (typeof window !== 'undefined') {
         return
       }
     } else if (event === 'SIGNED_OUT') {
+      isRedirecting = true;
       // Redirect to home page on sign out
       window.location.href = '/'
     }

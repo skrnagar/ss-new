@@ -9,20 +9,17 @@ const protectedRoutes = ['/feed', '/profile', '/jobs', '/groups', '/knowledge', 
 // Routes that should redirect to feed if already authenticated
 const authRoutes = ['/auth/login', '/auth/register', '/']
 
+// Cache results for a brief period to prevent constant rechecks
+const CACHE_TTL = 5 * 1000; // 5 seconds
+const sessionCache = new Map();
+
 export async function middleware(request: NextRequest) {
   const response = NextResponse.next()
   
-  // Create a Supabase client specifically for the middleware
-  const supabase = createMiddlewareClient({ req: request, res: response })
-  
-  // Get the session using the supabase middleware client
-  const { data: { session } } = await supabase.auth.getSession()
-  const isAuthenticated = !!session
-  
+  // Skip middleware for specific paths including static files, API routes, and callbacks
   const url = new URL(request.url)
   const path = url.pathname
   
-  // Skip middleware for specific paths including static files, API routes, and callbacks
   if (path.startsWith('/_next') || 
       path.includes('/api/') || 
       path.includes('.') ||
@@ -34,6 +31,19 @@ export async function middleware(request: NextRequest) {
   if (path.startsWith('/auth/callback')) {
     console.log('Middleware - Auth callback detected, skipping middleware')
     return response
+  }
+  
+  // Create a Supabase client specifically for the middleware
+  const supabase = createMiddlewareClient({ req: request, res: response })
+  
+  // Get the session using the supabase middleware client
+  let isAuthenticated = false;
+  
+  try {
+    const { data: { session } } = await supabase.auth.getSession()
+    isAuthenticated = !!session
+  } catch (error) {
+    console.error('Error in middleware:', error)
   }
   
   console.log('Middleware - Path:', path, 'Authenticated:', isAuthenticated)

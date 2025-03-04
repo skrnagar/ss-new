@@ -1,39 +1,33 @@
 
+import { NextRequest, NextResponse } from 'next/server'
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from 'next/headers'
-import { NextResponse } from 'next/server'
-import type { NextRequest } from 'next/server'
 
 export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url)
   const code = requestUrl.searchParams.get('code')
-  const redirectUrl = requestUrl.searchParams.get('redirectUrl') || '/feed'
   
+  // If code is present, exchange it for a session
   if (code) {
-    const cookieStore = cookies()
-    const supabase = createRouteHandlerClient({ cookies: () => cookieStore })
-    
-    // Exchange the code for a session
-    await supabase.auth.exchangeCodeForSession(code)
-    
-    // Set cache control headers to prevent caching
-    const response = NextResponse.redirect(`${requestUrl.origin}${redirectUrl}`, {
-      status: 302,
-    })
-    
-    response.headers.set('Cache-Control', 'no-store, max-age=0')
-    
-    // Log for debugging
-    console.log('Auth callback - Redirecting to:', redirectUrl)
-    
-    return response
+    try {
+      const cookieStore = cookies()
+      const supabase = createRouteHandlerClient({ cookies: () => cookieStore })
+      
+      await supabase.auth.exchangeCodeForSession(code)
+      
+      // Get any redirectUrl that was passed
+      const redirectTo = requestUrl.searchParams.get('redirectTo') || '/feed'
+      
+      console.log('Auth callback successful, redirecting to:', redirectTo)
+      
+      // Return a response that redirects to the feed or specified redirect
+      return NextResponse.redirect(new URL(redirectTo, requestUrl.origin))
+    } catch (error) {
+      console.error('Error in auth callback:', error)
+      return NextResponse.redirect(new URL('/auth/login?error=auth_callback_failed', requestUrl.origin))
+    }
   }
-
-  // If there is no code, something went wrong
-  return NextResponse.redirect(`${requestUrl.origin}/auth/login?error=auth_callback_error`, {
-    status: 302,
-    headers: {
-      'Cache-Control': 'no-store, max-age=0',
-    },
-  })
+  
+  // If no code, redirect to home
+  return NextResponse.redirect(new URL('/auth/login', requestUrl.origin))
 }

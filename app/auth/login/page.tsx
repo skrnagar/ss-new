@@ -131,10 +131,13 @@ export default function LoginPage() {
   }
 
   async function signInWithGoogle() {
+    const searchParams = new URLSearchParams(window.location.search);
+    const redirectUrl = searchParams.get('redirectUrl') || '/feed';
+    
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
+        redirectTo: `${window.location.origin}/auth/callback?redirectTo=${redirectUrl}`,
       },
     })
 
@@ -148,10 +151,13 @@ export default function LoginPage() {
   }
 
   async function signInWithLinkedIn() {
+    const searchParams = new URLSearchParams(window.location.search);
+    const redirectUrl = searchParams.get('redirectUrl') || '/feed';
+    
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'linkedin',
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
+        redirectTo: `${window.location.origin}/auth/callback?redirectTo=${redirectUrl}`,
       },
     })
 
