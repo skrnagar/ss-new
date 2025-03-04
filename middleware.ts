@@ -21,6 +21,8 @@ export async function middleware(request: NextRequest) {
   const session = data?.session
   const isAuthenticated = !!session
   
+  console.log('Middleware - Auth status:', isAuthenticated ? 'Authenticated' : 'Not authenticated')
+  
   const url = new URL(request.url)
   const path = url.pathname
   
