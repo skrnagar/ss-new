@@ -1,30 +1,27 @@
-
 'use client'
 
-import { useEffect, useState } from 'react';
+import * as React from "react"
 
-export function useMobile() {
-  const [isMobile, setIsMobile] = useState(false);
+const MOBILE_BREAKPOINT = 768
 
-  useEffect(() => {
-    const checkIsMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
+export function useIsMobile() {
+  const [isMobile, setIsMobile] = React.useState<boolean>(false)
 
-    // Initial check
-    checkIsMobile();
+  React.useEffect(() => {
+    // Set initial value
+    setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
 
-    // Add event listener
-    window.addEventListener('resize', checkIsMobile);
+    const mql = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`)
+    const onChange = () => {
+      setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
+    }
 
-    // Clean up
-    return () => {
-      window.removeEventListener('resize', checkIsMobile);
-    };
-  }, []);
+    mql.addEventListener("change", onChange)
+    return () => mql.removeEventListener("change", onChange)
+  }, [])
 
-  return isMobile;
+  return isMobile
 }
 
-// Make it the default export
-export default useMobile;
+// For backwards compatibility
+export const useMobile = useIsMobile

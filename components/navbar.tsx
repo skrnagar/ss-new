@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Bell, MessageCircle, Search, Settings, Users, Briefcase, BookOpen, Shield, User, LogOut } from "lucide-react"
 import { Input } from "@/components/ui/input"
-import useMobile from "@/hooks/use-mobile"
+import { useIsMobile } from "@/hooks/use-mobile"
 import { supabase } from "@/lib/supabase"
 
 export function Navbar() {
@@ -23,7 +23,7 @@ export function Navbar() {
   const pathname = usePathname()
   const router = useRouter()
   const { toast } = useToast()
-  const isMobile = useMobile()
+  const isMobile = useIsMobile()
 
   // Check if current path matches the given path
   const isActive = (path: string) => {
