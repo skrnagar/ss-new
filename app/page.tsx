@@ -17,18 +17,8 @@ export default function Home() {
                 Join the premier network for Environmental, Social, Governance, and Health & Safety professionals to
                 share knowledge, advance your career, and shape a safer future.
               </p>
-              <div className="flex flex-col sm:flex-row gap-4">
-                <Button size="lg" className="bg-secondary hover:bg-secondary/90 text-white" asChild>
-                  <Link href="/auth/register">Join Now</Link>
-                </Button>
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="bg-transparent text-white border-white hover:bg-white/10"
-                  asChild
-                >
-                  <Link href="#core-modules">Learn More</Link>
-                </Button>
+              <div>
+                <AuthButtons />
               </div>
             </div>
             <div className="hidden md:block">
@@ -282,3 +272,7 @@ export default function Home() {
   )
 }
 
+// Placeholder for AuthButtons component - needs to be implemented separately
+function AuthButtons() {
+  return <div>Auth Buttons Here</div>;
+}

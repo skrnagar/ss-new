@@ -1,3 +1,29 @@
+import { redirect } from "next/navigation"
+import { createClient } from "@/lib/supabase-server"
+
+export default async function ProfilePage() {
+  const supabase = createClient()
+
+  const { data: { session } } = await supabase.auth.getSession()
+
+  if (!session) {
+    redirect('/auth/login')
+  }
+
+  // Get user profile
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('username')
+    .eq('id', session.user.id)
+    .single()
+
+  if (profile?.username) {
+    redirect(`/profile/${profile.username}`)
+  } else {
+    redirect('/profile/setup')
+  }
+}
+
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import {
@@ -333,7 +359,7 @@ export default function ProfilePage() {
                   <div className="text-sm text-muted-foreground">85%</div>
                 </div>
                 <Progress value={85} className="h-2" />
-                
+
                 <div className="flex justify-between items-center pt-4">
                   <Button variant="outline" className="w-full mr-2">
                     <Users className="h-4 w-4 mr-2" />
@@ -347,7 +373,7 @@ export default function ProfilePage() {
               </div>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardHeader>
               <CardTitle className="text-lg">About</CardTitle>
@@ -378,7 +404,7 @@ export default function ProfilePage() {
               </div>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardHeader>
               <CardTitle className="text-lg">Skills & Expertise</CardTitle>
@@ -399,7 +425,7 @@ export default function ProfilePage() {
               </div>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardHeader>
               <CardTitle className="text-lg">Certifications</CardTitle>
@@ -423,7 +449,7 @@ export default function ProfilePage() {
             </CardContent>
           </Card>
         </div>
-        
+
         {/* Main content */}
         <div className="lg:col-span-8 space-y-6">
           <Tabs defaultValue="activity">
@@ -433,7 +459,7 @@ export default function ProfilePage() {
               <TabsTrigger value="contributions" className="flex-1">Contributions</TabsTrigger>
               <TabsTrigger value="badges" className="flex-1">Badges</TabsTrigger>
             </TabsList>
-            
+
             <TabsContent value="activity" className="space-y-4 mt-6">
               <Card>
                 <CardContent className="pt-6">
@@ -486,7 +512,7 @@ export default function ProfilePage() {
                   </div>
                 </CardContent>
               </Card>
-              
+
               <Card>
                 <CardContent className="pt-6">
                   <div className="flex space-x-4">
@@ -531,7 +557,7 @@ export default function ProfilePage() {
                 </CardContent>
               </Card>
             </TabsContent>
-            
+
             <TabsContent value="experience" className="space-y-4 mt-6">
               <Card>
                 <CardHeader>
@@ -553,7 +579,7 @@ export default function ProfilePage() {
                       <Badge variant="outline">Environmental Permits</Badge>
                     </div>
                   </div>
-                  
+
                   <div className="border-l-2 border-muted pl-4 space-y-2">
                     <div className="flex justify-between">
                       <div className="font-medium">Safety Manager</div>
@@ -569,7 +595,7 @@ export default function ProfilePage() {
                       <Badge variant="outline">Risk Assessment</Badge>
                     </div>
                   </div>
-                  
+
                   <div className="border-l-2 border-muted pl-4 space-y-2">
                     <div className="flex justify-between">
                       <div className="font-medium">Environmental Specialist</div>
@@ -587,7 +613,7 @@ export default function ProfilePage() {
                   </div>
                 </CardContent>
               </Card>
-              
+
               <Card>
                 <CardHeader>
                   <CardTitle className="text-lg">Education</CardTitle>
@@ -603,7 +629,7 @@ export default function ProfilePage() {
                       Focused on sustainable business practices and environmental management systems.
                     </p>
                   </div>
-                  
+
                   <div className="border-l-2 border-muted pl-4 space-y-2">
                     <div className="flex justify-between">
                       <div className="font-medium">BS, Environmental Science</div>
@@ -617,7 +643,7 @@ export default function ProfilePage() {
                 </CardContent>
               </Card>
             </TabsContent>
-            
+
             <TabsContent value="contributions" className="space-y-4 mt-6">
               <Card>
                 <CardHeader>
@@ -632,7 +658,7 @@ export default function ProfilePage() {
                     </div>
                     <Button variant="outline" size="sm">Download</Button>
                   </div>
-                  
+
                   <div className="flex items-center border rounded-md p-4">
                     <FileText className="h-10 w-10 mr-4 text-primary" />
                     <div className="flex-1">
@@ -641,7 +667,7 @@ export default function ProfilePage() {
                     </div>
                     <Button variant="outline" size="sm">Download</Button>
                   </div>
-                  
+
                   <div className="flex items-center border rounded-md p-4">
                     <FileText className="h-10 w-10 mr-4 text-primary" />
                     <div className="flex-1">
@@ -652,7 +678,7 @@ export default function ProfilePage() {
                   </div>
                 </CardContent>
               </Card>
-              
+
               <Card>
                 <CardHeader>
                   <CardTitle className="text-lg">Community Activity</CardTitle>
@@ -666,7 +692,7 @@ export default function ProfilePage() {
                         <div className="text-sm font-medium">75</div>
                       </div>
                     </div>
-                    
+
                     <div>
                       <div className="font-medium">Resources Shared</div>
                       <div className="flex justify-between items-center mt-2">
@@ -674,7 +700,7 @@ export default function ProfilePage() {
                         <div className="text-sm font-medium">42</div>
                       </div>
                     </div>
-                    
+
                     <div>
                       <div className="font-medium">Group Participation</div>
                       <div className="flex justify-between items-center mt-2">
@@ -686,7 +712,7 @@ export default function ProfilePage() {
                 </CardContent>
               </Card>
             </TabsContent>
-            
+
             <TabsContent value="badges" className="space-y-4 mt-6">
               <Card>
                 <CardHeader>
@@ -701,7 +727,7 @@ export default function ProfilePage() {
                       <div className="font-medium text-center">Top Contributor</div>
                       <div className="text-xs text-muted-foreground text-center">Earned Jun 2023</div>
                     </div>
-                    
+
                     <div className="flex flex-col items-center p-4 border rounded-md">
                       <div className="bg-secondary/10 p-3 rounded-full mb-2">
                         <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-secondary">
@@ -711,7 +737,7 @@ export default function ProfilePage() {
                       <div className="font-medium text-center">Early Adopter</div>
                       <div className="text-xs text-muted-foreground text-center">Earned Jan 2023</div>
                     </div>
-                    
+
                     <div className="flex flex-col items-center p-4 border rounded-md">
                       <div className="bg-primary/10 p-3 rounded-full mb-2">
                         <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary">
@@ -721,7 +747,7 @@ export default function ProfilePage() {
                       <div className="font-medium text-center">Community Builder</div>
                       <div className="text-xs text-muted-foreground text-center">Earned Mar 2023</div>
                     </div>
-                    
+
                     <div className="flex flex-col items-center p-4 border rounded-md">
                       <div className="bg-secondary/10 p-3 rounded-full mb-2">
                         <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-secondary">
@@ -731,7 +757,7 @@ export default function ProfilePage() {
                       <div className="font-medium text-center">Safety Expert</div>
                       <div className="text-xs text-muted-foreground text-center">Earned Apr 2023</div>
                     </div>
-                    
+
                     <div className="flex flex-col items-center p-4 border rounded-md">
                       <div className="bg-primary/10 p-3 rounded-full mb-2">
                         <FileText className="h-8 w-8 text-primary" />
@@ -739,7 +765,7 @@ export default function ProfilePage() {
                       <div className="font-medium text-center">Resource Guru</div>
                       <div className="text-xs text-muted-foreground text-center">Earned May 2023</div>
                     </div>
-                    
+
                     <div className="flex flex-col items-center p-4 border rounded-md">
                       <div className="bg-secondary/10 p-3 rounded-full mb-2">
                         <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-secondary">
