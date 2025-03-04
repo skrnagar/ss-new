@@ -6,18 +6,24 @@ const mockSupabase = {
   auth: {
     signInWithPassword: async ({ email, password }: { email: string; password: string }) => {
       console.log('Mock sign in with:', email);
+      // Store mock session in localStorage for persistence
+      const user = { email, id: '123', user_metadata: { name: 'Demo User' } };
+      localStorage.setItem('mockAuthSession', JSON.stringify(user));
       return { 
         data: { 
-          session: { user: { email, id: '123', user_metadata: { name: 'Demo User' } } } 
+          session: { user } 
         }, 
         error: null 
       };
     },
     signUp: async ({ email, password, options }: any) => {
       console.log('Mock sign up with:', email);
+      // Store mock session in localStorage for persistence
+      const user = { email, id: '123', user_metadata: options?.data || {} };
+      localStorage.setItem('mockAuthSession', JSON.stringify(user));
       return { 
         data: { 
-          session: { user: { email, id: '123', user_metadata: options?.data || {} } } 
+          session: { user } 
         }, 
         error: null 
       };
@@ -28,11 +34,15 @@ const mockSupabase = {
       window.location.href = '/feed';
       return { error: null };
     },
+    signOut: async () => {
+      localStorage.removeItem('mockAuthSession');
+      return { error: null };
+    },
     getSession: async () => {
       // Check local storage for mock session
       const savedSession = localStorage.getItem('mockAuthSession');
       if (savedSession) {
-        return { data: { session: JSON.parse(savedSession) } };
+        return { data: { session: { user: JSON.parse(savedSession) } } };
       }
       return { data: { session: null } };
     },
@@ -45,13 +55,52 @@ const mockSupabase = {
         }
       }, 100);
       
+      // Return an object that matches the expected structure
       return { 
-        subscription: { 
-          unsubscribe: () => console.log('Unsubscribed from auth state') 
+        data: { 
+          subscription: { 
+            unsubscribe: () => console.log('Unsubscribed from auth state') 
+          } 
         } 
       };
     }
-  }
+  },
+  from: (table: string) => ({
+    select: (columns: string = '*') => ({
+      eq: (column: string, value: any) => ({
+        single: async () => {
+          if (table === 'profiles' && column === 'id') {
+            return { 
+              data: { 
+                id: value, 
+                username: 'demo_user', 
+                name: 'Demo User',
+                headline: 'ESG Professional',
+                bio: 'This is a mock profile for demonstration purposes.',
+                avatar_url: '/placeholder-user.jpg'
+              } 
+            };
+          }
+          return { data: null };
+        },
+        order: (orderColumn: string, direction: 'asc' | 'desc' = 'asc') => ({
+          limit: (limit: number) => ({
+            data: []
+          })
+        })
+      })
+    }),
+    insert: (data: any) => ({
+      select: (columns: string = '*') => ({
+        single: async () => ({ data })
+      })
+    }),
+    update: (data: any) => ({
+      eq: (column: string, value: any) => ({
+        single: async () => ({ data })
+      })
+    })
+  })
 };
 
 export const supabase = mockSupabase;

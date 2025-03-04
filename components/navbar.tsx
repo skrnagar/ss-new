@@ -66,7 +66,7 @@ export function Navbar() {
     getUser()
     
     // Set up auth state change listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+    const authListener = supabase.auth.onAuthStateChange(
       (event, session) => {
         setUser(session?.user || null)
         if (event === 'SIGNED_OUT') {
@@ -86,7 +86,9 @@ export function Navbar() {
     )
     
     return () => {
-      subscription.unsubscribe()
+      if (authListener?.data?.subscription) {
+        authListener.data.subscription.unsubscribe()
+      }
     }
   }, [])
 
