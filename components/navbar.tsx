@@ -14,6 +14,7 @@ import {
 import { supabase } from "@/lib/supabase"
 import { useMobile } from "@/hooks/use-mobile"
 import { useToast } from "@/hooks/use-toast"
+import { useRouter } from 'next/navigation';
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -22,6 +23,7 @@ export default function Navbar() {
   const pathname = usePathname()
   const isMobile = useMobile()
   const { toast } = useToast()
+  const router = useRouter();
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen)
@@ -45,15 +47,23 @@ export default function Navbar() {
 
     fetchUser()
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+    // Subscribe to auth changes - create a subscription only if supabase is defined
+    const { data: { subscription } } = supabase?.auth?.onAuthStateChange(
       async (event, session) => {
         console.log('Auth state changed in navbar:', event, session?.user)
-        setUser(session?.user || null)
+        if (event === 'SIGNED_IN') {
+          setUser(session?.user || null)
+        } else if (event === 'SIGNED_OUT') {
+          setUser(null)
+          router.push('/')
+        } else if (event === 'INITIAL_SESSION') {
+          setUser(session?.user || null)
+        }
       }
-    )
+    ) || { data: {} }
 
     return () => {
-      subscription.unsubscribe()
+      subscription?.unsubscribe()
     }
   }, [])
 
