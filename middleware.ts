@@ -17,20 +17,22 @@ export async function middleware(request: NextRequest) {
   const supabase = createMiddlewareClient({ req: request, res })
   
   // Get the session using the supabase middleware client
-  const { data } = await supabase.auth.getSession()
-  const session = data?.session
+  const { data: { session } } = await supabase.auth.getSession()
   const isAuthenticated = !!session
   
   const url = new URL(request.url)
   const path = url.pathname
   
-  // Skip middleware for specific paths
+  // Skip middleware for specific paths including static files and API routes
   if (path.startsWith('/auth/callback') || 
       path.includes('/_next') || 
       path.includes('/api/') || 
-      path.includes('.')) {
+      path.includes('.') ||
+      path === '/favicon.ico') {
     return res
   }
+  
+  console.log('Middleware - Path:', path, 'Authenticated:', isAuthenticated)
   
   // Check if the route is protected and user is not authenticated
   const isProtectedRoute = protectedRoutes.some(route => 
@@ -40,7 +42,8 @@ export async function middleware(request: NextRequest) {
   if (isProtectedRoute && !isAuthenticated) {
     // Store the original URL to redirect back after login
     const redirectUrl = new URL('/auth/login', request.url)
-    redirectUrl.searchParams.set('redirectUrl', url.pathname)
+    redirectUrl.searchParams.set('redirectUrl', path)
+    console.log('Redirecting unauthenticated user from protected route to:', redirectUrl.toString())
     return NextResponse.redirect(redirectUrl)
   }
 
@@ -50,6 +53,7 @@ export async function middleware(request: NextRequest) {
   )
   
   if (isAuthRoute && isAuthenticated) {
+    console.log('Redirecting authenticated user from auth route to feed')
     return NextResponse.redirect(new URL('/feed', request.url))
   }
 
