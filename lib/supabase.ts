@@ -10,20 +10,24 @@ if (!supabaseUrl || !supabaseAnonKey) {
   console.error('Missing Supabase URL or Anon Key in environment variables')
 }
 
-// Client for use in browser components
-export const supabase = createClientComponentClient({
-  supabaseUrl,
-  supabaseKey: supabaseAnonKey,
-})
+// Create a single Supabase client instance
+let supabaseInstance: any = null;
 
-// Legacy client with additional config options
-export const supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    persistSession: true,
-    autoRefreshToken: true,
-    detectSessionInUrl: true,
-  }
-})
+// Client for use in browser components (singleton pattern)
+export const supabase = typeof window === 'undefined' 
+  ? createClientComponentClient({ supabaseUrl, supabaseKey: supabaseAnonKey })
+  : (() => {
+      if (!supabaseInstance) {
+        supabaseInstance = createClientComponentClient({ 
+          supabaseUrl, 
+          supabaseKey: supabaseAnonKey 
+        });
+      }
+      return supabaseInstance;
+    })();
+
+// Legacy client with additional config options - maintain for compatibility
+export const supabaseClient = supabase;
 
 // Set up debug listener for auth state changes in development
 if (typeof window !== 'undefined' && process.env.NODE_ENV === "development") {

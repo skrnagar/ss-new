@@ -92,12 +92,12 @@ export function Navbar() {
           'Content-Type': 'application/json',
         },
       });
-      
+
       if (response.ok) {
         toast({
           title: "Signed out successfully",
         })
-        
+
         // Use replace to completely reset navigation history
         router.replace('/')
       } else {

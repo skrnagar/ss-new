@@ -1,3 +1,4 @@
+
 'use client'
 
 import { useEffect, useState } from 'react';
@@ -25,5 +26,5 @@ export function useMobile() {
   return isMobile;
 }
 
-// Default export for compatibility
+// Export as default for compatibility
 export default useMobile;

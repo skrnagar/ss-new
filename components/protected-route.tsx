@@ -17,50 +17,64 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const { toast } = useToast()
 
   useEffect(() => {
+    let isMounted = true;
+    
     // Check authentication on mount
     const checkAuth = async () => {
       try {
-        const { data } = await supabase.auth.getSession()
+        const { data } = await supabase.auth.getSession();
+        
+        // Only update state if component is still mounted
+        if (!isMounted) return;
         
         if (!data.session) {
+          setIsAuthenticated(false);
+          setIsLoading(false);
+          
           toast({
             title: "Authentication required",
             description: "Please sign in to access this page",
             variant: "destructive",
-          })
-          router.push('/auth/login')
-          return
+          });
+          
+          router.push('/auth/login');
+          return;
         }
         
-        setIsAuthenticated(true)
-        setIsLoading(false)
+        setIsAuthenticated(true);
+        setIsLoading(false);
       } catch (error) {
-        console.error('Auth check failed:', error)
-        setIsAuthenticated(false)
-        setIsLoading(false)
-        router.push('/auth/login')
+        if (!isMounted) return;
+        
+        console.error('Auth check failed:', error);
+        setIsAuthenticated(false);
+        setIsLoading(false);
+        router.push('/auth/login');
       }
-    }
+    };
 
-    checkAuth()
+    checkAuth();
     
     // Set up auth state change listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
+        if (!isMounted) return;
+        
         if (event === 'SIGNED_OUT') {
-          setIsAuthenticated(false)
-          router.push('/auth/login')
+          setIsAuthenticated(false);
+          router.push('/auth/login');
         } else if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session) {
-          setIsAuthenticated(true)
-          setIsLoading(false)
+          setIsAuthenticated(true);
+          setIsLoading(false);
         }
       }
-    )
+    );
 
     return () => {
-      subscription?.unsubscribe()
-    }
-  }, [router, toast])
+      isMounted = false;
+      subscription?.unsubscribe();
+    };
+  }, [router, toast]);
 
   // Show loading indicator while checking auth
   if (isLoading) {
