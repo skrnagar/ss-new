@@ -1,7 +1,7 @@
 
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import { createClient } from '@/lib/supabase-server'
+import { createClient } from '@supabase/supabase-js'
 
 // List of routes that require authentication
 const protectedRoutes = ['/feed', '/profile', '/jobs', '/groups', '/knowledge', '/messages', '/notifications']
@@ -16,8 +16,18 @@ export async function middleware(request: NextRequest) {
     },
   })
 
-  // Create a Supabase client
-  const supabase = createClient()
+  // For server-side auth checking, create a new Supabase client on each request
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://your-project-url.supabase.co'
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'your-anon-key'
+  
+  const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+    },
+  })
+  
+  // Get the user's session from cookies
   const { data: { session } } = await supabase.auth.getSession()
   
   const url = new URL(request.url)

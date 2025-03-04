@@ -1,50 +1,28 @@
-
 import { cookies } from 'next/headers'
+import { createServerClient } from '@supabase/ssr'
 
-// This is a mock implementation for development
-// Replace with actual Supabase client when you have your credentials
+// This creates a Supabase client for server-side operations
 export function createClient() {
-  return {
-    auth: {
-      getSession: async () => {
-        return { 
-          data: { 
-            session: null 
-          } 
-        };
+  const cookieStore = cookies()
+
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://your-project-url.supabase.co'
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'your-anon-key'
+
+  return createServerClient(
+    supabaseUrl,
+    supabaseAnonKey,
+    {
+      cookies: {
+        get(name) {
+          return cookieStore.get(name)?.value
+        },
+        set(name, value, options) {
+          cookieStore.set({ name, value, ...options })
+        },
+        remove(name, options) {
+          cookieStore.set({ name, value: '', ...options })
+        },
       },
-      getUser: async () => {
-        return { 
-          data: { 
-            user: null 
-          } 
-        };
-      },
-      exchangeCodeForSession: async (code: string) => {
-        return { data: {}, error: null }
-      }
-    },
-    from: (table: string) => ({
-      select: () => ({
-        eq: () => ({
-          single: async () => ({ data: null }),
-          order: () => ({
-            limit: () => ({
-              data: []
-            })
-          })
-        })
-      }),
-      insert: () => ({
-        select: () => ({
-          single: async () => ({ data: null })
-        })
-      }),
-      update: () => ({
-        eq: () => ({
-          single: async () => ({ data: null })
-        })
-      })
-    })
-  };
+    }
+  )
 }

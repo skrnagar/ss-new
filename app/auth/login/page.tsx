@@ -74,7 +74,8 @@ export default function LoginPage() {
       })
       
       // Redirect to feed page after successful login
-      router.push("/feed")
+      // Using replace instead of push ensures we can't go back to the login page
+      router.replace("/feed")
     } catch (error) {
       toast({
         title: "An error occurred",
@@ -117,10 +118,8 @@ export default function LoginPage() {
       // If email verification is not required, redirect to profile setup
       if (!data.session) return
       
-      // Use a shorter timeout and ensure the page refreshes
-      setTimeout(() => {
-        window.location.href = "/profile/setup";
-      }, 800)
+      // Redirect to profile setup immediately using router
+      router.replace("/profile/setup")
     } catch (error) {
       toast({
         title: "An error occurred",

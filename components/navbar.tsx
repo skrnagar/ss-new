@@ -65,41 +65,32 @@ export function Navbar() {
     
     getUser()
     
-    // Set up auth state change listener
-    let authListener: any = null
-    try {
-      authListener = supabase.auth.onAuthStateChange(
-        (event, session) => {
-          console.log('Auth state changed:', event, session)
-          if (event === 'SIGNED_OUT') {
-            setUser(null)
-            setProfile(null)
-          } else if (event === 'SIGNED_IN' && session) {
-            setUser(session.user)
-            // Fetch user profile after sign in
-            supabase
-              .from('profiles')
-              .select('*')
-              .eq('id', session.user.id)
-              .single()
-              .then(({ data }) => {
-                setProfile(data)
-              })
-          }
+    // Set up auth state change listener - this ensures the UI updates when auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        console.log('Auth state changed:', event, session)
+        
+        if (event === 'SIGNED_OUT') {
+          setUser(null)
+          setProfile(null)
+        } else if (event === 'SIGNED_IN' && session) {
+          setUser(session.user)
+          
+          // Fetch user profile after sign in
+          const { data } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', session.user.id)
+            .single()
+            
+          setProfile(data)
         }
-      )
-    } catch (error) {
-      console.error('Error setting up auth listener:', error)
-    }
-    
-    return () => {
-      try {
-        if (authListener?.data?.subscription) {
-          authListener.data.subscription.unsubscribe()
-        }
-      } catch (error) {
-        console.error('Error unsubscribing from auth listener:', error)
       }
+    )
+    
+    // Cleanup subscription on unmount
+    return () => {
+      subscription?.unsubscribe()
     }
   }, [])
 
@@ -109,7 +100,9 @@ export function Navbar() {
       toast({
         title: "Signed out successfully",
       })
-      router.push('/')
+      
+      // Use replace to completely reset navigation history
+      router.replace('/')
     } catch (error) {
       toast({
         title: "Sign out failed",
