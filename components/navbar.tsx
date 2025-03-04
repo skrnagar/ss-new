@@ -28,7 +28,7 @@ import { cn } from "@/lib/utils"
 import { Bell, MessageCircle, Search, Settings, Users, Briefcase, BookOpen, Shield, User, LogOut } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { useToast } from "@/hooks/use-toast"
-import { useMobile } from "@/hooks/use-mobile"
+import useIsMobile from "@/hooks/use-mobile"
 
 export function Navbar() {
   const [user, setUser] = useState(null)
@@ -36,7 +36,7 @@ export function Navbar() {
   const [loading, setLoading] = useState(true)
   const router = useRouter()
   const { toast } = useToast()
-  const isMobile = useMobile()
+  const isMobile = useIsMobile()
 
   useEffect(() => {
     // Initialize with current session

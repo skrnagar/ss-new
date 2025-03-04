@@ -23,11 +23,16 @@ export async function middleware(request: NextRequest) {
   const path = url.pathname
   
   // Skip middleware for specific paths including static files, API routes, and callbacks
-  if (path.startsWith('/auth/callback') || 
-      path.includes('/_next') || 
+  if (path.startsWith('/_next') || 
       path.includes('/api/') || 
       path.includes('.') ||
       path === '/favicon.ico') {
+    return response
+  }
+  
+  // Special handling for auth callback path
+  if (path.startsWith('/auth/callback')) {
+    console.log('Middleware - Auth callback detected, skipping middleware')
     return response
   }
   
@@ -44,11 +49,10 @@ export async function middleware(request: NextRequest) {
     redirectUrl.searchParams.set('redirectUrl', path)
     console.log('Redirecting unauthenticated user from protected route to:', redirectUrl.toString())
     
-    return NextResponse.redirect(redirectUrl, {
-      headers: {
-        'Cache-Control': 'no-store, max-age=0',
-      },
-    })
+    const redirectResponse = NextResponse.redirect(redirectUrl)
+    redirectResponse.headers.set('Cache-Control', 'no-store, max-age=0')
+    
+    return redirectResponse
   }
 
   // Check if the user is accessing auth routes while already authenticated
@@ -58,11 +62,10 @@ export async function middleware(request: NextRequest) {
   
   if (isAuthRoute && isAuthenticated) {
     console.log('Redirecting authenticated user from auth route to feed')
-    return NextResponse.redirect(new URL('/feed', request.url), {
-      headers: {
-        'Cache-Control': 'no-store, max-age=0',
-      },
-    })
+    const redirectResponse = NextResponse.redirect(new URL('/feed', request.url))
+    redirectResponse.headers.set('Cache-Control', 'no-store, max-age=0')
+    
+    return redirectResponse
   }
 
   // Set cache control headers to prevent response caching for all routes
@@ -73,7 +76,7 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    // Match all routes except static files and api routes
+    // Match all routes except static files
     '/((?!_next/static|_next/image|favicon.ico).*)',
   ],
 }

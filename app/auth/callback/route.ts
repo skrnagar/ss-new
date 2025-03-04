@@ -7,10 +7,8 @@ import type { NextRequest } from 'next/server'
 export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url)
   const code = requestUrl.searchParams.get('code')
+  const redirectUrl = requestUrl.searchParams.get('redirectUrl') || '/feed'
   
-  // Default to feed if no redirectUrl specified
-  const redirectTo = requestUrl.searchParams.get('redirectUrl') || '/feed'
-
   if (code) {
     const cookieStore = cookies()
     const supabase = createRouteHandlerClient({ cookies: () => cookieStore })
@@ -18,12 +16,22 @@ export async function GET(request: NextRequest) {
     // Exchange the code for a session
     await supabase.auth.exchangeCodeForSession(code)
     
-    // Log the successful authentication
-    console.log('Successfully authenticated user, redirecting to:', redirectTo)
+    // Set cache control headers to prevent caching
+    const response = NextResponse.redirect(`${requestUrl.origin}${redirectUrl}`, {
+      status: 302,
+    })
+    
+    response.headers.set('Cache-Control', 'no-store, max-age=0')
+    
+    // Log for debugging
+    console.log('Auth callback - Redirecting to:', redirectUrl)
+    
+    return response
   }
 
-  // Redirect to destination with cache headers to prevent caching
-  return NextResponse.redirect(new URL(redirectTo, request.url), {
+  // If there is no code, something went wrong
+  return NextResponse.redirect(`${requestUrl.origin}/auth/login?error=auth_callback_error`, {
+    status: 302,
     headers: {
       'Cache-Control': 'no-store, max-age=0',
     },

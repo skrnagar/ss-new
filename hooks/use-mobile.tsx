@@ -1,28 +1,28 @@
 
 "use client"
 
-import * as React from "react"
+import { useState, useEffect } from 'react'
 
-const MOBILE_BREAKPOINT = 768
+export function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(false)
 
-export function useMobile() {
-  const [isMobile, setIsMobile] = React.useState<boolean | undefined>(undefined)
-
-  React.useEffect(() => {
-    // Initial check
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
+  useEffect(() => {
+    // Handler to call on window resize
+    function handleResize() {
+      setIsMobile(window.innerWidth < 768)
     }
     
-    // Set initial value
-    checkMobile()
+    // Add event listener
+    window.addEventListener('resize', handleResize)
     
-    // Add resize listener
-    window.addEventListener("resize", checkMobile)
+    // Call handler right away so state gets updated with initial window size
+    handleResize()
     
-    // Clean up
-    return () => window.removeEventListener("resize", checkMobile)
+    // Remove event listener on cleanup
+    return () => window.removeEventListener('resize', handleResize)
   }, [])
 
   return isMobile
 }
+
+export default useIsMobile
