@@ -1,54 +1,52 @@
 
-import { createClient } from '@supabase/supabase-js'
+import { createBrowserClient } from '@supabase/ssr'
 
-// Create a Supabase client with environment variables
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
+export const createClient = () => {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.error('Missing Supabase URL or Anon Key in environment variables')
+  if (!supabaseUrl || !supabaseAnonKey) {
+    throw new Error('Supabase URL or key is missing in environment variables')
+  }
+
+  return createBrowserClient(
+    supabaseUrl,
+    supabaseAnonKey
+  )
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    persistSession: true,
-    autoRefreshToken: true,
-    detectSessionInUrl: true,
-    storage: typeof window !== 'undefined' ? window.localStorage : undefined,
-  },
-})
+// Create a single instance of the supabase client to be used across the app
+let supabaseInstance: ReturnType<typeof createClient> | null = null
 
-// Initialize auth listener to handle auth state changes
+export const getSupabase = () => {
+  if (!supabaseInstance) {
+    supabaseInstance = createClient()
+  }
+  return supabaseInstance
+}
+
+// Listen for auth state changes and log them
 if (typeof window !== 'undefined') {
-  let isRedirecting = false;
+  const supabase = getSupabase()
   
   supabase.auth.onAuthStateChange((event, session) => {
-    console.log('Auth state changed:', event, session ? 'user authenticated' : 'no session')
+    const userState = session ? 'user authenticated' : 'no session'
+    console.log('Auth state changed:', event, userState)
     
-    // Prevent multiple redirects
-    if (isRedirecting) return;
-    
-    // Handle auth events
-    switch (event) {
-      case 'SIGNED_OUT':
-        isRedirecting = true;
-        // Clear any cached auth state
-        sessionStorage.removeItem('userSession');
-        localStorage.removeItem('supabase.auth.token');
-        
-        // Hard refresh to ensure all components recognize the user is logged out
-        window.location.href = '/';
-        break;
-        
-      case 'SIGNED_IN':
-        // The callback route will handle redirects after sign in
-        // Don't set isRedirecting here to avoid interfering with the callback
-        break;
-        
-      case 'USER_UPDATED':
-        // Force refresh to ensure UI reflects latest user data
-        window.location.reload();
-        break;
+    // Clear navigation cache when auth state changes to ensure fresh data
+    if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
+      try {
+        // Clear any cached responses to force refetching
+        if ('caches' in window) {
+          caches.keys().then((names) => {
+            names.forEach((name) => {
+              caches.delete(name)
+            })
+          })
+        }
+      } catch (e) {
+        console.error('Error clearing cache:', e)
+      }
     }
   })
 }

@@ -9,10 +9,6 @@ const protectedRoutes = ['/feed', '/profile', '/jobs', '/groups', '/knowledge', 
 // Routes that should redirect to feed if already authenticated
 const authRoutes = ['/auth/login', '/auth/register', '/']
 
-// Cache results for a brief period to prevent constant rechecks
-const CACHE_TTL = 5 * 1000; // 5 seconds
-const sessionCache = new Map();
-
 export async function middleware(request: NextRequest) {
   const response = NextResponse.next()
   
@@ -37,54 +33,51 @@ export async function middleware(request: NextRequest) {
   // Create a Supabase client specifically for the middleware
   const supabase = createMiddlewareClient({ req: request, res: response })
   
-  // Get the session using the supabase middleware client
-  let isAuthenticated = false;
-  let userId = null;
-  
   try {
+    // Get the session using the supabase middleware client
     const { data: { session } } = await supabase.auth.getSession()
-    isAuthenticated = !!session
-    userId = session?.user?.id
+    
+    const isAuthenticated = !!session
+    const userId = session?.user?.id
     
     // Set the userId in a custom header that can be used by the server components
     if (userId) {
       response.headers.set('x-user-id', userId)
     }
-  } catch (error) {
-    console.error('Error in middleware:', error)
-  }
-  
-  console.log('Middleware - Path:', path, 'Authenticated:', isAuthenticated, 'User ID:', userId || 'none')
-  
-  // Check if the route is protected and user is not authenticated
-  const isProtectedRoute = protectedRoutes.some(route => 
-    path === route || path.startsWith(`${route}/`)
-  )
-  
-  if (isProtectedRoute && !isAuthenticated) {
-    // Store the original URL to redirect back after login
-    const redirectUrl = new URL('/auth/login', request.url)
-    // Encode the current path to ensure it's properly passed as a parameter
-    redirectUrl.searchParams.set('redirectUrl', encodeURIComponent(path))
-    console.log('Redirecting unauthenticated user from protected route to:', redirectUrl.toString())
     
-    const redirectResponse = NextResponse.redirect(redirectUrl)
-    redirectResponse.headers.set('Cache-Control', 'no-store, max-age=0')
+    console.log('Middleware - Path:', path, 'Authenticated:', isAuthenticated, 'User ID:', userId || 'none')
     
-    return redirectResponse
-  }
+    // Check if the route is protected and user is not authenticated
+    const isProtectedRoute = protectedRoutes.some(route => 
+      path === route || path.startsWith(`${route}/`)
+    )
+    
+    if (isProtectedRoute && !isAuthenticated) {
+      // Store the original URL to redirect back after login
+      const redirectUrl = new URL('/auth/login', request.url)
+      redirectUrl.searchParams.set('redirectUrl', path)
+      console.log('Redirecting unauthenticated user from protected route to:', redirectUrl.toString())
+      
+      const redirectResponse = NextResponse.redirect(redirectUrl)
+      redirectResponse.headers.set('Cache-Control', 'no-store, max-age=0')
+      
+      return redirectResponse
+    }
 
-  // Check if the user is accessing auth routes while already authenticated
-  const isAuthRoute = authRoutes.some(route => 
-    path === route || path.startsWith(`${route}/`)
-  )
-  
-  if (isAuthRoute && isAuthenticated) {
-    console.log('Redirecting authenticated user from auth route to feed')
-    const redirectResponse = NextResponse.redirect(new URL('/feed', request.url))
-    redirectResponse.headers.set('Cache-Control', 'no-store, max-age=0')
+    // Check if the user is accessing auth routes while already authenticated
+    const isAuthRoute = authRoutes.some(route => 
+      path === route || path.startsWith(`${route}/`)
+    )
     
-    return redirectResponse
+    if (isAuthRoute && isAuthenticated) {
+      console.log('Redirecting authenticated user from auth route to feed')
+      const redirectResponse = NextResponse.redirect(new URL('/feed', request.url))
+      redirectResponse.headers.set('Cache-Control', 'no-store, max-age=0')
+      
+      return redirectResponse
+    }
+  } catch (error) {
+    console.error('Error in auth middleware:', error)
   }
 
   // Set cache control headers to prevent response caching for all routes

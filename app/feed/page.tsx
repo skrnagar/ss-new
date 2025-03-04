@@ -1,255 +1,106 @@
+import { createClient } from '@/lib/supabase-server'
+import { redirect } from 'next/navigation'
 
-"use client"
+export default async function FeedPage() {
+  // Verify the user is authenticated server-side
+  const supabase = createClient()
+  const { data: { session } } = await supabase.auth.getSession()
 
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardFooter } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { supabase } from "@/lib/supabase"
-import { useToast } from "@/hooks/use-toast"
-import {
-  ThumbsUp,
-  MessageSquare,
-  Share2,
-  Image,
-  FileText,
-  Video,
-  User,
-  MapPin,
-  Briefcase,
-  Calendar,
-} from "lucide-react"
-
-export default function FeedPage() {
-  const [posts, setPosts] = useState([
-    {
-      id: 1,
-      author: "Sarah Johnson",
-      role: "ESG Compliance Manager",
-      company: "GreenTech Solutions",
-      location: "San Francisco, CA",
-      time: "2h ago",
-      content:
-        "Just published our latest sustainability report. Proud to share that we've reduced our carbon footprint by 30% this year! #ESG #Sustainability",
-      likes: 42,
-      comments: 8,
-      shares: 12,
-    },
-    {
-      id: 2,
-      author: "Michael Chen",
-      role: "Health & Safety Director",
-      company: "BuildRight Construction",
-      location: "Chicago, IL",
-      time: "5h ago",
-      content:
-        "Excited to announce that we've reached 500 days without a safety incident across all our project sites! This is a testament to our robust safety culture and protocols. #SafetyFirst #EHS",
-      likes: 78,
-      comments: 15,
-      shares: 23,
-    },
-    {
-      id: 3,
-      author: "Emily Rodriguez",
-      role: "Environmental Specialist",
-      company: "EcoSystems Inc.",
-      location: "Austin, TX",
-      time: "1d ago",
-      content:
-        "Looking for recommendations on the best environmental compliance tracking software for a mid-sized manufacturing company. What's everyone using these days?",
-      likes: 12,
-      comments: 32,
-      shares: 3,
-    },
-  ])
-  const [newPost, setNewPost] = useState("")
-  const [loading, setLoading] = useState(true)
-  const [user, setUser] = useState(null)
-  const router = useRouter()
-  const { toast } = useToast()
-
-  useEffect(() => {
-    async function checkUser() {
-      try {
-        const { data: { session } } = await supabase.auth.getSession()
-        
-        if (!session) {
-          // If no session, redirect to login
-          router.replace('/auth/login?redirectUrl=/feed')
-          return
-        }
-        
-        setUser(session.user)
-        setLoading(false)
-      } catch (error) {
-        console.error('Error checking auth status:', error)
-        setLoading(false)
-      }
-    }
-    
-    checkUser()
-  }, [router])
-
-  const handleNewPost = () => {
-    if (!newPost.trim()) return
-    
-    const userPost = {
-      id: Math.floor(Math.random() * 10000),
-      author: user?.user_metadata?.name || user?.email?.split('@')[0] || "User",
-      role: "ESG Professional",
-      company: "Company Name",
-      location: "Location",
-      time: "Just now",
-      content: newPost,
-      likes: 0,
-      comments: 0,
-      shares: 0,
-    }
-
-    setPosts([userPost, ...posts])
-    setNewPost("")
-    
-    toast({
-      title: "Post created",
-      description: "Your post has been published to the feed",
-    })
+  if (!session) {
+    redirect('/auth/login?redirectUrl=/feed')
   }
 
-  if (loading) {
-    return (
-      <div className="container mx-auto py-8">
-        <div className="flex justify-center">
-          <p>Loading...</p>
-        </div>
-      </div>
-    )
-  }
+  // Now we know the user is authenticated
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', session.user.id)
+    .single()
 
   return (
     <div className="container mx-auto py-8">
-      <Card className="mb-8">
-        <CardContent className="pt-6">
-          <Input
-            placeholder="Share an update or insight..."
-            value={newPost}
-            onChange={(e) => setNewPost(e.target.value)}
-            className="mb-4"
-          />
-          <div className="flex justify-between items-center">
-            <div className="flex space-x-4">
-              <Button variant="ghost" size="sm">
-                <Image className="mr-2 h-4 w-4" />
-                Photo
-              </Button>
-              <Button variant="ghost" size="sm">
-                <Video className="mr-2 h-4 w-4" />
-                Video
-              </Button>
-              <Button variant="ghost" size="sm">
-                <FileText className="mr-2 h-4 w-4" />
-                Document
-              </Button>
-            </div>
-            <Button onClick={handleNewPost} disabled={!newPost.trim()}>
-              Post
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+      <h1 className="text-3xl font-bold mb-6">Your Feed</h1>
 
-      {posts.map((post) => (
-        <Card key={post.id} className="mb-6">
-          <CardContent className="pt-6">
-            <div className="flex items-start space-x-4 mb-4">
-              <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
-                <User className="h-6 w-6 text-gray-500" />
-              </div>
+      <div className="bg-card rounded-lg p-6 mb-6 shadow-sm">
+        <h2 className="text-2xl font-semibold mb-2">Welcome, {profile?.name || session.user.email}</h2>
+        <p className="text-muted-foreground">
+          This is your personalized feed where you'll see updates from your network and relevant industry news.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="md:col-span-2 space-y-6">
+          {/* Feed content would go here */}
+          <div className="bg-card rounded-lg p-6 shadow-sm">
+            <div className="flex items-center mb-4">
+              <div className="w-10 h-10 rounded-full bg-muted mr-3"></div>
               <div>
-                <div className="font-medium">{post.author}</div>
-                <div className="text-sm text-muted-foreground">{post.role} at {post.company}</div>
-                <div className="flex items-center text-xs text-muted-foreground">
-                  <MapPin className="mr-1 h-3 w-3" />
-                  {post.location} · <Calendar className="mx-1 h-3 w-3" /> {post.time}
-                </div>
+                <h3 className="font-semibold">Sample Post Author</h3>
+                <p className="text-sm text-muted-foreground">ESG Consultant at Company</p>
               </div>
             </div>
-            <p className="mb-4">{post.content}</p>
-          </CardContent>
-          <CardFooter className="border-t px-6 py-3">
-            <div className="flex justify-between w-full">
-              <Button variant="ghost" size="sm">
-                <ThumbsUp className="mr-2 h-4 w-4" />
-                {post.likes > 0 && post.likes}
-              </Button>
-              <Button variant="ghost" size="sm">
-                <MessageSquare className="mr-2 h-4 w-4" />
-                {post.comments > 0 && post.comments}
-              </Button>
-              <Button variant="ghost" size="sm">
-                <Share2 className="mr-2 h-4 w-4" />
-                {post.shares > 0 && post.shares}
-              </Button>
+            <p className="mb-4">
+              This is an example post that would appear in your feed. It could be an article, question, or update from someone in your network.
+            </p>
+            <div className="flex justify-between text-sm text-muted-foreground">
+              <div>Like • Comment • Share</div>
+              <div>2 hours ago</div>
             </div>
-          </CardFooter>
-        </Card>
-      ))}
+          </div>
+
+          <div className="bg-card rounded-lg p-6 shadow-sm">
+            <div className="flex items-center mb-4">
+              <div className="w-10 h-10 rounded-full bg-muted mr-3"></div>
+              <div>
+                <h3 className="font-semibold">Another Sample Author</h3>
+                <p className="text-sm text-muted-foreground">Health & Safety Manager</p>
+              </div>
+            </div>
+            <p className="mb-4">
+              Here's another example post showing what content might look like in the feed.
+            </p>
+            <div className="flex justify-between text-sm text-muted-foreground">
+              <div>Like • Comment • Share</div>
+              <div>5 hours ago</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-6">
+          <div className="bg-card rounded-lg p-6 shadow-sm">
+            <h3 className="font-semibold mb-4">Suggested Connections</h3>
+            <div className="space-y-4">
+              <div className="flex items-center">
+                <div className="w-8 h-8 rounded-full bg-muted mr-3"></div>
+                <div className="flex-1">
+                  <p className="font-medium">Jane Smith</p>
+                  <p className="text-xs text-muted-foreground">EHS Director</p>
+                </div>
+                <button className="text-xs text-primary font-medium">Connect</button>
+              </div>
+
+              <div className="flex items-center">
+                <div className="w-8 h-8 rounded-full bg-muted mr-3"></div>
+                <div className="flex-1">
+                  <p className="font-medium">John Doe</p>
+                  <p className="text-xs text-muted-foreground">Sustainability Lead</p>
+                </div>
+                <button className="text-xs text-primary font-medium">Connect</button>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-card rounded-lg p-6 shadow-sm">
+            <h3 className="font-semibold mb-4">Trending Topics</h3>
+            <div className="space-y-2">
+              <p className="text-sm">#SustainableDevelopment</p>
+              <p className="text-sm">#WorkplaceSafety</p>
+              <p className="text-sm">#ESGReporting</p>
+              <p className="text-sm">#ClimateAction</p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   )
-}
-"use client";
-
-import { useEffect, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { supabase } from "@/lib/supabase";
-
-export default function FeedPage() {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    async function getUser() {
-      const { data: { session } } = await supabase.auth.getSession();
-      setUser(session?.user || null);
-      setLoading(false);
-    }
-    
-    getUser();
-  }, []);
-
-  if (loading) {
-    return (
-      <div className="container flex items-center justify-center min-h-[80vh]">
-        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="container py-8">
-      <h1 className="text-3xl font-bold mb-6">Your Feed</h1>
-      
-      <div className="grid gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Welcome to your feed!</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p>This is your personalized feed. You are successfully authenticated!</p>
-            <p className="mt-4">Your email: {user?.email}</p>
-          </CardContent>
-        </Card>
-        
-        {/* More content would go here */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p>Feed content will appear here.</p>
-          </CardContent>
-        </Card>
-      </div>
-    </div>
-  );
 }

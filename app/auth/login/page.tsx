@@ -146,15 +146,14 @@ export default function LoginPage() {
 
     try {
       // Get the redirect URL from the query parameters or default to feed
-      const redirectUrl = searchParams.get('redirectUrl') || '/feed'
+      let redirectUrl = searchParams.get('redirectUrl') || '/feed'
+      const encodedRedirectUrl = encodeURIComponent(redirectUrl);
 
-      // Construct the full callback URL with the return path
       const callbackUrl = new URL('/auth/callback', window.location.origin)
+      callbackUrl.searchParams.set('redirectUrl', encodedRedirectUrl);
+      callbackUrl.searchParams.set('access_type', 'offline'); //Add access_type for offline access
+      callbackUrl.searchParams.set('prompt', 'consent'); //Add prompt for consent
 
-      // Add the redirect URL as a query parameter
-      if (redirectUrl) {
-        callbackUrl.searchParams.set('redirectUrl', encodeURIComponent(redirectUrl))
-      }
 
       console.log('OAuth Sign In - Callback URL:', callbackUrl.toString())
 
