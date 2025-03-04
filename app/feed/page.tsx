@@ -197,3 +197,59 @@ export default function FeedPage() {
     </div>
   )
 }
+"use client";
+
+import { useEffect, useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { supabase } from "@/lib/supabase";
+
+export default function FeedPage() {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function getUser() {
+      const { data: { session } } = await supabase.auth.getSession();
+      setUser(session?.user || null);
+      setLoading(false);
+    }
+    
+    getUser();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="container flex items-center justify-center min-h-[80vh]">
+        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="container py-8">
+      <h1 className="text-3xl font-bold mb-6">Your Feed</h1>
+      
+      <div className="grid gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Welcome to your feed!</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p>This is your personalized feed. You are successfully authenticated!</p>
+            <p className="mt-4">Your email: {user?.email}</p>
+          </CardContent>
+        </Card>
+        
+        {/* More content would go here */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Recent Activity</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p>Feed content will appear here.</p>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}

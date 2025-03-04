@@ -139,38 +139,59 @@ export default function LoginPage() {
     }
   }
 
-  async function signInWithGoogle() {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback?redirectUrl=${encodeURIComponent(redirectUrl)}`,
-      },
-    })
+  // Handle OAuth sign in
+  const handleOAuthSignIn = async (provider: any) => { // Added type any as Provider is not defined
+    setLoading(true)
+    const searchParams = new URLSearchParams(window.location.search);
 
-    if (error) {
-      toast({
-        title: "Login failed",
-        description: error.message,
-        variant: "destructive",
+    try {
+      // Get the redirect URL from the query parameters or default to feed
+      const redirectUrl = searchParams.get('redirectUrl') || '/feed'
+
+      // Construct the full callback URL with the return path
+      const callbackUrl = new URL('/auth/callback', window.location.origin)
+
+      // Add the redirect URL as a query parameter
+      if (redirectUrl) {
+        callbackUrl.searchParams.set('redirectUrl', encodeURIComponent(redirectUrl))
+      }
+
+      console.log('OAuth Sign In - Callback URL:', callbackUrl.toString())
+
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: {
+          redirectTo: callbackUrl.toString(),
+        }
       })
+
+      if (error) {
+        throw error
+      }
+
+      toast({
+        title: "Redirecting to provider...",
+      })
+    } catch (error) {
+      console.error('OAuth sign in error:', error)
+
+      toast({
+        title: "Authentication failed",
+        description: error.message || "Failed to authenticate with provider",
+        variant: "destructive"
+      })
+
+      setLoading(false)
     }
   }
 
-  async function signInWithLinkedIn() {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'linkedin',
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback?redirectUrl=${encodeURIComponent(redirectUrl)}`,
-      },
-    })
 
-    if (error) {
-      toast({
-        title: "Login failed",
-        description: error.message,
-        variant: "destructive",
-      })
-    }
+  async function signInWithGoogle() {
+    await handleOAuthSignIn('google')
+  }
+
+  async function signInWithLinkedIn() {
+    await handleOAuthSignIn('linkedin')
   }
 
   return (

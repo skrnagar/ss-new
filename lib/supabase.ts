@@ -18,7 +18,7 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   },
 })
 
-// Initialize auth listener for debugging but prevent redirect loops
+// Initialize auth listener to handle auth state changes
 if (typeof window !== 'undefined') {
   let isRedirecting = false;
   
@@ -28,11 +28,27 @@ if (typeof window !== 'undefined') {
     // Prevent multiple redirects
     if (isRedirecting) return;
     
-    // Handle sign out only - let middleware and callback handle successful sign in
-    if (event === 'SIGNED_OUT') {
-      isRedirecting = true;
-      // Redirect to home page on sign out
-      window.location.href = '/'
+    // Handle auth events
+    switch (event) {
+      case 'SIGNED_OUT':
+        isRedirecting = true;
+        // Clear any cached auth state
+        sessionStorage.removeItem('userSession');
+        localStorage.removeItem('supabase.auth.token');
+        
+        // Hard refresh to ensure all components recognize the user is logged out
+        window.location.href = '/';
+        break;
+        
+      case 'SIGNED_IN':
+        // The callback route will handle redirects after sign in
+        // Don't set isRedirecting here to avoid interfering with the callback
+        break;
+        
+      case 'USER_UPDATED':
+        // Force refresh to ensure UI reflects latest user data
+        window.location.reload();
+        break;
     }
   })
 }

@@ -39,15 +39,36 @@ export function Navbar() {
   const isMobile = useIsMobile()
 
   useEffect(() => {
+    let isMounted = true;
+    
     // Initialize with current session
     const initializeAuth = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession()
-        setUser(session?.user || null)
-        setLoading(false)
+        
+        if (isMounted) {
+          setUser(session?.user || null)
+          
+          // Fetch the user profile if logged in
+          if (session?.user?.id) {
+            const { data: profileData } = await supabase
+              .from('profiles')
+              .select('*')
+              .eq('id', session.user.id)
+              .single()
+              
+            if (isMounted) {
+              setProfile(profileData || null)
+            }
+          }
+          
+          setLoading(false)
+        }
       } catch (error) {
         console.error('Error getting session:', error)
-        setLoading(false)
+        if (isMounted) {
+          setLoading(false)
+        }
       }
     }
 
@@ -55,30 +76,37 @@ export function Navbar() {
 
     // Subscribe to auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      async (event, session) => {
         console.log('Auth state changed in navbar:', event, session?.user)
-        setUser(session?.user || null)
-        if (session?.user) {
-          try {
-            // Fetch user profile after sign in
-            const { data } = supabase
-              .from('profiles')
-              .select('*')
-              .eq('id', session.user.id)
-              .single()
+        
+        if (isMounted) {
+          setUser(session?.user || null)
+          
+          if (session?.user?.id) {
+            try {
+              // Fetch user profile after sign in
+              const { data: profileData } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', session.user.id)
+                .single()
 
-            setProfile(data)
-          } catch (profileError) {
-            console.error('Error fetching profile after sign in:', profileError)
+              if (isMounted) {
+                setProfile(profileData || null)
+              }
+            } catch (profileError) {
+              console.error('Error fetching profile after sign in:', profileError)
+            }
+          } else {
+            setProfile(null)
           }
-        } else {
-          setProfile(null);
         }
       }
     )
 
-    // Cleanup subscription
+    // Cleanup subscription and prevent memory leaks
     return () => {
+      isMounted = false
       subscription?.unsubscribe()
     }
   }, [])

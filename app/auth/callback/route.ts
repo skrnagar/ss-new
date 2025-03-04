@@ -1,3 +1,4 @@
+
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
@@ -8,7 +9,21 @@ export async function GET(request: Request) {
   try {
     const requestUrl = new URL(request.url)
     const code = requestUrl.searchParams.get('code')
-    const redirectTo = requestUrl.searchParams.get('redirectUrl') || '/feed'  // Change redirectTo to redirectUrl
+    
+    // Get the redirectUrl parameter, decode it if it exists, and default to '/feed'
+    let redirectUrl = '/feed'
+    const encodedRedirectUrl = requestUrl.searchParams.get('redirectUrl')
+    
+    if (encodedRedirectUrl) {
+      try {
+        // Properly decode the redirect URL
+        redirectUrl = decodeURIComponent(encodedRedirectUrl)
+      } catch (e) {
+        console.error('Error decoding redirect URL:', e)
+      }
+    }
+
+    console.log('Auth callback - Code exists:', !!code, 'Redirect URL:', redirectUrl)
 
     if (code) {
       const cookieStore = cookies()
@@ -30,45 +45,40 @@ export async function GET(request: Request) {
           .eq('id', session.user.id)
           .single()
 
-        // Create an empty profile if it doesn't exist
+        // If the profile doesn't exist, create it
         if (!profile) {
-          await supabase
-            .from('profiles')
-            .insert({
-              id: session.user.id,
-              email: session.user.email,
-              full_name: session.user.user_metadata?.full_name || '',
-              avatar_url: session.user.user_metadata?.avatar_url || '',
-              created_at: new Date().toISOString(),
-            })
-
-          // Redirect to profile setup if this is a new user
-          console.log('New user - redirecting to profile setup')
-          return NextResponse.redirect(new URL('/profile/setup', request.url))
+          console.log('Creating new profile for user:', session.user.id)
+          
+          // Extract data from user metadata for the profile
+          const { user } = session
+          const name = user.user_metadata.name || user.user_metadata.full_name
+          const avatarUrl = user.user_metadata.avatar_url || user.user_metadata.picture
+          
+          // Insert the new profile
+          await supabase.from('profiles').insert({
+            id: user.id,
+            email: user.email,
+            name: name,
+            avatar_url: avatarUrl,
+            updated_at: new Date().toISOString()
+          })
         }
+
+        // Get the final redirect URL, clean it up if needed
+        redirectUrl = redirectUrl.startsWith('/') ? redirectUrl : `/${redirectUrl}`
+        
+        // Redirect the user to the intended page or the feed
+        console.log('Redirecting authenticated user to:', redirectUrl)
+        return NextResponse.redirect(new URL(redirectUrl, requestUrl.origin))
       }
     }
 
-    // Make sure we have a valid redirect URL
-    let finalRedirectUrl = redirectTo;
-    
-    // Handle the redirectUrl encoded in query parameter from login page
-    if (!finalRedirectUrl && requestUrl.searchParams.get('redirectUrl')) {
-      finalRedirectUrl = requestUrl.searchParams.get('redirectUrl');
-    }
-    
-    if (finalRedirectUrl && finalRedirectUrl.startsWith('/')) {
-      finalRedirectUrl = new URL(finalRedirectUrl, request.url).toString();
-    } else if (!finalRedirectUrl) {
-      finalRedirectUrl = new URL('/feed', request.url).toString();
-    }
-    
-    console.log('Callback redirecting to:', finalRedirectUrl);
-
-    console.log('Redirecting to:', finalRedirectUrl);
-    return NextResponse.redirect(finalRedirectUrl);
+    // If there's no code or session, redirect to login
+    return NextResponse.redirect(new URL('/auth/login', requestUrl.origin))
   } catch (error) {
     console.error('Error in auth callback:', error)
-    return NextResponse.redirect(new URL('/auth/login?error=callback', request.url))
+    return NextResponse.redirect(
+      new URL('/auth/login?error=Something+went+wrong+during+sign+in', request.url)
+    )
   }
 }

@@ -20,6 +20,7 @@ export async function middleware(request: NextRequest) {
   const url = new URL(request.url)
   const path = url.pathname
   
+  // Skip static files, API routes, and favicons
   if (path.startsWith('/_next') || 
       path.includes('/api/') || 
       path.includes('.') ||
@@ -27,7 +28,7 @@ export async function middleware(request: NextRequest) {
     return response
   }
   
-  // Special handling for auth callback path
+  // Special handling for auth callback path - crucial for the OAuth flow
   if (path.startsWith('/auth/callback')) {
     console.log('Middleware - Auth callback detected, skipping middleware')
     return response
@@ -38,15 +39,22 @@ export async function middleware(request: NextRequest) {
   
   // Get the session using the supabase middleware client
   let isAuthenticated = false;
+  let userId = null;
   
   try {
     const { data: { session } } = await supabase.auth.getSession()
     isAuthenticated = !!session
+    userId = session?.user?.id
+    
+    // Set the userId in a custom header that can be used by the server components
+    if (userId) {
+      response.headers.set('x-user-id', userId)
+    }
   } catch (error) {
     console.error('Error in middleware:', error)
   }
   
-  console.log('Middleware - Path:', path, 'Authenticated:', isAuthenticated)
+  console.log('Middleware - Path:', path, 'Authenticated:', isAuthenticated, 'User ID:', userId || 'none')
   
   // Check if the route is protected and user is not authenticated
   const isProtectedRoute = protectedRoutes.some(route => 
@@ -56,7 +64,8 @@ export async function middleware(request: NextRequest) {
   if (isProtectedRoute && !isAuthenticated) {
     // Store the original URL to redirect back after login
     const redirectUrl = new URL('/auth/login', request.url)
-    redirectUrl.searchParams.set('redirectUrl', path)
+    // Encode the current path to ensure it's properly passed as a parameter
+    redirectUrl.searchParams.set('redirectUrl', encodeURIComponent(path))
     console.log('Redirecting unauthenticated user from protected route to:', redirectUrl.toString())
     
     const redirectResponse = NextResponse.redirect(redirectUrl)
