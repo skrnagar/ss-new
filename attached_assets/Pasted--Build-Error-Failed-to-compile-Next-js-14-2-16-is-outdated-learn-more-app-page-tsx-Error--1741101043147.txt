@@ -1,0 +1,152 @@
+
+Build Error
+Failed to compile
+
+Next.js (14.2.16) is outdated (learn more)
+./app/page.tsx
+Error: 
+  × the name `Shield` is defined multiple times
+   ╭─[/home/runner/workspace/app/page.tsx:1:1]
+ 1 │ import Link from "next/link"
+ 2 │ import { Button } from "@/components/ui/button"
+ 3 │ import { Card, CardContent } from "@/components/ui/card"
+ 4 │ import { Shield, Users, BookOpen, Briefcase, Award, ClipboardCheck, Leaf, BarChart, Heart } from "lucide-react"
+   ·          ───┬──
+   ·             ╰── previous definition of `Shield` here
+ 5 │ import { Shield, Users, BookOpen, Briefcase, Award, ClipboardCheck, Leaf, BarChart, Heart } from "lucide-react"
+   ·          ───┬──
+   ·             ╰── `Shield` redefined here
+ 6 │ 
+ 7 │ export default function Home() {
+ 8 │   return (
+   ╰────
+
+  × the name `Users` is defined multiple times
+   ╭─[/home/runner/workspace/app/page.tsx:1:1]
+ 1 │ import Link from "next/link"
+ 2 │ import { Button } from "@/components/ui/button"
+ 3 │ import { Card, CardContent } from "@/components/ui/card"
+ 4 │ import { Shield, Users, BookOpen, Briefcase, Award, ClipboardCheck, Leaf, BarChart, Heart } from "lucide-react"
+   ·                  ──┬──
+   ·                    ╰── previous definition of `Users` here
+ 5 │ import { Shield, Users, BookOpen, Briefcase, Award, ClipboardCheck, Leaf, BarChart, Heart } from "lucide-react"
+   ·                  ──┬──
+   ·                    ╰── `Users` redefined here
+ 6 │ 
+ 7 │ export default function Home() {
+ 8 │   return (
+   ╰────
+
+  × the name `BookOpen` is defined multiple times
+   ╭─[/home/runner/workspace/app/page.tsx:1:1]
+ 1 │ import Link from "next/link"
+ 2 │ import { Button } from "@/components/ui/button"
+ 3 │ import { Card, CardContent } from "@/components/ui/card"
+ 4 │ import { Shield, Users, BookOpen, Briefcase, Award, ClipboardCheck, Leaf, BarChart, Heart } from "lucide-react"
+   ·                         ────┬───
+   ·                             ╰── previous definition of `BookOpen` here
+ 5 │ import { Shield, Users, BookOpen, Briefcase, Award, ClipboardCheck, Leaf, BarChart, Heart } from "lucide-react"
+   ·                         ────┬───
+   ·                             ╰── `BookOpen` redefined here
+ 6 │ 
+ 7 │ export default function Home() {
+ 8 │   return (
+   ╰────
+
+  × the name `Briefcase` is defined multiple times
+   ╭─[/home/runner/workspace/app/page.tsx:1:1]
+ 1 │ import Link from "next/link"
+ 2 │ import { Button } from "@/components/ui/button"
+ 3 │ import { Card, CardContent } from "@/components/ui/card"
+ 4 │ import { Shield, Users, BookOpen, Briefcase, Award, ClipboardCheck, Leaf, BarChart, Heart } from "lucide-react"
+   ·                                   ────┬────
+   ·                                       ╰── previous definition of `Briefcase` here
+ 5 │ import { Shield, Users, BookOpen, Briefcase, Award, ClipboardCheck, Leaf, BarChart, Heart } from "lucide-react"
+   ·                                   ────┬────
+   ·                                       ╰── `Briefcase` redefined here
+ 6 │ 
+ 7 │ export default function Home() {
+ 8 │   return (
+   ╰────
+
+  × the name `Award` is defined multiple times
+   ╭─[/home/runner/workspace/app/page.tsx:1:1]
+ 1 │ import Link from "next/link"
+ 2 │ import { Button } from "@/components/ui/button"
+ 3 │ import { Card, CardContent } from "@/components/ui/card"
+ 4 │ import { Shield, Users, BookOpen, Briefcase, Award, ClipboardCheck, Leaf, BarChart, Heart } from "lucide-react"
+   ·                                              ──┬──
+   ·                                                ╰── previous definition of `Award` here
+ 5 │ import { Shield, Users, BookOpen, Briefcase, Award, ClipboardCheck, Leaf, BarChart, Heart } from "lucide-react"
+   ·                                              ──┬──
+   ·                                                ╰── `Award` redefined here
+ 6 │ 
+ 7 │ export default function Home() {
+ 8 │   return (
+   ╰────
+
+  × the name `ClipboardCheck` is defined multiple times
+   ╭─[/home/runner/workspace/app/page.tsx:1:1]
+ 1 │ import Link from "next/link"
+ 2 │ import { Button } from "@/components/ui/button"
+ 3 │ import { Card, CardContent } from "@/components/ui/card"
+ 4 │ import { Shield, Users, BookOpen, Briefcase, Award, ClipboardCheck, Leaf, BarChart, Heart } from "lucide-react"
+   ·                                                     ───────┬──────
+   ·                                                            ╰── previous definition of `ClipboardCheck` here
+ 5 │ import { Shield, Users, BookOpen, Briefcase, Award, ClipboardCheck, Leaf, BarChart, Heart } from "lucide-react"
+   ·                                                     ───────┬──────
+   ·                                                            ╰── `ClipboardCheck` redefined here
+ 6 │ 
+ 7 │ export default function Home() {
+ 8 │   return (
+   ╰────
+
+  × the name `Leaf` is defined multiple times
+   ╭─[/home/runner/workspace/app/page.tsx:1:1]
+ 1 │ import Link from "next/link"
+ 2 │ import { Button } from "@/components/ui/button"
+ 3 │ import { Card, CardContent } from "@/components/ui/card"
+ 4 │ import { Shield, Users, BookOpen, Briefcase, Award, ClipboardCheck, Leaf, BarChart, Heart } from "lucide-react"
+   ·                                                                     ──┬─
+   ·                                                                       ╰── previous definition of `Leaf` here
+ 5 │ import { Shield, Users, BookOpen, Briefcase, Award, ClipboardCheck, Leaf, BarChart, Heart } from "lucide-react"
+   ·                                                                     ──┬─
+   ·                                                                       ╰── `Leaf` redefined here
+ 6 │ 
+ 7 │ export default function Home() {
+ 8 │   return (
+   ╰────
+
+  × the name `BarChart` is defined multiple times
+   ╭─[/home/runner/workspace/app/page.tsx:1:1]
+ 1 │ import Link from "next/link"
+ 2 │ import { Button } from "@/components/ui/button"
+ 3 │ import { Card, CardContent } from "@/components/ui/card"
+ 4 │ import { Shield, Users, BookOpen, Briefcase, Award, ClipboardCheck, Leaf, BarChart, Heart } from "lucide-react"
+   ·                                                                           ────┬───
+   ·                                                                               ╰── previous definition of `BarChart` here
+ 5 │ import { Shield, Users, BookOpen, Briefcase, Award, ClipboardCheck, Leaf, BarChart, Heart } from "lucide-react"
+   ·                                                                           ────┬───
+   ·                                                                               ╰── `BarChart` redefined here
+ 6 │ 
+ 7 │ export default function Home() {
+ 8 │   return (
+   ╰────
+
+  × the name `Heart` is defined multiple times
+   ╭─[/home/runner/workspace/app/page.tsx:1:1]
+ 1 │ import Link from "next/link"
+ 2 │ import { Button } from "@/components/ui/button"
+ 3 │ import { Card, CardContent } from "@/components/ui/card"
+ 4 │ import { Shield, Users, BookOpen, Briefcase, Award, ClipboardCheck, Leaf, BarChart, Heart } from "lucide-react"
+   ·                                                                                     ──┬──
+   ·                                                                                       ╰── previous definition of `Heart` here
+ 5 │ import { Shield, Users, BookOpen, Briefcase, Award, ClipboardCheck, Leaf, BarChart, Heart } from "lucide-react"
+   ·                                                                                     ──┬──
+   ·                                                                                       ╰── `Heart` redefined here
+ 6 │ 
+ 7 │ export default function Home() {
+ 8 │   return (
+   ╰────
+This error occurred during the build process and can only be dismissed by fixing the error.
+
