@@ -28,27 +28,8 @@ if (typeof window !== 'undefined') {
     // Prevent multiple redirects
     if (isRedirecting) return;
     
-    // Force reload protected pages on sign-in to apply the middleware
-    if (event === 'SIGNED_IN') {
-      isRedirecting = true;
-      const pathName = window.location.pathname
-      const searchParams = new URLSearchParams(window.location.search)
-      const redirectUrl = searchParams.get('redirectUrl')
-      
-      // Check if we're on login page and have a redirect URL
-      if (pathName.includes('/auth/login') && redirectUrl) {
-        console.log('Redirecting to:', redirectUrl)
-        window.location.href = redirectUrl
-        return
-      }
-      
-      // If we're on a login page or home page without a specific redirect, go to feed
-      if (pathName === '/' || pathName.includes('/auth/')) {
-        console.log('Redirecting to feed after sign in')
-        window.location.href = '/feed'
-        return
-      }
-    } else if (event === 'SIGNED_OUT') {
+    // Handle sign out only - let middleware and callback handle successful sign in
+    if (event === 'SIGNED_OUT') {
       isRedirecting = true;
       // Redirect to home page on sign out
       window.location.href = '/'
