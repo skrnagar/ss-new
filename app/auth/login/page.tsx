@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -72,8 +73,8 @@ export default function LoginPage() {
         description: "Redirecting to your dashboard...",
       })
 
-      // Redirect to feed page after successful login
-      window.location.href = "/feed"
+      // Redirect to feed page after successful login using router.push instead of window.location
+      router.push("/feed")
     } catch (error) {
       toast({
         title: "An error occurred",

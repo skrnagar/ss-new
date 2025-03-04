@@ -1,44 +1,43 @@
 
 "use client"
 
-import Link from "next/link"
 import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { 
-  Home, 
-  Briefcase, 
-  BookOpen, 
-  Users, 
-  Bell, 
-  MessageSquare, 
-  Menu, 
-  X, 
-  Search,
-  User,
-  Settings,
-  LogOut
-} from "lucide-react"
-import { Input } from "@/components/ui/input"
-import { supabase } from "@/lib/supabase"
+import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { supabase } from "@/lib/supabase"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+  navigationMenuTriggerStyle,
+} from "@/components/ui/navigation-menu"
+import { cn } from "@/lib/utils"
+import { Bell, MessageCircle, Search, Settings, Users, Briefcase, BookOpen, Shield, User, LogOut } from "lucide-react"
+import { Input } from "@/components/ui/input"
 import { useToast } from "@/hooks/use-toast"
+import { useMobile } from "@/hooks/use-mobile"
 
 export function Navbar() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [user, setUser] = useState<any>(null)
-  const [profile, setProfile] = useState<any>(null)
+  const [user, setUser] = useState(null)
+  const [profile, setProfile] = useState(null)
   const [loading, setLoading] = useState(true)
   const router = useRouter()
   const { toast } = useToast()
+  const isMobile = useMobile()
 
   useEffect(() => {
     async function getUser() {
@@ -47,14 +46,18 @@ export function Navbar() {
         setUser(session?.user || null)
         
         if (session?.user) {
-          // Fetch user profile
-          const { data } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', session.user.id)
-            .single()
-          
-          setProfile(data)
+          try {
+            // Fetch user profile
+            const { data } = await supabase
+              .from('profiles')
+              .select('*')
+              .eq('id', session.user.id)
+              .single()
+            
+            setProfile(data)
+          } catch (profileError) {
+            console.error('Error fetching profile:', profileError)
+          }
         }
       } catch (error) {
         console.error('Error getting user:', error)
@@ -65,8 +68,8 @@ export function Navbar() {
     
     getUser()
     
-    // Set up auth state change listener - this ensures the UI updates when auth state changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+    // Set up auth state change listener
+    const { data: authListener } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         console.log('Auth state changed:', event, session)
         
@@ -76,21 +79,27 @@ export function Navbar() {
         } else if (event === 'SIGNED_IN' && session) {
           setUser(session.user)
           
-          // Fetch user profile after sign in
-          const { data } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', session.user.id)
-            .single()
-            
-          setProfile(data)
+          try {
+            // Fetch user profile after sign in
+            const { data } = await supabase
+              .from('profiles')
+              .select('*')
+              .eq('id', session.user.id)
+              .single()
+              
+            setProfile(data)
+          } catch (profileError) {
+            console.error('Error fetching profile after sign in:', profileError)
+          }
         }
       }
     )
     
     // Cleanup subscription on unmount
     return () => {
-      subscription?.unsubscribe()
+      if (authListener && typeof authListener.subscription?.unsubscribe === 'function') {
+        authListener.subscription.unsubscribe()
+      }
     }
   }, [])
 
@@ -111,258 +120,239 @@ export function Navbar() {
     }
   }
 
-  const getInitials = (name: string) => {
+  const getInitials = (name) => {
+    if (!name) return 'U'
     return name
       .split(' ')
-      .map(part => part[0])
+      .map(part => part?.[0] || '')
       .join('')
       .toUpperCase()
       .substring(0, 2)
   }
 
   const getUserName = () => {
+    if (!user) return 'User'
     return user?.user_metadata?.name || user?.email?.split('@')[0] || 'User'
   }
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-white">
-      <div className="container flex h-16 items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="rounded-full bg-primary p-1">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="white"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="h-6 w-6"
-              >
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-              </svg>
-            </div>
-            <span className="hidden font-bold text-xl text-primary sm:inline-block">Safety Shaper</span>
+    <header className="sticky top-0 z-40 border-b bg-background">
+      <div className="container flex h-16 items-center justify-between py-4">
+        <div className="flex items-center gap-4">
+          <Link href="/" className="flex items-center">
+            <img src="/placeholder-logo.svg" alt="Safety Shaper Logo" className="mr-2 h-8 w-8" />
+            <span className="hidden text-xl font-bold sm:inline-block">Safety Shaper</span>
           </Link>
+          
+          {user && !isMobile && (
+            <NavigationMenu>
+              <NavigationMenuList>
+                <NavigationMenuItem>
+                  <Link href="/feed" legacyBehavior passHref>
+                    <NavigationMenuLink className={navigationMenuTriggerStyle()}>Feed</NavigationMenuLink>
+                  </Link>
+                </NavigationMenuItem>
+                <NavigationMenuItem>
+                  <Link href="/profile" legacyBehavior passHref>
+                    <NavigationMenuLink className={navigationMenuTriggerStyle()}>Profile</NavigationMenuLink>
+                  </Link>
+                </NavigationMenuItem>
+                <NavigationMenuItem>
+                  <NavigationMenuTrigger>Network</NavigationMenuTrigger>
+                  <NavigationMenuContent>
+                    <ul className="grid gap-3 p-4 w-[400px] md:w-[500px] lg:w-[600px] grid-cols-2">
+                      <li className="row-span-3">
+                        <Link href="/network" legacyBehavior passHref>
+                          <NavigationMenuLink
+                            className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-muted/50 to-muted p-6 no-underline outline-none focus:shadow-md"
+                          >
+                            <Users className="h-8 w-8 mb-2" />
+                            <div className="mb-2 mt-4 text-lg font-medium">ESG & EHS Network</div>
+                            <p className="text-sm leading-tight text-muted-foreground">
+                              Connect with professionals in Environmental, Social, Governance, and Health & Safety
+                            </p>
+                          </NavigationMenuLink>
+                        </Link>
+                      </li>
+                      <li>
+                        <Link href="/jobs" legacyBehavior passHref>
+                          <NavigationMenuLink
+                            className={cn(
+                              "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                            )}
+                          >
+                            <div className="flex items-center gap-2">
+                              <Briefcase className="h-4 w-4" />
+                              <div className="text-sm font-medium leading-none">Jobs</div>
+                            </div>
+                            <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                              Find career opportunities in the ESG & EHS field
+                            </p>
+                          </NavigationMenuLink>
+                        </Link>
+                      </li>
+                      <li>
+                        <Link href="/groups" legacyBehavior passHref>
+                          <NavigationMenuLink
+                            className={cn(
+                              "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                            )}
+                          >
+                            <div className="flex items-center gap-2">
+                              <Users className="h-4 w-4" />
+                              <div className="text-sm font-medium leading-none">Groups</div>
+                            </div>
+                            <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                              Join specialized industry and interest groups
+                            </p>
+                          </NavigationMenuLink>
+                        </Link>
+                      </li>
+                      <li>
+                        <Link href="/knowledge" legacyBehavior passHref>
+                          <NavigationMenuLink
+                            className={cn(
+                              "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                            )}
+                          >
+                            <div className="flex items-center gap-2">
+                              <BookOpen className="h-4 w-4" />
+                              <div className="text-sm font-medium leading-none">Knowledge Hub</div>
+                            </div>
+                            <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                              Access resources, best practices, and regulatory information
+                            </p>
+                          </NavigationMenuLink>
+                        </Link>
+                      </li>
+                      <li>
+                        <Link href="/compliance" legacyBehavior passHref>
+                          <NavigationMenuLink
+                            className={cn(
+                              "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                            )}
+                          >
+                            <div className="flex items-center gap-2">
+                              <Shield className="h-4 w-4" />
+                              <div className="text-sm font-medium leading-none">Compliance</div>
+                            </div>
+                            <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                              Stay updated on regulations and compliance requirements
+                            </p>
+                          </NavigationMenuLink>
+                        </Link>
+                      </li>
+                    </ul>
+                  </NavigationMenuContent>
+                </NavigationMenuItem>
+              </NavigationMenuList>
+            </NavigationMenu>
+          )}
         </div>
 
-        <div className="hidden md:flex md:flex-1 md:items-center md:justify-center px-4">
-          <div className="relative w-full max-w-md">
-            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input placeholder="Search professionals, jobs, resources..." className="pl-8 w-full" />
-          </div>
-        </div>
+        <div className="flex items-center gap-4">
+          {!isMobile && (
+            <div className="relative">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="search"
+                placeholder="Search..."
+                className="w-[200px] md:w-[300px] pl-8 bg-muted focus-visible:ring-primary"
+              />
+            </div>
+          )}
 
-        {!loading && (
-          <>
-            {user ? (
-              <nav className="hidden md:flex items-center gap-5">
-                <Link
-                  href="/feed"
-                  className="flex flex-col items-center text-sm font-medium text-muted-foreground hover:text-primary"
-                >
-                  <Home className="h-5 w-5" />
-                  <span>Home</span>
-                </Link>
-                <Link
-                  href="/jobs"
-                  className="flex flex-col items-center text-sm font-medium text-muted-foreground hover:text-primary"
-                >
-                  <Briefcase className="h-5 w-5" />
-                  <span>Jobs</span>
-                </Link>
-                <Link
-                  href="/knowledge"
-                  className="flex flex-col items-center text-sm font-medium text-muted-foreground hover:text-primary"
-                >
-                  <BookOpen className="h-5 w-5" />
-                  <span>Knowledge</span>
-                </Link>
-                <Link
-                  href="/groups"
-                  className="flex flex-col items-center text-sm font-medium text-muted-foreground hover:text-primary"
-                >
-                  <Users className="h-5 w-5" />
-                  <span>Groups</span>
-                </Link>
-                <Link
-                  href="/notifications"
-                  className="flex flex-col items-center text-sm font-medium text-muted-foreground hover:text-primary"
-                >
-                  <Bell className="h-5 w-5" />
-                  <span>Notifications</span>
-                </Link>
-                <Link
-                  href="/messages"
-                  className="flex flex-col items-center text-sm font-medium text-muted-foreground hover:text-primary"
-                >
-                  <MessageSquare className="h-5 w-5" />
-                  <span>Messages</span>
-                </Link>
-                
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="rounded-full h-8 w-8 p-0">
-                      <Avatar>
-                        <AvatarImage 
-                          src={user?.user_metadata?.avatar_url || '/placeholder-user.jpg'} 
-                          alt={getUserName()} 
-                        />
-                        <AvatarFallback>{getInitials(getUserName())}</AvatarFallback>
-                      </Avatar>
+          {user ? (
+            <div className="flex items-center gap-4">
+              {!isMobile && (
+                <>
+                  <Link href="/messages">
+                    <Button variant="ghost" size="icon" aria-label="Messages">
+                      <MessageCircle className="h-5 w-5" />
                     </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
+                  </Link>
+                  <Link href="/notifications">
+                    <Button variant="ghost" size="icon" aria-label="Notifications">
+                      <Bell className="h-5 w-5" />
+                    </Button>
+                  </Link>
+                </>
+              )}
+
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage 
+                        src={user?.user_metadata?.avatar_url || user?.user_metadata?.picture || "/placeholder-user.jpg"} 
+                        alt={getUserName()}
+                      />
+                      <AvatarFallback>{getInitials(getUserName())}</AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56" align="end" forceMount>
+                  <DropdownMenuLabel className="font-normal">
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-sm font-medium leading-none">{getUserName()}</p>
+                      <p className="text-xs leading-none text-muted-foreground">{user?.email}</p>
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuGroup>
                     <DropdownMenuItem asChild>
-                      <Link href={profile?.username ? `/profile/${profile.username}` : '/profile'}>
+                      <Link href="/profile" className="cursor-pointer">
                         <User className="mr-2 h-4 w-4" />
                         <span>Profile</span>
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
-                      <Link href="/settings">
+                      <Link href="/settings" className="cursor-pointer">
                         <Settings className="mr-2 h-4 w-4" />
                         <span>Settings</span>
                       </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={handleSignOut}>
-                      <LogOut className="mr-2 h-4 w-4" />
-                      <span>Sign out</span>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </nav>
-            ) : (
-              <div className="flex items-center gap-2">
-                <Button variant="ghost" asChild className="hidden md:flex">
-                  <Link href="/auth/login">Sign In</Link>
-                </Button>
-                <Button variant="secondary" asChild className="hidden md:flex">
-                  <Link href="/auth/login?tab=register">Join Now</Link>
-                </Button>
-              </div>
-            )}
-          </>
-        )}
-
-        <div className="flex items-center gap-2 md:hidden">
-          <Button variant="ghost" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-            {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-          </Button>
-        </div>
-      </div>
-
-      {/* Mobile menu */}
-      {isMenuOpen && (
-        <div className="md:hidden border-t">
-          <div className="container py-4">
-            <div className="relative mb-4">
-              <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input placeholder="Search professionals, jobs, resources..." className="pl-8 w-full" />
-            </div>
-            
-            {user ? (
-              <>
-                <div className="flex items-center gap-3 p-3 mb-3 bg-muted rounded-md">
-                  <Avatar>
-                    <AvatarImage 
-                      src={user?.user_metadata?.avatar_url || '/placeholder-user.jpg'} 
-                      alt={getUserName()} 
-                    />
-                    <AvatarFallback>{getInitials(getUserName())}</AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <div className="font-medium">{getUserName()}</div>
-                    <div className="text-sm text-muted-foreground">
-                      {profile?.headline || user?.email}
-                    </div>
-                  </div>
-                </div>
-
-                <nav className="grid grid-cols-3 gap-4">
-                  <Link
-                    href="/feed"
-                    className="flex flex-col items-center p-2 text-sm font-medium text-muted-foreground hover:text-primary"
-                  >
-                    <Home className="h-5 w-5 mb-1" />
-                    <span>Home</span>
-                  </Link>
-                  <Link
-                    href="/jobs"
-                    className="flex flex-col items-center p-2 text-sm font-medium text-muted-foreground hover:text-primary"
-                  >
-                    <Briefcase className="h-5 w-5 mb-1" />
-                    <span>Jobs</span>
-                  </Link>
-                  <Link
-                    href="/knowledge"
-                    className="flex flex-col items-center p-2 text-sm font-medium text-muted-foreground hover:text-primary"
-                  >
-                    <BookOpen className="h-5 w-5 mb-1" />
-                    <span>Knowledge</span>
-                  </Link>
-                  <Link
-                    href="/groups"
-                    className="flex flex-col items-center p-2 text-sm font-medium text-muted-foreground hover:text-primary"
-                  >
-                    <Users className="h-5 w-5 mb-1" />
-                    <span>Groups</span>
-                  </Link>
-                  <Link
-                    href="/notifications"
-                    className="flex flex-col items-center p-2 text-sm font-medium text-muted-foreground hover:text-primary"
-                  >
-                    <Bell className="h-5 w-5 mb-1" />
-                    <span>Notifications</span>
-                  </Link>
-                  <Link
-                    href="/messages"
-                    className="flex flex-col items-center p-2 text-sm font-medium text-muted-foreground hover:text-primary"
-                  >
-                    <MessageSquare className="h-5 w-5 mb-1" />
-                    <span>Messages</span>
-                  </Link>
-                </nav>
-                
-                <div className="mt-4 grid grid-cols-2 gap-2">
-                  <Link href={profile?.username ? `/profile/${profile.username}` : '/profile'}>
-                    <Button variant="outline" className="w-full">
-                      <User className="mr-2 h-4 w-4" />
-                      Profile
-                    </Button>
-                  </Link>
-                  <Link href="/settings">
-                    <Button variant="outline" className="w-full">
-                      <Settings className="mr-2 h-4 w-4" />
-                      Settings
-                    </Button>
-                  </Link>
-                </div>
-                
-                <div className="mt-2">
-                  <Button variant="secondary" onClick={handleSignOut} className="w-full">
+                    {isMobile && (
+                      <>
+                        <DropdownMenuItem asChild>
+                          <Link href="/messages" className="cursor-pointer">
+                            <MessageCircle className="mr-2 h-4 w-4" />
+                            <span>Messages</span>
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link href="/notifications" className="cursor-pointer">
+                            <Bell className="mr-2 h-4 w-4" />
+                            <span>Notifications</span>
+                          </Link>
+                        </DropdownMenuItem>
+                      </>
+                    )}
+                  </DropdownMenuGroup>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer">
                     <LogOut className="mr-2 h-4 w-4" />
-                    Sign Out
+                    <span>Log out</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          ) : (
+            <div>
+              {!loading && (
+                <div className="flex items-center gap-2">
+                  <Button asChild variant="outline">
+                    <Link href="/auth/login">Sign In</Link>
+                  </Button>
+                  <Button asChild>
+                    <Link href="/auth/login?tab=register">Join Now</Link>
                   </Button>
                 </div>
-              </>
-            ) : (
-              <div className="mt-4 space-y-2">
-                <Button asChild variant="default" className="w-full">
-                  <Link href="/auth/login">Sign In</Link>
-                </Button>
-                <Button asChild variant="secondary" className="w-full">
-                  <Link href="/auth/login?tab=register">Join Now</Link>
-                </Button>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
+          )}
         </div>
-      )}
+      </div>
     </header>
   )
 }

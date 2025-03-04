@@ -21,3 +21,29 @@ export async function GET(request: NextRequest) {
   // URL to redirect to after sign in process completes
   return NextResponse.redirect(new URL("/feed", request.url))
 }
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
+import { cookies } from 'next/headers'
+import { NextResponse } from 'next/server'
+import { type NextRequest } from 'next/server'
+
+export async function GET(request: NextRequest) {
+  const requestUrl = new URL(request.url)
+  const code = requestUrl.searchParams.get('code')
+  
+  if (code) {
+    const cookieStore = cookies()
+    const supabase = createRouteHandlerClient({ cookies: () => cookieStore })
+    
+    // Try to exchange the code for a session
+    await supabase.auth.exchangeCodeForSession(code)
+    
+    // Get redirect URL or default to feed
+    const redirectTo = requestUrl.searchParams.get('redirectTo') || '/feed'
+    
+    // Redirect to the intended page
+    return NextResponse.redirect(new URL(redirectTo, request.url))
+  }
+
+  // If something went wrong, redirect to the login page
+  return NextResponse.redirect(new URL('/auth/login', request.url))
+}

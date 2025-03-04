@@ -17,3 +17,10 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     autoRefreshToken: true,
   },
 })
+
+// Initialize auth listener for debugging
+if (typeof window !== 'undefined') {
+  supabase.auth.onAuthStateChange((event, session) => {
+    console.log('Auth state changed:', event, session)
+  })
+}
