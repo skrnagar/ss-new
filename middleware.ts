@@ -17,8 +17,13 @@ export async function middleware(request: NextRequest) {
   })
 
   // For server-side auth checking, create a new Supabase client on each request
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://your-project-url.supabase.co'
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'your-anon-key'
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  
+  if (!supabaseUrl || !supabaseAnonKey) {
+    console.error('Supabase URL or key is missing')
+    return response
+  }
   
   const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     auth: {
@@ -27,14 +32,17 @@ export async function middleware(request: NextRequest) {
     },
   })
   
-  // Get the user's session from cookies
-  const { data: { session } } = await supabase.auth.getSession()
+  // Get auth token from the cookies
+  const authCookie = request.cookies.get('sb-auth-token')?.value
   
+  // Check if user is authenticated based on the presence of the auth cookie
+  const isAuthenticated = !!authCookie
+
   const url = new URL(request.url)
   const path = url.pathname
   
   // Root page redirect to feed for authenticated users
-  if (path === '/' && session) {
+  if (path === '/' && isAuthenticated) {
     return NextResponse.redirect(new URL('/feed', request.url))
   }
 
@@ -43,7 +51,7 @@ export async function middleware(request: NextRequest) {
     path === route || path.startsWith(`${route}/`)
   )
   
-  if (isProtectedRoute && !session) {
+  if (isProtectedRoute && !isAuthenticated) {
     return NextResponse.redirect(new URL('/auth/login', request.url))
   }
 
@@ -52,7 +60,7 @@ export async function middleware(request: NextRequest) {
     path === route || path.startsWith(`${route}/`)
   )
   
-  if (isAuthRoute && session) {
+  if (isAuthRoute && isAuthenticated) {
     return NextResponse.redirect(new URL('/feed', request.url))
   }
 

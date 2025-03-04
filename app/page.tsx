@@ -42,55 +42,51 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="py-20 bg-light">
+      {/* Features */}
+      <section className="py-20 bg-muted/50">
         <div className="container">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold mb-4">Why Join Safety Shaper?</h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Our platform offers specialized tools and resources for ESG and EHS professionals to connect, learn, and
-              grow.
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+              The professional network designed specifically for ESG and EHS professionals to connect, learn, and grow.
             </p>
           </div>
-
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <Card className="border-none shadow-md">
+            <Card>
               <CardContent className="pt-6">
                 <div className="flex flex-col items-center text-center">
-                  <div className="rounded-full bg-primary/10 p-3 mb-4">
-                    <Users className="h-8 w-8 text-primary" />
+                  <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+                    <Users className="h-6 w-6 text-primary" />
                   </div>
-                  <h3 className="text-xl font-semibold mb-2">Professional Networking</h3>
+                  <h3 className="text-xl font-medium mb-2">Network with Peers</h3>
                   <p className="text-muted-foreground">
-                    Connect with industry peers, mentors, and experts in the ESG and EHS fields.
+                    Connect with other ESG and EHS professionals across industries to share experiences and insights.
                   </p>
                 </div>
               </CardContent>
             </Card>
-
-            <Card className="border-none shadow-md">
+            <Card>
               <CardContent className="pt-6">
                 <div className="flex flex-col items-center text-center">
-                  <div className="rounded-full bg-secondary/10 p-3 mb-4">
-                    <BookOpen className="h-8 w-8 text-secondary" />
+                  <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+                    <Briefcase className="h-6 w-6 text-primary" />
                   </div>
-                  <h3 className="text-xl font-semibold mb-2">Knowledge Sharing</h3>
+                  <h3 className="text-xl font-medium mb-2">Discover Opportunities</h3>
                   <p className="text-muted-foreground">
-                    Access and share valuable resources, best practices, and regulatory updates.
+                    Find job openings, consulting gigs, and career advancement opportunities in the ESG and EHS fields.
                   </p>
                 </div>
               </CardContent>
             </Card>
-
-            <Card className="border-none shadow-md">
+            <Card>
               <CardContent className="pt-6">
                 <div className="flex flex-col items-center text-center">
-                  <div className="rounded-full bg-primary/10 p-3 mb-4">
-                    <Briefcase className="h-8 w-8 text-primary" />
+                  <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+                    <BookOpen className="h-6 w-6 text-primary" />
                   </div>
-                  <h3 className="text-xl font-semibold mb-2">Career Opportunities</h3>
+                  <h3 className="text-xl font-medium mb-2">Knowledge Sharing</h3>
                   <p className="text-muted-foreground">
-                    Discover job openings tailored to your skills and experience in the ESG and EHS sectors.
+                    Access and contribute to a growing library of resources, case studies, and best practices.
                   </p>
                 </div>
               </CardContent>
@@ -108,7 +104,6 @@ export default async function Home() {
               Safety Shaper offers comprehensive tools designed specifically for ESG and EHS professionals.
             </p>
           </div>
-
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="flex gap-4">
               <div className="rounded-full bg-primary/10 p-3 h-fit">
@@ -214,7 +209,6 @@ export default async function Home() {
               Safety Shaper helps professionals address key Environmental, Social, and Governance challenges.
             </p>
           </div>
-
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <Card className="border-none shadow-md">
               <CardContent className="pt-6">
