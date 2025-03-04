@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect } from "react"
@@ -27,4 +28,4 @@ export function useIsMobile() {
   return useMobile()
 }
 
-export default useIsMobile
+export default useMobile
