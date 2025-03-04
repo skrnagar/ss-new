@@ -7,18 +7,20 @@ export function useMobile() {
   const [isMobile, setIsMobile] = useState(false)
 
   useEffect(() => {
-    const checkIsMobile = () => {
+    // Handler to call on window resize
+    function handleResize() {
       setIsMobile(window.innerWidth < 768)
     }
-
-    checkIsMobile()
-    window.addEventListener('resize', checkIsMobile)
-
-    return () => window.removeEventListener('resize', checkIsMobile)
+    
+    // Add event listener
+    window.addEventListener('resize', handleResize)
+    
+    // Call handler right away so state gets updated with initial window size
+    handleResize()
+    
+    // Remove event listener on cleanup
+    return () => window.removeEventListener('resize', handleResize)
   }, [])
 
   return isMobile
 }
-
-// Default export for compatibility
-export default useMobile
