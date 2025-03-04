@@ -1,0 +1,2272 @@
+
+Build Error
+Failed to compile
+
+Next.js (14.2.16) is outdated (learn more)
+./app/knowledge/page.tsx
+Error: 
+  × the name `Button` is defined multiple times
+     ╭─[/home/runner/workspace/app/knowledge/page.tsx:1:1]
+   1 │ import { Button } from "@/components/ui/button"
+     ·          ───┬──
+     ·             ╰── previous definition of `Button` here
+   2 │ import { Card, CardContent } from "@/components/ui/card"
+   3 │ import { Input } from "@/components/ui/input"
+   4 │ import { Search, FileText, FileCheck, FilePlus, FileWarning, Filter, Download, Star, Share2 } from "lucide-react"
+   5 │ 
+   6 │ export default function KnowledgePage() {
+   7 │   const resources = [
+   8 │     {
+   9 │       id: 1,
+  10 │       title: "Comprehensive HIRA Template",
+  11 │       type: "HIRA",
+  12 │       industry: "Manufacturing",
+  13 │       author: "Sarah Johnson",
+  14 │       downloads: 1245,
+  15 │       rating: 4.8,
+  16 │       icon: FileCheck,
+  17 │     },
+  18 │     {
+  19 │       id: 2,
+  20 │       title: "Job Safety Analysis for Construction Sites",
+  21 │       type: "JSA",
+  22 │       industry: "Construction",
+  23 │       author: "Michael Chen",
+  24 │       downloads: 987,
+  25 │       rating: 4.6,
+  26 │       icon: FileWarning,
+  27 │     },
+  28 │     {
+  29 │       id: 3,
+  30 │       title: "Environmental Compliance Checklist 2023",
+  31 │       type: "Checklist",
+  32 │       industry: "All Industries",
+  33 │       author: "Priya Patel",
+  34 │       downloads: 2156,
+  35 │       rating: 4.9,
+  36 │       icon: FileCheck,
+  37 │     },
+  38 │     {
+  39 │       id: 4,
+  40 │       title: "Safety Plan Template for Chemical Handling",
+  41 │       type: "Safety Plan",
+  42 │       industry: "Chemical",
+  43 │       author: "James Wilson",
+  44 │       downloads: 876,
+  45 │       rating: 4.7,
+  46 │       icon: FilePlus,
+  47 │     },
+  48 │     {
+  49 │       id: 5,
+  50 │       title: "ISO 14001 Implementation Guide",
+  51 │       type: "Guide",
+  52 │       industry: "All Industries",
+  53 │       author: "Emma Rodriguez",
+  54 │       downloads: 1532,
+  55 │       rating: 4.9,
+  56 │       icon: FileText,
+  57 │     },
+  58 │     {
+  59 │       id: 6,
+  60 │       title: "Workplace Ergonomics Assessment Tool",
+  61 │       type: "Assessment",
+  62 │       industry: "Office",
+  63 │       author: "David Kim",
+  64 │       downloads: 765,
+  65 │       rating: 4.5,
+  66 │       icon: FileWarning,
+  67 │     },
+  68 │   ]
+  69 │ 
+  70 │   return (
+  71 │     <div className="container py-8">
+  72 │       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+  73 │         <div>
+  74 │           <h1 className="text-3xl font-bold mb-2">Knowledge Center</h1>
+  75 │           <p className="text-muted-foreground">Access and share valuable resources for ESG and EHS professionals</p>
+  76 │         </div>
+  77 │         <Button variant="secondary">
+  78 │           <FilePlus className="mr-2 h-4 w-4" />
+  79 │           Upload Resource
+  80 │         </Button>
+  81 │       </div>
+  82 │ 
+  83 │       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+  84 │         <div className="md:col-span-3">
+  85 │           <div className="relative">
+  86 │             <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+  87 │             <Input placeholder="Search for resources, documents, or topics..." className="pl-10" />
+  88 │           </div>
+  89 │         </div>
+  90 │         <div>
+  91 │           <Button variant="outline" className="w-full">
+  92 │             <Filter className="mr-2 h-4 w-4" />
+  93 │             Filter Resources
+  94 │           </Button>
+  95 │         </div>
+  96 │       </div>
+  97 │ 
+  98 │       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+  99 │         {resources.map((resource) => (
+ 100 │           <Card key={resource.id} className="overflow-hidden">
+ 101 │             <div className="bg-primary/5 p-6 flex justify-center">
+ 102 │               <resource.icon className="h-16 w-16 text-primary" />
+ 103 │             </div>
+ 104 │             <CardContent className="p-6">
+ 105 │               <div className="flex justify-between items-start mb-2">
+ 106 │                 <span className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
+ 107 │                   {resource.type}
+ 108 │                 </span>
+ 109 │                 <span className="inline-flex items-center rounded-full bg-secondary/10 px-2.5 py-0.5 text-xs font-medium text-secondary">
+ 110 │                   {resource.industry}
+ 111 │                 </span>
+ 112 │               </div>
+ 113 │               <h3 className="font-semibold text-lg mb-2">{resource.title}</h3>
+ 114 │               <p className="text-sm text-muted-foreground mb-4">By {resource.author}</p>
+ 115 │ 
+ 116 │               <div className="flex justify-between items-center text-sm text-muted-foreground mb-4">
+ 117 │                 <div className="flex items-center">
+ 118 │                   <Download className="h-4 w-4 mr-1" />
+ 119 │                   <span>{resource.downloads}</span>
+ 120 │                 </div>
+ 121 │                 <div className="flex items-center">
+ 122 │                   <Star className="h-4 w-4 text-yellow-500 mr-1" />
+ 123 │                   <span>{resource.rating}</span>
+ 124 │                 </div>
+ 125 │               </div>
+ 126 │ 
+ 127 │               <div className="flex gap-2">
+ 128 │                 <Button variant="secondary" className="flex-1">
+ 129 │                   <Download className="mr-2 h-4 w-4" />
+ 130 │                   Download
+ 131 │                 </Button>
+ 132 │                 <Button variant="outline" size="icon">
+ 133 │                   <Share2 className="h-4 w-4" />
+ 134 │                 </Button>
+ 135 │               </div>
+ 136 │             </CardContent>
+ 137 │           </Card>
+ 138 │         ))}
+ 139 │       </div>
+ 140 │     </div>
+ 141 │   )
+ 142 │ }
+ 143 │ 
+ 144 │ "use client"
+ 145 │ 
+ 146 │ import * as React from "react"
+ 147 │ import { Button } from "@/components/ui/button"
+     ·          ───┬──
+     ·             ╰── `Button` redefined here
+ 148 │ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+ 149 │ import { Input } from "@/components/ui/input"
+ 150 │ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+     ╰────
+
+  × the name `Card` is defined multiple times
+     ╭─[/home/runner/workspace/app/knowledge/page.tsx:1:1]
+   1 │ import { Button } from "@/components/ui/button"
+   2 │ import { Card, CardContent } from "@/components/ui/card"
+     ·          ──┬─
+     ·            ╰── previous definition of `Card` here
+   3 │ import { Input } from "@/components/ui/input"
+   4 │ import { Search, FileText, FileCheck, FilePlus, FileWarning, Filter, Download, Star, Share2 } from "lucide-react"
+   5 │ 
+   6 │ export default function KnowledgePage() {
+   7 │   const resources = [
+   8 │     {
+   9 │       id: 1,
+  10 │       title: "Comprehensive HIRA Template",
+  11 │       type: "HIRA",
+  12 │       industry: "Manufacturing",
+  13 │       author: "Sarah Johnson",
+  14 │       downloads: 1245,
+  15 │       rating: 4.8,
+  16 │       icon: FileCheck,
+  17 │     },
+  18 │     {
+  19 │       id: 2,
+  20 │       title: "Job Safety Analysis for Construction Sites",
+  21 │       type: "JSA",
+  22 │       industry: "Construction",
+  23 │       author: "Michael Chen",
+  24 │       downloads: 987,
+  25 │       rating: 4.6,
+  26 │       icon: FileWarning,
+  27 │     },
+  28 │     {
+  29 │       id: 3,
+  30 │       title: "Environmental Compliance Checklist 2023",
+  31 │       type: "Checklist",
+  32 │       industry: "All Industries",
+  33 │       author: "Priya Patel",
+  34 │       downloads: 2156,
+  35 │       rating: 4.9,
+  36 │       icon: FileCheck,
+  37 │     },
+  38 │     {
+  39 │       id: 4,
+  40 │       title: "Safety Plan Template for Chemical Handling",
+  41 │       type: "Safety Plan",
+  42 │       industry: "Chemical",
+  43 │       author: "James Wilson",
+  44 │       downloads: 876,
+  45 │       rating: 4.7,
+  46 │       icon: FilePlus,
+  47 │     },
+  48 │     {
+  49 │       id: 5,
+  50 │       title: "ISO 14001 Implementation Guide",
+  51 │       type: "Guide",
+  52 │       industry: "All Industries",
+  53 │       author: "Emma Rodriguez",
+  54 │       downloads: 1532,
+  55 │       rating: 4.9,
+  56 │       icon: FileText,
+  57 │     },
+  58 │     {
+  59 │       id: 6,
+  60 │       title: "Workplace Ergonomics Assessment Tool",
+  61 │       type: "Assessment",
+  62 │       industry: "Office",
+  63 │       author: "David Kim",
+  64 │       downloads: 765,
+  65 │       rating: 4.5,
+  66 │       icon: FileWarning,
+  67 │     },
+  68 │   ]
+  69 │ 
+  70 │   return (
+  71 │     <div className="container py-8">
+  72 │       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+  73 │         <div>
+  74 │           <h1 className="text-3xl font-bold mb-2">Knowledge Center</h1>
+  75 │           <p className="text-muted-foreground">Access and share valuable resources for ESG and EHS professionals</p>
+  76 │         </div>
+  77 │         <Button variant="secondary">
+  78 │           <FilePlus className="mr-2 h-4 w-4" />
+  79 │           Upload Resource
+  80 │         </Button>
+  81 │       </div>
+  82 │ 
+  83 │       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+  84 │         <div className="md:col-span-3">
+  85 │           <div className="relative">
+  86 │             <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+  87 │             <Input placeholder="Search for resources, documents, or topics..." className="pl-10" />
+  88 │           </div>
+  89 │         </div>
+  90 │         <div>
+  91 │           <Button variant="outline" className="w-full">
+  92 │             <Filter className="mr-2 h-4 w-4" />
+  93 │             Filter Resources
+  94 │           </Button>
+  95 │         </div>
+  96 │       </div>
+  97 │ 
+  98 │       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+  99 │         {resources.map((resource) => (
+ 100 │           <Card key={resource.id} className="overflow-hidden">
+ 101 │             <div className="bg-primary/5 p-6 flex justify-center">
+ 102 │               <resource.icon className="h-16 w-16 text-primary" />
+ 103 │             </div>
+ 104 │             <CardContent className="p-6">
+ 105 │               <div className="flex justify-between items-start mb-2">
+ 106 │                 <span className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
+ 107 │                   {resource.type}
+ 108 │                 </span>
+ 109 │                 <span className="inline-flex items-center rounded-full bg-secondary/10 px-2.5 py-0.5 text-xs font-medium text-secondary">
+ 110 │                   {resource.industry}
+ 111 │                 </span>
+ 112 │               </div>
+ 113 │               <h3 className="font-semibold text-lg mb-2">{resource.title}</h3>
+ 114 │               <p className="text-sm text-muted-foreground mb-4">By {resource.author}</p>
+ 115 │ 
+ 116 │               <div className="flex justify-between items-center text-sm text-muted-foreground mb-4">
+ 117 │                 <div className="flex items-center">
+ 118 │                   <Download className="h-4 w-4 mr-1" />
+ 119 │                   <span>{resource.downloads}</span>
+ 120 │                 </div>
+ 121 │                 <div className="flex items-center">
+ 122 │                   <Star className="h-4 w-4 text-yellow-500 mr-1" />
+ 123 │                   <span>{resource.rating}</span>
+ 124 │                 </div>
+ 125 │               </div>
+ 126 │ 
+ 127 │               <div className="flex gap-2">
+ 128 │                 <Button variant="secondary" className="flex-1">
+ 129 │                   <Download className="mr-2 h-4 w-4" />
+ 130 │                   Download
+ 131 │                 </Button>
+ 132 │                 <Button variant="outline" size="icon">
+ 133 │                   <Share2 className="h-4 w-4" />
+ 134 │                 </Button>
+ 135 │               </div>
+ 136 │             </CardContent>
+ 137 │           </Card>
+ 138 │         ))}
+ 139 │       </div>
+ 140 │     </div>
+ 141 │   )
+ 142 │ }
+ 143 │ 
+ 144 │ "use client"
+ 145 │ 
+ 146 │ import * as React from "react"
+ 147 │ import { Button } from "@/components/ui/button"
+ 148 │ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+     ·          ──┬─
+     ·            ╰── `Card` redefined here
+ 149 │ import { Input } from "@/components/ui/input"
+ 150 │ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+ 151 │ import { Badge } from "@/components/ui/badge"
+     ╰────
+
+  × the name `CardContent` is defined multiple times
+     ╭─[/home/runner/workspace/app/knowledge/page.tsx:1:1]
+   1 │ import { Button } from "@/components/ui/button"
+   2 │ import { Card, CardContent } from "@/components/ui/card"
+     ·                ─────┬─────
+     ·                     ╰── previous definition of `CardContent` here
+   3 │ import { Input } from "@/components/ui/input"
+   4 │ import { Search, FileText, FileCheck, FilePlus, FileWarning, Filter, Download, Star, Share2 } from "lucide-react"
+   5 │ 
+   6 │ export default function KnowledgePage() {
+   7 │   const resources = [
+   8 │     {
+   9 │       id: 1,
+  10 │       title: "Comprehensive HIRA Template",
+  11 │       type: "HIRA",
+  12 │       industry: "Manufacturing",
+  13 │       author: "Sarah Johnson",
+  14 │       downloads: 1245,
+  15 │       rating: 4.8,
+  16 │       icon: FileCheck,
+  17 │     },
+  18 │     {
+  19 │       id: 2,
+  20 │       title: "Job Safety Analysis for Construction Sites",
+  21 │       type: "JSA",
+  22 │       industry: "Construction",
+  23 │       author: "Michael Chen",
+  24 │       downloads: 987,
+  25 │       rating: 4.6,
+  26 │       icon: FileWarning,
+  27 │     },
+  28 │     {
+  29 │       id: 3,
+  30 │       title: "Environmental Compliance Checklist 2023",
+  31 │       type: "Checklist",
+  32 │       industry: "All Industries",
+  33 │       author: "Priya Patel",
+  34 │       downloads: 2156,
+  35 │       rating: 4.9,
+  36 │       icon: FileCheck,
+  37 │     },
+  38 │     {
+  39 │       id: 4,
+  40 │       title: "Safety Plan Template for Chemical Handling",
+  41 │       type: "Safety Plan",
+  42 │       industry: "Chemical",
+  43 │       author: "James Wilson",
+  44 │       downloads: 876,
+  45 │       rating: 4.7,
+  46 │       icon: FilePlus,
+  47 │     },
+  48 │     {
+  49 │       id: 5,
+  50 │       title: "ISO 14001 Implementation Guide",
+  51 │       type: "Guide",
+  52 │       industry: "All Industries",
+  53 │       author: "Emma Rodriguez",
+  54 │       downloads: 1532,
+  55 │       rating: 4.9,
+  56 │       icon: FileText,
+  57 │     },
+  58 │     {
+  59 │       id: 6,
+  60 │       title: "Workplace Ergonomics Assessment Tool",
+  61 │       type: "Assessment",
+  62 │       industry: "Office",
+  63 │       author: "David Kim",
+  64 │       downloads: 765,
+  65 │       rating: 4.5,
+  66 │       icon: FileWarning,
+  67 │     },
+  68 │   ]
+  69 │ 
+  70 │   return (
+  71 │     <div className="container py-8">
+  72 │       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+  73 │         <div>
+  74 │           <h1 className="text-3xl font-bold mb-2">Knowledge Center</h1>
+  75 │           <p className="text-muted-foreground">Access and share valuable resources for ESG and EHS professionals</p>
+  76 │         </div>
+  77 │         <Button variant="secondary">
+  78 │           <FilePlus className="mr-2 h-4 w-4" />
+  79 │           Upload Resource
+  80 │         </Button>
+  81 │       </div>
+  82 │ 
+  83 │       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+  84 │         <div className="md:col-span-3">
+  85 │           <div className="relative">
+  86 │             <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+  87 │             <Input placeholder="Search for resources, documents, or topics..." className="pl-10" />
+  88 │           </div>
+  89 │         </div>
+  90 │         <div>
+  91 │           <Button variant="outline" className="w-full">
+  92 │             <Filter className="mr-2 h-4 w-4" />
+  93 │             Filter Resources
+  94 │           </Button>
+  95 │         </div>
+  96 │       </div>
+  97 │ 
+  98 │       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+  99 │         {resources.map((resource) => (
+ 100 │           <Card key={resource.id} className="overflow-hidden">
+ 101 │             <div className="bg-primary/5 p-6 flex justify-center">
+ 102 │               <resource.icon className="h-16 w-16 text-primary" />
+ 103 │             </div>
+ 104 │             <CardContent className="p-6">
+ 105 │               <div className="flex justify-between items-start mb-2">
+ 106 │                 <span className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
+ 107 │                   {resource.type}
+ 108 │                 </span>
+ 109 │                 <span className="inline-flex items-center rounded-full bg-secondary/10 px-2.5 py-0.5 text-xs font-medium text-secondary">
+ 110 │                   {resource.industry}
+ 111 │                 </span>
+ 112 │               </div>
+ 113 │               <h3 className="font-semibold text-lg mb-2">{resource.title}</h3>
+ 114 │               <p className="text-sm text-muted-foreground mb-4">By {resource.author}</p>
+ 115 │ 
+ 116 │               <div className="flex justify-between items-center text-sm text-muted-foreground mb-4">
+ 117 │                 <div className="flex items-center">
+ 118 │                   <Download className="h-4 w-4 mr-1" />
+ 119 │                   <span>{resource.downloads}</span>
+ 120 │                 </div>
+ 121 │                 <div className="flex items-center">
+ 122 │                   <Star className="h-4 w-4 text-yellow-500 mr-1" />
+ 123 │                   <span>{resource.rating}</span>
+ 124 │                 </div>
+ 125 │               </div>
+ 126 │ 
+ 127 │               <div className="flex gap-2">
+ 128 │                 <Button variant="secondary" className="flex-1">
+ 129 │                   <Download className="mr-2 h-4 w-4" />
+ 130 │                   Download
+ 131 │                 </Button>
+ 132 │                 <Button variant="outline" size="icon">
+ 133 │                   <Share2 className="h-4 w-4" />
+ 134 │                 </Button>
+ 135 │               </div>
+ 136 │             </CardContent>
+ 137 │           </Card>
+ 138 │         ))}
+ 139 │       </div>
+ 140 │     </div>
+ 141 │   )
+ 142 │ }
+ 143 │ 
+ 144 │ "use client"
+ 145 │ 
+ 146 │ import * as React from "react"
+ 147 │ import { Button } from "@/components/ui/button"
+ 148 │ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+     ·                ─────┬─────
+     ·                     ╰── `CardContent` redefined here
+ 149 │ import { Input } from "@/components/ui/input"
+ 150 │ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+ 151 │ import { Badge } from "@/components/ui/badge"
+     ╰────
+
+  × the name `Input` is defined multiple times
+     ╭─[/home/runner/workspace/app/knowledge/page.tsx:1:1]
+   1 │ import { Button } from "@/components/ui/button"
+   2 │ import { Card, CardContent } from "@/components/ui/card"
+   3 │ import { Input } from "@/components/ui/input"
+     ·          ──┬──
+     ·            ╰── previous definition of `Input` here
+   4 │ import { Search, FileText, FileCheck, FilePlus, FileWarning, Filter, Download, Star, Share2 } from "lucide-react"
+   5 │ 
+   6 │ export default function KnowledgePage() {
+   7 │   const resources = [
+   8 │     {
+   9 │       id: 1,
+  10 │       title: "Comprehensive HIRA Template",
+  11 │       type: "HIRA",
+  12 │       industry: "Manufacturing",
+  13 │       author: "Sarah Johnson",
+  14 │       downloads: 1245,
+  15 │       rating: 4.8,
+  16 │       icon: FileCheck,
+  17 │     },
+  18 │     {
+  19 │       id: 2,
+  20 │       title: "Job Safety Analysis for Construction Sites",
+  21 │       type: "JSA",
+  22 │       industry: "Construction",
+  23 │       author: "Michael Chen",
+  24 │       downloads: 987,
+  25 │       rating: 4.6,
+  26 │       icon: FileWarning,
+  27 │     },
+  28 │     {
+  29 │       id: 3,
+  30 │       title: "Environmental Compliance Checklist 2023",
+  31 │       type: "Checklist",
+  32 │       industry: "All Industries",
+  33 │       author: "Priya Patel",
+  34 │       downloads: 2156,
+  35 │       rating: 4.9,
+  36 │       icon: FileCheck,
+  37 │     },
+  38 │     {
+  39 │       id: 4,
+  40 │       title: "Safety Plan Template for Chemical Handling",
+  41 │       type: "Safety Plan",
+  42 │       industry: "Chemical",
+  43 │       author: "James Wilson",
+  44 │       downloads: 876,
+  45 │       rating: 4.7,
+  46 │       icon: FilePlus,
+  47 │     },
+  48 │     {
+  49 │       id: 5,
+  50 │       title: "ISO 14001 Implementation Guide",
+  51 │       type: "Guide",
+  52 │       industry: "All Industries",
+  53 │       author: "Emma Rodriguez",
+  54 │       downloads: 1532,
+  55 │       rating: 4.9,
+  56 │       icon: FileText,
+  57 │     },
+  58 │     {
+  59 │       id: 6,
+  60 │       title: "Workplace Ergonomics Assessment Tool",
+  61 │       type: "Assessment",
+  62 │       industry: "Office",
+  63 │       author: "David Kim",
+  64 │       downloads: 765,
+  65 │       rating: 4.5,
+  66 │       icon: FileWarning,
+  67 │     },
+  68 │   ]
+  69 │ 
+  70 │   return (
+  71 │     <div className="container py-8">
+  72 │       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+  73 │         <div>
+  74 │           <h1 className="text-3xl font-bold mb-2">Knowledge Center</h1>
+  75 │           <p className="text-muted-foreground">Access and share valuable resources for ESG and EHS professionals</p>
+  76 │         </div>
+  77 │         <Button variant="secondary">
+  78 │           <FilePlus className="mr-2 h-4 w-4" />
+  79 │           Upload Resource
+  80 │         </Button>
+  81 │       </div>
+  82 │ 
+  83 │       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+  84 │         <div className="md:col-span-3">
+  85 │           <div className="relative">
+  86 │             <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+  87 │             <Input placeholder="Search for resources, documents, or topics..." className="pl-10" />
+  88 │           </div>
+  89 │         </div>
+  90 │         <div>
+  91 │           <Button variant="outline" className="w-full">
+  92 │             <Filter className="mr-2 h-4 w-4" />
+  93 │             Filter Resources
+  94 │           </Button>
+  95 │         </div>
+  96 │       </div>
+  97 │ 
+  98 │       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+  99 │         {resources.map((resource) => (
+ 100 │           <Card key={resource.id} className="overflow-hidden">
+ 101 │             <div className="bg-primary/5 p-6 flex justify-center">
+ 102 │               <resource.icon className="h-16 w-16 text-primary" />
+ 103 │             </div>
+ 104 │             <CardContent className="p-6">
+ 105 │               <div className="flex justify-between items-start mb-2">
+ 106 │                 <span className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
+ 107 │                   {resource.type}
+ 108 │                 </span>
+ 109 │                 <span className="inline-flex items-center rounded-full bg-secondary/10 px-2.5 py-0.5 text-xs font-medium text-secondary">
+ 110 │                   {resource.industry}
+ 111 │                 </span>
+ 112 │               </div>
+ 113 │               <h3 className="font-semibold text-lg mb-2">{resource.title}</h3>
+ 114 │               <p className="text-sm text-muted-foreground mb-4">By {resource.author}</p>
+ 115 │ 
+ 116 │               <div className="flex justify-between items-center text-sm text-muted-foreground mb-4">
+ 117 │                 <div className="flex items-center">
+ 118 │                   <Download className="h-4 w-4 mr-1" />
+ 119 │                   <span>{resource.downloads}</span>
+ 120 │                 </div>
+ 121 │                 <div className="flex items-center">
+ 122 │                   <Star className="h-4 w-4 text-yellow-500 mr-1" />
+ 123 │                   <span>{resource.rating}</span>
+ 124 │                 </div>
+ 125 │               </div>
+ 126 │ 
+ 127 │               <div className="flex gap-2">
+ 128 │                 <Button variant="secondary" className="flex-1">
+ 129 │                   <Download className="mr-2 h-4 w-4" />
+ 130 │                   Download
+ 131 │                 </Button>
+ 132 │                 <Button variant="outline" size="icon">
+ 133 │                   <Share2 className="h-4 w-4" />
+ 134 │                 </Button>
+ 135 │               </div>
+ 136 │             </CardContent>
+ 137 │           </Card>
+ 138 │         ))}
+ 139 │       </div>
+ 140 │     </div>
+ 141 │   )
+ 142 │ }
+ 143 │ 
+ 144 │ "use client"
+ 145 │ 
+ 146 │ import * as React from "react"
+ 147 │ import { Button } from "@/components/ui/button"
+ 148 │ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+ 149 │ import { Input } from "@/components/ui/input"
+     ·          ──┬──
+     ·            ╰── `Input` redefined here
+ 150 │ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+ 151 │ import { Badge } from "@/components/ui/badge"
+ 152 │ import { 
+     ╰────
+
+  × the name `FileText` is defined multiple times
+     ╭─[/home/runner/workspace/app/knowledge/page.tsx:1:1]
+   1 │ import { Button } from "@/components/ui/button"
+   2 │ import { Card, CardContent } from "@/components/ui/card"
+   3 │ import { Input } from "@/components/ui/input"
+   4 │ import { Search, FileText, FileCheck, FilePlus, FileWarning, Filter, Download, Star, Share2 } from "lucide-react"
+     ·                  ────┬───
+     ·                      ╰── previous definition of `FileText` here
+   5 │ 
+   6 │ export default function KnowledgePage() {
+   7 │   const resources = [
+   8 │     {
+   9 │       id: 1,
+  10 │       title: "Comprehensive HIRA Template",
+  11 │       type: "HIRA",
+  12 │       industry: "Manufacturing",
+  13 │       author: "Sarah Johnson",
+  14 │       downloads: 1245,
+  15 │       rating: 4.8,
+  16 │       icon: FileCheck,
+  17 │     },
+  18 │     {
+  19 │       id: 2,
+  20 │       title: "Job Safety Analysis for Construction Sites",
+  21 │       type: "JSA",
+  22 │       industry: "Construction",
+  23 │       author: "Michael Chen",
+  24 │       downloads: 987,
+  25 │       rating: 4.6,
+  26 │       icon: FileWarning,
+  27 │     },
+  28 │     {
+  29 │       id: 3,
+  30 │       title: "Environmental Compliance Checklist 2023",
+  31 │       type: "Checklist",
+  32 │       industry: "All Industries",
+  33 │       author: "Priya Patel",
+  34 │       downloads: 2156,
+  35 │       rating: 4.9,
+  36 │       icon: FileCheck,
+  37 │     },
+  38 │     {
+  39 │       id: 4,
+  40 │       title: "Safety Plan Template for Chemical Handling",
+  41 │       type: "Safety Plan",
+  42 │       industry: "Chemical",
+  43 │       author: "James Wilson",
+  44 │       downloads: 876,
+  45 │       rating: 4.7,
+  46 │       icon: FilePlus,
+  47 │     },
+  48 │     {
+  49 │       id: 5,
+  50 │       title: "ISO 14001 Implementation Guide",
+  51 │       type: "Guide",
+  52 │       industry: "All Industries",
+  53 │       author: "Emma Rodriguez",
+  54 │       downloads: 1532,
+  55 │       rating: 4.9,
+  56 │       icon: FileText,
+  57 │     },
+  58 │     {
+  59 │       id: 6,
+  60 │       title: "Workplace Ergonomics Assessment Tool",
+  61 │       type: "Assessment",
+  62 │       industry: "Office",
+  63 │       author: "David Kim",
+  64 │       downloads: 765,
+  65 │       rating: 4.5,
+  66 │       icon: FileWarning,
+  67 │     },
+  68 │   ]
+  69 │ 
+  70 │   return (
+  71 │     <div className="container py-8">
+  72 │       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+  73 │         <div>
+  74 │           <h1 className="text-3xl font-bold mb-2">Knowledge Center</h1>
+  75 │           <p className="text-muted-foreground">Access and share valuable resources for ESG and EHS professionals</p>
+  76 │         </div>
+  77 │         <Button variant="secondary">
+  78 │           <FilePlus className="mr-2 h-4 w-4" />
+  79 │           Upload Resource
+  80 │         </Button>
+  81 │       </div>
+  82 │ 
+  83 │       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+  84 │         <div className="md:col-span-3">
+  85 │           <div className="relative">
+  86 │             <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+  87 │             <Input placeholder="Search for resources, documents, or topics..." className="pl-10" />
+  88 │           </div>
+  89 │         </div>
+  90 │         <div>
+  91 │           <Button variant="outline" className="w-full">
+  92 │             <Filter className="mr-2 h-4 w-4" />
+  93 │             Filter Resources
+  94 │           </Button>
+  95 │         </div>
+  96 │       </div>
+  97 │ 
+  98 │       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+  99 │         {resources.map((resource) => (
+ 100 │           <Card key={resource.id} className="overflow-hidden">
+ 101 │             <div className="bg-primary/5 p-6 flex justify-center">
+ 102 │               <resource.icon className="h-16 w-16 text-primary" />
+ 103 │             </div>
+ 104 │             <CardContent className="p-6">
+ 105 │               <div className="flex justify-between items-start mb-2">
+ 106 │                 <span className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
+ 107 │                   {resource.type}
+ 108 │                 </span>
+ 109 │                 <span className="inline-flex items-center rounded-full bg-secondary/10 px-2.5 py-0.5 text-xs font-medium text-secondary">
+ 110 │                   {resource.industry}
+ 111 │                 </span>
+ 112 │               </div>
+ 113 │               <h3 className="font-semibold text-lg mb-2">{resource.title}</h3>
+ 114 │               <p className="text-sm text-muted-foreground mb-4">By {resource.author}</p>
+ 115 │ 
+ 116 │               <div className="flex justify-between items-center text-sm text-muted-foreground mb-4">
+ 117 │                 <div className="flex items-center">
+ 118 │                   <Download className="h-4 w-4 mr-1" />
+ 119 │                   <span>{resource.downloads}</span>
+ 120 │                 </div>
+ 121 │                 <div className="flex items-center">
+ 122 │                   <Star className="h-4 w-4 text-yellow-500 mr-1" />
+ 123 │                   <span>{resource.rating}</span>
+ 124 │                 </div>
+ 125 │               </div>
+ 126 │ 
+ 127 │               <div className="flex gap-2">
+ 128 │                 <Button variant="secondary" className="flex-1">
+ 129 │                   <Download className="mr-2 h-4 w-4" />
+ 130 │                   Download
+ 131 │                 </Button>
+ 132 │                 <Button variant="outline" size="icon">
+ 133 │                   <Share2 className="h-4 w-4" />
+ 134 │                 </Button>
+ 135 │               </div>
+ 136 │             </CardContent>
+ 137 │           </Card>
+ 138 │         ))}
+ 139 │       </div>
+ 140 │     </div>
+ 141 │   )
+ 142 │ }
+ 143 │ 
+ 144 │ "use client"
+ 145 │ 
+ 146 │ import * as React from "react"
+ 147 │ import { Button } from "@/components/ui/button"
+ 148 │ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+ 149 │ import { Input } from "@/components/ui/input"
+ 150 │ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+ 151 │ import { Badge } from "@/components/ui/badge"
+ 152 │ import { 
+ 153 │   FileText, 
+     ·   ────┬───
+     ·       ╰── `FileText` redefined here
+ 154 │   Search, 
+ 155 │   Upload, 
+ 156 │   Filter, 
+     ╰────
+
+  × the name `Search` is defined multiple times
+     ╭─[/home/runner/workspace/app/knowledge/page.tsx:1:1]
+   1 │ import { Button } from "@/components/ui/button"
+   2 │ import { Card, CardContent } from "@/components/ui/card"
+   3 │ import { Input } from "@/components/ui/input"
+   4 │ import { Search, FileText, FileCheck, FilePlus, FileWarning, Filter, Download, Star, Share2 } from "lucide-react"
+     ·          ───┬──
+     ·             ╰── previous definition of `Search` here
+   5 │ 
+   6 │ export default function KnowledgePage() {
+   7 │   const resources = [
+   8 │     {
+   9 │       id: 1,
+  10 │       title: "Comprehensive HIRA Template",
+  11 │       type: "HIRA",
+  12 │       industry: "Manufacturing",
+  13 │       author: "Sarah Johnson",
+  14 │       downloads: 1245,
+  15 │       rating: 4.8,
+  16 │       icon: FileCheck,
+  17 │     },
+  18 │     {
+  19 │       id: 2,
+  20 │       title: "Job Safety Analysis for Construction Sites",
+  21 │       type: "JSA",
+  22 │       industry: "Construction",
+  23 │       author: "Michael Chen",
+  24 │       downloads: 987,
+  25 │       rating: 4.6,
+  26 │       icon: FileWarning,
+  27 │     },
+  28 │     {
+  29 │       id: 3,
+  30 │       title: "Environmental Compliance Checklist 2023",
+  31 │       type: "Checklist",
+  32 │       industry: "All Industries",
+  33 │       author: "Priya Patel",
+  34 │       downloads: 2156,
+  35 │       rating: 4.9,
+  36 │       icon: FileCheck,
+  37 │     },
+  38 │     {
+  39 │       id: 4,
+  40 │       title: "Safety Plan Template for Chemical Handling",
+  41 │       type: "Safety Plan",
+  42 │       industry: "Chemical",
+  43 │       author: "James Wilson",
+  44 │       downloads: 876,
+  45 │       rating: 4.7,
+  46 │       icon: FilePlus,
+  47 │     },
+  48 │     {
+  49 │       id: 5,
+  50 │       title: "ISO 14001 Implementation Guide",
+  51 │       type: "Guide",
+  52 │       industry: "All Industries",
+  53 │       author: "Emma Rodriguez",
+  54 │       downloads: 1532,
+  55 │       rating: 4.9,
+  56 │       icon: FileText,
+  57 │     },
+  58 │     {
+  59 │       id: 6,
+  60 │       title: "Workplace Ergonomics Assessment Tool",
+  61 │       type: "Assessment",
+  62 │       industry: "Office",
+  63 │       author: "David Kim",
+  64 │       downloads: 765,
+  65 │       rating: 4.5,
+  66 │       icon: FileWarning,
+  67 │     },
+  68 │   ]
+  69 │ 
+  70 │   return (
+  71 │     <div className="container py-8">
+  72 │       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+  73 │         <div>
+  74 │           <h1 className="text-3xl font-bold mb-2">Knowledge Center</h1>
+  75 │           <p className="text-muted-foreground">Access and share valuable resources for ESG and EHS professionals</p>
+  76 │         </div>
+  77 │         <Button variant="secondary">
+  78 │           <FilePlus className="mr-2 h-4 w-4" />
+  79 │           Upload Resource
+  80 │         </Button>
+  81 │       </div>
+  82 │ 
+  83 │       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+  84 │         <div className="md:col-span-3">
+  85 │           <div className="relative">
+  86 │             <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+  87 │             <Input placeholder="Search for resources, documents, or topics..." className="pl-10" />
+  88 │           </div>
+  89 │         </div>
+  90 │         <div>
+  91 │           <Button variant="outline" className="w-full">
+  92 │             <Filter className="mr-2 h-4 w-4" />
+  93 │             Filter Resources
+  94 │           </Button>
+  95 │         </div>
+  96 │       </div>
+  97 │ 
+  98 │       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+  99 │         {resources.map((resource) => (
+ 100 │           <Card key={resource.id} className="overflow-hidden">
+ 101 │             <div className="bg-primary/5 p-6 flex justify-center">
+ 102 │               <resource.icon className="h-16 w-16 text-primary" />
+ 103 │             </div>
+ 104 │             <CardContent className="p-6">
+ 105 │               <div className="flex justify-between items-start mb-2">
+ 106 │                 <span className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
+ 107 │                   {resource.type}
+ 108 │                 </span>
+ 109 │                 <span className="inline-flex items-center rounded-full bg-secondary/10 px-2.5 py-0.5 text-xs font-medium text-secondary">
+ 110 │                   {resource.industry}
+ 111 │                 </span>
+ 112 │               </div>
+ 113 │               <h3 className="font-semibold text-lg mb-2">{resource.title}</h3>
+ 114 │               <p className="text-sm text-muted-foreground mb-4">By {resource.author}</p>
+ 115 │ 
+ 116 │               <div className="flex justify-between items-center text-sm text-muted-foreground mb-4">
+ 117 │                 <div className="flex items-center">
+ 118 │                   <Download className="h-4 w-4 mr-1" />
+ 119 │                   <span>{resource.downloads}</span>
+ 120 │                 </div>
+ 121 │                 <div className="flex items-center">
+ 122 │                   <Star className="h-4 w-4 text-yellow-500 mr-1" />
+ 123 │                   <span>{resource.rating}</span>
+ 124 │                 </div>
+ 125 │               </div>
+ 126 │ 
+ 127 │               <div className="flex gap-2">
+ 128 │                 <Button variant="secondary" className="flex-1">
+ 129 │                   <Download className="mr-2 h-4 w-4" />
+ 130 │                   Download
+ 131 │                 </Button>
+ 132 │                 <Button variant="outline" size="icon">
+ 133 │                   <Share2 className="h-4 w-4" />
+ 134 │                 </Button>
+ 135 │               </div>
+ 136 │             </CardContent>
+ 137 │           </Card>
+ 138 │         ))}
+ 139 │       </div>
+ 140 │     </div>
+ 141 │   )
+ 142 │ }
+ 143 │ 
+ 144 │ "use client"
+ 145 │ 
+ 146 │ import * as React from "react"
+ 147 │ import { Button } from "@/components/ui/button"
+ 148 │ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+ 149 │ import { Input } from "@/components/ui/input"
+ 150 │ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+ 151 │ import { Badge } from "@/components/ui/badge"
+ 152 │ import { 
+ 153 │   FileText, 
+ 154 │   Search, 
+     ·   ───┬──
+     ·      ╰── `Search` redefined here
+ 155 │   Upload, 
+ 156 │   Filter, 
+ 157 │   Clock, 
+     ╰────
+
+  × the name `Filter` is defined multiple times
+     ╭─[/home/runner/workspace/app/knowledge/page.tsx:1:1]
+   1 │ import { Button } from "@/components/ui/button"
+   2 │ import { Card, CardContent } from "@/components/ui/card"
+   3 │ import { Input } from "@/components/ui/input"
+   4 │ import { Search, FileText, FileCheck, FilePlus, FileWarning, Filter, Download, Star, Share2 } from "lucide-react"
+     ·                                                              ───┬──
+     ·                                                                 ╰── previous definition of `Filter` here
+   5 │ 
+   6 │ export default function KnowledgePage() {
+   7 │   const resources = [
+   8 │     {
+   9 │       id: 1,
+  10 │       title: "Comprehensive HIRA Template",
+  11 │       type: "HIRA",
+  12 │       industry: "Manufacturing",
+  13 │       author: "Sarah Johnson",
+  14 │       downloads: 1245,
+  15 │       rating: 4.8,
+  16 │       icon: FileCheck,
+  17 │     },
+  18 │     {
+  19 │       id: 2,
+  20 │       title: "Job Safety Analysis for Construction Sites",
+  21 │       type: "JSA",
+  22 │       industry: "Construction",
+  23 │       author: "Michael Chen",
+  24 │       downloads: 987,
+  25 │       rating: 4.6,
+  26 │       icon: FileWarning,
+  27 │     },
+  28 │     {
+  29 │       id: 3,
+  30 │       title: "Environmental Compliance Checklist 2023",
+  31 │       type: "Checklist",
+  32 │       industry: "All Industries",
+  33 │       author: "Priya Patel",
+  34 │       downloads: 2156,
+  35 │       rating: 4.9,
+  36 │       icon: FileCheck,
+  37 │     },
+  38 │     {
+  39 │       id: 4,
+  40 │       title: "Safety Plan Template for Chemical Handling",
+  41 │       type: "Safety Plan",
+  42 │       industry: "Chemical",
+  43 │       author: "James Wilson",
+  44 │       downloads: 876,
+  45 │       rating: 4.7,
+  46 │       icon: FilePlus,
+  47 │     },
+  48 │     {
+  49 │       id: 5,
+  50 │       title: "ISO 14001 Implementation Guide",
+  51 │       type: "Guide",
+  52 │       industry: "All Industries",
+  53 │       author: "Emma Rodriguez",
+  54 │       downloads: 1532,
+  55 │       rating: 4.9,
+  56 │       icon: FileText,
+  57 │     },
+  58 │     {
+  59 │       id: 6,
+  60 │       title: "Workplace Ergonomics Assessment Tool",
+  61 │       type: "Assessment",
+  62 │       industry: "Office",
+  63 │       author: "David Kim",
+  64 │       downloads: 765,
+  65 │       rating: 4.5,
+  66 │       icon: FileWarning,
+  67 │     },
+  68 │   ]
+  69 │ 
+  70 │   return (
+  71 │     <div className="container py-8">
+  72 │       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+  73 │         <div>
+  74 │           <h1 className="text-3xl font-bold mb-2">Knowledge Center</h1>
+  75 │           <p className="text-muted-foreground">Access and share valuable resources for ESG and EHS professionals</p>
+  76 │         </div>
+  77 │         <Button variant="secondary">
+  78 │           <FilePlus className="mr-2 h-4 w-4" />
+  79 │           Upload Resource
+  80 │         </Button>
+  81 │       </div>
+  82 │ 
+  83 │       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+  84 │         <div className="md:col-span-3">
+  85 │           <div className="relative">
+  86 │             <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+  87 │             <Input placeholder="Search for resources, documents, or topics..." className="pl-10" />
+  88 │           </div>
+  89 │         </div>
+  90 │         <div>
+  91 │           <Button variant="outline" className="w-full">
+  92 │             <Filter className="mr-2 h-4 w-4" />
+  93 │             Filter Resources
+  94 │           </Button>
+  95 │         </div>
+  96 │       </div>
+  97 │ 
+  98 │       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+  99 │         {resources.map((resource) => (
+ 100 │           <Card key={resource.id} className="overflow-hidden">
+ 101 │             <div className="bg-primary/5 p-6 flex justify-center">
+ 102 │               <resource.icon className="h-16 w-16 text-primary" />
+ 103 │             </div>
+ 104 │             <CardContent className="p-6">
+ 105 │               <div className="flex justify-between items-start mb-2">
+ 106 │                 <span className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
+ 107 │                   {resource.type}
+ 108 │                 </span>
+ 109 │                 <span className="inline-flex items-center rounded-full bg-secondary/10 px-2.5 py-0.5 text-xs font-medium text-secondary">
+ 110 │                   {resource.industry}
+ 111 │                 </span>
+ 112 │               </div>
+ 113 │               <h3 className="font-semibold text-lg mb-2">{resource.title}</h3>
+ 114 │               <p className="text-sm text-muted-foreground mb-4">By {resource.author}</p>
+ 115 │ 
+ 116 │               <div className="flex justify-between items-center text-sm text-muted-foreground mb-4">
+ 117 │                 <div className="flex items-center">
+ 118 │                   <Download className="h-4 w-4 mr-1" />
+ 119 │                   <span>{resource.downloads}</span>
+ 120 │                 </div>
+ 121 │                 <div className="flex items-center">
+ 122 │                   <Star className="h-4 w-4 text-yellow-500 mr-1" />
+ 123 │                   <span>{resource.rating}</span>
+ 124 │                 </div>
+ 125 │               </div>
+ 126 │ 
+ 127 │               <div className="flex gap-2">
+ 128 │                 <Button variant="secondary" className="flex-1">
+ 129 │                   <Download className="mr-2 h-4 w-4" />
+ 130 │                   Download
+ 131 │                 </Button>
+ 132 │                 <Button variant="outline" size="icon">
+ 133 │                   <Share2 className="h-4 w-4" />
+ 134 │                 </Button>
+ 135 │               </div>
+ 136 │             </CardContent>
+ 137 │           </Card>
+ 138 │         ))}
+ 139 │       </div>
+ 140 │     </div>
+ 141 │   )
+ 142 │ }
+ 143 │ 
+ 144 │ "use client"
+ 145 │ 
+ 146 │ import * as React from "react"
+ 147 │ import { Button } from "@/components/ui/button"
+ 148 │ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+ 149 │ import { Input } from "@/components/ui/input"
+ 150 │ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+ 151 │ import { Badge } from "@/components/ui/badge"
+ 152 │ import { 
+ 153 │   FileText, 
+ 154 │   Search, 
+ 155 │   Upload, 
+ 156 │   Filter, 
+     ·   ───┬──
+     ·      ╰── `Filter` redefined here
+ 157 │   Clock, 
+ 158 │   Download, 
+ 159 │   ThumbsUp, 
+     ╰────
+
+  × the name `Download` is defined multiple times
+     ╭─[/home/runner/workspace/app/knowledge/page.tsx:1:1]
+   1 │ import { Button } from "@/components/ui/button"
+   2 │ import { Card, CardContent } from "@/components/ui/card"
+   3 │ import { Input } from "@/components/ui/input"
+   4 │ import { Search, FileText, FileCheck, FilePlus, FileWarning, Filter, Download, Star, Share2 } from "lucide-react"
+     ·                                                                      ────┬───
+     ·                                                                          ╰── previous definition of `Download` here
+   5 │ 
+   6 │ export default function KnowledgePage() {
+   7 │   const resources = [
+   8 │     {
+   9 │       id: 1,
+  10 │       title: "Comprehensive HIRA Template",
+  11 │       type: "HIRA",
+  12 │       industry: "Manufacturing",
+  13 │       author: "Sarah Johnson",
+  14 │       downloads: 1245,
+  15 │       rating: 4.8,
+  16 │       icon: FileCheck,
+  17 │     },
+  18 │     {
+  19 │       id: 2,
+  20 │       title: "Job Safety Analysis for Construction Sites",
+  21 │       type: "JSA",
+  22 │       industry: "Construction",
+  23 │       author: "Michael Chen",
+  24 │       downloads: 987,
+  25 │       rating: 4.6,
+  26 │       icon: FileWarning,
+  27 │     },
+  28 │     {
+  29 │       id: 3,
+  30 │       title: "Environmental Compliance Checklist 2023",
+  31 │       type: "Checklist",
+  32 │       industry: "All Industries",
+  33 │       author: "Priya Patel",
+  34 │       downloads: 2156,
+  35 │       rating: 4.9,
+  36 │       icon: FileCheck,
+  37 │     },
+  38 │     {
+  39 │       id: 4,
+  40 │       title: "Safety Plan Template for Chemical Handling",
+  41 │       type: "Safety Plan",
+  42 │       industry: "Chemical",
+  43 │       author: "James Wilson",
+  44 │       downloads: 876,
+  45 │       rating: 4.7,
+  46 │       icon: FilePlus,
+  47 │     },
+  48 │     {
+  49 │       id: 5,
+  50 │       title: "ISO 14001 Implementation Guide",
+  51 │       type: "Guide",
+  52 │       industry: "All Industries",
+  53 │       author: "Emma Rodriguez",
+  54 │       downloads: 1532,
+  55 │       rating: 4.9,
+  56 │       icon: FileText,
+  57 │     },
+  58 │     {
+  59 │       id: 6,
+  60 │       title: "Workplace Ergonomics Assessment Tool",
+  61 │       type: "Assessment",
+  62 │       industry: "Office",
+  63 │       author: "David Kim",
+  64 │       downloads: 765,
+  65 │       rating: 4.5,
+  66 │       icon: FileWarning,
+  67 │     },
+  68 │   ]
+  69 │ 
+  70 │   return (
+  71 │     <div className="container py-8">
+  72 │       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+  73 │         <div>
+  74 │           <h1 className="text-3xl font-bold mb-2">Knowledge Center</h1>
+  75 │           <p className="text-muted-foreground">Access and share valuable resources for ESG and EHS professionals</p>
+  76 │         </div>
+  77 │         <Button variant="secondary">
+  78 │           <FilePlus className="mr-2 h-4 w-4" />
+  79 │           Upload Resource
+  80 │         </Button>
+  81 │       </div>
+  82 │ 
+  83 │       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+  84 │         <div className="md:col-span-3">
+  85 │           <div className="relative">
+  86 │             <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+  87 │             <Input placeholder="Search for resources, documents, or topics..." className="pl-10" />
+  88 │           </div>
+  89 │         </div>
+  90 │         <div>
+  91 │           <Button variant="outline" className="w-full">
+  92 │             <Filter className="mr-2 h-4 w-4" />
+  93 │             Filter Resources
+  94 │           </Button>
+  95 │         </div>
+  96 │       </div>
+  97 │ 
+  98 │       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+  99 │         {resources.map((resource) => (
+ 100 │           <Card key={resource.id} className="overflow-hidden">
+ 101 │             <div className="bg-primary/5 p-6 flex justify-center">
+ 102 │               <resource.icon className="h-16 w-16 text-primary" />
+ 103 │             </div>
+ 104 │             <CardContent className="p-6">
+ 105 │               <div className="flex justify-between items-start mb-2">
+ 106 │                 <span className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
+ 107 │                   {resource.type}
+ 108 │                 </span>
+ 109 │                 <span className="inline-flex items-center rounded-full bg-secondary/10 px-2.5 py-0.5 text-xs font-medium text-secondary">
+ 110 │                   {resource.industry}
+ 111 │                 </span>
+ 112 │               </div>
+ 113 │               <h3 className="font-semibold text-lg mb-2">{resource.title}</h3>
+ 114 │               <p className="text-sm text-muted-foreground mb-4">By {resource.author}</p>
+ 115 │ 
+ 116 │               <div className="flex justify-between items-center text-sm text-muted-foreground mb-4">
+ 117 │                 <div className="flex items-center">
+ 118 │                   <Download className="h-4 w-4 mr-1" />
+ 119 │                   <span>{resource.downloads}</span>
+ 120 │                 </div>
+ 121 │                 <div className="flex items-center">
+ 122 │                   <Star className="h-4 w-4 text-yellow-500 mr-1" />
+ 123 │                   <span>{resource.rating}</span>
+ 124 │                 </div>
+ 125 │               </div>
+ 126 │ 
+ 127 │               <div className="flex gap-2">
+ 128 │                 <Button variant="secondary" className="flex-1">
+ 129 │                   <Download className="mr-2 h-4 w-4" />
+ 130 │                   Download
+ 131 │                 </Button>
+ 132 │                 <Button variant="outline" size="icon">
+ 133 │                   <Share2 className="h-4 w-4" />
+ 134 │                 </Button>
+ 135 │               </div>
+ 136 │             </CardContent>
+ 137 │           </Card>
+ 138 │         ))}
+ 139 │       </div>
+ 140 │     </div>
+ 141 │   )
+ 142 │ }
+ 143 │ 
+ 144 │ "use client"
+ 145 │ 
+ 146 │ import * as React from "react"
+ 147 │ import { Button } from "@/components/ui/button"
+ 148 │ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+ 149 │ import { Input } from "@/components/ui/input"
+ 150 │ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+ 151 │ import { Badge } from "@/components/ui/badge"
+ 152 │ import { 
+ 153 │   FileText, 
+ 154 │   Search, 
+ 155 │   Upload, 
+ 156 │   Filter, 
+ 157 │   Clock, 
+ 158 │   Download, 
+     ·   ────┬───
+     ·       ╰── `Download` redefined here
+ 159 │   ThumbsUp, 
+ 160 │   MessageSquare, 
+ 161 │   Share2, 
+     ╰────
+
+  × the name `Share2` is defined multiple times
+     ╭─[/home/runner/workspace/app/knowledge/page.tsx:1:1]
+   1 │ import { Button } from "@/components/ui/button"
+   2 │ import { Card, CardContent } from "@/components/ui/card"
+   3 │ import { Input } from "@/components/ui/input"
+   4 │ import { Search, FileText, FileCheck, FilePlus, FileWarning, Filter, Download, Star, Share2 } from "lucide-react"
+     ·                                                                                      ───┬──
+     ·                                                                                         ╰── previous definition of `Share2` here
+   5 │ 
+   6 │ export default function KnowledgePage() {
+   7 │   const resources = [
+   8 │     {
+   9 │       id: 1,
+  10 │       title: "Comprehensive HIRA Template",
+  11 │       type: "HIRA",
+  12 │       industry: "Manufacturing",
+  13 │       author: "Sarah Johnson",
+  14 │       downloads: 1245,
+  15 │       rating: 4.8,
+  16 │       icon: FileCheck,
+  17 │     },
+  18 │     {
+  19 │       id: 2,
+  20 │       title: "Job Safety Analysis for Construction Sites",
+  21 │       type: "JSA",
+  22 │       industry: "Construction",
+  23 │       author: "Michael Chen",
+  24 │       downloads: 987,
+  25 │       rating: 4.6,
+  26 │       icon: FileWarning,
+  27 │     },
+  28 │     {
+  29 │       id: 3,
+  30 │       title: "Environmental Compliance Checklist 2023",
+  31 │       type: "Checklist",
+  32 │       industry: "All Industries",
+  33 │       author: "Priya Patel",
+  34 │       downloads: 2156,
+  35 │       rating: 4.9,
+  36 │       icon: FileCheck,
+  37 │     },
+  38 │     {
+  39 │       id: 4,
+  40 │       title: "Safety Plan Template for Chemical Handling",
+  41 │       type: "Safety Plan",
+  42 │       industry: "Chemical",
+  43 │       author: "James Wilson",
+  44 │       downloads: 876,
+  45 │       rating: 4.7,
+  46 │       icon: FilePlus,
+  47 │     },
+  48 │     {
+  49 │       id: 5,
+  50 │       title: "ISO 14001 Implementation Guide",
+  51 │       type: "Guide",
+  52 │       industry: "All Industries",
+  53 │       author: "Emma Rodriguez",
+  54 │       downloads: 1532,
+  55 │       rating: 4.9,
+  56 │       icon: FileText,
+  57 │     },
+  58 │     {
+  59 │       id: 6,
+  60 │       title: "Workplace Ergonomics Assessment Tool",
+  61 │       type: "Assessment",
+  62 │       industry: "Office",
+  63 │       author: "David Kim",
+  64 │       downloads: 765,
+  65 │       rating: 4.5,
+  66 │       icon: FileWarning,
+  67 │     },
+  68 │   ]
+  69 │ 
+  70 │   return (
+  71 │     <div className="container py-8">
+  72 │       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+  73 │         <div>
+  74 │           <h1 className="text-3xl font-bold mb-2">Knowledge Center</h1>
+  75 │           <p className="text-muted-foreground">Access and share valuable resources for ESG and EHS professionals</p>
+  76 │         </div>
+  77 │         <Button variant="secondary">
+  78 │           <FilePlus className="mr-2 h-4 w-4" />
+  79 │           Upload Resource
+  80 │         </Button>
+  81 │       </div>
+  82 │ 
+  83 │       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+  84 │         <div className="md:col-span-3">
+  85 │           <div className="relative">
+  86 │             <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+  87 │             <Input placeholder="Search for resources, documents, or topics..." className="pl-10" />
+  88 │           </div>
+  89 │         </div>
+  90 │         <div>
+  91 │           <Button variant="outline" className="w-full">
+  92 │             <Filter className="mr-2 h-4 w-4" />
+  93 │             Filter Resources
+  94 │           </Button>
+  95 │         </div>
+  96 │       </div>
+  97 │ 
+  98 │       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+  99 │         {resources.map((resource) => (
+ 100 │           <Card key={resource.id} className="overflow-hidden">
+ 101 │             <div className="bg-primary/5 p-6 flex justify-center">
+ 102 │               <resource.icon className="h-16 w-16 text-primary" />
+ 103 │             </div>
+ 104 │             <CardContent className="p-6">
+ 105 │               <div className="flex justify-between items-start mb-2">
+ 106 │                 <span className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
+ 107 │                   {resource.type}
+ 108 │                 </span>
+ 109 │                 <span className="inline-flex items-center rounded-full bg-secondary/10 px-2.5 py-0.5 text-xs font-medium text-secondary">
+ 110 │                   {resource.industry}
+ 111 │                 </span>
+ 112 │               </div>
+ 113 │               <h3 className="font-semibold text-lg mb-2">{resource.title}</h3>
+ 114 │               <p className="text-sm text-muted-foreground mb-4">By {resource.author}</p>
+ 115 │ 
+ 116 │               <div className="flex justify-between items-center text-sm text-muted-foreground mb-4">
+ 117 │                 <div className="flex items-center">
+ 118 │                   <Download className="h-4 w-4 mr-1" />
+ 119 │                   <span>{resource.downloads}</span>
+ 120 │                 </div>
+ 121 │                 <div className="flex items-center">
+ 122 │                   <Star className="h-4 w-4 text-yellow-500 mr-1" />
+ 123 │                   <span>{resource.rating}</span>
+ 124 │                 </div>
+ 125 │               </div>
+ 126 │ 
+ 127 │               <div className="flex gap-2">
+ 128 │                 <Button variant="secondary" className="flex-1">
+ 129 │                   <Download className="mr-2 h-4 w-4" />
+ 130 │                   Download
+ 131 │                 </Button>
+ 132 │                 <Button variant="outline" size="icon">
+ 133 │                   <Share2 className="h-4 w-4" />
+ 134 │                 </Button>
+ 135 │               </div>
+ 136 │             </CardContent>
+ 137 │           </Card>
+ 138 │         ))}
+ 139 │       </div>
+ 140 │     </div>
+ 141 │   )
+ 142 │ }
+ 143 │ 
+ 144 │ "use client"
+ 145 │ 
+ 146 │ import * as React from "react"
+ 147 │ import { Button } from "@/components/ui/button"
+ 148 │ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+ 149 │ import { Input } from "@/components/ui/input"
+ 150 │ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+ 151 │ import { Badge } from "@/components/ui/badge"
+ 152 │ import { 
+ 153 │   FileText, 
+ 154 │   Search, 
+ 155 │   Upload, 
+ 156 │   Filter, 
+ 157 │   Clock, 
+ 158 │   Download, 
+ 159 │   ThumbsUp, 
+ 160 │   MessageSquare, 
+ 161 │   Share2, 
+     ·   ───┬──
+     ·      ╰── `Share2` redefined here
+ 162 │   BookOpen, 
+ 163 │   CheckSquare, 
+ 164 │   AlertTriangle, 
+     ╰────
+
+  × the name `KnowledgePage` is defined multiple times
+     ╭─[/home/runner/workspace/app/knowledge/page.tsx:3:1]
+   3 │ import { Input } from "@/components/ui/input"
+   4 │ import { Search, FileText, FileCheck, FilePlus, FileWarning, Filter, Download, Star, Share2 } from "lucide-react"
+   5 │ 
+   6 │ export default function KnowledgePage() {
+     ·                         ──────┬──────
+     ·                               ╰── previous definition of `KnowledgePage` here
+   7 │   const resources = [
+   8 │     {
+   9 │       id: 1,
+  10 │       title: "Comprehensive HIRA Template",
+  11 │       type: "HIRA",
+  12 │       industry: "Manufacturing",
+  13 │       author: "Sarah Johnson",
+  14 │       downloads: 1245,
+  15 │       rating: 4.8,
+  16 │       icon: FileCheck,
+  17 │     },
+  18 │     {
+  19 │       id: 2,
+  20 │       title: "Job Safety Analysis for Construction Sites",
+  21 │       type: "JSA",
+  22 │       industry: "Construction",
+  23 │       author: "Michael Chen",
+  24 │       downloads: 987,
+  25 │       rating: 4.6,
+  26 │       icon: FileWarning,
+  27 │     },
+  28 │     {
+  29 │       id: 3,
+  30 │       title: "Environmental Compliance Checklist 2023",
+  31 │       type: "Checklist",
+  32 │       industry: "All Industries",
+  33 │       author: "Priya Patel",
+  34 │       downloads: 2156,
+  35 │       rating: 4.9,
+  36 │       icon: FileCheck,
+  37 │     },
+  38 │     {
+  39 │       id: 4,
+  40 │       title: "Safety Plan Template for Chemical Handling",
+  41 │       type: "Safety Plan",
+  42 │       industry: "Chemical",
+  43 │       author: "James Wilson",
+  44 │       downloads: 876,
+  45 │       rating: 4.7,
+  46 │       icon: FilePlus,
+  47 │     },
+  48 │     {
+  49 │       id: 5,
+  50 │       title: "ISO 14001 Implementation Guide",
+  51 │       type: "Guide",
+  52 │       industry: "All Industries",
+  53 │       author: "Emma Rodriguez",
+  54 │       downloads: 1532,
+  55 │       rating: 4.9,
+  56 │       icon: FileText,
+  57 │     },
+  58 │     {
+  59 │       id: 6,
+  60 │       title: "Workplace Ergonomics Assessment Tool",
+  61 │       type: "Assessment",
+  62 │       industry: "Office",
+  63 │       author: "David Kim",
+  64 │       downloads: 765,
+  65 │       rating: 4.5,
+  66 │       icon: FileWarning,
+  67 │     },
+  68 │   ]
+  69 │ 
+  70 │   return (
+  71 │     <div className="container py-8">
+  72 │       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+  73 │         <div>
+  74 │           <h1 className="text-3xl font-bold mb-2">Knowledge Center</h1>
+  75 │           <p className="text-muted-foreground">Access and share valuable resources for ESG and EHS professionals</p>
+  76 │         </div>
+  77 │         <Button variant="secondary">
+  78 │           <FilePlus className="mr-2 h-4 w-4" />
+  79 │           Upload Resource
+  80 │         </Button>
+  81 │       </div>
+  82 │ 
+  83 │       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+  84 │         <div className="md:col-span-3">
+  85 │           <div className="relative">
+  86 │             <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+  87 │             <Input placeholder="Search for resources, documents, or topics..." className="pl-10" />
+  88 │           </div>
+  89 │         </div>
+  90 │         <div>
+  91 │           <Button variant="outline" className="w-full">
+  92 │             <Filter className="mr-2 h-4 w-4" />
+  93 │             Filter Resources
+  94 │           </Button>
+  95 │         </div>
+  96 │       </div>
+  97 │ 
+  98 │       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+  99 │         {resources.map((resource) => (
+ 100 │           <Card key={resource.id} className="overflow-hidden">
+ 101 │             <div className="bg-primary/5 p-6 flex justify-center">
+ 102 │               <resource.icon className="h-16 w-16 text-primary" />
+ 103 │             </div>
+ 104 │             <CardContent className="p-6">
+ 105 │               <div className="flex justify-between items-start mb-2">
+ 106 │                 <span className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
+ 107 │                   {resource.type}
+ 108 │                 </span>
+ 109 │                 <span className="inline-flex items-center rounded-full bg-secondary/10 px-2.5 py-0.5 text-xs font-medium text-secondary">
+ 110 │                   {resource.industry}
+ 111 │                 </span>
+ 112 │               </div>
+ 113 │               <h3 className="font-semibold text-lg mb-2">{resource.title}</h3>
+ 114 │               <p className="text-sm text-muted-foreground mb-4">By {resource.author}</p>
+ 115 │ 
+ 116 │               <div className="flex justify-between items-center text-sm text-muted-foreground mb-4">
+ 117 │                 <div className="flex items-center">
+ 118 │                   <Download className="h-4 w-4 mr-1" />
+ 119 │                   <span>{resource.downloads}</span>
+ 120 │                 </div>
+ 121 │                 <div className="flex items-center">
+ 122 │                   <Star className="h-4 w-4 text-yellow-500 mr-1" />
+ 123 │                   <span>{resource.rating}</span>
+ 124 │                 </div>
+ 125 │               </div>
+ 126 │ 
+ 127 │               <div className="flex gap-2">
+ 128 │                 <Button variant="secondary" className="flex-1">
+ 129 │                   <Download className="mr-2 h-4 w-4" />
+ 130 │                   Download
+ 131 │                 </Button>
+ 132 │                 <Button variant="outline" size="icon">
+ 133 │                   <Share2 className="h-4 w-4" />
+ 134 │                 </Button>
+ 135 │               </div>
+ 136 │             </CardContent>
+ 137 │           </Card>
+ 138 │         ))}
+ 139 │       </div>
+ 140 │     </div>
+ 141 │   )
+ 142 │ }
+ 143 │ 
+ 144 │ "use client"
+ 145 │ 
+ 146 │ import * as React from "react"
+ 147 │ import { Button } from "@/components/ui/button"
+ 148 │ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+ 149 │ import { Input } from "@/components/ui/input"
+ 150 │ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+ 151 │ import { Badge } from "@/components/ui/badge"
+ 152 │ import { 
+ 153 │   FileText, 
+ 154 │   Search, 
+ 155 │   Upload, 
+ 156 │   Filter, 
+ 157 │   Clock, 
+ 158 │   Download, 
+ 159 │   ThumbsUp, 
+ 160 │   MessageSquare, 
+ 161 │   Share2, 
+ 162 │   BookOpen, 
+ 163 │   CheckSquare, 
+ 164 │   AlertTriangle, 
+ 165 │   Shield, 
+ 166 │   FileSpreadsheet,
+ 167 │   FileImage
+ 168 │ } from "lucide-react"
+ 169 │ 
+ 170 │ export default function KnowledgePage() {
+     ·                         ──────┬──────
+     ·                               ╰── `KnowledgePage` redefined here
+ 171 │   return (
+ 172 │     <div className="container py-6">
+ 173 │       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
+     ╰────
+
+  × the name `default` is exported multiple times
+     ╭─[/home/runner/workspace/app/knowledge/page.tsx:3:1]
+   3 │     import { Input } from "@/components/ui/input"
+   4 │     import { Search, FileText, FileCheck, FilePlus, FileWarning, Filter, Download, Star, Share2 } from "lucide-react"
+   5 │     
+   6 │ ╭─▶ export default function KnowledgePage() {
+   7 │ │     const resources = [
+   8 │ │       {
+   9 │ │         id: 1,
+  10 │ │         title: "Comprehensive HIRA Template",
+  11 │ │         type: "HIRA",
+  12 │ │         industry: "Manufacturing",
+  13 │ │         author: "Sarah Johnson",
+  14 │ │         downloads: 1245,
+  15 │ │         rating: 4.8,
+  16 │ │         icon: FileCheck,
+  17 │ │       },
+  18 │ │       {
+  19 │ │         id: 2,
+  20 │ │         title: "Job Safety Analysis for Construction Sites",
+  21 │ │         type: "JSA",
+  22 │ │         industry: "Construction",
+  23 │ │         author: "Michael Chen",
+  24 │ │         downloads: 987,
+  25 │ │         rating: 4.6,
+  26 │ │         icon: FileWarning,
+  27 │ │       },
+  28 │ │       {
+  29 │ │         id: 3,
+  30 │ │         title: "Environmental Compliance Checklist 2023",
+  31 │ │         type: "Checklist",
+  32 │ │         industry: "All Industries",
+  33 │ │         author: "Priya Patel",
+  34 │ │         downloads: 2156,
+  35 │ │         rating: 4.9,
+  36 │ │         icon: FileCheck,
+  37 │ │       },
+  38 │ │       {
+  39 │ │         id: 4,
+  40 │ │         title: "Safety Plan Template for Chemical Handling",
+  41 │ │         type: "Safety Plan",
+  42 │ │         industry: "Chemical",
+  43 │ │         author: "James Wilson",
+  44 │ │         downloads: 876,
+  45 │ │         rating: 4.7,
+  46 │ │         icon: FilePlus,
+  47 │ │       },
+  48 │ │       {
+  49 │ │         id: 5,
+  50 │ │         title: "ISO 14001 Implementation Guide",
+  51 │ │         type: "Guide",
+  52 │ │         industry: "All Industries",
+  53 │ │         author: "Emma Rodriguez",
+  54 │ │         downloads: 1532,
+  55 │ │         rating: 4.9,
+  56 │ │         icon: FileText,
+  57 │ │       },
+  58 │ │       {
+  59 │ │         id: 6,
+  60 │ │         title: "Workplace Ergonomics Assessment Tool",
+  61 │ │         type: "Assessment",
+  62 │ │         industry: "Office",
+  63 │ │         author: "David Kim",
+  64 │ │         downloads: 765,
+  65 │ │         rating: 4.5,
+  66 │ │         icon: FileWarning,
+  67 │ │       },
+  68 │ │     ]
+  69 │ │   
+  70 │ │     return (
+  71 │ │       <div className="container py-8">
+  72 │ │         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+  73 │ │           <div>
+  74 │ │             <h1 className="text-3xl font-bold mb-2">Knowledge Center</h1>
+  75 │ │             <p className="text-muted-foreground">Access and share valuable resources for ESG and EHS professionals</p>
+  76 │ │           </div>
+  77 │ │           <Button variant="secondary">
+  78 │ │             <FilePlus className="mr-2 h-4 w-4" />
+  79 │ │             Upload Resource
+  80 │ │           </Button>
+  81 │ │         </div>
+  82 │ │   
+  83 │ │         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+  84 │ │           <div className="md:col-span-3">
+  85 │ │             <div className="relative">
+  86 │ │               <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+  87 │ │               <Input placeholder="Search for resources, documents, or topics..." className="pl-10" />
+  88 │ │             </div>
+  89 │ │           </div>
+  90 │ │           <div>
+  91 │ │             <Button variant="outline" className="w-full">
+  92 │ │               <Filter className="mr-2 h-4 w-4" />
+  93 │ │               Filter Resources
+  94 │ │             </Button>
+  95 │ │           </div>
+  96 │ │         </div>
+  97 │ │   
+  98 │ │         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+  99 │ │           {resources.map((resource) => (
+ 100 │ │             <Card key={resource.id} className="overflow-hidden">
+ 101 │ │               <div className="bg-primary/5 p-6 flex justify-center">
+ 102 │ │                 <resource.icon className="h-16 w-16 text-primary" />
+ 103 │ │               </div>
+ 104 │ │               <CardContent className="p-6">
+ 105 │ │                 <div className="flex justify-between items-start mb-2">
+ 106 │ │                   <span className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
+ 107 │ │                     {resource.type}
+ 108 │ │                   </span>
+ 109 │ │                   <span className="inline-flex items-center rounded-full bg-secondary/10 px-2.5 py-0.5 text-xs font-medium text-secondary">
+ 110 │ │                     {resource.industry}
+ 111 │ │                   </span>
+ 112 │ │                 </div>
+ 113 │ │                 <h3 className="font-semibold text-lg mb-2">{resource.title}</h3>
+ 114 │ │                 <p className="text-sm text-muted-foreground mb-4">By {resource.author}</p>
+ 115 │ │   
+ 116 │ │                 <div className="flex justify-between items-center text-sm text-muted-foreground mb-4">
+ 117 │ │                   <div className="flex items-center">
+ 118 │ │                     <Download className="h-4 w-4 mr-1" />
+ 119 │ │                     <span>{resource.downloads}</span>
+ 120 │ │                   </div>
+ 121 │ │                   <div className="flex items-center">
+ 122 │ │                     <Star className="h-4 w-4 text-yellow-500 mr-1" />
+ 123 │ │                     <span>{resource.rating}</span>
+ 124 │ │                   </div>
+ 125 │ │                 </div>
+ 126 │ │   
+ 127 │ │                 <div className="flex gap-2">
+ 128 │ │                   <Button variant="secondary" className="flex-1">
+ 129 │ │                     <Download className="mr-2 h-4 w-4" />
+ 130 │ │                     Download
+ 131 │ │                   </Button>
+ 132 │ │                   <Button variant="outline" size="icon">
+ 133 │ │                     <Share2 className="h-4 w-4" />
+ 134 │ │                   </Button>
+ 135 │ │                 </div>
+ 136 │ │               </CardContent>
+ 137 │ │             </Card>
+ 138 │ │           ))}
+ 139 │ │         </div>
+ 140 │ │       </div>
+ 141 │ │     )
+ 142 │ ├─▶ }
+     · ╰──── previous exported here
+ 143 │     
+ 144 │     "use client"
+ 145 │     
+ 146 │     import * as React from "react"
+ 147 │     import { Button } from "@/components/ui/button"
+ 148 │     import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+ 149 │     import { Input } from "@/components/ui/input"
+ 150 │     import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+ 151 │     import { Badge } from "@/components/ui/badge"
+ 152 │     import { 
+ 153 │       FileText, 
+ 154 │       Search, 
+ 155 │       Upload, 
+ 156 │       Filter, 
+ 157 │       Clock, 
+ 158 │       Download, 
+ 159 │       ThumbsUp, 
+ 160 │       MessageSquare, 
+ 161 │       Share2, 
+ 162 │       BookOpen, 
+ 163 │       CheckSquare, 
+ 164 │       AlertTriangle, 
+ 165 │       Shield, 
+ 166 │       FileSpreadsheet,
+ 167 │       FileImage
+ 168 │     } from "lucide-react"
+ 169 │     
+ 170 │ ╭─▶ export default function KnowledgePage() {
+ 171 │ │     return (
+ 172 │ │       <div className="container py-6">
+ 173 │ │         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
+ 174 │ │           <div>
+ 175 │ │             <h1 className="text-3xl font-bold">Knowledge Center</h1>
+ 176 │ │             <p className="text-muted-foreground mt-1">
+ 177 │ │               Access and share valuable EHS and ESG resources
+ 178 │ │             </p>
+ 179 │ │           </div>
+ 180 │ │           <Button className="bg-secondary text-white">
+ 181 │ │             <Upload className="h-4 w-4 mr-2" />
+ 182 │ │             Contribute Resource
+ 183 │ │           </Button>
+ 184 │ │         </div>
+ 185 │ │         
+ 186 │ │         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+ 187 │ │           <div className="lg:col-span-3 space-y-6">
+ 188 │ │             <Card>
+ 189 │ │               <CardHeader className="pb-2">
+ 190 │ │                 <CardTitle className="text-lg">Resource Categories</CardTitle>
+ 191 │ │               </CardHeader>
+ 192 │ │               <CardContent className="space-y-2">
+ 193 │ │                 <Button variant="ghost" className="w-full justify-start font-normal">
+ 194 │ │                   <BookOpen className="h-4 w-4 mr-2" />
+ 195 │ │                   All Resources
+ 196 │ │                 </Button>
+ 197 │ │                 <Button variant="ghost" className="w-full justify-start font-normal">
+ 198 │ │                   <CheckSquare className="h-4 w-4 mr-2" />
+ 199 │ │                   Risk Assessments
+ 200 │ │                 </Button>
+ 201 │ │                 <Button variant="ghost" className="w-full justify-start font-normal">
+ 202 │ │                   <AlertTriangle className="h-4 w-4 mr-2" />
+ 203 │ │                   Safety Plans
+ 204 │ │                 </Button>
+ 205 │ │                 <Button variant="ghost" className="w-full justify-start font-normal">
+ 206 │ │                   <Shield className="h-4 w-4 mr-2" />
+ 207 │ │                   Compliance Documents
+ 208 │ │                 </Button>
+ 209 │ │                 <Button variant="ghost" className="w-full justify-start font-normal">
+ 210 │ │                   <FileSpreadsheet className="h-4 w-4 mr-2" />
+ 211 │ │                   Templates
+ 212 │ │                 </Button>
+ 213 │ │                 <Button variant="ghost" className="w-full justify-start font-normal">
+ 214 │ │                   <FileImage className="h-4 w-4 mr-2" />
+ 215 │ │                   Infographics
+ 216 │ │                 </Button>
+ 217 │ │               </CardContent>
+ 218 │ │             </Card>
+ 219 │ │             
+ 220 │ │             <Card>
+ 221 │ │               <CardHeader className="pb-2">
+ 222 │ │                 <CardTitle className="text-lg">Filter Resources</CardTitle>
+ 223 │ │               </CardHeader>
+ 224 │ │               <CardContent>
+ 225 │ │                 <div className="space-y-4">
+ 226 │ │                   <div>
+ 227 │ │                     <div className="text-sm font-medium mb-2">Industry</div>
+ 228 │ │                     <div className="space-y-2">
+ 229 │ │                       <div className="flex items-center">
+ 230 │ │                         <input type="checkbox" id="industry-construction" className="h-4 w-4 rounded border-gray-300 mr-2" />
+ 231 │ │                         <label htmlFor="industry-construction" className="text-sm">Construction</label>
+ 232 │ │                       </div>
+ 233 │ │                       <div className="flex items-center">
+ 234 │ │                         <input type="checkbox" id="industry-manufacturing" className="h-4 w-4 rounded border-gray-300 mr-2" />
+ 235 │ │                         <label htmlFor="industry-manufacturing" className="text-sm">Manufacturing</label>
+ 236 │ │                       </div>
+ 237 │ │                       <div className="flex items-center">
+ 238 │ │                         <input type="checkbox" id="industry-energy" className="h-4 w-4 rounded border-gray-300 mr-2" />
+ 239 │ │                         <label htmlFor="industry-energy" className="text-sm">Energy</label>
+ 240 │ │                       </div>
+ 241 │ │                       <div className="flex items-center">
+ 242 │ │                         <input type="checkbox" id="industry-healthcare" className="h-4 w-4 rounded border-gray-300 mr-2" />
+ 243 │ │                         <label htmlFor="industry-healthcare" className="text-sm">Healthcare</label>
+ 244 │ │                       </div>
+ 245 │ │                     </div>
+ 246 │ │                   </div>
+ 247 │ │                   
+ 248 │ │                   <div>
+ 249 │ │                     <div className="text-sm font-medium mb-2">Document Type</div>
+ 250 │ │                     <div className="space-y-2">
+ 251 │ │                       <div className="flex items-center">
+ 252 │ │                         <input type="checkbox" id="type-pdf" className="h-4 w-4 rounded border-gray-300 mr-2" />
+ 253 │ │                         <label htmlFor="type-pdf" className="text-sm">PDF</label>
+ 254 │ │                       </div>
+ 255 │ │                       <div className="flex items-center">
+ 256 │ │                         <input type="checkbox" id="type-doc" className="h-4 w-4 rounded border-gray-300 mr-2" />
+ 257 │ │                         <label htmlFor="type-doc" className="text-sm">Word Document</label>
+ 258 │ │                       </div>
+ 259 │ │                       <div className="flex items-center">
+ 260 │ │                         <input type="checkbox" id="type-xlsx" className="h-4 w-4 rounded border-gray-300 mr-2" />
+ 261 │ │                         <label htmlFor="type-xlsx" className="text-sm">Excel Spreadsheet</label>
+ 262 │ │                       </div>
+ 263 │ │                       <div className="flex items-center">
+ 264 │ │                         <input type="checkbox" id="type-ppt" className="h-4 w-4 rounded border-gray-300 mr-2" />
+ 265 │ │                         <label htmlFor="type-ppt" className="text-sm">PowerPoint</label>
+ 266 │ │                       </div>
+ 267 │ │                     </div>
+ 268 │ │                   </div>
+ 269 │ │                   
+ 270 │ │                   <div>
+ 271 │ │                     <div className="text-sm font-medium mb-2">Date Added</div>
+ 272 │ │                     <div className="space-y-2">
+ 273 │ │                       <div className="flex items-center">
+ 274 │ │                         <input type="radio" id="date-week" name="date-filter" className="h-4 w-4 rounded-full border-gray-300 mr-2" />
+ 275 │ │                         <label htmlFor="date-week" className="text-sm">Last 7 Days</label>
+ 276 │ │                       </div>
+ 277 │ │                       <div className="flex items-center">
+ 278 │ │                         <input type="radio" id="date-month" name="date-filter" className="h-4 w-4 rounded-full border-gray-300 mr-2" />
+ 279 │ │                         <label htmlFor="date-month" className="text-sm">Last 30 Days</label>
+ 280 │ │                       </div>
+ 281 │ │                       <div className="flex items-center">
+ 282 │ │                         <input type="radio" id="date-quarter" name="date-filter" className="h-4 w-4 rounded-full border-gray-300 mr-2" />
+ 283 │ │                         <label htmlFor="date-quarter" className="text-sm">Last 90 Days</label>
+ 284 │ │                       </div>
+ 285 │ │                       <div className="flex items-center">
+ 286 │ │                         <input type="radio" id="date-all" name="date-filter" className="h-4 w-4 rounded-full border-gray-300 mr-2" checked />
+ 287 │ │                         <label htmlFor="date-all" className="text-sm">All Time</label>
+ 288 │ │                       </div>
+ 289 │ │                     </div>
+ 290 │ │                   </div>
+ 291 │ │                   
+ 292 │ │                   <Button className="w-full">Apply Filters</Button>
+ 293 │ │                 </div>
+ 294 │ │               </CardContent>
+ 295 │ │             </Card>
+ 296 │ │             
+ 297 │ │             <Card>
+ 298 │ │               <CardHeader className="pb-2">
+ 299 │ │                 <CardTitle className="text-lg">Popular Tags</CardTitle>
+ 300 │ │               </CardHeader>
+ 301 │ │               <CardContent>
+ 302 │ │                 <div className="flex flex-wrap gap-2">
+ 303 │ │                   <Badge variant="outline" className="cursor-pointer hover:bg-secondary/10">ISO 45001</Badge>
+ 304 │ │                   <Badge variant="outline" className="cursor-pointer hover:bg-secondary/10">HIRA</Badge>
+ 305 │ │                   <Badge variant="outline" className="cursor-pointer hover:bg-secondary/10">JSA</Badge>
+ 306 │ │                   <Badge variant="outline" className="cursor-pointer hover:bg-secondary/10">Risk Assessment</Badge>
+ 307 │ │                   <Badge variant="outline" className="cursor-pointer hover:bg-secondary/10">SDS</Badge>
+ 308 │ │                   <Badge variant="outline" className="cursor-pointer hover:bg-secondary/10">OSHA</Badge>
+ 309 │ │                   <Badge variant="outline" className="cursor-pointer hover:bg-secondary/10">ESG Reporting</Badge>
+ 310 │ │                   <Badge variant="outline" className="cursor-pointer hover:bg-secondary/10">Templates</Badge>
+ 311 │ │                   <Badge variant="outline" className="cursor-pointer hover:bg-secondary/10">Sustainability</Badge>
+ 312 │ │                   <Badge variant="outline" className="cursor-pointer hover:bg-secondary/10">Carbon Footprint</Badge>
+ 313 │ │                   <Badge variant="outline" className="cursor-pointer hover:bg-secondary/10">Audit</Badge>
+ 314 │ │                   <Badge variant="outline" className="cursor-pointer hover:bg-secondary/10">Training</Badge>
+ 315 │ │                 </div>
+ 316 │ │               </CardContent>
+ 317 │ │             </Card>
+ 318 │ │           </div>
+ 319 │ │           
+ 320 │ │           <div className="lg:col-span-9">
+ 321 │ │             <Card className="mb-6">
+ 322 │ │               <CardContent className="pt-6">
+ 323 │ │                 <div className="flex flex-col md:flex-row gap-4">
+ 324 │ │                   <div className="relative flex-1">
+ 325 │ │                     <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+ 326 │ │                     <Input placeholder="Search for resources..." className="pl-9" />
+ 327 │ │                   </div>
+ 328 │ │                   <Button variant="outline" className="md:w-auto">
+ 329 │ │                     <Filter className="h-4 w-4 mr-2" />
+ 330 │ │                     Advanced Search
+ 331 │ │                   </Button>
+ 332 │ │                 </div>
+ 333 │ │               </CardContent>
+ 334 │ │             </Card>
+ 335 │ │             
+ 336 │ │             <Tabs defaultValue="featured">
+ 337 │ │               <div className="flex items-center justify-between mb-6">
+ 338 │ │                 <TabsList>
+ 339 │ │                   <TabsTrigger value="featured">Featured</TabsTrigger>
+ 340 │ │                   <TabsTrigger value="recent">Recent</TabsTrigger>
+ 341 │ │                   <TabsTrigger value="popular">Popular</TabsTrigger>
+ 342 │ │                   <TabsTrigger value="my-downloads">My Downloads</TabsTrigger>
+ 343 │ │                 </TabsList>
+ 344 │ │               </div>
+ 345 │ │               
+ 346 │ │               <TabsContent value="featured" className="mt-0">
+ 347 │ │                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+ 348 │ │                   <Card>
+ 349 │ │                     <CardHeader className="pb-3">
+ 350 │ │                       <div className="bg-primary/10 p-2 rounded-md w-fit mb-2">
+ 351 │ │                         <FileText className="h-6 w-6 text-primary" />
+ 352 │ │                       </div>
+ 353 │ │                       <CardTitle className="text-lg">ISO 45001 Implementation Guide</CardTitle>
+ 354 │ │                       <CardDescription>Comprehensive guide to implementing ISO 45001</CardDescription>
+ 355 │ │                     </CardHeader>
+ 356 │ │                     <CardContent className="pb-3">
+ 357 │ │                       <div className="flex items-center justify-between text-sm mb-2">
+ 358 │ │                         <div className="flex items-center text-muted-foreground">
+ 359 │ │                           <FileText className="h-3 w-3 mr-1" />
+ 360 │ │                           <span>PDF • 4.2 MB</span>
+ 361 │ │                         </div>
+ 362 │ │                         <div className="flex items-center text-muted-foreground">
+ 363 │ │                           <Download className="h-3 w-3 mr-1" />
+ 364 │ │                           <span>452 downloads</span>
+ 365 │ │                         </div>
+ 366 │ │                       </div>
+ 367 │ │                       <div className="flex items-center text-sm text-muted-foreground mb-3">
+ 368 │ │                         <Clock className="h-3 w-3 mr-1" />
+ 369 │ │                         <span>Added 3 months ago by John Doe</span>
+ 370 │ │                       </div>
+ 371 │ │                       <div className="flex flex-wrap gap-1 mb-3">
+ 372 │ │                         <Badge variant="outline" className="text-xs">ISO 45001</Badge>
+ 373 │ │                         <Badge variant="outline" className="text-xs">Safety</Badge>
+ 374 │ │                         <Badge variant="outline" className="text-xs">Management Systems</Badge>
+ 375 │ │                       </div>
+ 376 │ │                     </CardContent>
+ 377 │ │                     <div className="px-6 pb-6">
+ 378 │ │                       <Button className="w-full">
+ 379 │ │                         <Download className="h-4 w-4 mr-2" />
+ 380 │ │                         Download
+ 381 │ │                       </Button>
+ 382 │ │                     </div>
+ 383 │ │                   </Card>
+ 384 │ │                   
+ 385 │ │                   <Card>
+ 386 │ │                     <CardHeader className="pb-3">
+ 387 │ │                       <div className="bg-primary/10 p-2 rounded-md w-fit mb-2">
+ 388 │ │                         <FileSpreadsheet className="h-6 w-6 text-primary" />
+ 389 │ │                       </div>
+ 390 │ │                       <CardTitle className="text-lg">Environmental Compliance Checklist</CardTitle>
+ 391 │ │                       <CardDescription>Regulatory compliance tracking template</CardDescription>
+ 392 │ │                     </CardHeader>
+ 393 │ │                     <CardContent className="pb-3">
+ 394 │ │                       <div className="flex items-center justify-between text-sm mb-2">
+ 395 │ │                         <div className="flex items-center text-muted-foreground">
+ 396 │ │                           <FileText className="h-3 w-3 mr-1" />
+ 397 │ │                           <span>Excel • 1.8 MB</span>
+ 398 │ │                         </div>
+ 399 │ │                         <div className="flex items-center text-muted-foreground">
+ 400 │ │                           <Download className="h-3 w-3 mr-1" />
+ 401 │ │                           <span>327 downloads</span>
+ 402 │ │                         </div>
+ 403 │ │                       </div>
+ 404 │ │                       <div className="flex items-center text-sm text-muted-foreground mb-3">
+ 405 │ │                         <Clock className="h-3 w-3 mr-1" />
+ 406 │ │                         <span>Added 5 months ago by Sarah Johnson</span>
+ 407 │ │                       </div>
+ 408 │ │                       <div className="flex flex-wrap gap-1 mb-3">
+ 409 │ │                         <Badge variant="outline" className="text-xs">Environmental</Badge>
+ 410 │ │                         <Badge variant="outline" className="text-xs">Compliance</Badge>
+ 411 │ │                         <Badge variant="outline" className="text-xs">Template</Badge>
+ 412 │ │                       </div>
+ 413 │ │                     </CardContent>
+ 414 │ │                     <div className="px-6 pb-6">
+ 415 │ │                       <Button className="w-full">
+ 416 │ │                         <Download className="h-4 w-4 mr-2" />
+ 417 │ │                         Download
+ 418 │ │                       </Button>
+ 419 │ │                     </div>
+ 420 │ │                   </Card>
+ 421 │ │                   
+ 422 │ │                   <Card>
+ 423 │ │                     <CardHeader className="pb-3">
+ 424 │ │                       <div className="bg-primary/10 p-2 rounded-md w-fit mb-2">
+ 425 │ │                         <FileText className="h-6 w-6 text-primary" />
+ 426 │ │                       </div>
+ 427 │ │                       <CardTitle className="text-lg">Safety Audit Templates Bundle</CardTitle>
+ 428 │ │                       <CardDescription>Collection of safety audit templates and forms</CardDescription>
+ 429 │ │                     </CardHeader>
+ 430 │ │                     <CardContent className="pb-3">
+ 431 │ │                       <div className="flex items-center justify-between text-sm mb-2">
+ 432 │ │                         <div className="flex items-center text-muted-foreground">
+ 433 │ │                           <FileText className="h-3 w-3 mr-1" />
+ 434 │ │                           <span>ZIP • 8.6 MB</span>
+ 435 │ │                         </div>
+ 436 │ │                         <div className="flex items-center text-muted-foreground">
+ 437 │ │                           <Download className="h-3 w-3 mr-1" />
+ 438 │ │                           <span>716 downloads</span>
+ 439 │ │                         </div>
+ 440 │ │                       </div>
+ 441 │ │                       <div className="flex items-center text-sm text-muted-foreground mb-3">
+ 442 │ │                         <Clock className="h-3 w-3 mr-1" />
+ 443 │ │                         <span>Added 8 months ago by Michael Chen</span>
+ 444 │ │                       </div>
+ 445 │ │                       <div className="flex flex-wrap gap-1 mb-3">
+ 446 │ │                         <Badge variant="outline" className="text-xs">Audit</Badge>
+ 447 │ │                         <Badge variant="outline" className="text-xs">Safety</Badge>
+ 448 │ │                         <Badge variant="outline" className="text-xs">Templates</Badge>
+ 449 │ │                       </div>
+ 450 │ │                     </CardContent>
+ 451 │ │                     <div className="px-6 pb-6">
+ 452 │ │                       <Button className="w-full">
+ 453 │ │                         <Download className="h-4 w-4 mr-2" />
+ 454 │ │                         Download
+ 455 │ │                       </Button>
+ 456 │ │                     </div>
+ 457 │ │                   </Card>
+ 458 │ │                   
+ 459 │ │                   <Card>
+ 460 │ │                     <CardHeader className="pb-3">
+ 461 │ │                       <div className="bg-primary/10 p-2 rounded-md w-fit mb-2">
+ 462 │ │                         <FileText className="h-6 w-6 text-primary" />
+ 463 │ │                       </div>
+ 464 │ │                       <CardTitle className="text-lg">ESG Reporting Framework Guide</CardTitle>
+ 465 │ │                       <CardDescription>Comprehensive guide to ESG reporting standards</CardDescription>
+ 466 │ │                     </CardHeader>
+ 467 │ │                     <CardContent className="pb-3">
+ 468 │ │                       <div className="flex items-center justify-between text-sm mb-2">
+ 469 │ │                         <div className="flex items-center text-muted-foreground">
+ 470 │ │                           <FileText className="h-3 w-3 mr-1" />
+ 471 │ │                           <span>PDF • 6.1 MB</span>
+ 472 │ │                         </div>
+ 473 │ │                         <div className="flex items-center text-muted-foreground">
+ 474 │ │                           <Download className="h-3 w-3 mr-1" />
+ 475 │ │                           <span>548 downloads</span>
+ 476 │ │                         </div>
+ 477 │ │                       </div>
+ 478 │ │                       <div className="flex items-center text-sm text-muted-foreground mb-3">
+ 479 │ │                         <Clock className="h-3 w-3 mr-1" />
+ 480 │ │                         <span>Added 2 months ago by Emily Rodriguez</span>
+ 481 │ │                       </div>
+ 482 │ │                       <div className="flex flex-wrap gap-1 mb-3">
+ 483 │ │                         <Badge variant="outline" className="text-xs">ESG</Badge>
+ 484 │ │                         <Badge variant="outline" className="text-xs">Reporting</Badge>
+ 485 │ │                         <Badge variant="outline" className="text-xs">Sustainability</Badge>
+ 486 │ │                       </div>
+ 487 │ │                     </CardContent>
+ 488 │ │                     <div className="px-6 pb-6">
+ 489 │ │                       <Button className="w-full">
+ 490 │ │                         <Download className="h-4 w-4 mr-2" />
+ 491 │ │                         Download
+ 492 │ │                       </Button>
+ 493 │ │                     </div>
+ 494 │ │                   </Card>
+ 495 │ │                   
+ 496 │ │                   <Card>
+ 497 │ │                     <CardHeader className="pb-3">
+ 498 │ │                       <div className="bg-primary/10 p-2 rounded-md w-fit mb-2">
+ 499 │ │                         <FileText className="h-6 w-6 text-primary" />
+ 500 │ │                       </div>
+ 501 │ │                       <CardTitle className="text-lg">Job Safety Analysis Templates</CardTitle>
+ 502 │ │                       <CardDescription>Collection of JSA templates for various industries</CardDescription>
+ 503 │ │                     </CardHeader>
+ 504 │ │                     <CardContent className="pb-3">
+ 505 │ │                       <div className="flex items-center justify-between text-sm mb-2">
+ 506 │ │                         <div className="flex items-center text-muted-foreground">
+ 507 │ │                           <FileText className="h-3 w-3 mr-1" />
+ 508 │ │                           <span>Word • 3.5 MB</span>
+ 509 │ │                         </div>
+ 510 │ │                         <div className="flex items-center text-muted-foreground">
+ 511 │ │                           <Download className="h-3 w-3 mr-1" />
+ 512 │ │                           <span>427 downloads</span>
+ 513 │ │                         </div>
+ 514 │ │                       </div>
+ 515 │ │                       <div className="flex items-center text-sm text-muted-foreground mb-3">
+ 516 │ │                         <Clock className="h-3 w-3 mr-1" />
+ 517 │ │                         <span>Added 4 months ago by James Wilson</span>
+ 518 │ │                       </div>
+ 519 │ │                       <div className="flex flex-wrap gap-1 mb-3">
+ 520 │ │                         <Badge variant="outline" className="text-xs">JSA</Badge>
+ 521 │ │                         <Badge variant="outline" className="text-xs">Safety</Badge>
+ 522 │ │                         <Badge variant="outline" className="text-xs">Risk Assessment</Badge>
+ 523 │ │                       </div>
+ 524 │ │                     </CardContent>
+ 525 │ │                     <div className="px-6 pb-6">
+ 526 │ │                       <Button className="w-full">
+ 527 │ │                         <Download className="h-4 w-4 mr-2" />
+ 528 │ │                         Download
+ 529 │ │                       </Button>
+ 530 │ │                     </div>
+ 531 │ │                   </Card>
+ 532 │ │                   
+ 533 │ │                   <Card>
+ 534 │ │                     <CardHeader className="pb-3">
+ 535 │ │                       <div className="bg-primary/10 p-2 rounded-md w-fit mb-2">
+ 536 │ │                         <FileImage className="h-6 w-6 text-primary" />
+ 537 │ │                       </div>
+ 538 │ │                       <CardTitle className="text-lg">Carbon Footprint Calculation Guide</CardTitle>
+ 539 │ │                       <CardDescription>Step-by-step guide to calculating organizational carbon footprint</CardDescription>
+ 540 │ │                     </CardHeader>
+ 541 │ │                     <CardContent className="pb-3">
+ 542 │ │                       <div className="flex items-center justify-between text-sm mb-2">
+ 543 │ │                         <div className="flex items-center text-muted-foreground">
+ 544 │ │                           <FileText className="h-3 w-3 mr-1" />
+ 545 │ │                           <span>PDF • 5.3 MB</span>
+ 546 │ │                         </div>
+ 547 │ │                         <div className="flex items-center text-muted-foreground">
+ 548 │ │                           <Download className="h-3 w-3 mr-1" />
+ 549 │ │                           <span>382 downloads</span>
+ 550 │ │                         </div>
+ 551 │ │                       </div>
+ 552 │ │                       <div className="flex items-center text-sm text-muted-foreground mb-3">
+ 553 │ │                         <Clock className="h-3 w-3 mr-1" />
+ 554 │ │                         <span>Added 6 months ago by Lisa Wong</span>
+ 555 │ │                       </div>
+ 556 │ │                       <div className="flex flex-wrap gap-1 mb-3">
+ 557 │ │                         <Badge variant="outline" className="text-xs">Carbon</Badge>
+ 558 │ │                         <Badge variant="outline" className="text-xs">Environmental</Badge>
+ 559 │ │                         <Badge variant="outline" className="text-xs">Sustainability</Badge>
+ 560 │ │                       </div>
+ 561 │ │                     </CardContent>
+ 562 │ │                     <div className="px-6 pb-6">
+ 563 │ │                       <Button className="w-full">
+ 564 │ │                         <Download className="h-4 w-4 mr-2" />
+ 565 │ │                         Download
+ 566 │ │                       </Button>
+ 567 │ │                     </div>
+ 568 │ │                   </Card>
+ 569 │ │                 </div>
+ 570 │ │               </TabsContent>
+ 571 │ │               
+ 572 │ │               <TabsContent value="recent" className="mt-0">
+ 573 │ │                 <div className="p-12 text-center text-muted-foreground">
+ 574 │ │                   Select this tab to see recently added resources
+ 575 │ │                 </div>
+ 576 │ │               </TabsContent>
+ 577 │ │               
+ 578 │ │               <TabsContent value="popular" className="mt-0">
+ 579 │ │                 <div className="p-12 text-center text-muted-foreground">
+ 580 │ │                   Select this tab to see the most popular resources
+ 581 │ │                 </div>
+ 582 │ │               </TabsContent>
+ 583 │ │               
+ 584 │ │               <TabsContent value="my-downloads" className="mt-0">
+ 585 │ │                 <div className="p-12 text-center text-muted-foreground">
+ 586 │ │                   Select this tab to see your downloaded resources
+ 587 │ │                 </div>
+ 588 │ │               </TabsContent>
+ 589 │ │             </Tabs>
+ 590 │ │           </div>
+ 591 │ │         </div>
+ 592 │ │       </div>
+ 593 │ │     )
+ 594 │ ├─▶ }
+     · ╰──── exported more than once
+     ╰────
+
+Error: 
+  ☞ Exported identifiers must be unique
+
+  × The "use client" directive must be placed before other expressions. Move it to the top of the file to resolve this issue.
+     ╭─[/home/runner/workspace/app/knowledge/page.tsx:141:1]
+ 141 │   )
+ 142 │ }
+ 143 │ 
+ 144 │ "use client"
+     · ────────────
+ 145 │ 
+ 146 │ import * as React from "react"
+ 147 │ import { Button } from "@/components/ui/button"
+     ╰────
+This error occurred during the build process and can only be dismissed by fixing the error.
