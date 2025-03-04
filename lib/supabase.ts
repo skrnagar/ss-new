@@ -2,28 +2,31 @@
 import { createClient } from '@supabase/supabase-js'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 
-// Create a Supabase client with environment variables
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
+// Get environment variables
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
 if (!supabaseUrl || !supabaseAnonKey) {
   console.error('Missing Supabase URL or Anon Key in environment variables')
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    persistSession: true,
-    storage: typeof window !== 'undefined' ? window.localStorage : undefined,
-    detectSessionInUrl: true,
-    autoRefreshToken: true,
-  },
+// Client for use in browser components
+export const supabase = createClientComponentClient({
+  supabaseUrl,
+  supabaseKey: supabaseAnonKey,
 })
 
-// Function to get a new Supabase client instance using the newer client 
-export const getSupabase = () => createClientComponentClient()
+// Legacy client with additional config options
+export const supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+    detectSessionInUrl: true,
+  }
+})
 
-// Initialize auth listener for debugging
-if (typeof window !== 'undefined') {
+// Set up debug listener for auth state changes in development
+if (typeof window !== 'undefined' && process.env.NODE_ENV === "development") {
   supabase.auth.onAuthStateChange((event, session) => {
     console.log('Auth state changed:', event, session)
   })
