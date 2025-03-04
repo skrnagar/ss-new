@@ -1,4 +1,3 @@
-
 "use client"
 
 import * as React from "react"
@@ -32,7 +31,7 @@ export default function LoginPage() {
   const router = useRouter()
   const { toast } = useToast()
   const [loading, setLoading] = React.useState(false)
-  
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -52,7 +51,7 @@ export default function LoginPage() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setLoading(true)
-    
+
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email: values.email,
@@ -72,10 +71,9 @@ export default function LoginPage() {
         title: "Login successful",
         description: "Redirecting to your dashboard...",
       })
-      
+
       // Redirect to feed page after successful login
-      // Using replace instead of push ensures we can't go back to the login page
-      router.replace("/feed")
+      window.location.href = "/feed"
     } catch (error) {
       toast({
         title: "An error occurred",
@@ -89,7 +87,7 @@ export default function LoginPage() {
 
   async function onRegister(values: z.infer<typeof registerSchema>) {
     setLoading(true)
-    
+
     try {
       const { data, error } = await supabase.auth.signUp({
         email: values.email,
@@ -114,10 +112,10 @@ export default function LoginPage() {
         title: "Registration successful",
         description: "Please check your email to verify your account.",
       })
-      
+
       // If email verification is not required, redirect to profile setup
       if (!data.session) return
-      
+
       // Redirect to profile setup immediately using router
       router.replace("/profile/setup")
     } catch (error) {
