@@ -1,7 +1,9 @@
+
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Shield, Users, BookOpen, Briefcase, Award, ClipboardCheck, Leaf, BarChart, Heart } from "lucide-react"
+import { AuthButtons } from "./components/auth-buttons"
 
 export default function Home() {
   return (
@@ -263,16 +265,11 @@ export default function Home() {
               creating safer, more sustainable workplaces and communities.
             </p>
             <Button size="lg" className="bg-secondary hover:bg-secondary/90 text-white" asChild>
-              <Link href="/auth/register">Join Safety Shaper Today</Link>
+              <Link href="/auth/login?tab=register">Join Safety Shaper Today</Link>
             </Button>
           </div>
         </div>
       </section>
     </div>
   )
-}
-
-// Placeholder for AuthButtons component - needs to be implemented separately
-function AuthButtons() {
-  return <div>Auth Buttons Here</div>;
 }

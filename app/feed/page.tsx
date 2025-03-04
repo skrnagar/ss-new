@@ -1,8 +1,9 @@
+
 "use client"
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardFooter } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import {
   ThumbsUp,
@@ -204,29 +205,22 @@ export default function FeedPage() {
                   )}
                 </div>
 
-                {/* Post Stats */}
-                <div className="flex justify-between text-xs text-muted-foreground mt-3 pt-2 border-t">
-                  <span>{post.likes} likes</span>
-                  <span>{post.comments} comments</span>
-                  <span>{post.shares} shares</span>
+                {/* Post Actions */}
+                <div className="flex items-center justify-between pt-3 border-t mt-3">
+                  <Button variant="ghost" size="sm" className="text-muted-foreground">
+                    <ThumbsUp className="h-4 w-4 mr-1" />
+                    Like ({post.likes})
+                  </Button>
+                  <Button variant="ghost" size="sm" className="text-muted-foreground">
+                    <MessageSquare className="h-4 w-4 mr-1" />
+                    Comment ({post.comments})
+                  </Button>
+                  <Button variant="ghost" size="sm" className="text-muted-foreground">
+                    <Share2 className="h-4 w-4 mr-1" />
+                    Share ({post.shares})
+                  </Button>
                 </div>
               </CardContent>
-
-              {/* Post Actions */}
-              <CardFooter className="px-4 py-2 border-t flex justify-between">
-                <Button variant="ghost" size="sm">
-                  <ThumbsUp className="h-4 w-4 mr-2" />
-                  Like
-                </Button>
-                <Button variant="ghost" size="sm">
-                  <MessageSquare className="h-4 w-4 mr-2" />
-                  Comment
-                </Button>
-                <Button variant="ghost" size="sm">
-                  <Share2 className="h-4 w-4 mr-2" />
-                  Share
-                </Button>
-              </CardFooter>
             </Card>
           ))}
         </div>
