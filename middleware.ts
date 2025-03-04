@@ -10,28 +10,27 @@ const protectedRoutes = ['/feed', '/profile', '/jobs', '/groups', '/knowledge', 
 const authRoutes = ['/auth/login', '/auth/register', '/']
 
 export async function middleware(request: NextRequest) {
-  const response = NextResponse.next()
+  // Create a response to modify
+  const res = NextResponse.next()
   
   // Create a Supabase client specifically for the middleware
-  const supabase = createMiddlewareClient({ req: request, res: response })
+  const supabase = createMiddlewareClient({ req: request, res })
   
   // Get the session using the supabase middleware client
-  const { data: { session } } = await supabase.auth.getSession()
+  const { data } = await supabase.auth.getSession()
+  const session = data?.session
   const isAuthenticated = !!session
   
   const url = new URL(request.url)
   const path = url.pathname
   
-  // Skip middleware for specific paths including static files, API routes, and callbacks
+  // Skip middleware for specific paths
   if (path.startsWith('/auth/callback') || 
       path.includes('/_next') || 
       path.includes('/api/') || 
-      path.includes('.') ||
-      path === '/favicon.ico') {
-    return response
+      path.includes('.')) {
+    return res
   }
-  
-  console.log('Middleware - Path:', path, 'Authenticated:', isAuthenticated)
   
   // Check if the route is protected and user is not authenticated
   const isProtectedRoute = protectedRoutes.some(route => 
@@ -41,14 +40,8 @@ export async function middleware(request: NextRequest) {
   if (isProtectedRoute && !isAuthenticated) {
     // Store the original URL to redirect back after login
     const redirectUrl = new URL('/auth/login', request.url)
-    redirectUrl.searchParams.set('redirectUrl', path)
-    console.log('Redirecting unauthenticated user from protected route to:', redirectUrl.toString())
-    
-    return NextResponse.redirect(redirectUrl, {
-      headers: {
-        'Cache-Control': 'no-store, max-age=0',
-      },
-    })
+    redirectUrl.searchParams.set('redirectUrl', url.pathname)
+    return NextResponse.redirect(redirectUrl)
   }
 
   // Check if the user is accessing auth routes while already authenticated
@@ -57,18 +50,10 @@ export async function middleware(request: NextRequest) {
   )
   
   if (isAuthRoute && isAuthenticated) {
-    console.log('Redirecting authenticated user from auth route to feed')
-    return NextResponse.redirect(new URL('/feed', request.url), {
-      headers: {
-        'Cache-Control': 'no-store, max-age=0',
-      },
-    })
+    return NextResponse.redirect(new URL('/feed', request.url))
   }
 
-  // Set cache control headers to prevent response caching for all routes
-  response.headers.set('Cache-Control', 'no-store, max-age=0')
-  
-  return response
+  return res
 }
 
 export const config = {
