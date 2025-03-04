@@ -17,11 +17,12 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const { toast } = useToast()
 
   useEffect(() => {
+    // Check authentication on mount
     const checkAuth = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession()
+        const { data } = await supabase.auth.getSession()
         
-        if (!session) {
+        if (!data.session) {
           toast({
             title: "Authentication required",
             description: "Please sign in to access this page",
@@ -32,23 +33,26 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
         }
         
         setIsAuthenticated(true)
+        setIsLoading(false)
       } catch (error) {
         console.error('Auth check failed:', error)
-        router.push('/auth/login')
-      } finally {
+        setIsAuthenticated(false)
         setIsLoading(false)
+        router.push('/auth/login')
       }
     }
 
     checkAuth()
     
+    // Set up auth state change listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         if (event === 'SIGNED_OUT') {
           setIsAuthenticated(false)
           router.push('/auth/login')
-        } else if (event === 'SIGNED_IN' && session) {
+        } else if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session) {
           setIsAuthenticated(true)
+          setIsLoading(false)
         }
       }
     )
@@ -56,8 +60,9 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
     return () => {
       subscription?.unsubscribe()
     }
-  }, [router])
+  }, [router, toast])
 
+  // Show loading indicator while checking auth
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -66,9 +71,6 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
     )
   }
 
-  if (!isAuthenticated) {
-    return null
-  }
-
-  return <>{children}</>
+  // Only render children if authenticated
+  return isAuthenticated ? <>{children}</> : null
 }

@@ -21,16 +21,20 @@ export async function middleware(req: NextRequest) {
   const supabase = createMiddlewareClient({ req, res })
   
   // Refresh session if expired - required for Server Components
-  const { data: { session } } = await supabase.auth.getSession()
+  const {
+    data: { session },
+  } = await supabase.auth.getSession()
   
   // Check if the path is protected
   const path = req.nextUrl.pathname
   
-  if (protectedRoutes.some(route => path === route || path.startsWith(`${route}/`)) && !session) {
-    // Redirect to login page with return URL
-    const redirectUrl = new URL('/auth/login', req.url)
-    redirectUrl.searchParams.set('returnTo', path)
-    return NextResponse.redirect(redirectUrl)
+  if (protectedRoutes.some(route => path === route || path.startsWith(`${route}/`))) {
+    if (!session) {
+      // Redirect to login page with return URL
+      const redirectUrl = new URL('/auth/login', req.url)
+      redirectUrl.searchParams.set('returnTo', path)
+      return NextResponse.redirect(redirectUrl)
+    }
   }
   
   // Redirect logged-in users away from auth pages
