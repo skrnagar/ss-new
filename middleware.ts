@@ -1,3 +1,4 @@
+
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { createMiddlewareClient } from '@supabase/auth-helpers-nextjs'
@@ -60,7 +61,7 @@ export async function middleware(request: NextRequest) {
 
       const redirectResponse = NextResponse.redirect(redirectUrl)
       redirectResponse.headers.set('Cache-Control', 'no-store, max-age=0')
-
+      
       return redirectResponse
     }
 
@@ -73,7 +74,7 @@ export async function middleware(request: NextRequest) {
       console.log('Redirecting authenticated user from auth route to feed')
       const redirectResponse = NextResponse.redirect(new URL('/feed', request.url))
       redirectResponse.headers.set('Cache-Control', 'no-store, max-age=0')
-
+      
       return redirectResponse
     }
   } catch (error) {

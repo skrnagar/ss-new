@@ -1,52 +1,24 @@
+"use client"
 
-import { createBrowserClient } from '@supabase/ssr'
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 
-export const createClient = () => {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
-  if (!supabaseUrl || !supabaseAnonKey) {
-    throw new Error('Supabase URL or key is missing in environment variables')
-  }
-
-  return createBrowserClient(
-    supabaseUrl,
-    supabaseAnonKey
-  )
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error('Supabase URL or key is missing in environment variables')
 }
 
-// Create a single instance of the supabase client to be used across the app
-let supabaseInstance: ReturnType<typeof createClient> | null = null
+/**
+ * Creates a Supabase client for use in browser components.
+ * This client is safe to use in client-side code.
+ */
+export const supabase = createClientComponentClient()
 
-export const getSupabase = () => {
-  if (!supabaseInstance) {
-    supabaseInstance = createClient()
-  }
-  return supabaseInstance
-}
-
-// Listen for auth state changes and log them
-if (typeof window !== 'undefined') {
-  const supabase = getSupabase()
-  
+// Set up debug listener for auth state changes in development
+if (process.env.NODE_ENV === 'development') {
+  // Set up a listener for auth state changes
   supabase.auth.onAuthStateChange((event, session) => {
-    const userState = session ? 'user authenticated' : 'no session'
-    console.log('Auth state changed:', event, userState)
-    
-    // Clear navigation cache when auth state changes to ensure fresh data
-    if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
-      try {
-        // Clear any cached responses to force refetching
-        if ('caches' in window) {
-          caches.keys().then((names) => {
-            names.forEach((name) => {
-              caches.delete(name)
-            })
-          })
-        }
-      } catch (e) {
-        console.error('Error clearing cache:', e)
-      }
-    }
+    console.log('Auth state changed:', event, session ? 'user authenticated' : 'no session')
   })
 }

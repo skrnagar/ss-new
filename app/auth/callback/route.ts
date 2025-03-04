@@ -1,49 +1,52 @@
+
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from 'next/headers'
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 
 export const dynamic = 'force-dynamic'
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
+  const requestUrl = new URL(request.url)
+  const searchParams = requestUrl.searchParams
+  const code = searchParams.get('code')
+  const redirectTo = searchParams.get('redirectTo') || '/feed'
+  
+  // If there is no code, something went wrong with the OAuth process
+  if (!code) {
+    console.error('No code provided in callback')
+    return NextResponse.redirect(new URL('/auth/login?error=No+code+provided', requestUrl.origin))
+  }
+
   try {
-    const requestUrl = new URL(request.url)
-    const code = requestUrl.searchParams.get('code')
+    // Create a supabase client for the route handler
+    const cookieStore = cookies()
+    const supabase = createRouteHandlerClient({ cookies: () => cookieStore })
 
-    // Get the redirectUrl parameter, decode it if it exists, and default to '/feed'
-    let redirectUrl = '/feed'
-    const encodedRedirectUrl = requestUrl.searchParams.get('redirectUrl')
+    // Exchange the code for a session
+    const { error } = await supabase.auth.exchangeCodeForSession(code)
 
-    if (encodedRedirectUrl) {
-      try {
-        // Properly decode the redirect URL
-        redirectUrl = decodeURIComponent(encodedRedirectUrl)
-      } catch (e) {
-        console.error('Error decoding redirect URL:', e)
-      }
+    if (error) {
+      console.error('Error in callback:', error.message)
+      throw error
     }
 
-    console.log('Auth callback - Code exists:', !!code, 'Redirect URL:', redirectUrl)
-
-    if (code) {
-      const cookieStore = cookies()
-      const supabase = createRouteHandlerClient({ cookies: () => cookieStore })
-
-      // Exchange the code for a session
-      await supabase.auth.exchangeCodeForSession(code)
-
-      // Get the user profile from the session
-      const { data: { session } } = await supabase.auth.getSession()
-
-      if (session) {
-        console.log('User authenticated in callback:', session.user.id, 'Redirecting to:', redirectUrl)
-        return NextResponse.redirect(new URL(redirectUrl, request.url))
-      }
-    }
-
-    // Fallback if no code or session, redirect to home page
-    return NextResponse.redirect(new URL('/', request.url))
+    // Successfully exchanged code for session - redirect to the intended URL
+    console.log('Authentication successful, redirecting to:', redirectTo)
+    
+    // Ensure the redirect URL is properly decoded
+    const decodedRedirectTo = decodeURIComponent(redirectTo)
+    
+    // Create a response that redirects to the decoded URL
+    const redirectResponse = NextResponse.redirect(new URL(decodedRedirectTo, requestUrl.origin))
+    
+    // Ensure no caching
+    redirectResponse.headers.set('Cache-Control', 'no-store, max-age=0')
+    
+    return redirectResponse
   } catch (error) {
     console.error('Error in auth callback:', error)
-    return NextResponse.redirect(new URL('/', request.url))
+    return NextResponse.redirect(
+      new URL(`/auth/login?error=${encodeURIComponent(error.message || 'Unknown error')}`, requestUrl.origin)
+    )
   }
 }
