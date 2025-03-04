@@ -73,10 +73,8 @@ export default function LoginPage() {
         description: "Redirecting to your dashboard...",
       })
       
-      // Use a shorter timeout and ensure the page refreshes
-      setTimeout(() => {
-        window.location.href = "/feed";
-      }, 800)
+      // Redirect to feed page after successful login
+      router.push("/feed")
     } catch (error) {
       toast({
         title: "An error occurred",
