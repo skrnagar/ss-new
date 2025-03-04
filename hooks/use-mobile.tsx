@@ -26,5 +26,5 @@ export function useMobile() {
   return isMobile;
 }
 
-// Export as default for compatibility
+// Make it the default export
 export default useMobile;

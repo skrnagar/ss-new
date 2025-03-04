@@ -1,6 +1,4 @@
 
-"use client"
-
 import { ProtectedRoute } from "@/components/protected-route"
 
 export default function ProfileLayout({

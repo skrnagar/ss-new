@@ -19,56 +19,52 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   useEffect(() => {
     let isMounted = true;
     
-    // Check authentication on mount
+    // Check authentication on mount - use more efficient approach
     const checkAuth = async () => {
       try {
-        const { data } = await supabase.auth.getSession();
+        // Get existing session without making a new request if possible
+        const { data: { session } } = await supabase.auth.getSession();
         
-        // Only update state if component is still mounted
         if (!isMounted) return;
         
-        if (!data.session) {
+        if (session) {
+          setIsAuthenticated(true);
+        } else {
           setIsAuthenticated(false);
-          setIsLoading(false);
-          
           toast({
             title: "Authentication required",
             description: "Please sign in to access this page",
             variant: "destructive",
           });
-          
           router.push('/auth/login');
-          return;
         }
-        
-        setIsAuthenticated(true);
-        setIsLoading(false);
       } catch (error) {
         if (!isMounted) return;
-        
         console.error('Auth check failed:', error);
-        setIsAuthenticated(false);
-        setIsLoading(false);
-        router.push('/auth/login');
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
     };
 
-    checkAuth();
-    
-    // Set up auth state change listener
+    // Set up auth state change listener first
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         if (!isMounted) return;
         
-        if (event === 'SIGNED_OUT') {
-          setIsAuthenticated(false);
-          router.push('/auth/login');
-        } else if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session) {
+        if (session) {
           setIsAuthenticated(true);
           setIsLoading(false);
+        } else if (event === 'SIGNED_OUT') {
+          setIsAuthenticated(false);
+          router.push('/auth/login');
         }
       }
     );
+
+    // Check auth after setting up listener to avoid race conditions
+    checkAuth();
 
     return () => {
       isMounted = false;
@@ -86,5 +82,5 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   }
 
   // Only render children if authenticated
-  return isAuthenticated ? <>{children}</> : null
+  return isAuthenticated ? <>{children}</> : null;
 }
