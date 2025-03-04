@@ -1,4 +1,3 @@
-
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
@@ -9,11 +8,11 @@ export async function GET(request: Request) {
   try {
     const requestUrl = new URL(request.url)
     const code = requestUrl.searchParams.get('code')
-    
+
     // Get the redirectUrl parameter, decode it if it exists, and default to '/feed'
     let redirectUrl = '/feed'
     const encodedRedirectUrl = requestUrl.searchParams.get('redirectUrl')
-    
+
     if (encodedRedirectUrl) {
       try {
         // Properly decode the redirect URL
@@ -36,57 +35,15 @@ export async function GET(request: Request) {
       const { data: { session } } = await supabase.auth.getSession()
 
       if (session) {
-        console.log('User authenticated in callback:', session.user.id)
-
-        // Check if the user has a profile already
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', session.user.id)
-          .single()
-          
-        // Redirect to the destination URL
-        console.log('Redirecting to:', redirectUrl)
-        return NextResponse.redirect(new URL(redirectUrl, requestUrl.origin))
-      } else {
-        console.error('No session established in callback')
-        return NextResponse.redirect(new URL('/', requestUrl.origin))
-      }
-
-        // If the profile doesn't exist, create it
-        if (!profile) {
-          console.log('Creating new profile for user:', session.user.id)
-          
-          // Extract data from user metadata for the profile
-          const { user } = session
-          const name = user.user_metadata.name || user.user_metadata.full_name
-          const avatarUrl = user.user_metadata.avatar_url || user.user_metadata.picture
-          
-          // Insert the new profile
-          await supabase.from('profiles').insert({
-            id: user.id,
-            email: user.email,
-            name: name,
-            avatar_url: avatarUrl,
-            updated_at: new Date().toISOString()
-          })
-        }
-
-        // Get the final redirect URL, clean it up if needed
-        redirectUrl = redirectUrl.startsWith('/') ? redirectUrl : `/${redirectUrl}`
-        
-        // Redirect the user to the intended page or the feed
-        console.log('Redirecting authenticated user to:', redirectUrl)
-        return NextResponse.redirect(new URL(redirectUrl, requestUrl.origin))
+        console.log('User authenticated in callback:', session.user.id, 'Redirecting to:', redirectUrl)
+        return NextResponse.redirect(new URL(redirectUrl, request.url))
       }
     }
 
-    // If there's no code or session, redirect to login
-    return NextResponse.redirect(new URL('/auth/login', requestUrl.origin))
+    // Fallback if no code or session, redirect to home page
+    return NextResponse.redirect(new URL('/', request.url))
   } catch (error) {
     console.error('Error in auth callback:', error)
-    return NextResponse.redirect(
-      new URL('/auth/login?error=Something+went+wrong+during+sign+in', request.url)
-    )
+    return NextResponse.redirect(new URL('/', request.url))
   }
 }
