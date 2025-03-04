@@ -17,9 +17,9 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession()
+        const { data } = await supabase.auth.getSession()
         
-        if (!session) {
+        if (!data.session) {
           router.push('/auth/login')
           return
         }
@@ -38,7 +38,11 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         if (event === 'SIGNED_OUT') {
+          setIsAuthenticated(false)
           router.push('/auth/login')
+        } else if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION') {
+          setIsAuthenticated(true)
+          setIsLoading(false)
         }
       }
     )
