@@ -66,28 +66,39 @@ export function Navbar() {
     getUser()
     
     // Set up auth state change listener
-    const authListener = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setUser(session?.user || null)
-        if (event === 'SIGNED_OUT') {
-          setProfile(null)
-        } else if (event === 'SIGNED_IN' && session) {
-          // Fetch user profile after sign in
-          supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', session.user.id)
-            .single()
-            .then(({ data }) => {
-              setProfile(data)
-            })
+    let authListener: any = null
+    try {
+      authListener = supabase.auth.onAuthStateChange(
+        (event, session) => {
+          console.log('Auth state changed:', event, session)
+          if (event === 'SIGNED_OUT') {
+            setUser(null)
+            setProfile(null)
+          } else if (event === 'SIGNED_IN' && session) {
+            setUser(session.user)
+            // Fetch user profile after sign in
+            supabase
+              .from('profiles')
+              .select('*')
+              .eq('id', session.user.id)
+              .single()
+              .then(({ data }) => {
+                setProfile(data)
+              })
+          }
         }
-      }
-    )
+      )
+    } catch (error) {
+      console.error('Error setting up auth listener:', error)
+    }
     
     return () => {
-      if (authListener?.data?.subscription) {
-        authListener.data.subscription.unsubscribe()
+      try {
+        if (authListener?.data?.subscription) {
+          authListener.data.subscription.unsubscribe()
+        }
+      } catch (error) {
+        console.error('Error unsubscribing from auth listener:', error)
       }
     }
   }, [])

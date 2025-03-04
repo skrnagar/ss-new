@@ -73,7 +73,10 @@ export default function LoginPage() {
         description: "Redirecting to your dashboard...",
       })
       
-      setTimeout(() => router.push("/feed"), 1500)
+      // Use a shorter timeout and ensure the page refreshes
+      setTimeout(() => {
+        window.location.href = "/feed";
+      }, 800)
     } catch (error) {
       toast({
         title: "An error occurred",
@@ -116,7 +119,10 @@ export default function LoginPage() {
       // If email verification is not required, redirect to profile setup
       if (!data.session) return
       
-      setTimeout(() => router.push("/profile/setup"), 1500)
+      // Use a shorter timeout and ensure the page refreshes
+      setTimeout(() => {
+        window.location.href = "/profile/setup";
+      }, 800)
     } catch (error) {
       toast({
         title: "An error occurred",

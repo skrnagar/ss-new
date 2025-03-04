@@ -2,6 +2,9 @@
 // This is a mock implementation for development
 // Replace with actual Supabase client when you have your credentials
 
+// Create a custom event system to simulate Supabase auth state changes
+const authStateChangeEvent = new EventTarget();
+
 const mockSupabase = {
   auth: {
     signInWithPassword: async ({ email, password }: { email: string; password: string }) => {
@@ -9,6 +12,11 @@ const mockSupabase = {
       // Store mock session in localStorage for persistence
       const user = { email, id: '123', user_metadata: { name: 'Demo User' } };
       localStorage.setItem('mockAuthSession', JSON.stringify(user));
+      
+      // Dispatch auth state change event
+      const event = new CustomEvent('SIGNED_IN', { detail: { user } });
+      authStateChangeEvent.dispatchEvent(event);
+      
       return { 
         data: { 
           session: { user } 
@@ -21,6 +29,11 @@ const mockSupabase = {
       // Store mock session in localStorage for persistence
       const user = { email, id: '123', user_metadata: options?.data || {} };
       localStorage.setItem('mockAuthSession', JSON.stringify(user));
+      
+      // Dispatch auth state change event
+      const event = new CustomEvent('SIGNED_IN', { detail: { user } });
+      authStateChangeEvent.dispatchEvent(event);
+      
       return { 
         data: { 
           session: { user } 
@@ -31,11 +44,33 @@ const mockSupabase = {
     signInWithOAuth: async ({ provider, options }: any) => {
       console.log('Mock OAuth sign in with:', provider);
       // In a real implementation, this would redirect to the OAuth provider
+      
+      // Create a mock user for the OAuth provider
+      const user = { 
+        email: `user@${provider}.com`, 
+        id: '123', 
+        user_metadata: { 
+          name: `${provider.charAt(0).toUpperCase() + provider.slice(1)} User`,
+          avatar_url: '/placeholder-user.jpg'
+        } 
+      };
+      
+      localStorage.setItem('mockAuthSession', JSON.stringify(user));
+      
+      // Dispatch auth state change event
+      const event = new CustomEvent('SIGNED_IN', { detail: { user } });
+      authStateChangeEvent.dispatchEvent(event);
+      
       window.location.href = '/feed';
       return { error: null };
     },
     signOut: async () => {
       localStorage.removeItem('mockAuthSession');
+      
+      // Dispatch auth state change event
+      const event = new CustomEvent('SIGNED_OUT', { detail: null });
+      authStateChangeEvent.dispatchEvent(event);
+      
       return { error: null };
     },
     getSession: async () => {
@@ -55,11 +90,27 @@ const mockSupabase = {
         }
       }, 100);
       
+      // Set up listeners for the auth state change events
+      const signedInHandler = (e: any) => {
+        callback('SIGNED_IN', { user: e.detail.user });
+      };
+      
+      const signedOutHandler = () => {
+        callback('SIGNED_OUT', null);
+      };
+      
+      authStateChangeEvent.addEventListener('SIGNED_IN', signedInHandler);
+      authStateChangeEvent.addEventListener('SIGNED_OUT', signedOutHandler);
+      
       // Return an object that matches the expected structure
       return { 
         data: { 
           subscription: { 
-            unsubscribe: () => console.log('Unsubscribed from auth state') 
+            unsubscribe: () => {
+              authStateChangeEvent.removeEventListener('SIGNED_IN', signedInHandler);
+              authStateChangeEvent.removeEventListener('SIGNED_OUT', signedOutHandler);
+              console.log('Unsubscribed from auth state');
+            } 
           } 
         } 
       };
