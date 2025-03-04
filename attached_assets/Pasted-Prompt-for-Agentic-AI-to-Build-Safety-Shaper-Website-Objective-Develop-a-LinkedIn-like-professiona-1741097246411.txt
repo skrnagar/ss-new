@@ -1,0 +1,187 @@
+Prompt for Agentic AI to Build Safety Shaper Website
+
+Objective:
+Develop a LinkedIn-like professional networking platform, Safety Shaper, for ESG (Environmental, Social, and Governance) and EHS (Environment, Health, and Safety) professionals. The platform will facilitate networking, knowledge sharing, job opportunities, compliance management, and community engagement.
+
+1. Core Modules & Features
+
+A. User Authentication & Profiles
+
+Login/Registration:
+
+Users can sign up using email/password, Google/LinkedIn sign-in, or OTP verification.
+
+Account types: Job Seeker, Recruiter, or Audit Specialist.
+
+Profile completion with certifications, work experience, skills, and bio.
+
+Profile Page:
+
+Dynamic activity feed displaying posts, contributions, and engagement.
+
+Dedicated sections for certifications, skills, and work history.
+
+B. Social Networking & Community
+
+Feed Page:
+
+Users can post blogs, photos, or videos (moderation applied to prevent inappropriate content).
+
+Engagement features: Likes, comments, shares, and trending hashtags (e.g., #ESGCompliance).
+
+Connections:
+
+Users can search and connect with professionals.
+
+Direct messaging feature for collaboration.
+
+Groups:
+
+Users can join or create industry-specific groups (e.g., "Renewable Energy Compliance").
+
+Admin/moderator controls for managing discussions.
+
+C. Knowledge Center
+
+Resource Library:
+
+Categorized documents including HIRA, JSA, Safety Plans, and Regulations.
+
+Filter documents by type and industry.
+
+Users can download, share, and rate resources.
+
+D. Job Portal
+
+Job Listings:
+
+Recruiters can post jobs; seekers can filter by location, salary, or keywords.
+
+ATS Integration for tracking applications and scheduling interviews.
+
+AI-powered job recommendations based on user profiles.
+
+E. Reward System
+
+Users earn points for engagement (posts, comments, and resource uploads).
+
+Profile badges (e.g., "Top Contributor").
+
+Leaderboard showcasing top contributors.
+
+F. Audit & Compliance Tools
+
+Audit Specialists can upload reports and monitor compliance using in-app checklists.
+
+Real-time compliance status with Red/Green indicators.
+
+Automated compliance alerts and reminders.
+
+2. UI/UX Design & Flow
+
+A. Color Scheme
+
+Primary Colors:
+
+Blue (#2A5CAA) - Trust (headers, navigation)
+
+Green (#4CAF50) - Sustainability (buttons, highlights)
+
+Secondary Colors:
+
+White (#FFFFFF) - Background
+
+Dark Gray (#333333) - Text
+
+Light Gray (#F5F5F5) - Dividers
+
+B. Typography
+
+Font: Inter/Roboto (modern and clean)
+
+Sizes:
+
+Headers: 24px (H1), 20px (H2)
+
+Body: 16px; Subtle Text: 14px (light gray)
+
+C. Key Screens
+
+Login Page:
+
+Dark blue header, white background, social sign-in icons, green CTA buttons.
+
+Home Page:
+
+Navigation bar (Feed, Jobs, Knowledge Center, Groups).
+
+Trending hashtags (blue), "Create Post" button (green).
+
+Knowledge Center:
+
+Grid layout with icons for different document types.
+
+Search bar with auto-suggestions.
+
+Job Portal:
+
+Location toggle, filters, and job cards with "Apply Now" (green button).
+
+AI-powered job matching recommendations.
+
+D. Graphics & Icons
+
+Custom flat-design icons (e.g., briefcase for Jobs, leaf for Sustainability).
+
+Eco-themed illustrations for empty states (e.g., "No search results found").
+
+3. Technical Requirements
+
+Scalability:
+
+Initial capacity for 100,000 users.
+
+Future scalability for up to 10 million users.
+
+Cloud-based backend (AWS/Google Cloud).
+
+Performance:
+
+Optimized images, lazy loading, and CDN for global access.
+
+Security:
+
+OTP verification and encrypted data storage.
+
+Two-factor authentication for enhanced security.
+
+4. Vendor Deliverables
+
+Wireframes:
+
+Visual designs for all key screens (login, home, knowledge center, job portal).
+
+Tech Stack Proposal:
+
+Recommended stack: Frontend (React/Angular), Backend (Node.js/Python), Database (PostgreSQL/MongoDB).
+
+Timeline & Cost:
+
+Phased development plan with milestones (e.g., MVP in 3 months).
+
+API Integration Plan:
+
+Strategy for integrating third-party services (e.g., LinkedIn, Google Auth, ATS systems).
+
+5. Next Steps
+
+Finalize color codes and typography.
+
+Review wireframes for user flow consistency.
+
+Validate cloud architecture for scalability.
+
+Plan user testing and gather feedback before full deployment.
+
+This prompt ensures clarity in design, functionality, and technical expectations for developing Safety Shaper. Let me know if further refinements are needed!
+
