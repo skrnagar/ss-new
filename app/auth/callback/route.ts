@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url)
   const searchParams = requestUrl.searchParams
   const code = searchParams.get('code')
-  const redirectUrl = searchParams.get('redirectUrl') || '/feed'
+  const redirectTo = searchParams.get('redirectTo') || '/feed'
   
   // If there is no code, something went wrong with the OAuth process
   if (!code) {
@@ -30,28 +30,23 @@ export async function GET(request: NextRequest) {
       throw error
     }
 
-    // Make sure to encode any special characters in the URL
-    let finalRedirectUrl = '/feed'
-    if (redirectUrl) {
-      try {
-        // Handle redirectUrl properly
-        finalRedirectUrl = decodeURIComponent(redirectUrl)
-      } catch (e) {
-        console.error('Error decoding redirectUrl:', e)
-      }
-    }
-
-    console.log('Auth callback successful, redirecting to:', finalRedirectUrl)
+    // Successfully exchanged code for session - redirect to the intended URL
+    console.log('Authentication successful, redirecting to:', redirectTo)
     
-    // Set no-store header to prevent caching
-    const response = NextResponse.redirect(new URL(finalRedirectUrl, requestUrl.origin))
-    response.headers.set('Cache-Control', 'no-store, max-age=0')
+    // Ensure the redirect URL is properly decoded
+    const decodedRedirectTo = decodeURIComponent(redirectTo)
     
-    return response
+    // Create a response that redirects to the decoded URL
+    const redirectResponse = NextResponse.redirect(new URL(decodedRedirectTo, requestUrl.origin))
+    
+    // Ensure no caching
+    redirectResponse.headers.set('Cache-Control', 'no-store, max-age=0')
+    
+    return redirectResponse
   } catch (error) {
-    console.error('Error in callback:', error)
+    console.error('Error in auth callback:', error)
     return NextResponse.redirect(
-      new URL(`/auth/login?error=Something+went+wrong`, requestUrl.origin)
+      new URL(`/auth/login?error=${encodeURIComponent(error.message || 'Unknown error')}`, requestUrl.origin)
     )
   }
 }
