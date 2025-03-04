@@ -85,14 +85,26 @@ export function Navbar() {
 
   const handleSignOut = async () => {
     try {
-      await supabase.auth.signOut()
-      toast({
-        title: "Signed out successfully",
-      })
-
-      // Use replace to completely reset navigation history
-      router.replace('/')
+      // Call the server-side signout API
+      const response = await fetch('/api/auth/signout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (response.ok) {
+        toast({
+          title: "Signed out successfully",
+        })
+        
+        // Use replace to completely reset navigation history
+        router.replace('/')
+      } else {
+        throw new Error('Sign out failed')
+      }
     } catch (error) {
+      console.error('Sign out error:', error)
       toast({
         title: "Sign out failed",
         variant: "destructive"
