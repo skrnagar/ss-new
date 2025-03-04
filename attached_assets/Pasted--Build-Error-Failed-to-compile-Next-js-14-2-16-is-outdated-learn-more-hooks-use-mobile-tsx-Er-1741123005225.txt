@@ -1,0 +1,102 @@
+
+Build Error
+Failed to compile
+
+Next.js (14.2.16) is outdated (learn more)
+./hooks/use-mobile.tsx
+Error: 
+  × the name `useState` is defined multiple times
+    ╭─[/home/runner/workspace/hooks/use-mobile.tsx:1:1]
+  1 │ 
+  2 │ "use client"
+  3 │ 
+  4 │ import { useState, useEffect } from 'react'
+    ·          ────┬───
+    ·              ╰── previous definition of `useState` here
+  5 │ 
+  6 │ export function useIsMobile() {
+  7 │   const [isMobile, setIsMobile] = useState(false)
+  8 │ 
+  9 │   useEffect(() => {
+ 10 │     // Handler to call on window resize
+ 11 │     function handleResize() {
+ 12 │       setIsMobile(window.innerWidth < 768)
+ 13 │     }
+ 14 │     
+ 15 │     // Add event listener
+ 16 │     window.addEventListener('resize', handleResize)
+ 17 │     
+ 18 │     // Call handler right away so state gets updated with initial window size
+ 19 │     handleResize()
+ 20 │     
+ 21 │     // Remove event listener on cleanup
+ 22 │     return () => window.removeEventListener('resize', handleResize)
+ 23 │   }, [])
+ 24 │ 
+ 25 │   return isMobile
+ 26 │ }
+ 27 │ 
+ 28 │ export default useIsMobile
+ 29 │ "use client"
+ 30 │ 
+ 31 │ import { useState, useEffect } from "react"
+    ·          ────┬───
+    ·              ╰── `useState` redefined here
+ 32 │ 
+ 33 │ export function useMobile() {
+ 34 │   const [isMobile, setIsMobile] = useState(false)
+    ╰────
+
+  × the name `useEffect` is defined multiple times
+    ╭─[/home/runner/workspace/hooks/use-mobile.tsx:1:1]
+  1 │ 
+  2 │ "use client"
+  3 │ 
+  4 │ import { useState, useEffect } from 'react'
+    ·                    ────┬────
+    ·                        ╰── previous definition of `useEffect` here
+  5 │ 
+  6 │ export function useIsMobile() {
+  7 │   const [isMobile, setIsMobile] = useState(false)
+  8 │ 
+  9 │   useEffect(() => {
+ 10 │     // Handler to call on window resize
+ 11 │     function handleResize() {
+ 12 │       setIsMobile(window.innerWidth < 768)
+ 13 │     }
+ 14 │     
+ 15 │     // Add event listener
+ 16 │     window.addEventListener('resize', handleResize)
+ 17 │     
+ 18 │     // Call handler right away so state gets updated with initial window size
+ 19 │     handleResize()
+ 20 │     
+ 21 │     // Remove event listener on cleanup
+ 22 │     return () => window.removeEventListener('resize', handleResize)
+ 23 │   }, [])
+ 24 │ 
+ 25 │   return isMobile
+ 26 │ }
+ 27 │ 
+ 28 │ export default useIsMobile
+ 29 │ "use client"
+ 30 │ 
+ 31 │ import { useState, useEffect } from "react"
+    ·                    ────┬────
+    ·                        ╰── `useEffect` redefined here
+ 32 │ 
+ 33 │ export function useMobile() {
+ 34 │   const [isMobile, setIsMobile] = useState(false)
+    ╰────
+
+  × The "use client" directive must be placed before other expressions. Move it to the top of the file to resolve this issue.
+    ╭─[/home/runner/workspace/hooks/use-mobile.tsx:26:1]
+ 26 │ }
+ 27 │ 
+ 28 │ export default useIsMobile
+ 29 │ "use client"
+    · ────────────
+ 30 │ 
+ 31 │ import { useState, useEffect } from "react"
+    ╰────
+This error occurred during the build process and can only be dismissed by fixing the error.
