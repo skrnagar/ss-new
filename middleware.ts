@@ -48,9 +48,31 @@ export async function middleware(request: NextRequest) {
     console.log('Middleware - Path:', path, 'Authenticated:', isAuthenticated, 'User ID:', userId || 'none')
     
     // Check if the route is protected and user is not authenticated
+    const protectedRoutes = ['/feed', '/profile', '/messages', '/notifications', '/settings', '/network', '/jobs', '/groups', '/knowledge', '/compliance']
+    
     const isProtectedRoute = protectedRoutes.some(route => 
       path === route || path.startsWith(`${route}/`)
     )
+    
+    // If this is a protected route and user is not authenticated, redirect to login
+    if (isProtectedRoute && !isAuthenticated) {
+      // Encode the current path to use as a redirect URL after login
+      const encodedRedirectUrl = encodeURIComponent(path)
+      const redirectUrl = `/auth/login?redirectUrl=${encodedRedirectUrl}`
+      
+      console.log(`Redirecting unauthenticated user from protected route to: ${redirectUrl}`)
+      return NextResponse.redirect(new URL(redirectUrl, request.url))
+    }
+    
+    return response
+  } catch (error) {
+    console.error('Middleware error:', error)
+    return response
+  }
+}
+
+import { NextResponse, NextRequest } from 'next/server'
+import { createMiddlewareClient } from '@supabase/auth-helpers-nextjs'
     
     if (isProtectedRoute && !isAuthenticated) {
       // Store the original URL to redirect back after login

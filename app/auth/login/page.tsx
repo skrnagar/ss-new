@@ -14,8 +14,10 @@ import { Mail, Lock, Github, Linkedin } from "lucide-react"
 import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useToast } from "@/hooks/use-toast"
-import { supabase } from "@/lib/supabase"
+import { supabaseClient } from "@/lib/supabase" // Assuming supabaseClient is exported correctly
 import { useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
+
 
 const formSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
@@ -33,6 +35,7 @@ export default function LoginPage() {
   const { toast } = useToast()
   const [loading, setLoading] = React.useState(false)
   const [redirectUrl, setRedirectUrl] = useState('/feed'); // Default redirect
+  const searchParams = useSearchParams()
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -61,10 +64,16 @@ export default function LoginPage() {
     },
   })
 
+  const getSupabase = () => {
+    //Potentially add logic to re-initialize supabase if needed.  This depends on your supabaseClient implementation.
+    return supabaseClient;
+  };
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setLoading(true)
 
     try {
+      const supabase = getSupabase();
       const { data, error } = await supabase.auth.signInWithPassword({
         email: values.email,
         password: values.password,
@@ -100,6 +109,7 @@ export default function LoginPage() {
     setLoading(true)
 
     try {
+      const supabase = getSupabase();
       const { data, error } = await supabase.auth.signUp({
         email: values.email,
         password: values.password,
@@ -140,27 +150,18 @@ export default function LoginPage() {
   }
 
   // Handle OAuth sign in
-  const handleOAuthSignIn = async (provider: any) => { // Added type any as Provider is not defined
+  const handleOAuthSignIn = async (provider: string) => {
     setLoading(true)
-    const searchParams = new URLSearchParams(window.location.search);
 
     try {
-      // Get the redirect URL from the query parameters or default to feed
-      let redirectUrl = searchParams.get('redirectUrl') || '/feed'
-      const encodedRedirectUrl = encodeURIComponent(redirectUrl);
-
-      const callbackUrl = new URL('/auth/callback', window.location.origin)
-      callbackUrl.searchParams.set('redirectUrl', encodedRedirectUrl);
-      callbackUrl.searchParams.set('access_type', 'offline'); //Add access_type for offline access
-      callbackUrl.searchParams.set('prompt', 'consent'); //Add prompt for consent
-
-
-      console.log('OAuth Sign In - Callback URL:', callbackUrl.toString())
+      const supabase = getSupabase();
+      // Include the redirectUrl in the callback
+      const callbackUrl = `${window.location.origin}/auth/callback?redirectUrl=${encodeURIComponent(redirectUrl)}`
 
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: callbackUrl.toString(),
+          redirectTo: callbackUrl,
         }
       })
 

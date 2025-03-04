@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { supabase } from "@/lib/supabase"
+import { getSupabase } from "@/lib/supabase"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import {
@@ -40,6 +40,7 @@ export function Navbar() {
 
   useEffect(() => {
     let isMounted = true;
+    const supabase = getSupabase();
     
     // Initialize with current session
     const initializeAuth = async () => {
@@ -113,6 +114,7 @@ export function Navbar() {
 
   const handleSignOut = async () => {
     try {
+      const supabase = getSupabase()
       await supabase.auth.signOut()
       toast({
         title: "Signed out successfully",

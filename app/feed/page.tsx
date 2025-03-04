@@ -1,105 +1,78 @@
-import { createClient } from '@/lib/supabase-server'
-import { redirect } from 'next/navigation'
+"use client"
 
-export default async function FeedPage() {
-  // Verify the user is authenticated server-side
-  const supabase = createClient()
-  const { data: { session } } = await supabase.auth.getSession()
+import { useEffect, useState } from "react"
+import { getSupabase } from "@/lib/supabase"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Skeleton } from "@/components/ui/skeleton"
 
-  if (!session) {
-    redirect('/auth/login?redirectUrl=/feed')
+export default function Feed() {
+  const [user, setUser] = useState(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const supabase = getSupabase()
+
+    const fetchUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+      setUser(session?.user || null)
+      setLoading(false)
+    }
+
+    fetchUser()
+  }, [])
+
+  if (loading) {
+    return (
+      <div className="container max-w-4xl py-8">
+        <h1 className="text-3xl font-bold mb-8">Feed</h1>
+        <div className="space-y-6">
+          {[1, 2, 3].map((i) => (
+            <Card key={i} className="w-full">
+              <CardHeader className="flex flex-row items-center gap-4">
+                <Skeleton className="h-12 w-12 rounded-full" />
+                <div className="space-y-2">
+                  <Skeleton className="h-4 w-[150px]" />
+                  <Skeleton className="h-4 w-[100px]" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <Skeleton className="h-4 w-full mb-2" />
+                <Skeleton className="h-4 w-full mb-2" />
+                <Skeleton className="h-4 w-2/3" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    )
   }
 
-  // Now we know the user is authenticated
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', session.user.id)
-    .single()
-
   return (
-    <div className="container mx-auto py-8">
-      <h1 className="text-3xl font-bold mb-6">Your Feed</h1>
-
-      <div className="bg-card rounded-lg p-6 mb-6 shadow-sm">
-        <h2 className="text-2xl font-semibold mb-2">Welcome, {profile?.name || session.user.email}</h2>
-        <p className="text-muted-foreground">
-          This is your personalized feed where you'll see updates from your network and relevant industry news.
-        </p>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="md:col-span-2 space-y-6">
-          {/* Feed content would go here */}
-          <div className="bg-card rounded-lg p-6 shadow-sm">
-            <div className="flex items-center mb-4">
-              <div className="w-10 h-10 rounded-full bg-muted mr-3"></div>
-              <div>
-                <h3 className="font-semibold">Sample Post Author</h3>
-                <p className="text-sm text-muted-foreground">ESG Consultant at Company</p>
-              </div>
+    <div className="container max-w-4xl py-8">
+      <h1 className="text-3xl font-bold mb-8">Feed</h1>
+      <div className="space-y-6">
+        <Card>
+          <CardHeader className="flex flex-row items-center gap-4">
+            <Avatar className="h-12 w-12">
+              <AvatarImage 
+                src={user?.user_metadata?.avatar_url || user?.user_metadata?.picture || "/placeholder-user.jpg"} 
+                alt={user?.user_metadata?.name || user?.email?.split('@')[0] || 'User'}
+              />
+              <AvatarFallback>
+                {user?.user_metadata?.name?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || 'U'}
+              </AvatarFallback>
+            </Avatar>
+            <div>
+              <CardTitle className="text-lg">{user?.user_metadata?.name || user?.email?.split('@')[0] || 'User'}</CardTitle>
+              <p className="text-muted-foreground text-sm">Welcome to your feed!</p>
             </div>
-            <p className="mb-4">
-              This is an example post that would appear in your feed. It could be an article, question, or update from someone in your network.
-            </p>
-            <div className="flex justify-between text-sm text-muted-foreground">
-              <div>Like • Comment • Share</div>
-              <div>2 hours ago</div>
-            </div>
-          </div>
-
-          <div className="bg-card rounded-lg p-6 shadow-sm">
-            <div className="flex items-center mb-4">
-              <div className="w-10 h-10 rounded-full bg-muted mr-3"></div>
-              <div>
-                <h3 className="font-semibold">Another Sample Author</h3>
-                <p className="text-sm text-muted-foreground">Health & Safety Manager</p>
-              </div>
-            </div>
-            <p className="mb-4">
-              Here's another example post showing what content might look like in the feed.
-            </p>
-            <div className="flex justify-between text-sm text-muted-foreground">
-              <div>Like • Comment • Share</div>
-              <div>5 hours ago</div>
-            </div>
-          </div>
-        </div>
-
-        <div className="space-y-6">
-          <div className="bg-card rounded-lg p-6 shadow-sm">
-            <h3 className="font-semibold mb-4">Suggested Connections</h3>
-            <div className="space-y-4">
-              <div className="flex items-center">
-                <div className="w-8 h-8 rounded-full bg-muted mr-3"></div>
-                <div className="flex-1">
-                  <p className="font-medium">Jane Smith</p>
-                  <p className="text-xs text-muted-foreground">EHS Director</p>
-                </div>
-                <button className="text-xs text-primary font-medium">Connect</button>
-              </div>
-
-              <div className="flex items-center">
-                <div className="w-8 h-8 rounded-full bg-muted mr-3"></div>
-                <div className="flex-1">
-                  <p className="font-medium">John Doe</p>
-                  <p className="text-xs text-muted-foreground">Sustainability Lead</p>
-                </div>
-                <button className="text-xs text-primary font-medium">Connect</button>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-card rounded-lg p-6 shadow-sm">
-            <h3 className="font-semibold mb-4">Trending Topics</h3>
-            <div className="space-y-2">
-              <p className="text-sm">#SustainableDevelopment</p>
-              <p className="text-sm">#WorkplaceSafety</p>
-              <p className="text-sm">#ESGReporting</p>
-              <p className="text-sm">#ClimateAction</p>
-            </div>
-          </div>
-        </div>
+          </CardHeader>
+          <CardContent>
+            <p>Your feed is currently empty. This is where you'll see updates from your connections and groups.</p>
+          </CardContent>
+        </Card>
       </div>
     </div>
   )

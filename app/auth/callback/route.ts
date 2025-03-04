@@ -44,6 +44,14 @@ export async function GET(request: Request) {
           .select('*')
           .eq('id', session.user.id)
           .single()
+          
+        // Redirect to the destination URL
+        console.log('Redirecting to:', redirectUrl)
+        return NextResponse.redirect(new URL(redirectUrl, requestUrl.origin))
+      } else {
+        console.error('No session established in callback')
+        return NextResponse.redirect(new URL('/', requestUrl.origin))
+      }
 
         // If the profile doesn't exist, create it
         if (!profile) {
