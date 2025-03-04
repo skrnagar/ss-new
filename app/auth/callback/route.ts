@@ -7,6 +7,8 @@ import type { NextRequest } from 'next/server'
 export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url)
   const code = requestUrl.searchParams.get('code')
+  
+  // Default to feed if no redirectUrl specified
   const redirectTo = requestUrl.searchParams.get('redirectUrl') || '/feed'
 
   if (code) {
@@ -20,6 +22,10 @@ export async function GET(request: NextRequest) {
     console.log('Successfully authenticated user, redirecting to:', redirectTo)
   }
 
-  // Redirect to the feed or original requested page
-  return NextResponse.redirect(new URL(redirectTo, request.url))
+  // Redirect to destination with cache headers to prevent caching
+  return NextResponse.redirect(new URL(redirectTo, request.url), {
+    headers: {
+      'Cache-Control': 'no-store, max-age=0',
+    },
+  })
 }

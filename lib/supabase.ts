@@ -28,10 +28,21 @@ if (typeof window !== 'undefined') {
       const pathName = window.location.pathname
       const protectedRoutes = ['/feed', '/profile', '/jobs', '/groups', '/knowledge', '/messages', '/notifications']
       
-      // If we're on a protected route, refresh the page to apply middleware
+      // If we're on a login page or home page, navigate to feed
+      if (pathName === '/' || pathName === '/auth/login' || pathName.includes('/auth/')) {
+        console.log('Redirecting to feed after sign in')
+        window.location.href = '/feed'
+        return
+      }
+      
+      // If we're already on a protected route, refresh the page
       if (protectedRoutes.some(route => pathName === route || pathName.startsWith(`${route}/`))) {
+        console.log('Already on protected route, refreshing')
         window.location.reload()
       }
+    } else if (event === 'SIGNED_OUT') {
+      // Redirect to home page on sign out
+      window.location.href = '/'
     }
   })
 }

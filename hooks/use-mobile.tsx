@@ -9,17 +9,17 @@ export function useMobile() {
   const [isMobile, setIsMobile] = React.useState<boolean | undefined>(undefined)
 
   React.useEffect(() => {
-    // Function to check if the window width is below the mobile breakpoint
+    // Initial check
     const checkMobile = () => {
       setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
     }
-
-    // Initial check
+    
+    // Set initial value
     checkMobile()
-
-    // Add event listener for window resize
+    
+    // Add resize listener
     window.addEventListener("resize", checkMobile)
-
+    
     // Clean up
     return () => window.removeEventListener("resize", checkMobile)
   }, [])

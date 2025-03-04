@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect } from "react"
@@ -6,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { supabase } from "@/lib/supabase"
+import { useToast } from "@/hooks/use-toast"
 import {
   ThumbsUp,
   MessageSquare,
@@ -20,7 +22,6 @@ import {
 } from "lucide-react"
 
 export default function FeedPage() {
-  const router = useRouter()
   const [posts, setPosts] = useState([
     {
       id: 1,
@@ -28,54 +29,77 @@ export default function FeedPage() {
       role: "ESG Compliance Manager",
       company: "GreenTech Solutions",
       location: "San Francisco, CA",
-      time: "2 hours ago",
+      time: "2h ago",
       content:
-        "Just completed our quarterly sustainability report. Proud to announce we've reduced our carbon footprint by 15% this quarter! #Sustainability #ESG",
-      likes: 24,
-      comments: 5,
-      shares: 2,
-    },
-    {
-      id: 2,
-      author: "David Chen",
-      role: "Health & Safety Director",
-      company: "Construction Corp",
-      location: "Chicago, IL",
-      time: "1 day ago",
-      content:
-        "Excited to share our new safety protocol that has reduced workplace incidents by 30% this year. Implementing a proactive safety culture really makes a difference! #WorkplaceSafety #EHS",
+        "Just published our latest sustainability report. Proud to share that we've reduced our carbon footprint by 30% this year! #ESG #Sustainability",
       likes: 42,
       comments: 8,
       shares: 12,
+    },
+    {
+      id: 2,
+      author: "Michael Chen",
+      role: "Health & Safety Director",
+      company: "BuildRight Construction",
+      location: "Chicago, IL",
+      time: "5h ago",
+      content:
+        "Excited to announce that we've reached 500 days without a safety incident across all our project sites! This is a testament to our robust safety culture and protocols. #SafetyFirst #EHS",
+      likes: 78,
+      comments: 15,
+      shares: 23,
+    },
+    {
+      id: 3,
+      author: "Emily Rodriguez",
+      role: "Environmental Specialist",
+      company: "EcoSystems Inc.",
+      location: "Austin, TX",
+      time: "1d ago",
+      content:
+        "Looking for recommendations on the best environmental compliance tracking software for a mid-sized manufacturing company. What's everyone using these days?",
+      likes: 12,
+      comments: 32,
+      shares: 3,
     },
   ])
   const [newPost, setNewPost] = useState("")
   const [loading, setLoading] = useState(true)
   const [user, setUser] = useState(null)
+  const router = useRouter()
+  const { toast } = useToast()
 
   useEffect(() => {
-    const checkUser = async () => {
-      const { data } = await supabase.auth.getSession()
-      if (!data.session) {
-        router.push('/auth/login')
-      } else {
-        setUser(data.session.user)
+    async function checkUser() {
+      try {
+        const { data: { session } } = await supabase.auth.getSession()
+        
+        if (!session) {
+          // If no session, redirect to login
+          router.replace('/auth/login?redirectUrl=/feed')
+          return
+        }
+        
+        setUser(session.user)
+        setLoading(false)
+      } catch (error) {
+        console.error('Error checking auth status:', error)
         setLoading(false)
       }
     }
-
+    
     checkUser()
   }, [router])
 
-  const handlePost = () => {
+  const handleNewPost = () => {
     if (!newPost.trim()) return
-
-    const post = {
-      id: posts.length + 1,
-      author: user?.user_metadata?.name || "Current User",
-      role: user?.user_metadata?.role || "Professional",
-      company: user?.user_metadata?.company || "",
-      location: user?.user_metadata?.location || "",
+    
+    const userPost = {
+      id: Math.floor(Math.random() * 10000),
+      author: user?.user_metadata?.name || user?.email?.split('@')[0] || "User",
+      role: "ESG Professional",
+      company: "Company Name",
+      location: "Location",
       time: "Just now",
       content: newPost,
       likes: 0,
@@ -83,112 +107,93 @@ export default function FeedPage() {
       shares: 0,
     }
 
-    setPosts([post, ...posts])
+    setPosts([userPost, ...posts])
     setNewPost("")
+    
+    toast({
+      title: "Post created",
+      description: "Your post has been published to the feed",
+    })
   }
 
   if (loading) {
     return (
-      <div className="container flex items-center justify-center min-h-screen">
-        <p>Loading feed...</p>
+      <div className="container mx-auto py-8">
+        <div className="flex justify-center">
+          <p>Loading...</p>
+        </div>
       </div>
     )
   }
 
   return (
-    <div className="container py-6 space-y-6">
-      {/* Create Post */}
-      <Card className="border border-border">
+    <div className="container mx-auto py-8">
+      <Card className="mb-8">
         <CardContent className="pt-6">
-          <div className="flex space-x-4">
-            <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
-              <User className="h-6 w-6 text-muted-foreground" />
+          <Input
+            placeholder="Share an update or insight..."
+            value={newPost}
+            onChange={(e) => setNewPost(e.target.value)}
+            className="mb-4"
+          />
+          <div className="flex justify-between items-center">
+            <div className="flex space-x-4">
+              <Button variant="ghost" size="sm">
+                <Image className="mr-2 h-4 w-4" />
+                Photo
+              </Button>
+              <Button variant="ghost" size="sm">
+                <Video className="mr-2 h-4 w-4" />
+                Video
+              </Button>
+              <Button variant="ghost" size="sm">
+                <FileText className="mr-2 h-4 w-4" />
+                Document
+              </Button>
             </div>
-            <div className="flex-1">
-              <Input
-                placeholder="Share an update or insight..."
-                className="bg-muted"
-                value={newPost}
-                onChange={(e) => setNewPost(e.target.value)}
-              />
-            </div>
+            <Button onClick={handleNewPost} disabled={!newPost.trim()}>
+              Post
+            </Button>
           </div>
         </CardContent>
-        <CardFooter className="border-t flex justify-between pt-4">
-          <div className="flex space-x-2">
-            <Button variant="ghost" size="sm" className="flex items-center">
-              <Image className="mr-2 h-4 w-4" />
-              Photo
-            </Button>
-            <Button variant="ghost" size="sm" className="flex items-center">
-              <Video className="mr-2 h-4 w-4" />
-              Video
-            </Button>
-            <Button variant="ghost" size="sm" className="flex items-center">
-              <FileText className="mr-2 h-4 w-4" />
-              Document
-            </Button>
-          </div>
-          <Button onClick={handlePost} disabled={!newPost.trim()}>
-            Post
-          </Button>
-        </CardFooter>
       </Card>
 
-      {/* Feed */}
-      <div className="space-y-4">
-        {posts.map((post) => (
-          <Card key={post.id} className="border border-border">
-            <CardContent className="pt-6">
-              <div className="flex space-x-4">
-                <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
-                  <User className="h-6 w-6 text-muted-foreground" />
-                </div>
-                <div>
-                  <div className="font-semibold">{post.author}</div>
-                  <div className="text-sm text-muted-foreground">{post.role}</div>
-                  <div className="flex items-center text-xs text-muted-foreground space-x-2 mt-1">
-                    {post.company && (
-                      <div className="flex items-center">
-                        <Briefcase className="mr-1 h-3 w-3" />
-                        {post.company}
-                      </div>
-                    )}
-                    {post.location && (
-                      <div className="flex items-center">
-                        <MapPin className="mr-1 h-3 w-3" />
-                        {post.location}
-                      </div>
-                    )}
-                    <div className="flex items-center">
-                      <Calendar className="mr-1 h-3 w-3" />
-                      {post.time}
-                    </div>
-                  </div>
+      {posts.map((post) => (
+        <Card key={post.id} className="mb-6">
+          <CardContent className="pt-6">
+            <div className="flex items-start space-x-4 mb-4">
+              <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
+                <User className="h-6 w-6 text-gray-500" />
+              </div>
+              <div>
+                <div className="font-medium">{post.author}</div>
+                <div className="text-sm text-muted-foreground">{post.role} at {post.company}</div>
+                <div className="flex items-center text-xs text-muted-foreground">
+                  <MapPin className="mr-1 h-3 w-3" />
+                  {post.location} · <Calendar className="mx-1 h-3 w-3" /> {post.time}
                 </div>
               </div>
-              <div className="mt-4">{post.content}</div>
-            </CardContent>
-            <CardFooter className="border-t flex justify-between pt-4">
-              <Button variant="ghost" size="sm" className="flex items-center">
+            </div>
+            <p className="mb-4">{post.content}</p>
+          </CardContent>
+          <CardFooter className="border-t px-6 py-3">
+            <div className="flex justify-between w-full">
+              <Button variant="ghost" size="sm">
                 <ThumbsUp className="mr-2 h-4 w-4" />
-                {post.likes > 0 && <span>{post.likes}</span>}
-                <span className="ml-1">Like</span>
+                {post.likes > 0 && post.likes}
               </Button>
-              <Button variant="ghost" size="sm" className="flex items-center">
+              <Button variant="ghost" size="sm">
                 <MessageSquare className="mr-2 h-4 w-4" />
-                {post.comments > 0 && <span>{post.comments}</span>}
-                <span className="ml-1">Comment</span>
+                {post.comments > 0 && post.comments}
               </Button>
-              <Button variant="ghost" size="sm" className="flex items-center">
+              <Button variant="ghost" size="sm">
                 <Share2 className="mr-2 h-4 w-4" />
-                {post.shares > 0 && <span>{post.shares}</span>}
-                <span className="ml-1">Share</span>
+                {post.shares > 0 && post.shares}
               </Button>
-            </CardFooter>
-          </Card>
-        ))}
-      </div>
+            </div>
+          </CardFooter>
+        </Card>
+      ))}
     </div>
   )
 }
