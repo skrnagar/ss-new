@@ -20,7 +20,7 @@ export async function middleware(req: NextRequest) {
   // Create a Supabase client specific to this middleware
   const supabase = createMiddlewareClient({ req, res })
   
-  // Refresh session if expired - required for Server Components
+  // Get session - avoid always refreshing unless needed
   const {
     data: { session },
   } = await supabase.auth.getSession()

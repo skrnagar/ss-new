@@ -1,12 +1,19 @@
 
-"use client"
+import { Metadata } from "next"
 
-import { ProtectedRoute } from "@/components/protected-route"
+export const metadata: Metadata = {
+  title: "Jobs | Safety Shaper",
+  description: "ESG and EHS job opportunities",
+}
 
 export default function JobsLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  return <ProtectedRoute>{children}</ProtectedRoute>
+  return (
+    <div className="container py-6 md:py-10">
+      {children}
+    </div>
+  )
 }

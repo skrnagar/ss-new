@@ -1,12 +1,19 @@
 
-"use client"
+import { Metadata } from "next"
 
-import { ProtectedRoute } from "@/components/protected-route"
+export const metadata: Metadata = {
+  title: "Knowledge | Safety Shaper",
+  description: "Knowledge resources for ESG and EHS professionals",
+}
 
 export default function KnowledgeLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  return <ProtectedRoute>{children}</ProtectedRoute>
+  return (
+    <div className="container py-6 md:py-10">
+      {children}
+    </div>
+  )
 }

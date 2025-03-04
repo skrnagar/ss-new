@@ -1,12 +1,19 @@
 
-"use client"
+import { Metadata } from "next"
 
-import { ProtectedRoute } from "@/components/protected-route"
+export const metadata: Metadata = {
+  title: "Groups | Safety Shaper",
+  description: "Community groups for ESG and EHS professionals",
+}
 
 export default function GroupsLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  return <ProtectedRoute>{children}</ProtectedRoute>
+  return (
+    <div className="container py-6 md:py-10">
+      {children}
+    </div>
+  )
 }
