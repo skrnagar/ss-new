@@ -2,6 +2,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Shield, Users, BookOpen, Briefcase, Award, ClipboardCheck, Leaf, BarChart, Heart } from "lucide-react"
+import { Shield, Users, BookOpen, Briefcase, Award, ClipboardCheck, Leaf, BarChart, Heart } from "lucide-react"
 
 export default function Home() {
   return (
@@ -18,15 +19,16 @@ export default function Home() {
                 share knowledge, advance your career, and shape a safer future.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
-                <Button size="lg" className="bg-secondary hover:bg-secondary/90 text-white">
-                  Join Now
+                <Button size="lg" className="bg-secondary hover:bg-secondary/90 text-white" asChild>
+                  <Link href="/auth/register">Join Now</Link>
                 </Button>
                 <Button
                   size="lg"
                   variant="outline"
                   className="bg-transparent text-white border-white hover:bg-white/10"
+                  asChild
                 >
-                  Learn More
+                  <Link href="#core-modules">Learn More</Link>
                 </Button>
               </div>
             </div>
@@ -99,7 +101,7 @@ export default function Home() {
       </section>
 
       {/* Core Modules Section */}
-      <section className="py-20">
+      <section id="core-modules" className="py-20">
         <div className="container">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold mb-4">Core Platform Modules</h2>
@@ -271,8 +273,8 @@ export default function Home() {
               Join thousands of ESG and EHS professionals on Safety Shaper and be part of a community dedicated to
               creating safer, more sustainable workplaces and communities.
             </p>
-            <Button size="lg" className="bg-secondary hover:bg-secondary/90 text-white">
-              Join Safety Shaper Today
+            <Button size="lg" className="bg-secondary hover:bg-secondary/90 text-white" asChild>
+              <Link href="/auth/register">Join Safety Shaper Today</Link>
             </Button>
           </div>
         </div>
