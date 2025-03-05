@@ -52,7 +52,7 @@ export default function FeedPage() {
           .from('posts')
           .select(`
             *,
-            user:user_id (
+            profile:user_id (
               id,
               username,
               full_name,
@@ -93,7 +93,7 @@ export default function FeedPage() {
           .from('posts')
           .select(`
             *,
-            user:user_id (
+            profile:user_id (
               id,
               username,
               full_name,
