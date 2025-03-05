@@ -1,3 +1,4 @@
+
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import fs from 'fs'
@@ -48,22 +49,20 @@ async function setupDatabaseHandler() {
 
       // Execute each SQL statement separately
       const sqlStatements = sql.split(';').filter(stmt => stmt.trim() !== '')
-
+      
+      let failedStatements = [];
+      
       for (const statement of sqlStatements) {
-        const { error } = await supabase.rpc('exec_sql', { 
-          sql: statement.trim() + ';' 
-        }).catch(err => {
-          // If RPC method doesn't exist, try direct query
-          return supabase.from('_').select().then(() => ({ error: null }))
-                 .catch(() => ({ error: null }))
-        })
-
-        // Try direct query execution if RPC fails
-        if (error) {
-          const { error: directError } = await supabase.query(statement.trim())
-          if (directError) {
-            console.error('Error executing SQL statement:', directError)
+        try {
+          // Try direct query execution
+          const { error } = await supabase.query(statement.trim())
+          if (error) {
+            console.error('Error executing SQL statement:', error)
+            failedStatements.push({ statement: statement.trim(), error })
           }
+        } catch (err) {
+          console.error('Error executing query:', err)
+          failedStatements.push({ statement: statement.trim(), error: err })
         }
       }
 
@@ -76,7 +75,7 @@ async function setupDatabaseHandler() {
       if (verifyError) {
         return NextResponse.json({ 
           error: 'Failed to create database tables', 
-          details: verifyError 
+          details: { verifyError, failedStatements } 
         }, { status: 500 })
       }
 
