@@ -35,6 +35,8 @@ CREATE TABLE posts (
   user_id UUID REFERENCES auth.users(id) NOT NULL,
   content TEXT NOT NULL,
   image_url TEXT,
+  video_url TEXT,
+  document_url TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
 );

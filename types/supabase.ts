@@ -57,6 +57,8 @@ export interface Database {
           user_id: string
           content: string
           image_url: string | null
+          video_url: string | null
+          document_url: string | null
           created_at: string
           updated_at: string
         }
@@ -65,6 +67,8 @@ export interface Database {
           user_id: string
           content: string
           image_url?: string | null
+          video_url?: string | null
+          document_url?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -73,6 +77,8 @@ export interface Database {
           user_id?: string
           content?: string
           image_url?: string | null
+          video_url?: string | null
+          document_url?: string | null
           created_at?: string
           updated_at?: string
         }

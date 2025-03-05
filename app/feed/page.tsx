@@ -3,275 +3,317 @@
 
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardFooter } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
+import { Card, CardContent } from "@/components/ui/card"
 import {
   ThumbsUp,
   MessageSquare,
   Share2,
-  Image as ImageIcon,
-  FileText,
-  Video,
   User,
   MapPin,
   Briefcase,
-  Calendar,
+  Clock,
 } from "lucide-react"
 import { supabase } from "@/lib/supabase"
 import { useRouter } from "next/navigation"
+import { PostCreator } from "@/components/post-creator"
+import { PostItem } from "@/components/post-item"
+import { Skeleton } from "@/components/ui/skeleton"
 
 export default function FeedPage() {
-  const [posts, setPosts] = useState([
-    {
-      id: 1,
-      author: "Sarah Johnson",
-      role: "ESG Compliance Manager",
-      company: "GreenTech Solutions",
-      location: "San Francisco, CA",
-      time: "2 hours ago",
-      content:
-        "Just published our quarterly ESG report showing a 15% reduction in carbon emissions compared to last year. Proud of the team's hard work implementing our sustainability initiatives! #ESG #Sustainability #CarbonReduction",
-      likes: 42,
-      comments: 12,
-      shares: 8,
-      liked: false,
-    },
-    {
-      id: 2,
-      author: "Michael Chen",
-      role: "Safety Director",
-      company: "Construct Safe Inc.",
-      location: "Chicago, IL",
-      time: "4 hours ago",
-      content:
-        "Excited to share that our company has reached 365 days without a lost-time incident! This milestone is a testament to our team's dedication to safety culture and continuous improvement. #SafetyFirst #ZeroHarm #OccupationalSafety",
-      likes: 87,
-      comments: 23,
-      shares: 15,
-      liked: true,
-    },
-    {
-      id: 3,
-      author: "Jessica Rodriguez",
-      role: "Environmental Specialist",
-      company: "EcoConsult Partners",
-      location: "Austin, TX",
-      time: "Yesterday",
-      content:
-        "Just finished a comprehensive environmental impact assessment for a new renewable energy project. The potential to offset 50,000 tons of CO2 annually is impressive! Looking forward to seeing this project move forward. #RenewableEnergy #EnvironmentalImpact #Sustainability",
-      likes: 65,
-      comments: 18,
-      shares: 12,
-      liked: false,
-    },
-  ])
-  
+  const [posts, setPosts] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
-  const [user, setUser] = useState(null)
+  const [userProfile, setUserProfile] = useState<any>(null)
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null)
   const router = useRouter()
-  
+
   useEffect(() => {
-    // Check if user is authenticated
-    async function checkAuth() {
+    async function fetchUserAndPosts() {
       try {
-        const { data: { session } } = await supabase.auth.getSession()
+        setLoading(true)
         
-        if (!session) {
-          // Redirect to login if not authenticated
-          router.replace('/auth/login')
-          return
+        // Get current user
+        const { data: { user } } = await supabase.auth.getUser()
+        
+        if (user) {
+          setCurrentUserId(user.id)
+          
+          // Get user profile
+          const { data: profileData } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', user.id)
+            .single()
+            
+          setUserProfile(profileData)
         }
         
-        setUser(session.user)
+        // Fetch posts with user information
+        const { data, error } = await supabase
+          .from('posts')
+          .select(`
+            *,
+            user:user_id (
+              id,
+              username,
+              full_name,
+              avatar_url,
+              position,
+              company
+            )
+          `)
+          .order('created_at', { ascending: false })
+          .limit(20)
+        
+        if (error) {
+          throw error
+        }
+        
+        if (data) {
+          setPosts(data)
+        }
       } catch (error) {
-        console.error('Error checking auth status:', error)
-        router.replace('/auth/login')
+        console.error("Error fetching data:", error)
       } finally {
         setLoading(false)
       }
     }
+
+    fetchUserAndPosts()
     
-    checkAuth()
+    // Subscribe to new posts
+    const postsSubscription = supabase
+      .channel('public:posts')
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'posts',
+      }, async (payload) => {
+        // When a new post is created, fetch its user data as well
+        const { data: newPostWithUser } = await supabase
+          .from('posts')
+          .select(`
+            *,
+            user:user_id (
+              id,
+              username,
+              full_name,
+              avatar_url,
+              position,
+              company
+            )
+          `)
+          .eq('id', payload.new.id)
+          .single()
+          
+        if (newPostWithUser) {
+          setPosts(prevPosts => [newPostWithUser, ...prevPosts])
+        }
+      })
+      .subscribe()
+      
+    return () => {
+      postsSubscription.unsubscribe()
+    }
   }, [router])
-
-  const handleLike = (id) => {
-    setPosts((prevPosts) =>
-      prevPosts.map((post) =>
-        post.id === id
-          ? {
-              ...post,
-              likes: post.liked ? post.likes - 1 : post.likes + 1,
-              liked: !post.liked,
-            }
-          : post
-      )
-    )
-  }
-
-  if (loading) {
-    return <div className="container py-8 text-center">Loading...</div>
-  }
 
   return (
     <div className="container py-8">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div className="md:col-span-2 space-y-6">
           {/* Post creation card */}
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex gap-4">
-                <User className="h-10 w-10 rounded-full bg-muted p-2" />
-                <div className="flex-1">
-                  <Input className="bg-muted" placeholder="Share an update or post..." />
-                </div>
-              </div>
-              <div className="flex items-center justify-between mt-4">
-                <div className="flex gap-2">
-                  <Button variant="ghost" size="sm" className="text-muted-foreground">
-                    <ImageIcon className="h-4 w-4 mr-2" />
-                    Photo
-                  </Button>
-                  <Button variant="ghost" size="sm" className="text-muted-foreground">
-                    <Video className="h-4 w-4 mr-2" />
-                    Video
-                  </Button>
-                  <Button variant="ghost" size="sm" className="text-muted-foreground">
-                    <FileText className="h-4 w-4 mr-2" />
-                    Document
-                  </Button>
-                </div>
-                <Button size="sm">Post</Button>
-              </div>
-            </CardContent>
-          </Card>
+          {userProfile ? (
+            <PostCreator userProfile={userProfile} />
+          ) : currentUserId ? (
+            <Card>
+              <CardContent className="py-6 text-center">
+                <p className="text-muted-foreground mb-2">Complete your profile to start posting</p>
+                <Button onClick={() => router.push('/profile/setup')}>
+                  Set Up Profile
+                </Button>
+              </CardContent>
+            </Card>
+          ) : (
+            <Card>
+              <CardContent className="py-6 text-center">
+                <p className="text-muted-foreground mb-2">Sign in to create posts and interact with the community</p>
+                <Button onClick={() => router.push('/auth/login')}>
+                  Sign In
+                </Button>
+              </CardContent>
+            </Card>
+          )}
 
-          {/* Feed posts */}
-          {posts.map((post) => (
-            <Card key={post.id}>
-              <CardContent className="pt-6">
-                <div className="flex gap-4">
-                  <User className="h-10 w-10 rounded-full bg-primary/10 p-2 text-primary" />
-                  <div>
-                    <div className="font-medium">{post.author}</div>
-                    <div className="text-sm text-muted-foreground">{post.role}</div>
-                    <div className="flex items-center text-xs text-muted-foreground mt-1">
-                      <Briefcase className="h-3 w-3 mr-1" />
-                      {post.company}
-                      <span className="mx-1">•</span>
-                      <MapPin className="h-3 w-3 mr-1" />
-                      {post.location}
-                      <span className="mx-1">•</span>
-                      <Calendar className="h-3 w-3 mr-1" />
-                      {post.time}
+          {/* Posts list */}
+          {loading ? (
+            // Loading skeletons
+            Array(3).fill(0).map((_, index) => (
+              <Card key={index} className="mb-4">
+                <CardContent className="pt-6">
+                  <div className="flex items-start gap-3 mb-4">
+                    <Skeleton className="h-10 w-10 rounded-full" />
+                    <div className="space-y-2">
+                      <Skeleton className="h-4 w-[120px]" />
+                      <Skeleton className="h-3 w-[160px]" />
                     </div>
                   </div>
-                </div>
-                <div className="mt-4">{post.content}</div>
+                  <div className="space-y-2 mb-4">
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-3/4" />
+                  </div>
+                  <Skeleton className="h-[200px] w-full rounded-md" />
+                </CardContent>
+              </Card>
+            ))
+          ) : posts.length > 0 ? (
+            posts.map((post) => (
+              <PostItem key={post.id} post={post} currentUserId={currentUserId} />
+            ))
+          ) : (
+            <Card>
+              <CardContent className="py-12 text-center">
+                <p className="text-xl font-medium mb-2">No posts yet</p>
+                <p className="text-muted-foreground">
+                  Be the first to share something with the community!
+                </p>
               </CardContent>
-              <CardFooter className="border-t px-6 py-3">
-                <div className="flex justify-between w-full">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className={post.liked ? "text-primary" : "text-muted-foreground"}
-                    onClick={() => handleLike(post.id)}
-                  >
-                    <ThumbsUp className={`h-4 w-4 mr-2 ${post.liked ? "fill-primary" : ""}`} />
-                    {post.likes}
-                  </Button>
-                  <Button variant="ghost" size="sm" className="text-muted-foreground">
-                    <MessageSquare className="h-4 w-4 mr-2" />
-                    {post.comments}
-                  </Button>
-                  <Button variant="ghost" size="sm" className="text-muted-foreground">
-                    <Share2 className="h-4 w-4 mr-2" />
-                    {post.shares}
-                  </Button>
-                </div>
-              </CardFooter>
             </Card>
-          ))}
+          )}
         </div>
 
-        {/* Sidebar */}
-        <div className="space-y-6 hidden md:block">
+        {/* Right sidebar */}
+        <div className="hidden md:block space-y-6">
           <Card>
             <CardContent className="pt-6">
-              <h3 className="font-semibold mb-4">Trending in ESG & EHS</h3>
-              <ul className="space-y-3">
-                <li>
-                  <a href="#" className="text-sm hover:underline">#SustainabilityGoals</a>
-                </li>
-                <li>
-                  <a href="#" className="text-sm hover:underline">#SafetyLeadership</a>
-                </li>
-                <li>
-                  <a href="#" className="text-sm hover:underline">#ClimateAction</a>
-                </li>
-                <li>
-                  <a href="#" className="text-sm hover:underline">#ESGReporting</a>
-                </li>
-                <li>
-                  <a href="#" className="text-sm hover:underline">#GreenTech</a>
-                </li>
-              </ul>
+              <h3 className="font-semibold mb-3">Your Profile</h3>
+              {userProfile ? (
+                <div className="flex flex-col items-center text-center mb-4">
+                  <Avatar className="h-16 w-16 mb-3">
+                    <AvatarImage src={userProfile.avatar_url || ""} alt={userProfile.full_name || "User"} />
+                    <AvatarFallback>
+                      <User className="h-8 w-8" />
+                    </AvatarFallback>
+                  </Avatar>
+                  <h4 className="font-medium">{userProfile.full_name}</h4>
+                  <p className="text-sm text-muted-foreground">{userProfile.headline || "No headline"}</p>
+                  
+                  <div className="w-full mt-4">
+                    {userProfile.position && (
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
+                        <Briefcase className="h-3 w-3" />
+                        <span>{userProfile.position}</span>
+                      </div>
+                    )}
+                    {userProfile.company && (
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
+                        <Briefcase className="h-3 w-3" />
+                        <span>{userProfile.company}</span>
+                      </div>
+                    )}
+                    {userProfile.location && (
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
+                        <MapPin className="h-3 w-3" />
+                        <span>{userProfile.location}</span>
+                      </div>
+                    )}
+                  </div>
+                  
+                  <Button 
+                    className="w-full mt-3" 
+                    variant="outline"
+                    onClick={() => router.push(`/profile/${userProfile.username}`)}
+                  >
+                    View Profile
+                  </Button>
+                </div>
+              ) : (
+                <div className="text-center py-4">
+                  <p className="text-muted-foreground mb-3">
+                    Sign in to access your profile and all features
+                  </p>
+                  <Button onClick={() => router.push('/auth/login')}>
+                    Sign In
+                  </Button>
+                </div>
+              )}
             </CardContent>
           </Card>
-
+          
           <Card>
             <CardContent className="pt-6">
-              <h3 className="font-semibold mb-4">People You May Know</h3>
+              <h3 className="font-semibold mb-3">Upcoming Events</h3>
+              <div className="space-y-3">
+                <div className="border rounded-md p-3">
+                  <div className="flex items-center gap-2 mb-1">
+                    <Clock className="h-4 w-4 text-primary" />
+                    <span className="text-sm font-medium">Tomorrow, 3:00 PM</span>
+                  </div>
+                  <h4 className="font-medium">ESG Reporting Best Practices</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Join industry experts for a webinar on ESG reporting standards
+                  </p>
+                </div>
+                
+                <div className="border rounded-md p-3">
+                  <div className="flex items-center gap-2 mb-1">
+                    <Clock className="h-4 w-4 text-primary" />
+                    <span className="text-sm font-medium">May 15, 2:00 PM</span>
+                  </div>
+                  <h4 className="font-medium">Workplace Safety Forum</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Virtual panel discussion on improving safety culture
+                  </p>
+                </div>
+                
+                <Button variant="link" className="px-0">See all events</Button>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardContent className="pt-6">
+              <h3 className="font-semibold mb-3">Suggested Connections</h3>
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <User className="h-8 w-8 rounded-full bg-muted p-1" />
+                    <Avatar className="h-8 w-8">
+                      <AvatarFallback>JP</AvatarFallback>
+                    </Avatar>
                     <div>
-                      <div className="text-sm font-medium">David Kim</div>
-                      <div className="text-xs text-muted-foreground">Sustainability Manager at EcoTech</div>
+                      <p className="text-sm font-medium">James Peterson</p>
+                      <p className="text-xs text-muted-foreground">Safety Director at Construct Co.</p>
                     </div>
                   </div>
                   <Button variant="outline" size="sm">Connect</Button>
                 </div>
+                
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <User className="h-8 w-8 rounded-full bg-muted p-1" />
+                    <Avatar className="h-8 w-8">
+                      <AvatarFallback>MJ</AvatarFallback>
+                    </Avatar>
                     <div>
-                      <div className="text-sm font-medium">Lisa Patel</div>
-                      <div className="text-xs text-muted-foreground">Health & Safety Lead at SafeWork Inc.</div>
+                      <p className="text-sm font-medium">Maria Johnson</p>
+                      <p className="text-xs text-muted-foreground">ESG Analyst at Green Metrics</p>
                     </div>
                   </div>
                   <Button variant="outline" size="sm">Connect</Button>
                 </div>
+                
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <User className="h-8 w-8 rounded-full bg-muted p-1" />
+                    <Avatar className="h-8 w-8">
+                      <AvatarFallback>RL</AvatarFallback>
+                    </Avatar>
                     <div>
-                      <div className="text-sm font-medium">Mark Johnson</div>
-                      <div className="text-xs text-muted-foreground">Environmental Compliance Officer at GreenCorp</div>
+                      <p className="text-sm font-medium">Robert Lee</p>
+                      <p className="text-xs text-muted-foreground">EHS Manager at Industrial Tech</p>
                     </div>
                   </div>
                   <Button variant="outline" size="sm">Connect</Button>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="pt-6">
-              <h3 className="font-semibold mb-4">Upcoming Events</h3>
-              <div className="space-y-3">
-                <div>
-                  <div className="text-sm font-medium">ESG Reporting Workshop</div>
-                  <div className="text-xs text-muted-foreground">June 15, 2023 • Virtual</div>
-                </div>
-                <div>
-                  <div className="text-sm font-medium">Safety Leadership Conference</div>
-                  <div className="text-xs text-muted-foreground">July 10-12, 2023 • Chicago, IL</div>
-                </div>
-                <div>
-                  <div className="text-sm font-medium">Sustainability Innovation Summit</div>
-                  <div className="text-xs text-muted-foreground">August 5, 2023 • San Francisco, CA</div>
-                </div>
+                
+                <Button variant="link" className="px-0">See more suggestions</Button>
               </div>
             </CardContent>
           </Card>
