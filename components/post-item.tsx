@@ -114,10 +114,10 @@ export function PostItem({ post, currentUser }) {
     setIsLoadingComments(true)
     
     try {
-      // Updated the fetch to use the correct query format and handle CORS
+      // Specify the exact relationship to use between comments and profiles
       const { data, error } = await supabase
         .from('comments')
-        .select('*, profiles:profiles(id, username, full_name, avatar_url)')
+        .select('*, profiles!fk_comments_profiles(id, username, full_name, avatar_url)')
         .eq('post_id', post.id)
         .order('created_at', { ascending: true })
       
