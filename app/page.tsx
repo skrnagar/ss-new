@@ -33,9 +33,9 @@ export default async function Home() {
             </div>
             <div className="hidden md:block">
               <img
-                src="/placeholder.svg?height=400&width=500"
+                src="/safety-shaper-logo.png"
                 alt="Safety Shaper Platform"
-                className="rounded-lg shadow-2xl"
+                className="rounded-lg shadow-2xl bg-white p-8"
               />
             </div>
           </div>

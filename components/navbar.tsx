@@ -132,8 +132,8 @@ export function Navbar() {
       <div className="container flex h-16 items-center justify-between py-4">
         <div className="flex items-center gap-4">
           <Link href="/" className="flex items-center">
-            <img src="/placeholder-logo.svg" alt="Safety Shaper Logo" className="mr-2 h-8 w-8" />
-            <span className="hidden text-xl font-bold sm:inline-block">Safety Shaper</span>
+            <img src="/safety-shaper-logo.png" alt="Safety Shaper Logo" className="mr-2 h-10" />
+            <span className="hidden text-xl font-bold sm:inline-block text-blue-600">Safety Shaper</span>
           </Link>
 
           {user && !isMobile && (
