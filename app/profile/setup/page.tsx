@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -27,7 +28,7 @@ export default function ProfileSetupPage() {
   const { toast } = useToast()
   const [loading, setLoading] = React.useState(false)
   const [user, setUser] = React.useState<any>(null)
-
+  
   const form = useForm<z.infer<typeof profileSetupSchema>>({
     resolver: zodResolver(profileSetupSchema),
     defaultValues: {
@@ -40,48 +41,80 @@ export default function ProfileSetupPage() {
     },
   })
 
+  // Fetch current user on component mount
   React.useEffect(() => {
-    async function getUserInfo() {
-      const { data: { user } } = await supabase.auth.getUser()
-      setUser(user)
-
-      // Generate a suggested username
-      if (user?.user_metadata?.name) {
-        const nameSuggestion = user.user_metadata.name
-          .toLowerCase()
-          .replace(/[^a-z0-9]/g, '')
-
-        form.setValue('username', nameSuggestion)
+    const fetchUser = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser()
+        setUser(user)
+        
+        if (user) {
+          // Try to fetch existing profile data
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', user.id)
+            .single()
+            
+          if (profile) {
+            // Pre-fill form with existing data if available
+            form.reset({
+              headline: profile.headline || "",
+              bio: profile.bio || "",
+              company: profile.company || "",
+              position: profile.position || "",
+              location: profile.location || "",
+              username: profile.username || "",
+            })
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching user:', error)
       }
     }
-
-    getUserInfo()
+    
+    fetchUser()
   }, [form])
 
   async function onSubmit(values: z.infer<typeof profileSetupSchema>) {
+    if (!user) {
+      toast({
+        title: "Error",
+        description: "You must be logged in to complete your profile",
+        variant: "destructive",
+      })
+      return
+    }
+    
     setLoading(true)
-
+    
     try {
       // Check if username is already taken
-      const { data: existingUser, error: usernameCheckError } = await supabase
+      const { data: existingUser, error: checkError } = await supabase
         .from('profiles')
         .select('username')
         .eq('username', values.username)
+        .neq('id', user.id) // Exclude current user
         .single()
-
+      
+      if (checkError && checkError.code !== 'PGRST116') { // PGRST116 is "no rows returned" which is good
+        throw new Error("Error checking username availability")
+      }
+      
       if (existingUser) {
-        form.setError('username', { 
-          type: 'manual', 
-          message: 'This username is already taken' 
+        toast({
+          title: "Username already taken",
+          description: "Please choose a different username",
+          variant: "destructive",
         })
         setLoading(false)
         return
       }
-
-      // Create user profile in profiles table
-      const { error } = await supabase
+      
+      // Update the user's profile
+      const { error: updateError } = await supabase
         .from('profiles')
-        .insert({
+        .upsert({
           id: user.id,
           username: values.username,
           headline: values.headline,
@@ -89,28 +122,25 @@ export default function ProfileSetupPage() {
           company: values.company,
           position: values.position,
           location: values.location,
-          avatar_url: user?.user_metadata?.avatar_url || null,
-        })
-
-      if (error) {
-        toast({
-          title: "Profile setup failed",
-          description: error.message,
-          variant: "destructive",
-        })
-        return
+          updated_at: new Date().toISOString(),
+        }, { onConflict: 'id' })
+      
+      if (updateError) {
+        throw updateError
       }
-
+      
       toast({
-        title: "Profile created successfully",
-        description: "Redirecting to your profile...",
+        title: "Profile updated",
+        description: "Your profile has been successfully updated",
       })
-
-      setTimeout(() => router.push(`/profile/${values.username}`), 1500)
-    } catch (error) {
+      
+      // Redirect to the user's profile page
+      router.push(`/profile/${values.username}`)
+    } catch (error: any) {
+      console.error('Error updating profile:', error)
       toast({
-        title: "An error occurred",
-        description: "Please try again later",
+        title: "Error updating profile",
+        description: error.message || "There was an error updating your profile",
         variant: "destructive",
       })
     } finally {
@@ -122,7 +152,7 @@ export default function ProfileSetupPage() {
     <div className="container max-w-3xl py-10">
       <Card>
         <CardHeader>
-          <CardTitle className="text-2xl">Complete Your Profile</CardTitle>
+          <CardTitle>Complete Your Profile</CardTitle>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -134,16 +164,16 @@ export default function ProfileSetupPage() {
                   <FormItem>
                     <FormLabel>Username</FormLabel>
                     <FormControl>
-                      <Input {...field} />
+                      <Input placeholder="your-username" {...field} />
                     </FormControl>
                     <FormDescription>
-                      This will be your unique profile URL: safetyshaper.com/profile/{field.value || 'username'}
+                      This will be your public profile URL: safetyshaper.com/profile/{field.value || 'username'}
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-
+              
               <FormField
                 control={form.control}
                 name="headline"
@@ -151,16 +181,16 @@ export default function ProfileSetupPage() {
                   <FormItem>
                     <FormLabel>Professional Headline</FormLabel>
                     <FormControl>
-                      <Input placeholder="ESG Compliance Manager | Safety Specialist" {...field} />
+                      <Input placeholder="e.g. Senior Safety Engineer at ABC Corp" {...field} />
                     </FormControl>
                     <FormDescription>
-                      A brief summary of your professional role
+                      A brief professional title that appears under your name
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-
+              
               <FormField
                 control={form.control}
                 name="bio"
@@ -169,49 +199,46 @@ export default function ProfileSetupPage() {
                     <FormLabel>Bio</FormLabel>
                     <FormControl>
                       <Textarea 
-                        placeholder="I'm a safety professional with 5+ years of experience in..." 
-                        className="min-h-32" 
-                        {...field}
+                        placeholder="Tell us about your experience, expertise, and interests in safety..." 
+                        className="min-h-32"
+                        {...field} 
                       />
                     </FormControl>
-                    <FormDescription>
-                      Tell other professionals about your experience and expertise
-                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
                   name="company"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Current Company</FormLabel>
+                      <FormLabel>Company</FormLabel>
                       <FormControl>
-                        <Input placeholder="GreenTech Solutions" {...field} />
+                        <Input placeholder="Current company" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-
+                
                 <FormField
                   control={form.control}
                   name="position"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Current Position</FormLabel>
+                      <FormLabel>Position</FormLabel>
                       <FormControl>
-                        <Input placeholder="ESG Compliance Manager" {...field} />
+                        <Input placeholder="Current position" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
               </div>
-
+              
               <FormField
                 control={form.control}
                 name="location"
@@ -219,15 +246,15 @@ export default function ProfileSetupPage() {
                   <FormItem>
                     <FormLabel>Location</FormLabel>
                     <FormControl>
-                      <Input placeholder="San Francisco, CA" {...field} />
+                      <Input placeholder="e.g. San Francisco, CA" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-
+              
               <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? "Saving Profile..." : "Complete Profile Setup"}
+                {loading ? "Saving..." : "Save Profile"}
               </Button>
             </form>
           </Form>
