@@ -1,4 +1,8 @@
 
+#!/usr/bin/env node
+
+// This file is meant to be run directly with ts-node or transpiled before running with Node
+// You can run it with: npx ts-node lib/test-tables.ts
 import { createClient } from '@supabase/supabase-js'
 
 // Create a test client
@@ -46,4 +50,12 @@ async function testTables() {
   }
 }
 
-testTables()
+// Only run if this file is executed directly
+if (require.main === module) {
+  testTables()
+    .then(() => console.log('Table test complete'))
+    .catch(err => console.error('Error running table test:', err))
+}
+
+// Export for import usage
+export { testTables }
