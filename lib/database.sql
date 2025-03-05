@@ -1,7 +1,3 @@
-
--- Create extensions if they don't exist
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-
 -- Create profiles table
 CREATE TABLE IF NOT EXISTS profiles (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -34,7 +30,7 @@ CREATE POLICY "Users can update own profile"
 ON profiles FOR UPDATE USING (auth.uid() = id);
 
 -- Create posts table for feed
-CREATE TABLE IF NOT EXISTS posts (
+CREATE TABLE posts (
   id UUID DEFAULT extensions.uuid_generate_v4() PRIMARY KEY,
   user_id UUID REFERENCES auth.users(id) NOT NULL,
   content TEXT NOT NULL,
@@ -78,7 +74,6 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- Trigger the function every time a user is created
-DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();

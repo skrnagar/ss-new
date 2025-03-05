@@ -101,19 +101,36 @@ export default function ProfileSetupPage() {
 
         // Try one more time to set up database if table doesn't exist
         if (error.code === '42P01') { // Relation does not exist error
-          console.log("Table doesn't exist, trying database setup API...")
+          console.log("Table doesn't exist, trying direct SQL setup...")
 
           try {
-            // Call the setup-db API endpoint
-            const setupResponse = await fetch('/api/setup-db');
-            if (!setupResponse.ok) {
-              const setupData = await setupResponse.json();
-              console.error('Database setup failed:', setupData);
-              throw new Error('Failed to set up database tables');
-            }
-            
-            // Wait a moment for tables to be created
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            // Create profiles table directly
+            await supabase.query(`
+              CREATE TABLE IF NOT EXISTS profiles (
+                id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+                username TEXT UNIQUE NOT NULL,
+                full_name TEXT,
+                headline TEXT,
+                bio TEXT,
+                avatar_url TEXT,
+                company TEXT,
+                position TEXT,
+                location TEXT,
+                created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+              );
+
+              ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
+
+              CREATE POLICY "Public profiles are viewable by everyone" 
+              ON profiles FOR SELECT USING (true);
+
+              CREATE POLICY "Users can insert their own profile" 
+              ON profiles FOR INSERT WITH CHECK (auth.uid() = id);
+
+              CREATE POLICY "Users can update own profile" 
+              ON profiles FOR UPDATE USING (auth.uid() = id);
+            `)
 
             // Wait again for tables to be created
             await new Promise(resolve => setTimeout(resolve, 1000))

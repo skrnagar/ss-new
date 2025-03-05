@@ -1,61 +1,49 @@
-import { createClient } from '@supabase/supabase-js'
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { Database } from '@/types/supabase'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+// Get environment variables
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
 
-// Create a client for browser-side or server-side operations
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
-
-// Function to execute SQL directly for database setup
-export async function executeSql(sql: string) {
-  try {
-    // Try using RPC first
-    const { data, error } = await supabase.rpc('exec_sql', { sql });
-
-    if (error) {
-      console.error('Error executing SQL via RPC:', error);
-      // Fall back to REST API for direct SQL
-      // Note: this may not work with the anon key
-      throw error;
-    }
-
-    return { data, error: null };
-  } catch (error) {
-    console.error('SQL execution error:', error);
-    return { data: null, error };
-  }
+if (!supabaseUrl || !supabaseAnonKey) {
+  console.error('Missing Supabase URL or Anon Key in environment variables')
 }
 
-// Create basic profiles table
-export async function createBasicTables() {
-  const basicProfilesTable = `
-    CREATE TABLE IF NOT EXISTS profiles (
-      id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
-      username TEXT UNIQUE NOT NULL,
-      full_name TEXT,
-      headline TEXT,
-      bio TEXT,
-      avatar_url TEXT,
-      created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-      updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-    );
-  `;
+// Create a singleton Supabase client for client-side usage
+export const supabase = createClientComponentClient<Database>()
 
-  return executeSql(basicProfilesTable);
-}
+// Export a function that provides a fresh client instance when needed
+export const getSupabase = () => createClientComponentClient<Database>()
 
-// Utility function to check database health (modified to use direct SQL)
+// Utility function to check database health
 export const checkDatabaseHealth = async () => {
+  const client = createClientComponentClient<Database>()
+  
   try {
-    const { data, error } = await supabase.from('profiles').select('count(*)').limit(1);
+    // Try to access the profiles table
+    const { data, error } = await client
+      .from('profiles')
+      .select('count(*)', { count: 'exact' })
+      .limit(1)
+    
     if (error) {
-      console.error('Database health check failed:', error.message);
-      return { healthy: false, error: error.message, statusCode: error.code };
+      console.error('Database health check failed:', error.message)
+      return {
+        healthy: false,
+        error: error.message,
+        statusCode: error.code
+      }
     }
-    return { healthy: true, count: data?.[0]?.count || 0 };
+    
+    return {
+      healthy: true,
+      count: data?.[0]?.count || 0
+    }
   } catch (err: any) {
-    console.error('Database connection error:', err.message);
-    return { healthy: false, error: err.message };
+    console.error('Database connection error:', err.message)
+    return {
+      healthy: false,
+      error: err.message
+    }
   }
-};
+}
