@@ -1,85 +1,102 @@
 
 import { createClient } from '@supabase/supabase-js'
+import fs from 'fs'
+import path from 'path'
 
 export async function setupDatabase() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
-  if (!supabaseUrl || !supabaseAnonKey) {
-    console.error('Missing Supabase URL or Anon Key in environment variables')
+  if (!supabaseUrl || !supabaseKey) {
+    console.error('Missing Supabase URL or key in environment variables')
     return { success: false, error: 'Missing environment variables' }
   }
 
-  const supabase = createClient(supabaseUrl, supabaseAnonKey)
+  const supabase = createClient(supabaseUrl, supabaseKey)
 
   try {
-    // Check if profiles table exists by trying to get one row
+    // Check if profiles table exists
     const { error: checkError } = await supabase
       .from('profiles')
       .select('id')
       .limit(1)
     
     if (checkError) {
-      console.log('Creating profiles table...')
+      console.log('Creating database tables...')
       
-      // Create profiles table
-      const { error: createProfilesError } = await supabase
-        .from('profiles')
-        .insert([{ 
-          id: '00000000-0000-0000-0000-000000000000',
-          username: 'system',
-          full_name: 'System Account'
-        }])
-        .select()
-      
-      if (createProfilesError && createProfilesError.code !== '23505') { // Ignore duplicate key error
-        // If insert fails, try to create the table
-        const { data, error } = await supabase.auth.admin.createUser({
-          email: 'temp@example.com',
-          password: 'temporaryPassword123',
-          email_confirm: true
-        })
+      try {
+        // Get SQL from file
+        const sqlPath = path.join(process.cwd(), 'lib', 'database.sql')
         
-        if (error) {
-          console.error('Error creating temporary user:', error)
-          return { success: false, error: 'Failed to create table structure' }
-        }
-        
-        // Now that we have a user, try to insert a profile to trigger the table creation
-        const userId = data.user.id
-        const { error: insertError } = await supabase
-          .from('profiles')
-          .insert([{ 
-            id: userId,
-            username: 'temp_user',
-            full_name: 'Temporary User'
-          }])
-        
-        if (insertError && insertError.code !== '23505') {
-          console.error('Error creating profile:', insertError)
+        if (fs.existsSync(sqlPath)) {
+          const sql = fs.readFileSync(sqlPath, 'utf8')
           
-          // Try with basic schema queries
-          await supabase.schema('public')
-            .createTable('profiles', [
-              { name: 'id', type: 'uuid', primaryKey: true },
-              { name: 'username', type: 'text', notNull: true, unique: true },
-              { name: 'full_name', type: 'text' },
-              { name: 'headline', type: 'text' },
-              { name: 'bio', type: 'text' },
-              { name: 'avatar_url', type: 'text' },
-              { name: 'company', type: 'text' },
-              { name: 'position', type: 'text' },
-              { name: 'location', type: 'text' },
-              { name: 'created_at', type: 'timestamp with time zone', default: 'now()' },
-              { name: 'updated_at', type: 'timestamp with time zone', default: 'now()' }
-            ])
+          // Run each statement individually
+          const statements = sql.split(';').filter(stmt => stmt.trim() !== '')
           
-          // Clean up temporary user
-          await supabase.auth.admin.deleteUser(userId)
+          for (const statement of statements) {
+            try {
+              // Try direct query execution
+              const { error } = await supabase.query(statement.trim())
+              if (error) {
+                console.error('Error executing SQL:', error)
+              }
+            } catch (err) {
+              console.error('Error executing query:', err)
+            }
+          }
+          
+          // Verify table creation
+          const { error: verifyError } = await supabase
+            .from('profiles')
+            .select('id')
+            .limit(1)
+          
+          if (!verifyError) {
+            return { success: true }
+          } else {
+            console.error('Tables were not created successfully:', verifyError)
+          }
         }
+      } catch (err) {
+        console.error('Error reading SQL file:', err)
       }
       
-      console.log('Database setup completed')
+      // Fallback: Create profiles table directly
+      const { error: createError } = await supabase.query(`
+        CREATE TABLE IF NOT EXISTS profiles (
+          id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+          username TEXT UNIQUE NOT NULL,
+          full_name TEXT,
+          headline TEXT,
+          bio TEXT,
+          avatar_url TEXT,
+          company TEXT,
+          position TEXT,
+          location TEXT,
+          created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+          updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+        );
+        
+        CREATE UNIQUE INDEX IF NOT EXISTS profiles_username_idx ON profiles(username);
+        
+        ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
+        
+        CREATE POLICY "Public profiles are viewable by everyone" 
+        ON profiles FOR SELECT USING (true);
+        
+        CREATE POLICY "Users can insert their own profile" 
+        ON profiles FOR INSERT WITH CHECK (auth.uid() = id);
+        
+        CREATE POLICY "Users can update own profile" 
+        ON profiles FOR UPDATE USING (auth.uid() = id);
+      `)
+      
+      if (createError) {
+        console.error('Error creating profiles table directly:', createError)
+        return { success: false, error: createError }
+      }
+      
       return { success: true }
     } else {
       console.log('Profiles table already exists')

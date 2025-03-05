@@ -1,28 +1,31 @@
 -- Create profiles table
-CREATE TABLE profiles (
-  id UUID REFERENCES auth.users(id) PRIMARY KEY,
+CREATE TABLE IF NOT EXISTS profiles (
+  id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   username TEXT UNIQUE NOT NULL,
   full_name TEXT,
   headline TEXT,
   bio TEXT,
   avatar_url TEXT,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+  company TEXT,
+  position TEXT,
+  location TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- Set up Row Level Security
+-- Create index for username search
+CREATE UNIQUE INDEX IF NOT EXISTS profiles_username_idx ON profiles(username);
+
+-- Enable RLS on the profiles table
 ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 
--- Create profile policies
--- Public profiles are viewable by everyone
+-- Create policies for the profiles table
 CREATE POLICY "Public profiles are viewable by everyone" 
 ON profiles FOR SELECT USING (true);
 
--- Users can insert their own profile
 CREATE POLICY "Users can insert their own profile" 
 ON profiles FOR INSERT WITH CHECK (auth.uid() = id);
 
--- Users can update own profile
 CREATE POLICY "Users can update own profile" 
 ON profiles FOR UPDATE USING (auth.uid() = id);
 

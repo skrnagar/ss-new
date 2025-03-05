@@ -78,45 +78,88 @@ export default function ProfileSetupPage() {
   // Helper function to check if a username is available
   const checkUsernameAvailability = async (username: string) => {
     try {
-      // First ensure the database is set up
-      try {
-        console.log("Setting up database...")
-        await fetch('/api/setup-db', { method: 'POST' })
-        // Give Supabase time to create the table
-        await new Promise(resolve => setTimeout(resolve, 2000))
-      } catch (setupError) {
-        console.log("Database setup attempt:", setupError)
-        // Continue anyway, as the error might just be that tables already exist
+      console.log("Setting up database...")
+      // First, try to set up the database to ensure tables exist
+      const setupResponse = await fetch('/api/setup-db')
+      if (!setupResponse.ok) {
+        console.warn("Database setup response not OK:", await setupResponse.text())
+      } else {
+        console.log("Database setup completed")
       }
-      
-      // Try to check username availability
-      try {
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('username')
-          .eq('username', username)
-          
-        if (user?.id) {
-          // If we're updating an existing profile, exclude the current user
-          const filteredData = data?.filter(profile => profile.id !== user.id) || []
-          return filteredData.length === 0
+
+      // Wait for tables to be available
+      await new Promise(resolve => setTimeout(resolve, 2000))
+
+      // Now check username availability
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('username')
+        .eq('username', username)
+
+      if (error) {
+        console.error("Supabase error checking username:", error)
+
+        // Try one more time to set up database if table doesn't exist
+        if (error.code === '42P01') { // Relation does not exist error
+          console.log("Table doesn't exist, trying direct SQL setup...")
+
+          try {
+            // Create profiles table directly
+            await supabase.query(`
+              CREATE TABLE IF NOT EXISTS profiles (
+                id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+                username TEXT UNIQUE NOT NULL,
+                full_name TEXT,
+                headline TEXT,
+                bio TEXT,
+                avatar_url TEXT,
+                company TEXT,
+                position TEXT,
+                location TEXT,
+                created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+              );
+
+              ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
+
+              CREATE POLICY "Public profiles are viewable by everyone" 
+              ON profiles FOR SELECT USING (true);
+
+              CREATE POLICY "Users can insert their own profile" 
+              ON profiles FOR INSERT WITH CHECK (auth.uid() = id);
+
+              CREATE POLICY "Users can update own profile" 
+              ON profiles FOR UPDATE USING (auth.uid() = id);
+            `)
+
+            // Wait again for tables to be created
+            await new Promise(resolve => setTimeout(resolve, 1000))
+
+            // Try again
+            const { data: retryData, error: retryError } = await supabase
+              .from('profiles')
+              .select('username')
+              .eq('username', username)
+
+            if (retryError) {
+              console.error("Still unable to check username after table creation:", retryError)
+              return true // Assume username is available to allow profile creation
+            }
+
+            return retryData.length === 0
+          } catch (sqlError) {
+            console.error("Failed to create table with direct SQL:", sqlError)
+            return true // Assume username is available to allow profile creation
+          }
         }
-        
-        if (error) {
-          console.warn("Username check error:", error)
-          // If we can't check, assume it's available to allow user to try submission
-          return true
-        }
-        
-        return data?.length === 0
-      } catch (e) {
-        console.warn("Error in username check:", e)
-        // If check fails, let user try to submit anyway
-        return true
+
+        throw new Error(`Database error: ${error.message}`)
       }
+
+      return data.length === 0
     } catch (err) {
-      console.error("Error in username availability function:", err)
-      // Don't block the user from continuing
+      console.error("Error checking username availability:", err)
+      // Don't block the user, assume username is available
       return true
     }
   }
