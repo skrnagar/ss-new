@@ -1,0 +1,825 @@
+
+Build Error
+Failed to compile
+
+Next.js (14.2.16) is outdated (learn more)
+./app/profile/[username]/page.tsx
+Error: 
+  × the name `createLegacyClient` is defined multiple times
+     ╭─[/home/runner/workspace/app/profile/[username]/page.tsx:1:1]
+   1 │ import { createLegacyClient } from '@/lib/supabase-server'
+     ·          ─────────┬────────
+     ·                   ╰── previous definition of `createLegacyClient` here
+   2 │ import { notFound } from 'next/navigation'
+   3 │ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+   4 │ import { Button } from '@/components/ui/button'
+   5 │ import Link from 'next/link'
+   6 │ 
+   7 │ export const revalidate = 3600 // Revalidate the data at most every hour
+   8 │ 
+   9 │ export default async function UserProfilePage({
+  10 │   params
+  11 │ }: {
+  12 │   params: { username: string }
+  13 │ }) {
+  14 │   const supabase = createLegacyClient()
+  15 │ 
+  16 │   // Get the username from the URL params
+  17 │   const { username } = params
+  18 │ 
+  19 │   // Get current session
+  20 │   const { data: { session } } = await supabase.auth.getSession()
+  21 │ 
+  22 │   // Get profile data
+  23 │   const { data: profile, error } = await supabase
+  24 │     .from('profiles')
+  25 │     .select('*')
+  26 │     .eq('username', username)
+  27 │     .single()
+  28 │ 
+  29 │   if (error || !profile) {
+  30 │     return notFound()
+  31 │   }
+  32 │ 
+  33 │   // Check if current user is viewing their own profile
+  34 │   const isOwnProfile = session?.user.id === profile.id
+  35 │ 
+  36 │   // Helper function to get initials
+  37 │   const getInitials = (name: string) => {
+  38 │     if (!name) return 'U'
+  39 │     return name
+  40 │       .split(' ')
+  41 │       .map(part => part?.[0] || '')
+  42 │       .join('')
+  43 │       .toUpperCase()
+  44 │       .substring(0, 2)
+  45 │   }
+  46 │ 
+  47 │   return (
+  48 │     <div className="container py-8">
+  49 │       <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
+  50 │         {/* Profile sidebar */}
+  51 │         <div className="md:col-span-1">
+  52 │           <div className="rounded-lg border bg-card text-card-foreground shadow p-6">
+  53 │             <div className="flex flex-col items-center text-center">
+  54 │               <Avatar className="h-24 w-24 mb-4">
+  55 │                 <AvatarImage src={profile.avatar_url || "/placeholder-user.jpg"} alt={profile.full_name} />
+  56 │                 <AvatarFallback>{getInitials(profile.full_name)}</AvatarFallback>
+  57 │               </Avatar>
+  58 │ 
+  59 │               <h1 className="text-2xl font-bold">{profile.full_name}</h1>
+  60 │ 
+  61 │               {profile.headline && (
+  62 │                 <p className="text-muted-foreground mb-4">{profile.headline}</p>
+  63 │               )}
+  64 │ 
+  65 │               {isOwnProfile && (
+  66 │                 <div className="mt-4 w-full">
+  67 │                   <Button asChild variant="outline" className="w-full">
+  68 │                     <Link href="/profile/setup">Edit Profile</Link>
+  69 │                   </Button>
+  70 │                 </div>
+  71 │               )}
+  72 │             </div>
+  73 │           </div>
+  74 │         </div>
+  75 │ 
+  76 │         {/* Main content */}
+  77 │         <div className="md:col-span-2">
+  78 │           <div className="rounded-lg border bg-card text-card-foreground shadow">
+  79 │             <div className="p-6">
+  80 │               <h2 className="text-xl font-semibold mb-4">About</h2>
+  81 │               {profile.bio ? (
+  82 │                 <p className="whitespace-pre-wrap">{profile.bio}</p>
+  83 │               ) : (
+  84 │                 <p className="text-muted-foreground italic">
+  85 │                   {isOwnProfile 
+  86 │                     ? "You haven't added any information to your bio yet. Edit your profile to add one." 
+  87 │                     : `${profile.full_name} hasn't added any information to their bio yet.`}
+  88 │                 </p>
+  89 │               )}
+  90 │             </div>
+  91 │           </div>
+  92 │ 
+  93 │           {/* Additional sections can be added here */}
+  94 │         </div>
+  95 │       </div>
+  96 │     </div>
+  97 │   )
+  98 │ }
+  99 │ import { redirect } from "next/navigation"
+ 100 │ import { createLegacyClient } from "@/lib/supabase-server"
+     ·          ─────────┬────────
+     ·                   ╰── `createLegacyClient` redefined here
+ 101 │ import { Button } from "@/components/ui/button"
+ 102 │ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+ 103 │ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+     ╰────
+
+  × the name `Button` is defined multiple times
+     ╭─[/home/runner/workspace/app/profile/[username]/page.tsx:1:1]
+   1 │ import { createLegacyClient } from '@/lib/supabase-server'
+   2 │ import { notFound } from 'next/navigation'
+   3 │ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+   4 │ import { Button } from '@/components/ui/button'
+     ·          ───┬──
+     ·             ╰── previous definition of `Button` here
+   5 │ import Link from 'next/link'
+   6 │ 
+   7 │ export const revalidate = 3600 // Revalidate the data at most every hour
+   8 │ 
+   9 │ export default async function UserProfilePage({
+  10 │   params
+  11 │ }: {
+  12 │   params: { username: string }
+  13 │ }) {
+  14 │   const supabase = createLegacyClient()
+  15 │ 
+  16 │   // Get the username from the URL params
+  17 │   const { username } = params
+  18 │ 
+  19 │   // Get current session
+  20 │   const { data: { session } } = await supabase.auth.getSession()
+  21 │ 
+  22 │   // Get profile data
+  23 │   const { data: profile, error } = await supabase
+  24 │     .from('profiles')
+  25 │     .select('*')
+  26 │     .eq('username', username)
+  27 │     .single()
+  28 │ 
+  29 │   if (error || !profile) {
+  30 │     return notFound()
+  31 │   }
+  32 │ 
+  33 │   // Check if current user is viewing their own profile
+  34 │   const isOwnProfile = session?.user.id === profile.id
+  35 │ 
+  36 │   // Helper function to get initials
+  37 │   const getInitials = (name: string) => {
+  38 │     if (!name) return 'U'
+  39 │     return name
+  40 │       .split(' ')
+  41 │       .map(part => part?.[0] || '')
+  42 │       .join('')
+  43 │       .toUpperCase()
+  44 │       .substring(0, 2)
+  45 │   }
+  46 │ 
+  47 │   return (
+  48 │     <div className="container py-8">
+  49 │       <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
+  50 │         {/* Profile sidebar */}
+  51 │         <div className="md:col-span-1">
+  52 │           <div className="rounded-lg border bg-card text-card-foreground shadow p-6">
+  53 │             <div className="flex flex-col items-center text-center">
+  54 │               <Avatar className="h-24 w-24 mb-4">
+  55 │                 <AvatarImage src={profile.avatar_url || "/placeholder-user.jpg"} alt={profile.full_name} />
+  56 │                 <AvatarFallback>{getInitials(profile.full_name)}</AvatarFallback>
+  57 │               </Avatar>
+  58 │ 
+  59 │               <h1 className="text-2xl font-bold">{profile.full_name}</h1>
+  60 │ 
+  61 │               {profile.headline && (
+  62 │                 <p className="text-muted-foreground mb-4">{profile.headline}</p>
+  63 │               )}
+  64 │ 
+  65 │               {isOwnProfile && (
+  66 │                 <div className="mt-4 w-full">
+  67 │                   <Button asChild variant="outline" className="w-full">
+  68 │                     <Link href="/profile/setup">Edit Profile</Link>
+  69 │                   </Button>
+  70 │                 </div>
+  71 │               )}
+  72 │             </div>
+  73 │           </div>
+  74 │         </div>
+  75 │ 
+  76 │         {/* Main content */}
+  77 │         <div className="md:col-span-2">
+  78 │           <div className="rounded-lg border bg-card text-card-foreground shadow">
+  79 │             <div className="p-6">
+  80 │               <h2 className="text-xl font-semibold mb-4">About</h2>
+  81 │               {profile.bio ? (
+  82 │                 <p className="whitespace-pre-wrap">{profile.bio}</p>
+  83 │               ) : (
+  84 │                 <p className="text-muted-foreground italic">
+  85 │                   {isOwnProfile 
+  86 │                     ? "You haven't added any information to your bio yet. Edit your profile to add one." 
+  87 │                     : `${profile.full_name} hasn't added any information to their bio yet.`}
+  88 │                 </p>
+  89 │               )}
+  90 │             </div>
+  91 │           </div>
+  92 │ 
+  93 │           {/* Additional sections can be added here */}
+  94 │         </div>
+  95 │       </div>
+  96 │     </div>
+  97 │   )
+  98 │ }
+  99 │ import { redirect } from "next/navigation"
+ 100 │ import { createLegacyClient } from "@/lib/supabase-server"
+ 101 │ import { Button } from "@/components/ui/button"
+     ·          ───┬──
+     ·             ╰── `Button` redefined here
+ 102 │ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+ 103 │ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+ 104 │ import { Separator } from "@/components/ui/separator"
+     ╰────
+
+  × the name `Avatar` is defined multiple times
+     ╭─[/home/runner/workspace/app/profile/[username]/page.tsx:1:1]
+   1 │ import { createLegacyClient } from '@/lib/supabase-server'
+   2 │ import { notFound } from 'next/navigation'
+   3 │ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+     ·          ───┬──
+     ·             ╰── previous definition of `Avatar` here
+   4 │ import { Button } from '@/components/ui/button'
+   5 │ import Link from 'next/link'
+   6 │ 
+   7 │ export const revalidate = 3600 // Revalidate the data at most every hour
+   8 │ 
+   9 │ export default async function UserProfilePage({
+  10 │   params
+  11 │ }: {
+  12 │   params: { username: string }
+  13 │ }) {
+  14 │   const supabase = createLegacyClient()
+  15 │ 
+  16 │   // Get the username from the URL params
+  17 │   const { username } = params
+  18 │ 
+  19 │   // Get current session
+  20 │   const { data: { session } } = await supabase.auth.getSession()
+  21 │ 
+  22 │   // Get profile data
+  23 │   const { data: profile, error } = await supabase
+  24 │     .from('profiles')
+  25 │     .select('*')
+  26 │     .eq('username', username)
+  27 │     .single()
+  28 │ 
+  29 │   if (error || !profile) {
+  30 │     return notFound()
+  31 │   }
+  32 │ 
+  33 │   // Check if current user is viewing their own profile
+  34 │   const isOwnProfile = session?.user.id === profile.id
+  35 │ 
+  36 │   // Helper function to get initials
+  37 │   const getInitials = (name: string) => {
+  38 │     if (!name) return 'U'
+  39 │     return name
+  40 │       .split(' ')
+  41 │       .map(part => part?.[0] || '')
+  42 │       .join('')
+  43 │       .toUpperCase()
+  44 │       .substring(0, 2)
+  45 │   }
+  46 │ 
+  47 │   return (
+  48 │     <div className="container py-8">
+  49 │       <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
+  50 │         {/* Profile sidebar */}
+  51 │         <div className="md:col-span-1">
+  52 │           <div className="rounded-lg border bg-card text-card-foreground shadow p-6">
+  53 │             <div className="flex flex-col items-center text-center">
+  54 │               <Avatar className="h-24 w-24 mb-4">
+  55 │                 <AvatarImage src={profile.avatar_url || "/placeholder-user.jpg"} alt={profile.full_name} />
+  56 │                 <AvatarFallback>{getInitials(profile.full_name)}</AvatarFallback>
+  57 │               </Avatar>
+  58 │ 
+  59 │               <h1 className="text-2xl font-bold">{profile.full_name}</h1>
+  60 │ 
+  61 │               {profile.headline && (
+  62 │                 <p className="text-muted-foreground mb-4">{profile.headline}</p>
+  63 │               )}
+  64 │ 
+  65 │               {isOwnProfile && (
+  66 │                 <div className="mt-4 w-full">
+  67 │                   <Button asChild variant="outline" className="w-full">
+  68 │                     <Link href="/profile/setup">Edit Profile</Link>
+  69 │                   </Button>
+  70 │                 </div>
+  71 │               )}
+  72 │             </div>
+  73 │           </div>
+  74 │         </div>
+  75 │ 
+  76 │         {/* Main content */}
+  77 │         <div className="md:col-span-2">
+  78 │           <div className="rounded-lg border bg-card text-card-foreground shadow">
+  79 │             <div className="p-6">
+  80 │               <h2 className="text-xl font-semibold mb-4">About</h2>
+  81 │               {profile.bio ? (
+  82 │                 <p className="whitespace-pre-wrap">{profile.bio}</p>
+  83 │               ) : (
+  84 │                 <p className="text-muted-foreground italic">
+  85 │                   {isOwnProfile 
+  86 │                     ? "You haven't added any information to your bio yet. Edit your profile to add one." 
+  87 │                     : `${profile.full_name} hasn't added any information to their bio yet.`}
+  88 │                 </p>
+  89 │               )}
+  90 │             </div>
+  91 │           </div>
+  92 │ 
+  93 │           {/* Additional sections can be added here */}
+  94 │         </div>
+  95 │       </div>
+  96 │     </div>
+  97 │   )
+  98 │ }
+  99 │ import { redirect } from "next/navigation"
+ 100 │ import { createLegacyClient } from "@/lib/supabase-server"
+ 101 │ import { Button } from "@/components/ui/button"
+ 102 │ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+ 103 │ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+     ·          ───┬──
+     ·             ╰── `Avatar` redefined here
+ 104 │ import { Separator } from "@/components/ui/separator"
+ 105 │ import { Briefcase, MapPin, Calendar, Edit, MessageSquare, UserPlus, User } from "lucide-react"
+     ╰────
+
+  × the name `AvatarFallback` is defined multiple times
+     ╭─[/home/runner/workspace/app/profile/[username]/page.tsx:1:1]
+   1 │ import { createLegacyClient } from '@/lib/supabase-server'
+   2 │ import { notFound } from 'next/navigation'
+   3 │ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+     ·                  ───────┬──────
+     ·                         ╰── previous definition of `AvatarFallback` here
+   4 │ import { Button } from '@/components/ui/button'
+   5 │ import Link from 'next/link'
+   6 │ 
+   7 │ export const revalidate = 3600 // Revalidate the data at most every hour
+   8 │ 
+   9 │ export default async function UserProfilePage({
+  10 │   params
+  11 │ }: {
+  12 │   params: { username: string }
+  13 │ }) {
+  14 │   const supabase = createLegacyClient()
+  15 │ 
+  16 │   // Get the username from the URL params
+  17 │   const { username } = params
+  18 │ 
+  19 │   // Get current session
+  20 │   const { data: { session } } = await supabase.auth.getSession()
+  21 │ 
+  22 │   // Get profile data
+  23 │   const { data: profile, error } = await supabase
+  24 │     .from('profiles')
+  25 │     .select('*')
+  26 │     .eq('username', username)
+  27 │     .single()
+  28 │ 
+  29 │   if (error || !profile) {
+  30 │     return notFound()
+  31 │   }
+  32 │ 
+  33 │   // Check if current user is viewing their own profile
+  34 │   const isOwnProfile = session?.user.id === profile.id
+  35 │ 
+  36 │   // Helper function to get initials
+  37 │   const getInitials = (name: string) => {
+  38 │     if (!name) return 'U'
+  39 │     return name
+  40 │       .split(' ')
+  41 │       .map(part => part?.[0] || '')
+  42 │       .join('')
+  43 │       .toUpperCase()
+  44 │       .substring(0, 2)
+  45 │   }
+  46 │ 
+  47 │   return (
+  48 │     <div className="container py-8">
+  49 │       <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
+  50 │         {/* Profile sidebar */}
+  51 │         <div className="md:col-span-1">
+  52 │           <div className="rounded-lg border bg-card text-card-foreground shadow p-6">
+  53 │             <div className="flex flex-col items-center text-center">
+  54 │               <Avatar className="h-24 w-24 mb-4">
+  55 │                 <AvatarImage src={profile.avatar_url || "/placeholder-user.jpg"} alt={profile.full_name} />
+  56 │                 <AvatarFallback>{getInitials(profile.full_name)}</AvatarFallback>
+  57 │               </Avatar>
+  58 │ 
+  59 │               <h1 className="text-2xl font-bold">{profile.full_name}</h1>
+  60 │ 
+  61 │               {profile.headline && (
+  62 │                 <p className="text-muted-foreground mb-4">{profile.headline}</p>
+  63 │               )}
+  64 │ 
+  65 │               {isOwnProfile && (
+  66 │                 <div className="mt-4 w-full">
+  67 │                   <Button asChild variant="outline" className="w-full">
+  68 │                     <Link href="/profile/setup">Edit Profile</Link>
+  69 │                   </Button>
+  70 │                 </div>
+  71 │               )}
+  72 │             </div>
+  73 │           </div>
+  74 │         </div>
+  75 │ 
+  76 │         {/* Main content */}
+  77 │         <div className="md:col-span-2">
+  78 │           <div className="rounded-lg border bg-card text-card-foreground shadow">
+  79 │             <div className="p-6">
+  80 │               <h2 className="text-xl font-semibold mb-4">About</h2>
+  81 │               {profile.bio ? (
+  82 │                 <p className="whitespace-pre-wrap">{profile.bio}</p>
+  83 │               ) : (
+  84 │                 <p className="text-muted-foreground italic">
+  85 │                   {isOwnProfile 
+  86 │                     ? "You haven't added any information to your bio yet. Edit your profile to add one." 
+  87 │                     : `${profile.full_name} hasn't added any information to their bio yet.`}
+  88 │                 </p>
+  89 │               )}
+  90 │             </div>
+  91 │           </div>
+  92 │ 
+  93 │           {/* Additional sections can be added here */}
+  94 │         </div>
+  95 │       </div>
+  96 │     </div>
+  97 │   )
+  98 │ }
+  99 │ import { redirect } from "next/navigation"
+ 100 │ import { createLegacyClient } from "@/lib/supabase-server"
+ 101 │ import { Button } from "@/components/ui/button"
+ 102 │ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+ 103 │ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+     ·                  ───────┬──────
+     ·                         ╰── `AvatarFallback` redefined here
+ 104 │ import { Separator } from "@/components/ui/separator"
+ 105 │ import { Briefcase, MapPin, Calendar, Edit, MessageSquare, UserPlus, User } from "lucide-react"
+     ╰────
+
+  × the name `AvatarImage` is defined multiple times
+     ╭─[/home/runner/workspace/app/profile/[username]/page.tsx:1:1]
+   1 │ import { createLegacyClient } from '@/lib/supabase-server'
+   2 │ import { notFound } from 'next/navigation'
+   3 │ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+     ·                                  ─────┬─────
+     ·                                       ╰── previous definition of `AvatarImage` here
+   4 │ import { Button } from '@/components/ui/button'
+   5 │ import Link from 'next/link'
+   6 │ 
+   7 │ export const revalidate = 3600 // Revalidate the data at most every hour
+   8 │ 
+   9 │ export default async function UserProfilePage({
+  10 │   params
+  11 │ }: {
+  12 │   params: { username: string }
+  13 │ }) {
+  14 │   const supabase = createLegacyClient()
+  15 │ 
+  16 │   // Get the username from the URL params
+  17 │   const { username } = params
+  18 │ 
+  19 │   // Get current session
+  20 │   const { data: { session } } = await supabase.auth.getSession()
+  21 │ 
+  22 │   // Get profile data
+  23 │   const { data: profile, error } = await supabase
+  24 │     .from('profiles')
+  25 │     .select('*')
+  26 │     .eq('username', username)
+  27 │     .single()
+  28 │ 
+  29 │   if (error || !profile) {
+  30 │     return notFound()
+  31 │   }
+  32 │ 
+  33 │   // Check if current user is viewing their own profile
+  34 │   const isOwnProfile = session?.user.id === profile.id
+  35 │ 
+  36 │   // Helper function to get initials
+  37 │   const getInitials = (name: string) => {
+  38 │     if (!name) return 'U'
+  39 │     return name
+  40 │       .split(' ')
+  41 │       .map(part => part?.[0] || '')
+  42 │       .join('')
+  43 │       .toUpperCase()
+  44 │       .substring(0, 2)
+  45 │   }
+  46 │ 
+  47 │   return (
+  48 │     <div className="container py-8">
+  49 │       <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
+  50 │         {/* Profile sidebar */}
+  51 │         <div className="md:col-span-1">
+  52 │           <div className="rounded-lg border bg-card text-card-foreground shadow p-6">
+  53 │             <div className="flex flex-col items-center text-center">
+  54 │               <Avatar className="h-24 w-24 mb-4">
+  55 │                 <AvatarImage src={profile.avatar_url || "/placeholder-user.jpg"} alt={profile.full_name} />
+  56 │                 <AvatarFallback>{getInitials(profile.full_name)}</AvatarFallback>
+  57 │               </Avatar>
+  58 │ 
+  59 │               <h1 className="text-2xl font-bold">{profile.full_name}</h1>
+  60 │ 
+  61 │               {profile.headline && (
+  62 │                 <p className="text-muted-foreground mb-4">{profile.headline}</p>
+  63 │               )}
+  64 │ 
+  65 │               {isOwnProfile && (
+  66 │                 <div className="mt-4 w-full">
+  67 │                   <Button asChild variant="outline" className="w-full">
+  68 │                     <Link href="/profile/setup">Edit Profile</Link>
+  69 │                   </Button>
+  70 │                 </div>
+  71 │               )}
+  72 │             </div>
+  73 │           </div>
+  74 │         </div>
+  75 │ 
+  76 │         {/* Main content */}
+  77 │         <div className="md:col-span-2">
+  78 │           <div className="rounded-lg border bg-card text-card-foreground shadow">
+  79 │             <div className="p-6">
+  80 │               <h2 className="text-xl font-semibold mb-4">About</h2>
+  81 │               {profile.bio ? (
+  82 │                 <p className="whitespace-pre-wrap">{profile.bio}</p>
+  83 │               ) : (
+  84 │                 <p className="text-muted-foreground italic">
+  85 │                   {isOwnProfile 
+  86 │                     ? "You haven't added any information to your bio yet. Edit your profile to add one." 
+  87 │                     : `${profile.full_name} hasn't added any information to their bio yet.`}
+  88 │                 </p>
+  89 │               )}
+  90 │             </div>
+  91 │           </div>
+  92 │ 
+  93 │           {/* Additional sections can be added here */}
+  94 │         </div>
+  95 │       </div>
+  96 │     </div>
+  97 │   )
+  98 │ }
+  99 │ import { redirect } from "next/navigation"
+ 100 │ import { createLegacyClient } from "@/lib/supabase-server"
+ 101 │ import { Button } from "@/components/ui/button"
+ 102 │ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+ 103 │ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+     ·                                  ─────┬─────
+     ·                                       ╰── `AvatarImage` redefined here
+ 104 │ import { Separator } from "@/components/ui/separator"
+ 105 │ import { Briefcase, MapPin, Calendar, Edit, MessageSquare, UserPlus, User } from "lucide-react"
+     ╰────
+
+  × the name `default` is exported multiple times
+     ╭─[/home/runner/workspace/app/profile/[username]/page.tsx:6:1]
+   6 │     
+   7 │     export const revalidate = 3600 // Revalidate the data at most every hour
+   8 │     
+   9 │ ╭─▶ export default async function UserProfilePage({
+  10 │ │     params
+  11 │ │   }: {
+  12 │ │     params: { username: string }
+  13 │ │   }) {
+  14 │ │     const supabase = createLegacyClient()
+  15 │ │   
+  16 │ │     // Get the username from the URL params
+  17 │ │     const { username } = params
+  18 │ │   
+  19 │ │     // Get current session
+  20 │ │     const { data: { session } } = await supabase.auth.getSession()
+  21 │ │   
+  22 │ │     // Get profile data
+  23 │ │     const { data: profile, error } = await supabase
+  24 │ │       .from('profiles')
+  25 │ │       .select('*')
+  26 │ │       .eq('username', username)
+  27 │ │       .single()
+  28 │ │   
+  29 │ │     if (error || !profile) {
+  30 │ │       return notFound()
+  31 │ │     }
+  32 │ │   
+  33 │ │     // Check if current user is viewing their own profile
+  34 │ │     const isOwnProfile = session?.user.id === profile.id
+  35 │ │   
+  36 │ │     // Helper function to get initials
+  37 │ │     const getInitials = (name: string) => {
+  38 │ │       if (!name) return 'U'
+  39 │ │       return name
+  40 │ │         .split(' ')
+  41 │ │         .map(part => part?.[0] || '')
+  42 │ │         .join('')
+  43 │ │         .toUpperCase()
+  44 │ │         .substring(0, 2)
+  45 │ │     }
+  46 │ │   
+  47 │ │     return (
+  48 │ │       <div className="container py-8">
+  49 │ │         <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
+  50 │ │           {/* Profile sidebar */}
+  51 │ │           <div className="md:col-span-1">
+  52 │ │             <div className="rounded-lg border bg-card text-card-foreground shadow p-6">
+  53 │ │               <div className="flex flex-col items-center text-center">
+  54 │ │                 <Avatar className="h-24 w-24 mb-4">
+  55 │ │                   <AvatarImage src={profile.avatar_url || "/placeholder-user.jpg"} alt={profile.full_name} />
+  56 │ │                   <AvatarFallback>{getInitials(profile.full_name)}</AvatarFallback>
+  57 │ │                 </Avatar>
+  58 │ │   
+  59 │ │                 <h1 className="text-2xl font-bold">{profile.full_name}</h1>
+  60 │ │   
+  61 │ │                 {profile.headline && (
+  62 │ │                   <p className="text-muted-foreground mb-4">{profile.headline}</p>
+  63 │ │                 )}
+  64 │ │   
+  65 │ │                 {isOwnProfile && (
+  66 │ │                   <div className="mt-4 w-full">
+  67 │ │                     <Button asChild variant="outline" className="w-full">
+  68 │ │                       <Link href="/profile/setup">Edit Profile</Link>
+  69 │ │                     </Button>
+  70 │ │                   </div>
+  71 │ │                 )}
+  72 │ │               </div>
+  73 │ │             </div>
+  74 │ │           </div>
+  75 │ │   
+  76 │ │           {/* Main content */}
+  77 │ │           <div className="md:col-span-2">
+  78 │ │             <div className="rounded-lg border bg-card text-card-foreground shadow">
+  79 │ │               <div className="p-6">
+  80 │ │                 <h2 className="text-xl font-semibold mb-4">About</h2>
+  81 │ │                 {profile.bio ? (
+  82 │ │                   <p className="whitespace-pre-wrap">{profile.bio}</p>
+  83 │ │                 ) : (
+  84 │ │                   <p className="text-muted-foreground italic">
+  85 │ │                     {isOwnProfile 
+  86 │ │                       ? "You haven't added any information to your bio yet. Edit your profile to add one." 
+  87 │ │                       : `${profile.full_name} hasn't added any information to their bio yet.`}
+  88 │ │                   </p>
+  89 │ │                 )}
+  90 │ │               </div>
+  91 │ │             </div>
+  92 │ │   
+  93 │ │             {/* Additional sections can be added here */}
+  94 │ │           </div>
+  95 │ │         </div>
+  96 │ │       </div>
+  97 │ │     )
+  98 │ ├─▶ }
+     · ╰──── previous exported here
+  99 │     import { redirect } from "next/navigation"
+ 100 │     import { createLegacyClient } from "@/lib/supabase-server"
+ 101 │     import { Button } from "@/components/ui/button"
+ 102 │     import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+ 103 │     import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+ 104 │     import { Separator } from "@/components/ui/separator"
+ 105 │     import { Briefcase, MapPin, Calendar, Edit, MessageSquare, UserPlus, User } from "lucide-react"
+ 106 │     
+ 107 │ ╭─▶ export default async function ProfilePage({ params }: { params: { username: string } }) {
+ 108 │ │     const { username } = params
+ 109 │ │     const supabase = createLegacyClient()
+ 110 │ │   
+ 111 │ │     // Get session
+ 112 │ │     const { data: { session } } = await supabase.auth.getSession()
+ 113 │ │   
+ 114 │ │     // Get profile by username
+ 115 │ │     const { data: profile, error } = await supabase
+ 116 │ │       .from("profiles")
+ 117 │ │       .select("*")
+ 118 │ │       .eq("username", username)
+ 119 │ │       .single()
+ 120 │ │   
+ 121 │ │     if (error || !profile) {
+ 122 │ │       // Profile not found
+ 123 │ │       redirect("/404")
+ 124 │ │     }
+ 125 │ │   
+ 126 │ │     // Check if viewing own profile
+ 127 │ │     const isOwnProfile = session?.user.id === profile.id
+ 128 │ │   
+ 129 │ │     // Format date for display
+ 130 │ │     const joinDate = new Date(profile.created_at).toLocaleDateString("en-US", {
+ 131 │ │       year: "numeric",
+ 132 │ │       month: "long",
+ 133 │ │     })
+ 134 │ │   
+ 135 │ │     return (
+ 136 │ │       <div className="container py-8">
+ 137 │ │         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+ 138 │ │           {/* Profile Sidebar */}
+ 139 │ │           <div className="space-y-6">
+ 140 │ │             <Card>
+ 141 │ │               <CardContent className="pt-6">
+ 142 │ │                 <div className="flex flex-col items-center">
+ 143 │ │                   <Avatar className="h-24 w-24 mb-4">
+ 144 │ │                     <AvatarImage src={profile.avatar_url || "/placeholder-user.jpg"} alt={profile.full_name} />
+ 145 │ │                     <AvatarFallback>
+ 146 │ │                       {profile.full_name?.split(" ").map((n: string) => n[0]).join("") || username[0].toUpperCase()}
+ 147 │ │                     </AvatarFallback>
+ 148 │ │                   </Avatar>
+ 149 │ │                   <h2 className="text-2xl font-bold">{profile.full_name}</h2>
+ 150 │ │                   <p className="text-muted-foreground text-center">{profile.headline}</p>
+ 151 │ │                   
+ 152 │ │                   <div className="w-full flex gap-2 mt-4">
+ 153 │ │                     {isOwnProfile ? (
+ 154 │ │                       <Button className="w-full" asChild>
+ 155 │ │                         <a href="/profile/setup">
+ 156 │ │                           <Edit className="h-4 w-4 mr-2" />
+ 157 │ │                           Edit Profile
+ 158 │ │                         </a>
+ 159 │ │                       </Button>
+ 160 │ │                     ) : (
+ 161 │ │                       <>
+ 162 │ │                         <Button className="flex-1">
+ 163 │ │                           <MessageSquare className="h-4 w-4 mr-2" />
+ 164 │ │                           Message
+ 165 │ │                         </Button>
+ 166 │ │                         <Button variant="outline" className="flex-1">
+ 167 │ │                           <UserPlus className="h-4 w-4 mr-2" />
+ 168 │ │                           Connect
+ 169 │ │                         </Button>
+ 170 │ │                       </>
+ 171 │ │                     )}
+ 172 │ │                   </div>
+ 173 │ │                 </div>
+ 174 │ │               </CardContent>
+ 175 │ │             </Card>
+ 176 │ │   
+ 177 │ │             <Card>
+ 178 │ │               <CardHeader>
+ 179 │ │                 <CardTitle className="text-lg">Details</CardTitle>
+ 180 │ │               </CardHeader>
+ 181 │ │               <CardContent className="space-y-4">
+ 182 │ │                 {profile.company && (
+ 183 │ │                   <div className="flex items-center gap-2">
+ 184 │ │                     <Briefcase className="h-4 w-4 text-muted-foreground" />
+ 185 │ │                     <div>
+ 186 │ │                       <p className="text-sm font-medium">
+ 187 │ │                         {profile.position ? `${profile.position} at ` : "Works at "}
+ 188 │ │                         {profile.company}
+ 189 │ │                       </p>
+ 190 │ │                     </div>
+ 191 │ │                   </div>
+ 192 │ │                 )}
+ 193 │ │                 
+ 194 │ │                 {profile.location && (
+ 195 │ │                   <div className="flex items-center gap-2">
+ 196 │ │                     <MapPin className="h-4 w-4 text-muted-foreground" />
+ 197 │ │                     <p className="text-sm">{profile.location}</p>
+ 198 │ │                   </div>
+ 199 │ │                 )}
+ 200 │ │   
+ 201 │ │                 <div className="flex items-center gap-2">
+ 202 │ │                   <Calendar className="h-4 w-4 text-muted-foreground" />
+ 203 │ │                   <p className="text-sm">Joined {joinDate}</p>
+ 204 │ │                 </div>
+ 205 │ │   
+ 206 │ │                 <div className="flex items-center gap-2">
+ 207 │ │                   <User className="h-4 w-4 text-muted-foreground" />
+ 208 │ │                   <p className="text-sm">@{profile.username}</p>
+ 209 │ │                 </div>
+ 210 │ │               </CardContent>
+ 211 │ │             </Card>
+ 212 │ │           </div>
+ 213 │ │   
+ 214 │ │           {/* Main Profile Content */}
+ 215 │ │           <div className="lg:col-span-2 space-y-6">
+ 216 │ │             {/* Bio Section */}
+ 217 │ │             <Card>
+ 218 │ │               <CardHeader>
+ 219 │ │                 <CardTitle className="text-lg">About</CardTitle>
+ 220 │ │               </CardHeader>
+ 221 │ │               <CardContent>
+ 222 │ │                 {profile.bio ? (
+ 223 │ │                   <p className="whitespace-pre-line">{profile.bio}</p>
+ 224 │ │                 ) : (
+ 225 │ │                   <p className="text-muted-foreground italic">
+ 226 │ │                     {isOwnProfile ? "Add a bio to tell others about yourself." : "No bio available."}
+ 227 │ │                   </p>
+ 228 │ │                 )}
+ 229 │ │               </CardContent>
+ 230 │ │             </Card>
+ 231 │ │   
+ 232 │ │             {/* Activity Section */}
+ 233 │ │             <Card>
+ 234 │ │               <CardHeader>
+ 235 │ │                 <CardTitle className="text-lg">Recent Activity</CardTitle>
+ 236 │ │               </CardHeader>
+ 237 │ │               <CardContent>
+ 238 │ │                 <div className="text-center py-8">
+ 239 │ │                   <p className="text-muted-foreground">No recent activity to display</p>
+ 240 │ │                   {isOwnProfile && (
+ 241 │ │                     <Button variant="link" asChild>
+ 242 │ │                       <a href="/feed">Share your first post</a>
+ 243 │ │                     </Button>
+ 244 │ │                   )}
+ 245 │ │                 </div>
+ 246 │ │               </CardContent>
+ 247 │ │             </Card>
+ 248 │ │           </div>
+ 249 │ │         </div>
+ 250 │ │       </div>
+ 251 │ │     )
+ 252 │ ├─▶ }
+     · ╰──── exported more than once
+     ╰────
+
+Error: 
+  ☞ Exported identifiers must be unique
+This error occurred during the build process and can only be dismissed by fixing the error.
