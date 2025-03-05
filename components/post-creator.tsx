@@ -1,69 +1,73 @@
 
 "use client"
 
+import * as React from "react"
 import { useState, useRef } from "react"
-import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
-import { ImageIcon, FileText, Video, User, X, Upload, Loader2 } from "lucide-react"
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
-import { supabase } from "@/lib/supabase"
+import { Image, FileText, Video, Paperclip, Loader2, X } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
+import { supabase } from "@/lib/supabase"
 import { useRouter } from "next/navigation"
 
-export function PostCreator({ userProfile }: { userProfile: any }) {
+export function PostCreator({ userProfile }) {
   const [content, setContent] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [attachmentType, setAttachmentType] = useState<"image" | "document" | "video" | null>(null)
-  const [attachment, setAttachment] = useState<File | null>(null)
+  const [attachmentType, setAttachmentType] = useState<"image" | "video" | "document" | null>(null)
+  const [attachmentFile, setAttachmentFile] = useState<File | null>(null)
   const [attachmentPreview, setAttachmentPreview] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { toast } = useToast()
   const router = useRouter()
 
-  const handleAttachmentSelect = (type: "image" | "document" | "video") => {
-    setAttachmentType(type)
-    if (fileInputRef.current) {
-      fileInputRef.current.click()
-    }
+  const getInitials = (name: string) => {
+    if (!name) return 'U'
+    return name
+      .split(' ')
+      .map(part => part?.[0] || '')
+      .join('')
+      .toUpperCase()
+      .substring(0, 2)
   }
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
+  const handleAttachmentSelect = (type: "image" | "video" | "document") => {
+    setAttachmentType(type)
+    fileInputRef.current?.click()
+  }
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
     if (!file) return
 
-    // Validate file type based on attachmentType
-    if (
-      (attachmentType === "image" && !file.type.startsWith("image/")) ||
-      (attachmentType === "video" && !file.type.startsWith("video/")) ||
-      (attachmentType === "document" && !file.type.includes("pdf"))
-    ) {
+    // Validate file size (10MB max)
+    if (file.size > 10 * 1024 * 1024) {
       toast({
-        title: "Invalid file type",
-        description: `Please select a ${attachmentType} file`,
+        title: "File too large",
+        description: "Please select a file smaller than 10MB",
         variant: "destructive",
       })
       return
     }
 
-    setAttachment(file)
+    setAttachmentFile(file)
 
     // Create preview for images
     if (attachmentType === "image") {
       const reader = new FileReader()
-      reader.onloadend = () => {
-        setAttachmentPreview(reader.result as string)
+      reader.onload = (e) => {
+        setAttachmentPreview(e.target?.result as string)
       }
       reader.readAsDataURL(file)
-    } else if (attachmentType === "document") {
-      setAttachmentPreview("document")
-    } else if (attachmentType === "video") {
-      setAttachmentPreview("video")
+    } else {
+      // For non-images, just show the filename
+      setAttachmentPreview(file.name)
     }
   }
 
-  const removeAttachment = () => {
-    setAttachment(null)
+  const clearAttachment = () => {
+    setAttachmentFile(null)
     setAttachmentPreview(null)
     setAttachmentType(null)
     if (fileInputRef.current) {
@@ -72,10 +76,10 @@ export function PostCreator({ userProfile }: { userProfile: any }) {
   }
 
   const handleSubmit = async () => {
-    if (!content.trim() && !attachment) {
+    if (!content.trim() && !attachmentFile) {
       toast({
         title: "Empty post",
-        description: "Please add some content or an attachment to your post",
+        description: "Please add some text or an attachment to your post",
         variant: "destructive",
       })
       return
@@ -84,79 +88,79 @@ export function PostCreator({ userProfile }: { userProfile: any }) {
     setIsSubmitting(true)
 
     try {
-      // Get the current user
-      const { data: { user } } = await supabase.auth.getUser()
-      
-      if (!user) {
-        toast({
-          title: "Authentication error",
-          description: "You must be logged in to post",
-          variant: "destructive",
-        })
-        return
-      }
+      let imageUrl = null
+      let videoUrl = null
+      let documentUrl = null
 
-      let attachmentUrl = null
+      // Upload attachment if any
+      if (attachmentFile) {
+        const fileExt = attachmentFile.name.split('.').pop()
+        const fileName = `${userProfile.id}-${Date.now()}.${fileExt}`
+        let bucket = ""
 
-      // Upload attachment if exists
-      if (attachment) {
-        const fileExt = attachment.name.split('.').pop()
-        const fileName = `${Math.random().toString(36).substring(2, 15)}.${fileExt}`
-        const filePath = `${user.id}/${fileName}`
-        
-        // Choose the appropriate bucket based on file type
-        const bucketName = 
-          attachmentType === "image" ? "post_images" : 
-          attachmentType === "video" ? "post_videos" : "post_documents"
-        
-        // Upload the file
-        const { error: uploadError, data } = await supabase.storage
-          .from(bucketName)
-          .upload(filePath, attachment)
+        if (attachmentType === "image") {
+          bucket = "post-images"
+        } else if (attachmentType === "video") {
+          bucket = "post-videos"
+        } else if (attachmentType === "document") {
+          bucket = "post-documents"
+        }
+
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from(bucket)
+          .upload(fileName, attachmentFile)
 
         if (uploadError) {
           throw uploadError
         }
 
         // Get public URL
-        const { data: urlData } = supabase.storage
-          .from(bucketName)
-          .getPublicUrl(filePath)
+        const { data: { publicUrl } } = supabase.storage
+          .from(bucket)
+          .getPublicUrl(fileName)
 
-        attachmentUrl = urlData.publicUrl
+        if (attachmentType === "image") {
+          imageUrl = publicUrl
+        } else if (attachmentType === "video") {
+          videoUrl = publicUrl
+        } else if (attachmentType === "document") {
+          documentUrl = publicUrl
+        }
       }
 
-      // Create the post
-      const { error: postError } = await supabase
+      // Create post in database
+      const { data: post, error: postError } = await supabase
         .from('posts')
         .insert({
-          user_id: user.id,
-          content: content,
-          image_url: attachmentType === "image" ? attachmentUrl : null,
-          video_url: attachmentType === "video" ? attachmentUrl : null,
-          document_url: attachmentType === "document" ? attachmentUrl : null,
+          user_id: userProfile.id,
+          content: content.trim(),
+          image_url: imageUrl,
+          video_url: videoUrl,
+          document_url: documentUrl,
         })
+        .select()
 
       if (postError) {
         throw postError
       }
 
-      // Clear form after successful post
-      setContent("")
-      removeAttachment()
-      
+      // Success
       toast({
         title: "Post created",
         description: "Your post has been published successfully",
       })
-      
-      // Refresh the feed
-      router.refresh()
 
-    } catch (error: any) {
+      // Reset form
+      setContent("")
+      clearAttachment()
+      
+      // Refresh feed to show new post
+      router.refresh()
+    } catch (error) {
+      console.error("Error creating post:", error)
       toast({
-        title: "Error creating post",
-        description: error.message || "An error occurred while creating your post",
+        title: "Post failed",
+        description: "An error occurred while creating your post. Please try again.",
         variant: "destructive",
       })
     } finally {
@@ -167,119 +171,115 @@ export function PostCreator({ userProfile }: { userProfile: any }) {
   return (
     <Card>
       <CardContent className="pt-6">
-        <div className="flex gap-4">
+        <div className="flex items-start gap-4">
           <Avatar className="h-10 w-10">
-            <AvatarImage src={userProfile?.avatar_url || ""} alt={userProfile?.full_name || "User"} />
-            <AvatarFallback>
-              <User className="h-6 w-6" />
-            </AvatarFallback>
+            <AvatarImage src={userProfile.avatar_url} alt={userProfile.full_name} />
+            <AvatarFallback>{getInitials(userProfile.full_name)}</AvatarFallback>
           </Avatar>
-          <div className="flex-1">
-            <Textarea 
-              className="min-h-[60px] resize-none" 
-              placeholder="Share an update or post..."
+          <div className="flex-1 space-y-4">
+            <Textarea
+              placeholder={`What's on your mind, ${userProfile.full_name?.split(' ')[0]}?`}
               value={content}
               onChange={(e) => setContent(e.target.value)}
+              className="min-h-[120px] resize-none"
             />
             
             {attachmentPreview && (
-              <div className="relative mt-2 border rounded-md p-2">
+              <div className="relative rounded-md border p-3 bg-muted/20">
                 <Button 
                   variant="ghost" 
                   size="icon" 
-                  className="absolute top-1 right-1 h-6 w-6 rounded-full bg-background/80"
-                  onClick={removeAttachment}
+                  className="absolute top-2 right-2 h-6 w-6 rounded-full bg-background/80"
+                  onClick={clearAttachment}
                 >
                   <X className="h-4 w-4" />
                 </Button>
                 
-                {attachmentType === "image" && (
-                  <div className="relative aspect-video bg-muted/20 rounded-md overflow-hidden">
+                {attachmentType === "image" ? (
+                  <div className="relative aspect-video max-h-[300px] overflow-hidden rounded-md">
                     <img 
                       src={attachmentPreview} 
-                      alt="Preview" 
-                      className="object-contain w-full h-full" 
+                      alt="Attachment preview" 
+                      className="object-contain w-full h-full"
                     />
                   </div>
-                )}
-                
-                {attachmentType === "document" && (
-                  <div className="flex items-center p-2 bg-muted/20 rounded-md">
-                    <FileText className="h-8 w-8 mr-2 text-blue-500" />
-                    <span className="text-sm font-medium">{attachment?.name}</span>
+                ) : attachmentType === "video" ? (
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Video className="h-4 w-4" />
+                    <span>{attachmentPreview}</span>
                   </div>
-                )}
-                
-                {attachmentType === "video" && (
-                  <div className="flex items-center p-2 bg-muted/20 rounded-md">
-                    <Video className="h-8 w-8 mr-2 text-red-500" />
-                    <span className="text-sm font-medium">{attachment?.name}</span>
+                ) : (
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <FileText className="h-4 w-4" />
+                    <span>{attachmentPreview}</span>
                   </div>
                 )}
               </div>
             )}
-          </div>
-        </div>
-        
-        <div className="flex items-center justify-between mt-4">
-          <div className="flex gap-2">
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="text-muted-foreground"
-              onClick={() => handleAttachmentSelect("image")}
-            >
-              <ImageIcon className="h-4 w-4 mr-2" />
-              Photo
-            </Button>
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="text-muted-foreground"
-              onClick={() => handleAttachmentSelect("video")}
-            >
-              <Video className="h-4 w-4 mr-2" />
-              Video
-            </Button>
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="text-muted-foreground"
-              onClick={() => handleAttachmentSelect("document")}
-            >
-              <FileText className="h-4 w-4 mr-2" />
-              Document
-            </Button>
             
-            <input
-              type="file"
-              ref={fileInputRef}
-              className="hidden"
-              onChange={handleFileChange}
-              accept={
-                attachmentType === "image" 
-                  ? "image/*" 
-                  : attachmentType === "video" 
-                    ? "video/*" 
-                    : "application/pdf"
-              }
-            />
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="text-muted-foreground"
+                  onClick={() => handleAttachmentSelect("image")}
+                >
+                  <Image className="h-4 w-4 mr-2" />
+                  Photo
+                </Button>
+                
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="text-muted-foreground"
+                  onClick={() => handleAttachmentSelect("video")}
+                >
+                  <Video className="h-4 w-4 mr-2" />
+                  Video
+                </Button>
+                
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="text-muted-foreground"
+                  onClick={() => handleAttachmentSelect("document")}
+                >
+                  <FileText className="h-4 w-4 mr-2" />
+                  Document
+                </Button>
+                
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  className="hidden"
+                  onChange={handleFileChange}
+                  accept={
+                    attachmentType === "image" 
+                      ? "image/*" 
+                      : attachmentType === "video" 
+                        ? "video/*" 
+                        : "application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                  }
+                />
+              </div>
+              
+              <Button 
+                size="sm" 
+                onClick={handleSubmit}
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Posting...
+                  </>
+                ) : (
+                  <>Post</>
+                )}
+              </Button>
+            </div>
           </div>
-          
-          <Button 
-            size="sm" 
-            onClick={handleSubmit}
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? (
-              <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Posting...
-              </>
-            ) : (
-              <>Post</>
-            )}
-          </Button>
         </div>
       </CardContent>
     </Card>

@@ -1,9 +1,8 @@
-
 "use client"
 
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   ThumbsUp,
   MessageSquare,
@@ -18,6 +17,7 @@ import { useRouter } from "next/navigation"
 import { PostCreator } from "@/components/post-creator"
 import { PostItem } from "@/components/post-item"
 import { Skeleton } from "@/components/ui/skeleton"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar" // Added import
 
 export default function FeedPage() {
   const [posts, setPosts] = useState<any[]>([])
@@ -30,23 +30,23 @@ export default function FeedPage() {
     async function fetchUserAndPosts() {
       try {
         setLoading(true)
-        
+
         // Get current user
         const { data: { user } } = await supabase.auth.getUser()
-        
+
         if (user) {
           setCurrentUserId(user.id)
-          
+
           // Get user profile
           const { data: profileData } = await supabase
             .from('profiles')
             .select('*')
             .eq('id', user.id)
             .single()
-            
+
           setUserProfile(profileData)
         }
-        
+
         // Fetch posts with user information
         const { data, error } = await supabase
           .from('posts')
@@ -63,11 +63,11 @@ export default function FeedPage() {
           `)
           .order('created_at', { ascending: false })
           .limit(20)
-        
+
         if (error) {
           throw error
         }
-        
+
         if (data) {
           setPosts(data)
         }
@@ -79,7 +79,7 @@ export default function FeedPage() {
     }
 
     fetchUserAndPosts()
-    
+
     // Subscribe to new posts
     const postsSubscription = supabase
       .channel('public:posts')
@@ -104,13 +104,13 @@ export default function FeedPage() {
           `)
           .eq('id', payload.new.id)
           .single()
-          
+
         if (newPostWithUser) {
           setPosts(prevPosts => [newPostWithUser, ...prevPosts])
         }
       })
       .subscribe()
-      
+
     return () => {
       postsSubscription.unsubscribe()
     }
@@ -196,7 +196,7 @@ export default function FeedPage() {
                   </Avatar>
                   <h4 className="font-medium">{userProfile.full_name}</h4>
                   <p className="text-sm text-muted-foreground">{userProfile.headline || "No headline"}</p>
-                  
+
                   <div className="w-full mt-4">
                     {userProfile.position && (
                       <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
@@ -217,7 +217,7 @@ export default function FeedPage() {
                       </div>
                     )}
                   </div>
-                  
+
                   <Button 
                     className="w-full mt-3" 
                     variant="outline"
@@ -238,7 +238,7 @@ export default function FeedPage() {
               )}
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardContent className="pt-6">
               <h3 className="font-semibold mb-3">Upcoming Events</h3>
@@ -253,7 +253,7 @@ export default function FeedPage() {
                     Join industry experts for a webinar on ESG reporting standards
                   </p>
                 </div>
-                
+
                 <div className="border rounded-md p-3">
                   <div className="flex items-center gap-2 mb-1">
                     <Clock className="h-4 w-4 text-primary" />
@@ -264,12 +264,12 @@ export default function FeedPage() {
                     Virtual panel discussion on improving safety culture
                   </p>
                 </div>
-                
+
                 <Button variant="link" className="px-0">See all events</Button>
               </div>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardContent className="pt-6">
               <h3 className="font-semibold mb-3">Suggested Connections</h3>
@@ -286,7 +286,7 @@ export default function FeedPage() {
                   </div>
                   <Button variant="outline" size="sm">Connect</Button>
                 </div>
-                
+
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Avatar className="h-8 w-8">
@@ -299,7 +299,7 @@ export default function FeedPage() {
                   </div>
                   <Button variant="outline" size="sm">Connect</Button>
                 </div>
-                
+
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Avatar className="h-8 w-8">
@@ -312,7 +312,7 @@ export default function FeedPage() {
                   </div>
                   <Button variant="outline" size="sm">Connect</Button>
                 </div>
-                
+
                 <Button variant="link" className="px-0">See more suggestions</Button>
               </div>
             </CardContent>
