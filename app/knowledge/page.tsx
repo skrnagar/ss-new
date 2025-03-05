@@ -1,7 +1,32 @@
+"use client"
+
+import * as React from "react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { Search, FileText, FileCheck, FilePlus, FileWarning, Filter, Download, Star, Share2 } from "lucide-react"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Badge } from "@/components/ui/badge"
+import { 
+  FileText, 
+  Search, 
+  Upload, 
+  Filter, 
+  Clock, 
+  Download, 
+  ThumbsUp, 
+  MessageSquare, 
+  Share2, 
+  BookOpen, 
+  CheckSquare, 
+  AlertTriangle, 
+  Shield, 
+  FileSpreadsheet,
+  FileImage,
+  FileCheck,
+  FilePlus,
+  FileWarning,
+  Star
+} from "lucide-react"
 
 export default function KnowledgePage() {
   const resources = [
@@ -68,107 +93,6 @@ export default function KnowledgePage() {
   ]
 
   return (
-    <div className="container py-8">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-        <div>
-          <h1 className="text-3xl font-bold mb-2">Knowledge Center</h1>
-          <p className="text-muted-foreground">Access and share valuable resources for ESG and EHS professionals</p>
-        </div>
-        <Button variant="secondary">
-          <FilePlus className="mr-2 h-4 w-4" />
-          Upload Resource
-        </Button>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <div className="md:col-span-3">
-          <div className="relative">
-            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-            <Input placeholder="Search for resources, documents, or topics..." className="pl-10" />
-          </div>
-        </div>
-        <div>
-          <Button variant="outline" className="w-full">
-            <Filter className="mr-2 h-4 w-4" />
-            Filter Resources
-          </Button>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {resources.map((resource) => (
-          <Card key={resource.id} className="overflow-hidden">
-            <div className="bg-primary/5 p-6 flex justify-center">
-              <resource.icon className="h-16 w-16 text-primary" />
-            </div>
-            <CardContent className="p-6">
-              <div className="flex justify-between items-start mb-2">
-                <span className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
-                  {resource.type}
-                </span>
-                <span className="inline-flex items-center rounded-full bg-secondary/10 px-2.5 py-0.5 text-xs font-medium text-secondary">
-                  {resource.industry}
-                </span>
-              </div>
-              <h3 className="font-semibold text-lg mb-2">{resource.title}</h3>
-              <p className="text-sm text-muted-foreground mb-4">By {resource.author}</p>
-
-              <div className="flex justify-between items-center text-sm text-muted-foreground mb-4">
-                <div className="flex items-center">
-                  <Download className="h-4 w-4 mr-1" />
-                  <span>{resource.downloads}</span>
-                </div>
-                <div className="flex items-center">
-                  <Star className="h-4 w-4 text-yellow-500 mr-1" />
-                  <span>{resource.rating}</span>
-                </div>
-              </div>
-
-              <div className="flex gap-2">
-                <Button variant="secondary" className="flex-1">
-                  <Download className="mr-2 h-4 w-4" />
-                  Download
-                </Button>
-                <Button variant="outline" size="icon">
-                  <Share2 className="h-4 w-4" />
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-    </div>
-  )
-}
-
-"use client"
-
-import * as React from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Badge } from "@/components/ui/badge"
-import { 
-  FileText, 
-  Search, 
-  Upload, 
-  Filter, 
-  Clock, 
-  Download, 
-  ThumbsUp, 
-  MessageSquare, 
-  Share2, 
-  BookOpen, 
-  CheckSquare, 
-  AlertTriangle, 
-  Shield, 
-  FileSpreadsheet,
-  FileImage
-} from "lucide-react"
-
-export default function KnowledgePage() {
-  return (
     <div className="container py-6">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
         <div>
@@ -182,7 +106,7 @@ export default function KnowledgePage() {
           Contribute Resource
         </Button>
       </div>
-      
+
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         <div className="lg:col-span-3 space-y-6">
           <Card>
@@ -216,7 +140,7 @@ export default function KnowledgePage() {
               </Button>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-lg">Filter Resources</CardTitle>
@@ -244,7 +168,7 @@ export default function KnowledgePage() {
                     </div>
                   </div>
                 </div>
-                
+
                 <div>
                   <div className="text-sm font-medium mb-2">Document Type</div>
                   <div className="space-y-2">
@@ -266,7 +190,7 @@ export default function KnowledgePage() {
                     </div>
                   </div>
                 </div>
-                
+
                 <div>
                   <div className="text-sm font-medium mb-2">Date Added</div>
                   <div className="space-y-2">
@@ -283,17 +207,17 @@ export default function KnowledgePage() {
                       <label htmlFor="date-quarter" className="text-sm">Last 90 Days</label>
                     </div>
                     <div className="flex items-center">
-                      <input type="radio" id="date-all" name="date-filter" className="h-4 w-4 rounded-full border-gray-300 mr-2" checked />
+                      <input type="radio" id="date-all" name="date-filter" className="h-4 w-4 rounded-full border-gray-300 mr-2" defaultChecked />
                       <label htmlFor="date-all" className="text-sm">All Time</label>
                     </div>
                   </div>
                 </div>
-                
+
                 <Button className="w-full">Apply Filters</Button>
               </div>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-lg">Popular Tags</CardTitle>
@@ -316,7 +240,7 @@ export default function KnowledgePage() {
             </CardContent>
           </Card>
         </div>
-        
+
         <div className="lg:col-span-9">
           <Card className="mb-6">
             <CardContent className="pt-6">
@@ -332,7 +256,7 @@ export default function KnowledgePage() {
               </div>
             </CardContent>
           </Card>
-          
+
           <Tabs defaultValue="featured">
             <div className="flex items-center justify-between mb-6">
               <TabsList>
@@ -342,7 +266,7 @@ export default function KnowledgePage() {
                 <TabsTrigger value="my-downloads">My Downloads</TabsTrigger>
               </TabsList>
             </div>
-            
+
             <TabsContent value="featured" className="mt-0">
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <Card>
@@ -381,7 +305,7 @@ export default function KnowledgePage() {
                     </Button>
                   </div>
                 </Card>
-                
+
                 <Card>
                   <CardHeader className="pb-3">
                     <div className="bg-primary/10 p-2 rounded-md w-fit mb-2">
@@ -418,7 +342,7 @@ export default function KnowledgePage() {
                     </Button>
                   </div>
                 </Card>
-                
+
                 <Card>
                   <CardHeader className="pb-3">
                     <div className="bg-primary/10 p-2 rounded-md w-fit mb-2">
@@ -455,132 +379,21 @@ export default function KnowledgePage() {
                     </Button>
                   </div>
                 </Card>
-                
-                <Card>
-                  <CardHeader className="pb-3">
-                    <div className="bg-primary/10 p-2 rounded-md w-fit mb-2">
-                      <FileText className="h-6 w-6 text-primary" />
-                    </div>
-                    <CardTitle className="text-lg">ESG Reporting Framework Guide</CardTitle>
-                    <CardDescription>Comprehensive guide to ESG reporting standards</CardDescription>
-                  </CardHeader>
-                  <CardContent className="pb-3">
-                    <div className="flex items-center justify-between text-sm mb-2">
-                      <div className="flex items-center text-muted-foreground">
-                        <FileText className="h-3 w-3 mr-1" />
-                        <span>PDF • 6.1 MB</span>
-                      </div>
-                      <div className="flex items-center text-muted-foreground">
-                        <Download className="h-3 w-3 mr-1" />
-                        <span>548 downloads</span>
-                      </div>
-                    </div>
-                    <div className="flex items-center text-sm text-muted-foreground mb-3">
-                      <Clock className="h-3 w-3 mr-1" />
-                      <span>Added 2 months ago by Emily Rodriguez</span>
-                    </div>
-                    <div className="flex flex-wrap gap-1 mb-3">
-                      <Badge variant="outline" className="text-xs">ESG</Badge>
-                      <Badge variant="outline" className="text-xs">Reporting</Badge>
-                      <Badge variant="outline" className="text-xs">Sustainability</Badge>
-                    </div>
-                  </CardContent>
-                  <div className="px-6 pb-6">
-                    <Button className="w-full">
-                      <Download className="h-4 w-4 mr-2" />
-                      Download
-                    </Button>
-                  </div>
-                </Card>
-                
-                <Card>
-                  <CardHeader className="pb-3">
-                    <div className="bg-primary/10 p-2 rounded-md w-fit mb-2">
-                      <FileText className="h-6 w-6 text-primary" />
-                    </div>
-                    <CardTitle className="text-lg">Job Safety Analysis Templates</CardTitle>
-                    <CardDescription>Collection of JSA templates for various industries</CardDescription>
-                  </CardHeader>
-                  <CardContent className="pb-3">
-                    <div className="flex items-center justify-between text-sm mb-2">
-                      <div className="flex items-center text-muted-foreground">
-                        <FileText className="h-3 w-3 mr-1" />
-                        <span>Word • 3.5 MB</span>
-                      </div>
-                      <div className="flex items-center text-muted-foreground">
-                        <Download className="h-3 w-3 mr-1" />
-                        <span>427 downloads</span>
-                      </div>
-                    </div>
-                    <div className="flex items-center text-sm text-muted-foreground mb-3">
-                      <Clock className="h-3 w-3 mr-1" />
-                      <span>Added 4 months ago by James Wilson</span>
-                    </div>
-                    <div className="flex flex-wrap gap-1 mb-3">
-                      <Badge variant="outline" className="text-xs">JSA</Badge>
-                      <Badge variant="outline" className="text-xs">Safety</Badge>
-                      <Badge variant="outline" className="text-xs">Risk Assessment</Badge>
-                    </div>
-                  </CardContent>
-                  <div className="px-6 pb-6">
-                    <Button className="w-full">
-                      <Download className="h-4 w-4 mr-2" />
-                      Download
-                    </Button>
-                  </div>
-                </Card>
-                
-                <Card>
-                  <CardHeader className="pb-3">
-                    <div className="bg-primary/10 p-2 rounded-md w-fit mb-2">
-                      <FileImage className="h-6 w-6 text-primary" />
-                    </div>
-                    <CardTitle className="text-lg">Carbon Footprint Calculation Guide</CardTitle>
-                    <CardDescription>Step-by-step guide to calculating organizational carbon footprint</CardDescription>
-                  </CardHeader>
-                  <CardContent className="pb-3">
-                    <div className="flex items-center justify-between text-sm mb-2">
-                      <div className="flex items-center text-muted-foreground">
-                        <FileText className="h-3 w-3 mr-1" />
-                        <span>PDF • 5.3 MB</span>
-                      </div>
-                      <div className="flex items-center text-muted-foreground">
-                        <Download className="h-3 w-3 mr-1" />
-                        <span>382 downloads</span>
-                      </div>
-                    </div>
-                    <div className="flex items-center text-sm text-muted-foreground mb-3">
-                      <Clock className="h-3 w-3 mr-1" />
-                      <span>Added 6 months ago by Lisa Wong</span>
-                    </div>
-                    <div className="flex flex-wrap gap-1 mb-3">
-                      <Badge variant="outline" className="text-xs">Carbon</Badge>
-                      <Badge variant="outline" className="text-xs">Environmental</Badge>
-                      <Badge variant="outline" className="text-xs">Sustainability</Badge>
-                    </div>
-                  </CardContent>
-                  <div className="px-6 pb-6">
-                    <Button className="w-full">
-                      <Download className="h-4 w-4 mr-2" />
-                      Download
-                    </Button>
-                  </div>
-                </Card>
               </div>
             </TabsContent>
-            
+
             <TabsContent value="recent" className="mt-0">
               <div className="p-12 text-center text-muted-foreground">
                 Select this tab to see recently added resources
               </div>
             </TabsContent>
-            
+
             <TabsContent value="popular" className="mt-0">
               <div className="p-12 text-center text-muted-foreground">
                 Select this tab to see the most popular resources
               </div>
             </TabsContent>
-            
+
             <TabsContent value="my-downloads" className="mt-0">
               <div className="p-12 text-center text-muted-foreground">
                 Select this tab to see your downloaded resources
