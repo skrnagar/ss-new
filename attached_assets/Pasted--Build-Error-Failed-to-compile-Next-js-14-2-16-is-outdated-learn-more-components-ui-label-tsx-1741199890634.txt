@@ -1,0 +1,223 @@
+
+Build Error
+Failed to compile
+
+Next.js (14.2.16) is outdated (learn more)
+./components/ui/label.tsx
+Error: 
+  × the name `cva` is defined multiple times
+    ╭─[/home/runner/workspace/components/ui/label.tsx:2:1]
+  2 │ 
+  3 │ import * as React from "react"
+  4 │ import * as LabelPrimitive from "@radix-ui/react-label"
+  5 │ import { cva, type VariantProps } from "class-variance-authority"
+    ·          ─┬─
+    ·           ╰── previous definition of `cva` here
+  6 │ 
+  7 │ import { cn } from "@/lib/utils"
+  8 │ 
+  9 │ const labelVariants = cva(
+ 10 │   "text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+ 11 │ )
+ 12 │ 
+ 13 │ const Label = React.forwardRef<
+ 14 │   React.ElementRef<typeof LabelPrimitive.Root>,
+ 15 │   React.ComponentPropsWithoutRef<typeof LabelPrimitive.Root> &
+ 16 │     VariantProps<typeof labelVariants>
+ 17 │ >(({ className, ...props }, ref) => (
+ 18 │   <LabelPrimitive.Root
+ 19 │     ref={ref}
+ 20 │     className={cn(labelVariants(), className)}
+ 21 │     {...props}
+ 22 │   />
+ 23 │ ))
+ 24 │ Label.displayName = LabelPrimitive.Root.displayName
+ 25 │ 
+ 26 │ export { Label }
+ 27 │ "use client"
+ 28 │ 
+ 29 │ import * as React from "react"
+ 30 │ import * as LabelPrimitive from "@radix-ui/react-label"
+ 31 │ import { cva, type VariantProps } from "class-variance-authority"
+    ·          ─┬─
+    ·           ╰── `cva` redefined here
+ 32 │ 
+ 33 │ import { cn } from "@/lib/utils"
+    ╰────
+
+  × the name `cn` is defined multiple times
+    ╭─[/home/runner/workspace/components/ui/label.tsx:4:1]
+  4 │ import * as LabelPrimitive from "@radix-ui/react-label"
+  5 │ import { cva, type VariantProps } from "class-variance-authority"
+  6 │ 
+  7 │ import { cn } from "@/lib/utils"
+    ·          ─┬
+    ·           ╰── previous definition of `cn` here
+  8 │ 
+  9 │ const labelVariants = cva(
+ 10 │   "text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+ 11 │ )
+ 12 │ 
+ 13 │ const Label = React.forwardRef<
+ 14 │   React.ElementRef<typeof LabelPrimitive.Root>,
+ 15 │   React.ComponentPropsWithoutRef<typeof LabelPrimitive.Root> &
+ 16 │     VariantProps<typeof labelVariants>
+ 17 │ >(({ className, ...props }, ref) => (
+ 18 │   <LabelPrimitive.Root
+ 19 │     ref={ref}
+ 20 │     className={cn(labelVariants(), className)}
+ 21 │     {...props}
+ 22 │   />
+ 23 │ ))
+ 24 │ Label.displayName = LabelPrimitive.Root.displayName
+ 25 │ 
+ 26 │ export { Label }
+ 27 │ "use client"
+ 28 │ 
+ 29 │ import * as React from "react"
+ 30 │ import * as LabelPrimitive from "@radix-ui/react-label"
+ 31 │ import { cva, type VariantProps } from "class-variance-authority"
+ 32 │ 
+ 33 │ import { cn } from "@/lib/utils"
+    ·          ─┬
+    ·           ╰── `cn` redefined here
+ 34 │ 
+ 35 │ const labelVariants = cva(
+ 36 │   "text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+    ╰────
+
+  × the name `labelVariants` is defined multiple times
+    ╭─[/home/runner/workspace/components/ui/label.tsx:6:1]
+  6 │ 
+  7 │ import { cn } from "@/lib/utils"
+  8 │ 
+  9 │ const labelVariants = cva(
+    ·       ──────┬──────
+    ·             ╰── previous definition of `labelVariants` here
+ 10 │   "text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+ 11 │ )
+ 12 │ 
+ 13 │ const Label = React.forwardRef<
+ 14 │   React.ElementRef<typeof LabelPrimitive.Root>,
+ 15 │   React.ComponentPropsWithoutRef<typeof LabelPrimitive.Root> &
+ 16 │     VariantProps<typeof labelVariants>
+ 17 │ >(({ className, ...props }, ref) => (
+ 18 │   <LabelPrimitive.Root
+ 19 │     ref={ref}
+ 20 │     className={cn(labelVariants(), className)}
+ 21 │     {...props}
+ 22 │   />
+ 23 │ ))
+ 24 │ Label.displayName = LabelPrimitive.Root.displayName
+ 25 │ 
+ 26 │ export { Label }
+ 27 │ "use client"
+ 28 │ 
+ 29 │ import * as React from "react"
+ 30 │ import * as LabelPrimitive from "@radix-ui/react-label"
+ 31 │ import { cva, type VariantProps } from "class-variance-authority"
+ 32 │ 
+ 33 │ import { cn } from "@/lib/utils"
+ 34 │ 
+ 35 │ const labelVariants = cva(
+    ·       ──────┬──────
+    ·             ╰── `labelVariants` redefined here
+ 36 │   "text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+ 37 │ )
+    ╰────
+
+  × the name `Label` is defined multiple times
+    ╭─[/home/runner/workspace/components/ui/label.tsx:10:1]
+ 10 │   "text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+ 11 │ )
+ 12 │ 
+ 13 │ const Label = React.forwardRef<
+    ·       ──┬──
+    ·         ╰── previous definition of `Label` here
+ 14 │   React.ElementRef<typeof LabelPrimitive.Root>,
+ 15 │   React.ComponentPropsWithoutRef<typeof LabelPrimitive.Root> &
+ 16 │     VariantProps<typeof labelVariants>
+ 17 │ >(({ className, ...props }, ref) => (
+ 18 │   <LabelPrimitive.Root
+ 19 │     ref={ref}
+ 20 │     className={cn(labelVariants(), className)}
+ 21 │     {...props}
+ 22 │   />
+ 23 │ ))
+ 24 │ Label.displayName = LabelPrimitive.Root.displayName
+ 25 │ 
+ 26 │ export { Label }
+ 27 │ "use client"
+ 28 │ 
+ 29 │ import * as React from "react"
+ 30 │ import * as LabelPrimitive from "@radix-ui/react-label"
+ 31 │ import { cva, type VariantProps } from "class-variance-authority"
+ 32 │ 
+ 33 │ import { cn } from "@/lib/utils"
+ 34 │ 
+ 35 │ const labelVariants = cva(
+ 36 │   "text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+ 37 │ )
+ 38 │ 
+ 39 │ const Label = React.forwardRef<
+    ·       ──┬──
+    ·         ╰── `Label` redefined here
+ 40 │   React.ElementRef<typeof LabelPrimitive.Root>,
+ 41 │   React.ComponentPropsWithoutRef<typeof LabelPrimitive.Root> &
+ 42 │     VariantProps<typeof labelVariants>
+    ╰────
+
+  × the name `Label` is exported multiple times
+    ╭─[/home/runner/workspace/components/ui/label.tsx:23:1]
+ 23 │ ))
+ 24 │ Label.displayName = LabelPrimitive.Root.displayName
+ 25 │ 
+ 26 │ export { Label }
+    ·          ──┬──
+    ·            ╰── previous exported here
+ 27 │ "use client"
+ 28 │ 
+ 29 │ import * as React from "react"
+ 30 │ import * as LabelPrimitive from "@radix-ui/react-label"
+ 31 │ import { cva, type VariantProps } from "class-variance-authority"
+ 32 │ 
+ 33 │ import { cn } from "@/lib/utils"
+ 34 │ 
+ 35 │ const labelVariants = cva(
+ 36 │   "text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+ 37 │ )
+ 38 │ 
+ 39 │ const Label = React.forwardRef<
+ 40 │   React.ElementRef<typeof LabelPrimitive.Root>,
+ 41 │   React.ComponentPropsWithoutRef<typeof LabelPrimitive.Root> &
+ 42 │     VariantProps<typeof labelVariants>
+ 43 │ >(({ className, ...props }, ref) => (
+ 44 │   <LabelPrimitive.Root
+ 45 │     ref={ref}
+ 46 │     className={cn(labelVariants(), className)}
+ 47 │     {...props}
+ 48 │   />
+ 49 │ ))
+ 50 │ Label.displayName = LabelPrimitive.Root.displayName
+ 51 │ 
+ 52 │ export { Label }
+    ·          ──┬──
+    ·            ╰── exported more than once
+    ╰────
+
+Error: 
+  ☞ Exported identifiers must be unique
+
+  × The "use client" directive must be placed before other expressions. Move it to the top of the file to resolve this issue.
+    ╭─[/home/runner/workspace/components/ui/label.tsx:24:1]
+ 24 │ Label.displayName = LabelPrimitive.Root.displayName
+ 25 │ 
+ 26 │ export { Label }
+ 27 │ "use client"
+    · ────────────
+ 28 │ 
+ 29 │ import * as React from "react"
+ 30 │ import * as LabelPrimitive from "@radix-ui/react-label"
+    ╰────
+This error occurred during the build process and can only be dismissed by fixing the error.
+
