@@ -109,7 +109,7 @@ export function PostItem({ post, currentUser }) {
         .from('comments')
         .select(`
           *,
-          profile:user_id (
+          profiles:user_id (
             id,
             username,
             full_name,
@@ -206,7 +206,7 @@ export function PostItem({ post, currentUser }) {
         })
         .select(`
           *,
-          profile:user_id (
+          profiles:user_id (
             id,
             username,
             full_name,
@@ -505,14 +505,14 @@ export function PostItem({ post, currentUser }) {
                     {comments.map((comment) => (
                       <div key={comment.id} className="flex items-start gap-2">
                         <Avatar className="h-8 w-8 mt-1">
-                          <AvatarImage src={comment.profile?.avatar_url} alt={comment.profile?.full_name} />
-                          <AvatarFallback>{getInitials(comment.profile?.full_name || "User")}</AvatarFallback>
+                          <AvatarImage src={comment.profiles?.avatar_url} alt={comment.profiles?.full_name} />
+                          <AvatarFallback>{getInitials(comment.profiles?.full_name || "User")}</AvatarFallback>
                         </Avatar>
                         <div className="flex-1">
                           <div className="bg-muted rounded-lg p-3">
                             <div className="flex justify-between items-start">
-                              <Link href={`/profile/${comment.profile?.username || '#'}`} className="font-medium text-sm hover:underline">
-                                {comment.profile?.full_name || "Anonymous User"}
+                              <Link href={`/profile/${comment.profiles?.username || '#'}`} className="font-medium text-sm hover:underline">
+                                {comment.profiles?.full_name || "Anonymous User"}
                               </Link>
                               {currentUser && comment.user_id === currentUser.id && (
                                 <DropdownMenu>
