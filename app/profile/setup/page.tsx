@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -27,7 +28,7 @@ export default function ProfileSetupPage() {
   const { toast } = useToast()
   const [loading, setLoading] = React.useState(false)
   const [user, setUser] = React.useState<any>(null)
-
+  
   const form = useForm<z.infer<typeof profileSetupSchema>>({
     resolver: zodResolver(profileSetupSchema),
     defaultValues: {
@@ -46,7 +47,7 @@ export default function ProfileSetupPage() {
       try {
         const { data: { user } } = await supabase.auth.getUser()
         setUser(user)
-
+        
         if (user) {
           // Try to fetch existing profile data
           const { data: profile } = await supabase
@@ -54,7 +55,7 @@ export default function ProfileSetupPage() {
             .select('*')
             .eq('id', user.id)
             .single()
-
+            
           if (profile) {
             // Pre-fill form with existing data if available
             form.reset({
@@ -71,99 +72,9 @@ export default function ProfileSetupPage() {
         console.error('Error fetching user:', error)
       }
     }
-
+    
     fetchUser()
   }, [form])
-
-  // Helper function to check if a username is available
-  const checkUsernameAvailability = async (username: string) => {
-    try {
-      console.log("Setting up database...")
-      // First, try to set up the database to ensure tables exist
-      const setupResponse = await fetch('/api/setup-db')
-      if (!setupResponse.ok) {
-        console.warn("Database setup response not OK:", await setupResponse.text())
-      } else {
-        console.log("Database setup completed")
-      }
-
-      // Wait for tables to be available
-      await new Promise(resolve => setTimeout(resolve, 2000))
-
-      // Now check username availability
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('username')
-        .eq('username', username)
-
-      if (error) {
-        console.error("Supabase error checking username:", error)
-
-        // Try one more time to set up database if table doesn't exist
-        if (error.code === '42P01') { // Relation does not exist error
-          console.log("Table doesn't exist, trying direct SQL setup...")
-
-          try {
-            // Create profiles table directly
-            await supabase.query(`
-              CREATE TABLE IF NOT EXISTS profiles (
-                id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
-                username TEXT UNIQUE NOT NULL,
-                full_name TEXT,
-                headline TEXT,
-                bio TEXT,
-                avatar_url TEXT,
-                company TEXT,
-                position TEXT,
-                location TEXT,
-                created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-                updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-              );
-
-              ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
-
-              CREATE POLICY "Public profiles are viewable by everyone" 
-              ON profiles FOR SELECT USING (true);
-
-              CREATE POLICY "Users can insert their own profile" 
-              ON profiles FOR INSERT WITH CHECK (auth.uid() = id);
-
-              CREATE POLICY "Users can update own profile" 
-              ON profiles FOR UPDATE USING (auth.uid() = id);
-            `)
-
-            // Wait again for tables to be created
-            await new Promise(resolve => setTimeout(resolve, 1000))
-
-            // Try again
-            const { data: retryData, error: retryError } = await supabase
-              .from('profiles')
-              .select('username')
-              .eq('username', username)
-
-            if (retryError) {
-              console.error("Still unable to check username after table creation:", retryError)
-              return true // Assume username is available to allow profile creation
-            }
-
-            return retryData.length === 0
-          } catch (sqlError) {
-            console.error("Failed to create table with direct SQL:", sqlError)
-            return true // Assume username is available to allow profile creation
-          }
-        }
-
-        throw new Error(`Database error: ${error.message}`)
-      }
-
-      return data.length === 0
-    } catch (err) {
-      console.error("Error checking username availability:", err)
-      // Don't block the user, assume username is available
-      return true
-    }
-  }
-
 
   async function onSubmit(values: z.infer<typeof profileSetupSchema>) {
     if (!user) {
@@ -174,14 +85,23 @@ export default function ProfileSetupPage() {
       })
       return
     }
-
+    
     setLoading(true)
-
+    
     try {
       // Check if username is already taken
-      const isUsernameAvailable = await checkUsernameAvailability(values.username);
-
-      if (!isUsernameAvailable) {
+      const { data: existingUser, error: checkError } = await supabase
+        .from('profiles')
+        .select('username')
+        .eq('username', values.username)
+        .neq('id', user.id) // Exclude current user
+        .single()
+      
+      if (checkError && checkError.code !== 'PGRST116') { // PGRST116 is "no rows returned" which is good
+        throw new Error("Error checking username availability")
+      }
+      
+      if (existingUser) {
         toast({
           title: "Username already taken",
           description: "Please choose a different username",
@@ -190,7 +110,7 @@ export default function ProfileSetupPage() {
         setLoading(false)
         return
       }
-
+      
       // Update the user's profile
       const { error: updateError } = await supabase
         .from('profiles')
@@ -204,16 +124,16 @@ export default function ProfileSetupPage() {
           location: values.location,
           updated_at: new Date().toISOString(),
         }, { onConflict: 'id' })
-
+      
       if (updateError) {
         throw updateError
       }
-
+      
       toast({
         title: "Profile updated",
         description: "Your profile has been successfully updated",
       })
-
+      
       // Redirect to the user's profile page
       router.push(`/profile/${values.username}`)
     } catch (error: any) {
@@ -253,7 +173,7 @@ export default function ProfileSetupPage() {
                   </FormItem>
                 )}
               />
-
+              
               <FormField
                 control={form.control}
                 name="headline"
@@ -270,7 +190,7 @@ export default function ProfileSetupPage() {
                   </FormItem>
                 )}
               />
-
+              
               <FormField
                 control={form.control}
                 name="bio"
@@ -288,7 +208,7 @@ export default function ProfileSetupPage() {
                   </FormItem>
                 )}
               />
-
+              
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
@@ -303,7 +223,7 @@ export default function ProfileSetupPage() {
                     </FormItem>
                   )}
                 />
-
+                
                 <FormField
                   control={form.control}
                   name="position"
@@ -318,7 +238,7 @@ export default function ProfileSetupPage() {
                   )}
                 />
               </div>
-
+              
               <FormField
                 control={form.control}
                 name="location"
@@ -332,7 +252,7 @@ export default function ProfileSetupPage() {
                   </FormItem>
                 )}
               />
-
+              
               <Button type="submit" className="w-full" disabled={loading}>
                 {loading ? "Saving..." : "Save Profile"}
               </Button>

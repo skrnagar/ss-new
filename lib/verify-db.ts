@@ -1,93 +1,54 @@
 
-import { SupabaseClient } from '@supabase/supabase-js'
+import { createClient } from '@supabase/supabase-js'
+import fs from 'fs'
+import path from 'path'
 
-// This function checks if the required tables exist in the database
-export async function verifyDatabaseSetup(supabase: SupabaseClient) {
-  const requiredTables = [
-    'profiles',
-    'posts',
-    'comments',
-    'likes',
-    'follows',
-    'jobs',
-    'applications',
-    'groups',
-    'group_members'
-  ]
-  
-  console.log("Checking required tables:", requiredTables)
-  
-  const foundTables: string[] = []
-  const missingTables: string[] = []
-  let hasError = false
+const verifyDatabase = async () => {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+  const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY 
+    || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+
+  if (!supabaseUrl || !supabaseServiceKey) {
+    console.error('Missing Supabase URL or key in environment variables')
+    return
+  }
+
+  const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
   try {
-    // First try to use system tables if permissions allow
-    const { data: systemTables, error: systemError } = await supabase
-      .from('information_schema.tables')
-      .select('table_name')
-      .eq('table_schema', 'public')
-    
-    if (!systemError && systemTables) {
-      console.log("Found tables using system query:", systemTables)
-      const tableNames = systemTables.map(t => t.table_name)
+    // Check if profiles table exists
+    const { data: profilesTable, error: profilesError } = await supabase
+      .from('profiles')
+      .select('*')
+      .limit(1)
+
+    if (profilesError) {
+      console.error('Error accessing profiles table:', profilesError.message)
+      console.log('Creating database tables...')
       
-      for (const table of requiredTables) {
-        if (tableNames.includes(table)) {
-          foundTables.push(table)
-        } else {
-          missingTables.push(table)
-        }
-      }
+      // Read SQL from database.sql file
+      const sqlPath = path.join(process.cwd(), 'lib', 'database.sql')
       
-      if (missingTables.length > 0) {
-        hasError = true
-        console.error("Missing tables:", missingTables)
-      }
-      
-      return { 
-        tables: foundTables,
-        error: hasError ? { message: 'Missing required tables', missingTables } : null
-      }
-    }
-    
-    // Fallback: check each table individually
-    console.log("Checking tables individually")
-    
-    for (const table of requiredTables) {
-      try {
-        const { error } = await supabase
-          .from(table)
-          .select('count')
-          .limit(1)
+      if (fs.existsSync(sqlPath)) {
+        const sql = fs.readFileSync(sqlPath, 'utf8')
+        
+        // Execute SQL to create tables
+        const { error } = await supabase.rpc('exec_sql', { sql })
         
         if (error) {
-          console.error(`Table ${table} check failed:`, error)
-          missingTables.push(table)
+          console.error('Error creating database tables:', error.message)
         } else {
-          console.log(`Table ${table} exists`)
-          foundTables.push(table)
+          console.log('Database tables created successfully')
         }
-      } catch (err) {
-        console.error(`Error checking table ${table}:`, err)
-        missingTables.push(table)
+      } else {
+        console.error('database.sql file not found')
       }
-    }
-    
-    if (missingTables.length > 0) {
-      hasError = true
-      console.error("Missing tables after individual checks:", missingTables)
-    }
-    
-    return { 
-      tables: foundTables,
-      error: hasError ? { message: 'Missing required tables', missingTables } : null
+    } else {
+      console.log('Database tables verified')
     }
   } catch (error) {
-    console.error("Error verifying database:", error)
-    return { 
-      error,
-      tables: foundTables
-    }
+    console.error('Error verifying database:', error)
   }
 }
+
+export default verifyDatabase

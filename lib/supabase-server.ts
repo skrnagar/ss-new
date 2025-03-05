@@ -1,21 +1,10 @@
 
 import { cookies } from 'next/headers'
 import { createServerClient } from '@supabase/ssr'
-import { createClient as createSupabaseClient } from '@supabase/supabase-js'
+import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
+import { Database } from '@/types/supabase'
 
-// Legacy client function for backward compatibility
-export function createLegacyClient() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  
-  if (!supabaseUrl || !supabaseKey) {
-    throw new Error('Supabase URL or key is missing in environment variables')
-  }
-  
-  return createSupabaseClient(supabaseUrl, supabaseKey)
-}
-
-// This creates a Supabase client for server-side operations
+// This creates a Supabase client for server-side operations using @supabase/ssr
 export function createClient() {
   const cookieStore = cookies()
 
@@ -43,4 +32,11 @@ export function createClient() {
       },
     }
   )
+}
+
+// Legacy client using auth-helpers-nextjs
+export function createLegacyClient() {
+  return createServerComponentClient<Database>({
+    cookies,
+  })
 }
