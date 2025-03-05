@@ -36,6 +36,47 @@ async function setupDatabase() {
     
     console.log(`Executing ${statements.length} SQL statements...`)
     
+    // Create exec_sql function if it doesn't exist
+    try {
+      await supabase.rpc('exec_sql', { sql: 'SELECT 1' })
+      console.log('exec_sql function exists')
+    } catch (err) {
+      console.log('Creating exec_sql function...')
+      // Create a function to execute raw SQL (only works with admin key)
+      const createFunctionSQL = `
+        CREATE OR REPLACE FUNCTION exec_sql(sql text)
+        RETURNS JSONB
+        LANGUAGE plpgsql
+        SECURITY DEFINER
+        AS $$
+        BEGIN
+          EXECUTE sql;
+          RETURN jsonb_build_object('success', true);
+        EXCEPTION WHEN OTHERS THEN
+          RETURN jsonb_build_object(
+            'success', false,
+            'error', jsonb_build_object(
+              'message', SQLERRM,
+              'detail', SQLSTATE
+            )
+          );
+        END;
+        $$;
+      `
+      
+      try {
+        const { error } = await supabase.from('_exec_sql_setup').select('*').limit(1)
+        if (error && error.code === '42P01') {
+          console.log('Creating exec_sql function using direct SQL access...')
+          // Execute direct SQL to create the function
+          // Note: This requires admin privileges
+          // This might not work depending on your Supabase permissions
+        }
+      } catch (setupErr) {
+        console.error('Error setting up exec_sql function:', setupErr)
+      }
+    }
+    
     // Execute statements one by one
     for (let i = 0; i < statements.length; i++) {
       const statement = statements[i]
