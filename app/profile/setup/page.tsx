@@ -263,3 +263,232 @@ export default function ProfileSetupPage() {
     </div>
   )
 }
+"use client"
+
+import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { toast } from "@/hooks/use-toast"
+import { supabase } from "@/lib/supabase"
+
+export default function ProfileSetupPage() {
+  const router = useRouter()
+  const [loading, setLoading] = useState(true)
+  const [submitting, setSubmitting] = useState(false)
+  const [user, setUser] = useState<any>(null)
+  const [profile, setProfile] = useState({
+    username: "",
+    full_name: "",
+    headline: "",
+    bio: "",
+    company: "",
+    position: "",
+    location: "",
+  })
+
+  useEffect(() => {
+    const getUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+      
+      if (!session) {
+        router.push("/auth/login")
+        return
+      }
+
+      setUser(session.user)
+
+      // Check if profile exists
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", session.user.id)
+        .single()
+
+      if (error && error.code !== "PGRST116") {
+        toast({
+          title: "Error",
+          description: "Failed to load profile data. Please try again.",
+          variant: "destructive",
+        })
+        return
+      }
+
+      if (data) {
+        setProfile({
+          username: data.username || "",
+          full_name: data.full_name || "",
+          headline: data.headline || "",
+          bio: data.bio || "",
+          company: data.company || "",
+          position: data.position || "",
+          location: data.location || "",
+        })
+      }
+
+      setLoading(false)
+    }
+
+    getUser()
+  }, [router])
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target
+    setProfile((prev) => ({ ...prev, [name]: value }))
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setSubmitting(true)
+
+    try {
+      // Update the profile
+      const { error } = await supabase
+        .from("profiles")
+        .upsert({
+          id: user.id,
+          username: profile.username,
+          full_name: profile.full_name,
+          headline: profile.headline,
+          bio: profile.bio,
+          company: profile.company,
+          position: profile.position,
+          location: profile.location,
+          updated_at: new Date().toISOString(),
+        })
+
+      if (error) throw error
+
+      toast({
+        title: "Profile Updated",
+        description: "Your profile has been successfully updated.",
+      })
+
+      // Redirect to profile page
+      router.push(`/profile/${profile.username}`)
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update profile. Please try again.",
+        variant: "destructive",
+      })
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="container flex items-center justify-center min-h-[80vh]">
+        <p>Loading...</p>
+      </div>
+    )
+  }
+
+  return (
+    <div className="container py-10">
+      <div className="max-w-2xl mx-auto">
+        <Card>
+          <CardHeader>
+            <CardTitle>Complete Your Profile</CardTitle>
+            <CardDescription>
+              Fill in your information to help others find and connect with you.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="username">Username</Label>
+                    <Input
+                      id="username"
+                      name="username"
+                      value={profile.username}
+                      onChange={handleChange}
+                      required
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      This will be your unique identifier on the platform.
+                    </p>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="full_name">Full Name</Label>
+                    <Input
+                      id="full_name"
+                      name="full_name"
+                      value={profile.full_name}
+                      onChange={handleChange}
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="headline">Professional Headline</Label>
+                  <Input
+                    id="headline"
+                    name="headline"
+                    placeholder="e.g., EHS Manager at XYZ Corp"
+                    value={profile.headline}
+                    onChange={handleChange}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="bio">Bio</Label>
+                  <Textarea
+                    id="bio"
+                    name="bio"
+                    placeholder="Tell others about yourself and your expertise..."
+                    value={profile.bio}
+                    onChange={handleChange}
+                    rows={4}
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="company">Company</Label>
+                    <Input
+                      id="company"
+                      name="company"
+                      value={profile.company}
+                      onChange={handleChange}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="position">Position</Label>
+                    <Input
+                      id="position"
+                      name="position"
+                      value={profile.position}
+                      onChange={handleChange}
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="location">Location</Label>
+                  <Input
+                    id="location"
+                    name="location"
+                    placeholder="e.g., Boston, MA"
+                    value={profile.location}
+                    onChange={handleChange}
+                  />
+                </div>
+              </div>
+
+              <Button type="submit" className="w-full" disabled={submitting}>
+                {submitting ? "Saving..." : "Save Profile"}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  )
+}
