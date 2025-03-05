@@ -38,6 +38,9 @@ export function PostItem({ post, currentUser }) {
   const MAX_CONTENT_LENGTH = 300
 
   useEffect(() => {
+    // Debug log to check current user status
+    console.log("Current user in post item:", currentUser ? "Logged in" : "Not logged in")
+    
     // Check if current user has liked the post
     if (currentUser) {
       checkLikeStatus()
@@ -495,43 +498,45 @@ export function PostItem({ post, currentUser }) {
           <div className="w-full mt-4 space-y-4">
             {/* Comment form */}
             <form onSubmit={handleCommentSubmit} className="flex items-start gap-2">
-              {currentUser ? (
-                <>
-                  <Avatar className="h-8 w-8 mt-1">
-                    <AvatarImage 
-                      src={currentUser.user_metadata?.avatar_url || currentUser.user_metadata?.picture || "/placeholder-user.jpg"} 
-                      alt={currentUser.user_metadata?.name || currentUser.email}
-                    />
-                    <AvatarFallback>
-                      {getInitials(currentUser.user_metadata?.name || currentUser.email?.split('@')[0] || "User")}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1 relative">
-                    <Textarea
-                      placeholder="Write a comment..."
-                      value={commentContent}
-                      onChange={(e) => setCommentContent(e.target.value)}
-                      className="min-h-[60px] pr-10 resize-none"
-                    />
-                    <Button 
-                      type="submit" 
-                      size="icon" 
-                      variant="ghost" 
-                      className="absolute right-2 bottom-2"
-                      disabled={isSubmittingComment || !commentContent.trim()}
-                    >
-                      <Send className="h-4 w-4" />
-                    </Button>
-                  </div>
+              <>
+                  {currentUser ? (
+                    <>
+                      <Avatar className="h-8 w-8 mt-1">
+                        <AvatarImage 
+                          src={currentUser.user_metadata?.avatar_url || currentUser.user_metadata?.picture || "/placeholder-user.jpg"} 
+                          alt={currentUser.user_metadata?.name || currentUser.email}
+                        />
+                        <AvatarFallback>
+                          {getInitials(currentUser.user_metadata?.name || currentUser.email?.split('@')[0] || "User")}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1 relative">
+                        <Textarea
+                          placeholder="Write a comment..."
+                          value={commentContent}
+                          onChange={(e) => setCommentContent(e.target.value)}
+                          className="min-h-[60px] pr-10 resize-none"
+                        />
+                        <Button 
+                          type="submit" 
+                          size="icon" 
+                          variant="ghost" 
+                          className="absolute right-2 bottom-2"
+                          disabled={isSubmittingComment || !commentContent.trim()}
+                        >
+                          <Send className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="w-full p-3 border border-dashed rounded-md text-center">
+                      <p className="text-muted-foreground mb-2">You need to sign in to comment</p>
+                      <Button asChild variant="outline" size="sm">
+                        <Link href="/auth/login">Sign in</Link>
+                      </Button>
+                    </div>
+                  )}
                 </>
-              ) : (
-                <div className="w-full p-3 border border-dashed rounded-md text-center">
-                  <p className="text-muted-foreground mb-2">Sign in to comment</p>
-                  <Button asChild variant="outline" size="sm">
-                    <Link href="/auth/login">Sign in</Link>
-                  </Button>
-                </div>
-              )}
             </form>
             
             {/* Comments list */}
