@@ -60,7 +60,7 @@ module.exports = {
         sm: "calc(var(--radius) - 4px)",
       },
       fontFamily: {
-        sans: ["var(--font-poppins)", "Poppins", "sans-serif"],
+        sans: ["var(--font-manrope)", "Manrope", "sans-serif"],
       },
       keyframes: {
         "accordion-down": {
