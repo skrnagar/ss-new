@@ -482,7 +482,7 @@ export function PostItem({ post, currentUser }) {
             onClick={handleToggleComments}
           >
             <MessageSquare className="h-4 w-4 mr-2" />
-            {showComments ? 'Hide Comments' : 'Comment'}
+            {comments.length > 0 ? `Comments (${comments.length})` : 'Comments'}
           </Button>
           <Button variant="ghost" size="sm" className="text-muted-foreground">
             <Share2 className="h-4 w-4 mr-2" />
@@ -493,8 +493,8 @@ export function PostItem({ post, currentUser }) {
         {/* Comments section */}
         {showComments && (
           <div className="w-full mt-4 space-y-4">
-            {/* Comment form */}
-            {currentUser ? (
+            {/* Comment form - only shown for logged-in users */}
+            {currentUser && (
               <form onSubmit={handleCommentSubmit} className="flex items-start gap-2">
                 <Avatar className="h-8 w-8 mt-1">
                   <AvatarImage 
@@ -523,13 +523,6 @@ export function PostItem({ post, currentUser }) {
                   </Button>
                 </div>
               </form>
-            ) : (
-              <div className="flex flex-col items-center py-4 space-y-3 border border-dashed border-muted-foreground/30 rounded-md">
-                <p className="text-muted-foreground">Sign in to join the conversation</p>
-                <Button asChild variant="outline" size="sm">
-                  <Link href="/auth/login">Sign in</Link>
-                </Button>
-              </div>
             )}
             
             {/* Comments list */}
