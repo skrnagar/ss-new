@@ -1,0 +1,474 @@
+
+Build Error
+Failed to compile
+
+Next.js (14.2.16) is outdated (learn more)
+./components/ui/avatar.tsx
+Error: 
+  × the name `cn` is defined multiple times
+    ╭─[/home/runner/workspace/components/ui/avatar.tsx:3:1]
+  3 │ import * as React from "react"
+  4 │ import * as AvatarPrimitive from "@radix-ui/react-avatar"
+  5 │ 
+  6 │ import { cn } from "@/lib/utils"
+    ·          ─┬
+    ·           ╰── previous definition of `cn` here
+  7 │ 
+  8 │ const Avatar = React.forwardRef<
+  9 │   React.ElementRef<typeof AvatarPrimitive.Root>,
+ 10 │   React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Root>
+ 11 │ >(({ className, ...props }, ref) => (
+ 12 │   <AvatarPrimitive.Root
+ 13 │     ref={ref}
+ 14 │     className={cn(
+ 15 │       "relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full",
+ 16 │       className
+ 17 │     )}
+ 18 │     {...props}
+ 19 │   />
+ 20 │ ))
+ 21 │ Avatar.displayName = AvatarPrimitive.Root.displayName
+ 22 │ 
+ 23 │ const AvatarImage = React.forwardRef<
+ 24 │   React.ElementRef<typeof AvatarPrimitive.Image>,
+ 25 │   React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Image>
+ 26 │ >(({ className, ...props }, ref) => (
+ 27 │   <AvatarPrimitive.Image
+ 28 │     ref={ref}
+ 29 │     className={cn("aspect-square h-full w-full", className)}
+ 30 │     {...props}
+ 31 │   />
+ 32 │ ))
+ 33 │ AvatarImage.displayName = AvatarPrimitive.Image.displayName
+ 34 │ 
+ 35 │ const AvatarFallback = React.forwardRef<
+ 36 │   React.ElementRef<typeof AvatarPrimitive.Fallback>,
+ 37 │   React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Fallback>
+ 38 │ >(({ className, ...props }, ref) => (
+ 39 │   <AvatarPrimitive.Fallback
+ 40 │     ref={ref}
+ 41 │     className={cn(
+ 42 │       "flex h-full w-full items-center justify-center rounded-full bg-muted",
+ 43 │       className
+ 44 │     )}
+ 45 │     {...props}
+ 46 │   />
+ 47 │ ))
+ 48 │ AvatarFallback.displayName = AvatarPrimitive.Fallback.displayName
+ 49 │ 
+ 50 │ export { Avatar, AvatarImage, AvatarFallback }
+ 51 │ "use client"
+ 52 │ 
+ 53 │ import * as React from "react"
+ 54 │ import * as AvatarPrimitive from "@radix-ui/react-avatar"
+ 55 │ 
+ 56 │ import { cn } from "@/lib/utils"
+    ·          ─┬
+    ·           ╰── `cn` redefined here
+ 57 │ 
+ 58 │ const Avatar = React.forwardRef<
+ 59 │   React.ElementRef<typeof AvatarPrimitive.Root>,
+    ╰────
+
+  × the name `Avatar` is defined multiple times
+    ╭─[/home/runner/workspace/components/ui/avatar.tsx:5:1]
+  5 │ 
+  6 │ import { cn } from "@/lib/utils"
+  7 │ 
+  8 │ const Avatar = React.forwardRef<
+    ·       ───┬──
+    ·          ╰── previous definition of `Avatar` here
+  9 │   React.ElementRef<typeof AvatarPrimitive.Root>,
+ 10 │   React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Root>
+ 11 │ >(({ className, ...props }, ref) => (
+ 12 │   <AvatarPrimitive.Root
+ 13 │     ref={ref}
+ 14 │     className={cn(
+ 15 │       "relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full",
+ 16 │       className
+ 17 │     )}
+ 18 │     {...props}
+ 19 │   />
+ 20 │ ))
+ 21 │ Avatar.displayName = AvatarPrimitive.Root.displayName
+ 22 │ 
+ 23 │ const AvatarImage = React.forwardRef<
+ 24 │   React.ElementRef<typeof AvatarPrimitive.Image>,
+ 25 │   React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Image>
+ 26 │ >(({ className, ...props }, ref) => (
+ 27 │   <AvatarPrimitive.Image
+ 28 │     ref={ref}
+ 29 │     className={cn("aspect-square h-full w-full", className)}
+ 30 │     {...props}
+ 31 │   />
+ 32 │ ))
+ 33 │ AvatarImage.displayName = AvatarPrimitive.Image.displayName
+ 34 │ 
+ 35 │ const AvatarFallback = React.forwardRef<
+ 36 │   React.ElementRef<typeof AvatarPrimitive.Fallback>,
+ 37 │   React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Fallback>
+ 38 │ >(({ className, ...props }, ref) => (
+ 39 │   <AvatarPrimitive.Fallback
+ 40 │     ref={ref}
+ 41 │     className={cn(
+ 42 │       "flex h-full w-full items-center justify-center rounded-full bg-muted",
+ 43 │       className
+ 44 │     )}
+ 45 │     {...props}
+ 46 │   />
+ 47 │ ))
+ 48 │ AvatarFallback.displayName = AvatarPrimitive.Fallback.displayName
+ 49 │ 
+ 50 │ export { Avatar, AvatarImage, AvatarFallback }
+ 51 │ "use client"
+ 52 │ 
+ 53 │ import * as React from "react"
+ 54 │ import * as AvatarPrimitive from "@radix-ui/react-avatar"
+ 55 │ 
+ 56 │ import { cn } from "@/lib/utils"
+ 57 │ 
+ 58 │ const Avatar = React.forwardRef<
+    ·       ───┬──
+    ·          ╰── `Avatar` redefined here
+ 59 │   React.ElementRef<typeof AvatarPrimitive.Root>,
+ 60 │   React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Root>
+ 61 │ >(({ className, ...props }, ref) => (
+    ╰────
+
+  × the name `AvatarImage` is defined multiple times
+    ╭─[/home/runner/workspace/components/ui/avatar.tsx:20:1]
+ 20 │ ))
+ 21 │ Avatar.displayName = AvatarPrimitive.Root.displayName
+ 22 │ 
+ 23 │ const AvatarImage = React.forwardRef<
+    ·       ─────┬─────
+    ·            ╰── previous definition of `AvatarImage` here
+ 24 │   React.ElementRef<typeof AvatarPrimitive.Image>,
+ 25 │   React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Image>
+ 26 │ >(({ className, ...props }, ref) => (
+ 27 │   <AvatarPrimitive.Image
+ 28 │     ref={ref}
+ 29 │     className={cn("aspect-square h-full w-full", className)}
+ 30 │     {...props}
+ 31 │   />
+ 32 │ ))
+ 33 │ AvatarImage.displayName = AvatarPrimitive.Image.displayName
+ 34 │ 
+ 35 │ const AvatarFallback = React.forwardRef<
+ 36 │   React.ElementRef<typeof AvatarPrimitive.Fallback>,
+ 37 │   React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Fallback>
+ 38 │ >(({ className, ...props }, ref) => (
+ 39 │   <AvatarPrimitive.Fallback
+ 40 │     ref={ref}
+ 41 │     className={cn(
+ 42 │       "flex h-full w-full items-center justify-center rounded-full bg-muted",
+ 43 │       className
+ 44 │     )}
+ 45 │     {...props}
+ 46 │   />
+ 47 │ ))
+ 48 │ AvatarFallback.displayName = AvatarPrimitive.Fallback.displayName
+ 49 │ 
+ 50 │ export { Avatar, AvatarImage, AvatarFallback }
+ 51 │ "use client"
+ 52 │ 
+ 53 │ import * as React from "react"
+ 54 │ import * as AvatarPrimitive from "@radix-ui/react-avatar"
+ 55 │ 
+ 56 │ import { cn } from "@/lib/utils"
+ 57 │ 
+ 58 │ const Avatar = React.forwardRef<
+ 59 │   React.ElementRef<typeof AvatarPrimitive.Root>,
+ 60 │   React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Root>
+ 61 │ >(({ className, ...props }, ref) => (
+ 62 │   <AvatarPrimitive.Root
+ 63 │     ref={ref}
+ 64 │     className={cn(
+ 65 │       "relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full",
+ 66 │       className
+ 67 │     )}
+ 68 │     {...props}
+ 69 │   />
+ 70 │ ))
+ 71 │ Avatar.displayName = AvatarPrimitive.Root.displayName
+ 72 │ 
+ 73 │ const AvatarImage = React.forwardRef<
+    ·       ─────┬─────
+    ·            ╰── `AvatarImage` redefined here
+ 74 │   React.ElementRef<typeof AvatarPrimitive.Image>,
+ 75 │   React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Image>
+ 76 │ >(({ className, ...props }, ref) => (
+    ╰────
+
+  × the name `AvatarFallback` is defined multiple times
+    ╭─[/home/runner/workspace/components/ui/avatar.tsx:32:1]
+ 32 │ ))
+ 33 │ AvatarImage.displayName = AvatarPrimitive.Image.displayName
+ 34 │ 
+ 35 │ const AvatarFallback = React.forwardRef<
+    ·       ───────┬──────
+    ·              ╰── previous definition of `AvatarFallback` here
+ 36 │   React.ElementRef<typeof AvatarPrimitive.Fallback>,
+ 37 │   React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Fallback>
+ 38 │ >(({ className, ...props }, ref) => (
+ 39 │   <AvatarPrimitive.Fallback
+ 40 │     ref={ref}
+ 41 │     className={cn(
+ 42 │       "flex h-full w-full items-center justify-center rounded-full bg-muted",
+ 43 │       className
+ 44 │     )}
+ 45 │     {...props}
+ 46 │   />
+ 47 │ ))
+ 48 │ AvatarFallback.displayName = AvatarPrimitive.Fallback.displayName
+ 49 │ 
+ 50 │ export { Avatar, AvatarImage, AvatarFallback }
+ 51 │ "use client"
+ 52 │ 
+ 53 │ import * as React from "react"
+ 54 │ import * as AvatarPrimitive from "@radix-ui/react-avatar"
+ 55 │ 
+ 56 │ import { cn } from "@/lib/utils"
+ 57 │ 
+ 58 │ const Avatar = React.forwardRef<
+ 59 │   React.ElementRef<typeof AvatarPrimitive.Root>,
+ 60 │   React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Root>
+ 61 │ >(({ className, ...props }, ref) => (
+ 62 │   <AvatarPrimitive.Root
+ 63 │     ref={ref}
+ 64 │     className={cn(
+ 65 │       "relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full",
+ 66 │       className
+ 67 │     )}
+ 68 │     {...props}
+ 69 │   />
+ 70 │ ))
+ 71 │ Avatar.displayName = AvatarPrimitive.Root.displayName
+ 72 │ 
+ 73 │ const AvatarImage = React.forwardRef<
+ 74 │   React.ElementRef<typeof AvatarPrimitive.Image>,
+ 75 │   React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Image>
+ 76 │ >(({ className, ...props }, ref) => (
+ 77 │   <AvatarPrimitive.Image
+ 78 │     ref={ref}
+ 79 │     className={cn("aspect-square h-full w-full", className)}
+ 80 │     {...props}
+ 81 │   />
+ 82 │ ))
+ 83 │ AvatarImage.displayName = AvatarPrimitive.Image.displayName
+ 84 │ 
+ 85 │ const AvatarFallback = React.forwardRef<
+    ·       ───────┬──────
+    ·              ╰── `AvatarFallback` redefined here
+ 86 │   React.ElementRef<typeof AvatarPrimitive.Fallback>,
+ 87 │   React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Fallback>
+ 88 │ >(({ className, ...props }, ref) => (
+    ╰────
+
+  × the name `Avatar` is exported multiple times
+     ╭─[/home/runner/workspace/components/ui/avatar.tsx:47:1]
+  47 │ ))
+  48 │ AvatarFallback.displayName = AvatarPrimitive.Fallback.displayName
+  49 │ 
+  50 │ export { Avatar, AvatarImage, AvatarFallback }
+     ·          ───┬──
+     ·             ╰── previous exported here
+  51 │ "use client"
+  52 │ 
+  53 │ import * as React from "react"
+  54 │ import * as AvatarPrimitive from "@radix-ui/react-avatar"
+  55 │ 
+  56 │ import { cn } from "@/lib/utils"
+  57 │ 
+  58 │ const Avatar = React.forwardRef<
+  59 │   React.ElementRef<typeof AvatarPrimitive.Root>,
+  60 │   React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Root>
+  61 │ >(({ className, ...props }, ref) => (
+  62 │   <AvatarPrimitive.Root
+  63 │     ref={ref}
+  64 │     className={cn(
+  65 │       "relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full",
+  66 │       className
+  67 │     )}
+  68 │     {...props}
+  69 │   />
+  70 │ ))
+  71 │ Avatar.displayName = AvatarPrimitive.Root.displayName
+  72 │ 
+  73 │ const AvatarImage = React.forwardRef<
+  74 │   React.ElementRef<typeof AvatarPrimitive.Image>,
+  75 │   React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Image>
+  76 │ >(({ className, ...props }, ref) => (
+  77 │   <AvatarPrimitive.Image
+  78 │     ref={ref}
+  79 │     className={cn("aspect-square h-full w-full", className)}
+  80 │     {...props}
+  81 │   />
+  82 │ ))
+  83 │ AvatarImage.displayName = AvatarPrimitive.Image.displayName
+  84 │ 
+  85 │ const AvatarFallback = React.forwardRef<
+  86 │   React.ElementRef<typeof AvatarPrimitive.Fallback>,
+  87 │   React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Fallback>
+  88 │ >(({ className, ...props }, ref) => (
+  89 │   <AvatarPrimitive.Fallback
+  90 │     ref={ref}
+  91 │     className={cn(
+  92 │       "flex h-full w-full items-center justify-center rounded-full bg-muted",
+  93 │       className
+  94 │     )}
+  95 │     {...props}
+  96 │   />
+  97 │ ))
+  98 │ AvatarFallback.displayName = AvatarPrimitive.Fallback.displayName
+  99 │ 
+ 100 │ export { Avatar, AvatarImage, AvatarFallback }
+     ·          ───┬──
+     ·             ╰── exported more than once
+     ╰────
+
+Error: 
+  ☞ Exported identifiers must be unique
+
+  × the name `AvatarImage` is exported multiple times
+     ╭─[/home/runner/workspace/components/ui/avatar.tsx:47:1]
+  47 │ ))
+  48 │ AvatarFallback.displayName = AvatarPrimitive.Fallback.displayName
+  49 │ 
+  50 │ export { Avatar, AvatarImage, AvatarFallback }
+     ·                  ─────┬─────
+     ·                       ╰── previous exported here
+  51 │ "use client"
+  52 │ 
+  53 │ import * as React from "react"
+  54 │ import * as AvatarPrimitive from "@radix-ui/react-avatar"
+  55 │ 
+  56 │ import { cn } from "@/lib/utils"
+  57 │ 
+  58 │ const Avatar = React.forwardRef<
+  59 │   React.ElementRef<typeof AvatarPrimitive.Root>,
+  60 │   React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Root>
+  61 │ >(({ className, ...props }, ref) => (
+  62 │   <AvatarPrimitive.Root
+  63 │     ref={ref}
+  64 │     className={cn(
+  65 │       "relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full",
+  66 │       className
+  67 │     )}
+  68 │     {...props}
+  69 │   />
+  70 │ ))
+  71 │ Avatar.displayName = AvatarPrimitive.Root.displayName
+  72 │ 
+  73 │ const AvatarImage = React.forwardRef<
+  74 │   React.ElementRef<typeof AvatarPrimitive.Image>,
+  75 │   React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Image>
+  76 │ >(({ className, ...props }, ref) => (
+  77 │   <AvatarPrimitive.Image
+  78 │     ref={ref}
+  79 │     className={cn("aspect-square h-full w-full", className)}
+  80 │     {...props}
+  81 │   />
+  82 │ ))
+  83 │ AvatarImage.displayName = AvatarPrimitive.Image.displayName
+  84 │ 
+  85 │ const AvatarFallback = React.forwardRef<
+  86 │   React.ElementRef<typeof AvatarPrimitive.Fallback>,
+  87 │   React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Fallback>
+  88 │ >(({ className, ...props }, ref) => (
+  89 │   <AvatarPrimitive.Fallback
+  90 │     ref={ref}
+  91 │     className={cn(
+  92 │       "flex h-full w-full items-center justify-center rounded-full bg-muted",
+  93 │       className
+  94 │     )}
+  95 │     {...props}
+  96 │   />
+  97 │ ))
+  98 │ AvatarFallback.displayName = AvatarPrimitive.Fallback.displayName
+  99 │ 
+ 100 │ export { Avatar, AvatarImage, AvatarFallback }
+     ·                  ─────┬─────
+     ·                       ╰── exported more than once
+     ╰────
+
+Error: 
+  ☞ Exported identifiers must be unique
+
+  × the name `AvatarFallback` is exported multiple times
+     ╭─[/home/runner/workspace/components/ui/avatar.tsx:47:1]
+  47 │ ))
+  48 │ AvatarFallback.displayName = AvatarPrimitive.Fallback.displayName
+  49 │ 
+  50 │ export { Avatar, AvatarImage, AvatarFallback }
+     ·                               ───────┬──────
+     ·                                      ╰── previous exported here
+  51 │ "use client"
+  52 │ 
+  53 │ import * as React from "react"
+  54 │ import * as AvatarPrimitive from "@radix-ui/react-avatar"
+  55 │ 
+  56 │ import { cn } from "@/lib/utils"
+  57 │ 
+  58 │ const Avatar = React.forwardRef<
+  59 │   React.ElementRef<typeof AvatarPrimitive.Root>,
+  60 │   React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Root>
+  61 │ >(({ className, ...props }, ref) => (
+  62 │   <AvatarPrimitive.Root
+  63 │     ref={ref}
+  64 │     className={cn(
+  65 │       "relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full",
+  66 │       className
+  67 │     )}
+  68 │     {...props}
+  69 │   />
+  70 │ ))
+  71 │ Avatar.displayName = AvatarPrimitive.Root.displayName
+  72 │ 
+  73 │ const AvatarImage = React.forwardRef<
+  74 │   React.ElementRef<typeof AvatarPrimitive.Image>,
+  75 │   React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Image>
+  76 │ >(({ className, ...props }, ref) => (
+  77 │   <AvatarPrimitive.Image
+  78 │     ref={ref}
+  79 │     className={cn("aspect-square h-full w-full", className)}
+  80 │     {...props}
+  81 │   />
+  82 │ ))
+  83 │ AvatarImage.displayName = AvatarPrimitive.Image.displayName
+  84 │ 
+  85 │ const AvatarFallback = React.forwardRef<
+  86 │   React.ElementRef<typeof AvatarPrimitive.Fallback>,
+  87 │   React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Fallback>
+  88 │ >(({ className, ...props }, ref) => (
+  89 │   <AvatarPrimitive.Fallback
+  90 │     ref={ref}
+  91 │     className={cn(
+  92 │       "flex h-full w-full items-center justify-center rounded-full bg-muted",
+  93 │       className
+  94 │     )}
+  95 │     {...props}
+  96 │   />
+  97 │ ))
+  98 │ AvatarFallback.displayName = AvatarPrimitive.Fallback.displayName
+  99 │ 
+ 100 │ export { Avatar, AvatarImage, AvatarFallback }
+     ·                               ───────┬──────
+     ·                                      ╰── exported more than once
+     ╰────
+
+Error: 
+  ☞ Exported identifiers must be unique
+
+  × The "use client" directive must be placed before other expressions. Move it to the top of the file to resolve this issue.
+    ╭─[/home/runner/workspace/components/ui/avatar.tsx:48:1]
+ 48 │ AvatarFallback.displayName = AvatarPrimitive.Fallback.displayName
+ 49 │ 
+ 50 │ export { Avatar, AvatarImage, AvatarFallback }
+ 51 │ "use client"
+    · ────────────
+ 52 │ 
+ 53 │ import * as React from "react"
+ 54 │ import * as AvatarPrimitive from "@radix-ui/react-avatar"
+    ╰────
+This error occurred during the build process and can only be dismissed by fixing the error.
