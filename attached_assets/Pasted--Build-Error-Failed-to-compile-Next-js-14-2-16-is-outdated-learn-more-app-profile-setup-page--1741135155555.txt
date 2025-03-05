@@ -1,0 +1,2195 @@
+
+Build Error
+Failed to compile
+
+Next.js (14.2.16) is outdated (learn more)
+./app/profile/setup/page.tsx
+Error: 
+  × the name `useRouter` is defined multiple times
+     ╭─[/home/runner/workspace/app/profile/setup/page.tsx:2:1]
+   2 │ "use client"
+   3 │ 
+   4 │ import * as React from "react"
+   5 │ import { useRouter } from "next/navigation"
+     ·          ────┬────
+     ·              ╰── previous definition of `useRouter` here
+   6 │ import { zodResolver } from "@hookform/resolvers/zod"
+   7 │ import { useForm } from "react-hook-form"
+   8 │ import * as z from "zod"
+   9 │ import { Button } from "@/components/ui/button"
+  10 │ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+  11 │ import { Input } from "@/components/ui/input"
+  12 │ import { Textarea } from "@/components/ui/textarea"
+  13 │ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+  14 │ import { useToast } from "@/hooks/use-toast"
+  15 │ import { supabase } from "@/lib/supabase"
+  16 │ 
+  17 │ const profileSetupSchema = z.object({
+  18 │   headline: z.string().min(10, "Headline must be at least 10 characters"),
+  19 │   bio: z.string().min(30, "Bio should be at least 30 characters"),
+  20 │   company: z.string().min(2, "Company name must be at least 2 characters"),
+  21 │   position: z.string().min(2, "Position must be at least 2 characters"),
+  22 │   location: z.string().min(2, "Location must be at least 2 characters"),
+  23 │   username: z.string().min(3, "Username must be at least 3 characters").regex(/^[a-z0-9_-]+$/, "Username can only contain lowercase letters, numbers, underscores, and hyphens"),
+  24 │ })
+  25 │ 
+  26 │ export default function ProfileSetupPage() {
+  27 │   const router = useRouter()
+  28 │   const { toast } = useToast()
+  29 │   const [loading, setLoading] = React.useState(false)
+  30 │   const [user, setUser] = React.useState<any>(null)
+  31 │   
+  32 │   const form = useForm<z.infer<typeof profileSetupSchema>>({
+  33 │     resolver: zodResolver(profileSetupSchema),
+  34 │     defaultValues: {
+  35 │       headline: "",
+  36 │       bio: "",
+  37 │       company: "",
+  38 │       position: "",
+  39 │       location: "",
+  40 │       username: "",
+  41 │     },
+  42 │   })
+  43 │ 
+  44 │   React.useEffect(() => {
+  45 │     async function getUserInfo() {
+  46 │       const { data: { user } } = await supabase.auth.getUser()
+  47 │       setUser(user)
+  48 │       
+  49 │       // Generate a suggested username
+  50 │       if (user?.user_metadata?.name) {
+  51 │         const nameSuggestion = user.user_metadata.name
+  52 │           .toLowerCase()
+  53 │           .replace(/[^a-z0-9]/g, '')
+  54 │         
+  55 │         form.setValue('username', nameSuggestion)
+  56 │       }
+  57 │     }
+  58 │     
+  59 │     getUserInfo()
+  60 │   }, [form])
+  61 │ 
+  62 │   async function onSubmit(values: z.infer<typeof profileSetupSchema>) {
+  63 │     setLoading(true)
+  64 │     
+  65 │     try {
+  66 │       // Check if username is already taken
+  67 │       const { data: existingUser, error: usernameCheckError } = await supabase
+  68 │         .from('profiles')
+  69 │         .select('username')
+  70 │         .eq('username', values.username)
+  71 │         .single()
+  72 │       
+  73 │       if (existingUser) {
+  74 │         form.setError('username', { 
+  75 │           type: 'manual', 
+  76 │           message: 'This username is already taken' 
+  77 │         })
+  78 │         setLoading(false)
+  79 │         return
+  80 │       }
+  81 │       
+  82 │       // Create user profile in profiles table
+  83 │       const { error } = await supabase
+  84 │         .from('profiles')
+  85 │         .insert({
+  86 │           id: user.id,
+  87 │           username: values.username,
+  88 │           headline: values.headline,
+  89 │           bio: values.bio,
+  90 │           company: values.company,
+  91 │           position: values.position,
+  92 │           location: values.location,
+  93 │           avatar_url: user?.user_metadata?.avatar_url || null,
+  94 │         })
+  95 │ 
+  96 │       if (error) {
+  97 │         toast({
+  98 │           title: "Profile setup failed",
+  99 │           description: error.message,
+ 100 │           variant: "destructive",
+ 101 │         })
+ 102 │         return
+ 103 │       }
+ 104 │ 
+ 105 │       toast({
+ 106 │         title: "Profile created successfully",
+ 107 │         description: "Redirecting to your profile...",
+ 108 │       })
+ 109 │       
+ 110 │       setTimeout(() => router.push(`/profile/${values.username}`), 1500)
+ 111 │     } catch (error) {
+ 112 │       toast({
+ 113 │         title: "An error occurred",
+ 114 │         description: "Please try again later",
+ 115 │         variant: "destructive",
+ 116 │       })
+ 117 │     } finally {
+ 118 │       setLoading(false)
+ 119 │     }
+ 120 │   }
+ 121 │ 
+ 122 │   return (
+ 123 │     <div className="container max-w-3xl py-10">
+ 124 │       <Card>
+ 125 │         <CardHeader>
+ 126 │           <CardTitle className="text-2xl">Complete Your Profile</CardTitle>
+ 127 │         </CardHeader>
+ 128 │         <CardContent>
+ 129 │           <Form {...form}>
+ 130 │             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+ 131 │               <FormField
+ 132 │                 control={form.control}
+ 133 │                 name="username"
+ 134 │                 render={({ field }) => (
+ 135 │                   <FormItem>
+ 136 │                     <FormLabel>Username</FormLabel>
+ 137 │                     <FormControl>
+ 138 │                       <Input {...field} />
+ 139 │                     </FormControl>
+ 140 │                     <FormDescription>
+ 141 │                       This will be your unique profile URL: safetyshaper.com/profile/{field.value || 'username'}
+ 142 │                     </FormDescription>
+ 143 │                     <FormMessage />
+ 144 │                   </FormItem>
+ 145 │                 )}
+ 146 │               />
+ 147 │               
+ 148 │               <FormField
+ 149 │                 control={form.control}
+ 150 │                 name="headline"
+ 151 │                 render={({ field }) => (
+ 152 │                   <FormItem>
+ 153 │                     <FormLabel>Professional Headline</FormLabel>
+ 154 │                     <FormControl>
+ 155 │                       <Input placeholder="ESG Compliance Manager | Safety Specialist" {...field} />
+ 156 │                     </FormControl>
+ 157 │                     <FormDescription>
+ 158 │                       A brief summary of your professional role
+ 159 │                     </FormDescription>
+ 160 │                     <FormMessage />
+ 161 │                   </FormItem>
+ 162 │                 )}
+ 163 │               />
+ 164 │               
+ 165 │               <FormField
+ 166 │                 control={form.control}
+ 167 │                 name="bio"
+ 168 │                 render={({ field }) => (
+ 169 │                   <FormItem>
+ 170 │                     <FormLabel>Bio</FormLabel>
+ 171 │                     <FormControl>
+ 172 │                       <Textarea 
+ 173 │                         placeholder="I'm a safety professional with 5+ years of experience in..." 
+ 174 │                         className="min-h-32" 
+ 175 │                         {...field}
+ 176 │                       />
+ 177 │                     </FormControl>
+ 178 │                     <FormDescription>
+ 179 │                       Tell other professionals about your experience and expertise
+ 180 │                     </FormDescription>
+ 181 │                     <FormMessage />
+ 182 │                   </FormItem>
+ 183 │                 )}
+ 184 │               />
+ 185 │               
+ 186 │               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+ 187 │                 <FormField
+ 188 │                   control={form.control}
+ 189 │                   name="company"
+ 190 │                   render={({ field }) => (
+ 191 │                     <FormItem>
+ 192 │                       <FormLabel>Current Company</FormLabel>
+ 193 │                       <FormControl>
+ 194 │                         <Input placeholder="GreenTech Solutions" {...field} />
+ 195 │                       </FormControl>
+ 196 │                       <FormMessage />
+ 197 │                     </FormItem>
+ 198 │                   )}
+ 199 │                 />
+ 200 │                 
+ 201 │                 <FormField
+ 202 │                   control={form.control}
+ 203 │                   name="position"
+ 204 │                   render={({ field }) => (
+ 205 │                     <FormItem>
+ 206 │                       <FormLabel>Current Position</FormLabel>
+ 207 │                       <FormControl>
+ 208 │                         <Input placeholder="ESG Compliance Manager" {...field} />
+ 209 │                       </FormControl>
+ 210 │                       <FormMessage />
+ 211 │                     </FormItem>
+ 212 │                   )}
+ 213 │                 />
+ 214 │               </div>
+ 215 │               
+ 216 │               <FormField
+ 217 │                 control={form.control}
+ 218 │                 name="location"
+ 219 │                 render={({ field }) => (
+ 220 │                   <FormItem>
+ 221 │                     <FormLabel>Location</FormLabel>
+ 222 │                     <FormControl>
+ 223 │                       <Input placeholder="San Francisco, CA" {...field} />
+ 224 │                     </FormControl>
+ 225 │                     <FormMessage />
+ 226 │                   </FormItem>
+ 227 │                 )}
+ 228 │               />
+ 229 │               
+ 230 │               <Button type="submit" className="w-full" disabled={loading}>
+ 231 │                 {loading ? "Saving Profile..." : "Complete Profile Setup"}
+ 232 │               </Button>
+ 233 │             </form>
+ 234 │           </Form>
+ 235 │         </CardContent>
+ 236 │       </Card>
+ 237 │     </div>
+ 238 │   )
+ 239 │ }
+ 240 │ "use client"
+ 241 │ 
+ 242 │ import { useEffect, useState } from "react"
+ 243 │ import { useRouter } from "next/navigation"
+     ·          ────┬────
+     ·              ╰── `useRouter` redefined here
+ 244 │ import { supabase } from "@/lib/supabase"
+ 245 │ import { Button } from "@/components/ui/button"
+ 246 │ import { Input } from "@/components/ui/input"
+     ╰────
+
+  × the name `supabase` is defined multiple times
+     ╭─[/home/runner/workspace/app/profile/setup/page.tsx:12:1]
+  12 │ import { Textarea } from "@/components/ui/textarea"
+  13 │ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+  14 │ import { useToast } from "@/hooks/use-toast"
+  15 │ import { supabase } from "@/lib/supabase"
+     ·          ────┬───
+     ·              ╰── previous definition of `supabase` here
+  16 │ 
+  17 │ const profileSetupSchema = z.object({
+  18 │   headline: z.string().min(10, "Headline must be at least 10 characters"),
+  19 │   bio: z.string().min(30, "Bio should be at least 30 characters"),
+  20 │   company: z.string().min(2, "Company name must be at least 2 characters"),
+  21 │   position: z.string().min(2, "Position must be at least 2 characters"),
+  22 │   location: z.string().min(2, "Location must be at least 2 characters"),
+  23 │   username: z.string().min(3, "Username must be at least 3 characters").regex(/^[a-z0-9_-]+$/, "Username can only contain lowercase letters, numbers, underscores, and hyphens"),
+  24 │ })
+  25 │ 
+  26 │ export default function ProfileSetupPage() {
+  27 │   const router = useRouter()
+  28 │   const { toast } = useToast()
+  29 │   const [loading, setLoading] = React.useState(false)
+  30 │   const [user, setUser] = React.useState<any>(null)
+  31 │   
+  32 │   const form = useForm<z.infer<typeof profileSetupSchema>>({
+  33 │     resolver: zodResolver(profileSetupSchema),
+  34 │     defaultValues: {
+  35 │       headline: "",
+  36 │       bio: "",
+  37 │       company: "",
+  38 │       position: "",
+  39 │       location: "",
+  40 │       username: "",
+  41 │     },
+  42 │   })
+  43 │ 
+  44 │   React.useEffect(() => {
+  45 │     async function getUserInfo() {
+  46 │       const { data: { user } } = await supabase.auth.getUser()
+  47 │       setUser(user)
+  48 │       
+  49 │       // Generate a suggested username
+  50 │       if (user?.user_metadata?.name) {
+  51 │         const nameSuggestion = user.user_metadata.name
+  52 │           .toLowerCase()
+  53 │           .replace(/[^a-z0-9]/g, '')
+  54 │         
+  55 │         form.setValue('username', nameSuggestion)
+  56 │       }
+  57 │     }
+  58 │     
+  59 │     getUserInfo()
+  60 │   }, [form])
+  61 │ 
+  62 │   async function onSubmit(values: z.infer<typeof profileSetupSchema>) {
+  63 │     setLoading(true)
+  64 │     
+  65 │     try {
+  66 │       // Check if username is already taken
+  67 │       const { data: existingUser, error: usernameCheckError } = await supabase
+  68 │         .from('profiles')
+  69 │         .select('username')
+  70 │         .eq('username', values.username)
+  71 │         .single()
+  72 │       
+  73 │       if (existingUser) {
+  74 │         form.setError('username', { 
+  75 │           type: 'manual', 
+  76 │           message: 'This username is already taken' 
+  77 │         })
+  78 │         setLoading(false)
+  79 │         return
+  80 │       }
+  81 │       
+  82 │       // Create user profile in profiles table
+  83 │       const { error } = await supabase
+  84 │         .from('profiles')
+  85 │         .insert({
+  86 │           id: user.id,
+  87 │           username: values.username,
+  88 │           headline: values.headline,
+  89 │           bio: values.bio,
+  90 │           company: values.company,
+  91 │           position: values.position,
+  92 │           location: values.location,
+  93 │           avatar_url: user?.user_metadata?.avatar_url || null,
+  94 │         })
+  95 │ 
+  96 │       if (error) {
+  97 │         toast({
+  98 │           title: "Profile setup failed",
+  99 │           description: error.message,
+ 100 │           variant: "destructive",
+ 101 │         })
+ 102 │         return
+ 103 │       }
+ 104 │ 
+ 105 │       toast({
+ 106 │         title: "Profile created successfully",
+ 107 │         description: "Redirecting to your profile...",
+ 108 │       })
+ 109 │       
+ 110 │       setTimeout(() => router.push(`/profile/${values.username}`), 1500)
+ 111 │     } catch (error) {
+ 112 │       toast({
+ 113 │         title: "An error occurred",
+ 114 │         description: "Please try again later",
+ 115 │         variant: "destructive",
+ 116 │       })
+ 117 │     } finally {
+ 118 │       setLoading(false)
+ 119 │     }
+ 120 │   }
+ 121 │ 
+ 122 │   return (
+ 123 │     <div className="container max-w-3xl py-10">
+ 124 │       <Card>
+ 125 │         <CardHeader>
+ 126 │           <CardTitle className="text-2xl">Complete Your Profile</CardTitle>
+ 127 │         </CardHeader>
+ 128 │         <CardContent>
+ 129 │           <Form {...form}>
+ 130 │             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+ 131 │               <FormField
+ 132 │                 control={form.control}
+ 133 │                 name="username"
+ 134 │                 render={({ field }) => (
+ 135 │                   <FormItem>
+ 136 │                     <FormLabel>Username</FormLabel>
+ 137 │                     <FormControl>
+ 138 │                       <Input {...field} />
+ 139 │                     </FormControl>
+ 140 │                     <FormDescription>
+ 141 │                       This will be your unique profile URL: safetyshaper.com/profile/{field.value || 'username'}
+ 142 │                     </FormDescription>
+ 143 │                     <FormMessage />
+ 144 │                   </FormItem>
+ 145 │                 )}
+ 146 │               />
+ 147 │               
+ 148 │               <FormField
+ 149 │                 control={form.control}
+ 150 │                 name="headline"
+ 151 │                 render={({ field }) => (
+ 152 │                   <FormItem>
+ 153 │                     <FormLabel>Professional Headline</FormLabel>
+ 154 │                     <FormControl>
+ 155 │                       <Input placeholder="ESG Compliance Manager | Safety Specialist" {...field} />
+ 156 │                     </FormControl>
+ 157 │                     <FormDescription>
+ 158 │                       A brief summary of your professional role
+ 159 │                     </FormDescription>
+ 160 │                     <FormMessage />
+ 161 │                   </FormItem>
+ 162 │                 )}
+ 163 │               />
+ 164 │               
+ 165 │               <FormField
+ 166 │                 control={form.control}
+ 167 │                 name="bio"
+ 168 │                 render={({ field }) => (
+ 169 │                   <FormItem>
+ 170 │                     <FormLabel>Bio</FormLabel>
+ 171 │                     <FormControl>
+ 172 │                       <Textarea 
+ 173 │                         placeholder="I'm a safety professional with 5+ years of experience in..." 
+ 174 │                         className="min-h-32" 
+ 175 │                         {...field}
+ 176 │                       />
+ 177 │                     </FormControl>
+ 178 │                     <FormDescription>
+ 179 │                       Tell other professionals about your experience and expertise
+ 180 │                     </FormDescription>
+ 181 │                     <FormMessage />
+ 182 │                   </FormItem>
+ 183 │                 )}
+ 184 │               />
+ 185 │               
+ 186 │               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+ 187 │                 <FormField
+ 188 │                   control={form.control}
+ 189 │                   name="company"
+ 190 │                   render={({ field }) => (
+ 191 │                     <FormItem>
+ 192 │                       <FormLabel>Current Company</FormLabel>
+ 193 │                       <FormControl>
+ 194 │                         <Input placeholder="GreenTech Solutions" {...field} />
+ 195 │                       </FormControl>
+ 196 │                       <FormMessage />
+ 197 │                     </FormItem>
+ 198 │                   )}
+ 199 │                 />
+ 200 │                 
+ 201 │                 <FormField
+ 202 │                   control={form.control}
+ 203 │                   name="position"
+ 204 │                   render={({ field }) => (
+ 205 │                     <FormItem>
+ 206 │                       <FormLabel>Current Position</FormLabel>
+ 207 │                       <FormControl>
+ 208 │                         <Input placeholder="ESG Compliance Manager" {...field} />
+ 209 │                       </FormControl>
+ 210 │                       <FormMessage />
+ 211 │                     </FormItem>
+ 212 │                   )}
+ 213 │                 />
+ 214 │               </div>
+ 215 │               
+ 216 │               <FormField
+ 217 │                 control={form.control}
+ 218 │                 name="location"
+ 219 │                 render={({ field }) => (
+ 220 │                   <FormItem>
+ 221 │                     <FormLabel>Location</FormLabel>
+ 222 │                     <FormControl>
+ 223 │                       <Input placeholder="San Francisco, CA" {...field} />
+ 224 │                     </FormControl>
+ 225 │                     <FormMessage />
+ 226 │                   </FormItem>
+ 227 │                 )}
+ 228 │               />
+ 229 │               
+ 230 │               <Button type="submit" className="w-full" disabled={loading}>
+ 231 │                 {loading ? "Saving Profile..." : "Complete Profile Setup"}
+ 232 │               </Button>
+ 233 │             </form>
+ 234 │           </Form>
+ 235 │         </CardContent>
+ 236 │       </Card>
+ 237 │     </div>
+ 238 │   )
+ 239 │ }
+ 240 │ "use client"
+ 241 │ 
+ 242 │ import { useEffect, useState } from "react"
+ 243 │ import { useRouter } from "next/navigation"
+ 244 │ import { supabase } from "@/lib/supabase"
+     ·          ────┬───
+     ·              ╰── `supabase` redefined here
+ 245 │ import { Button } from "@/components/ui/button"
+ 246 │ import { Input } from "@/components/ui/input"
+ 247 │ import { Label } from "@/components/ui/label"
+     ╰────
+
+  × the name `Button` is defined multiple times
+     ╭─[/home/runner/workspace/app/profile/setup/page.tsx:6:1]
+   6 │ import { zodResolver } from "@hookform/resolvers/zod"
+   7 │ import { useForm } from "react-hook-form"
+   8 │ import * as z from "zod"
+   9 │ import { Button } from "@/components/ui/button"
+     ·          ───┬──
+     ·             ╰── previous definition of `Button` here
+  10 │ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+  11 │ import { Input } from "@/components/ui/input"
+  12 │ import { Textarea } from "@/components/ui/textarea"
+  13 │ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+  14 │ import { useToast } from "@/hooks/use-toast"
+  15 │ import { supabase } from "@/lib/supabase"
+  16 │ 
+  17 │ const profileSetupSchema = z.object({
+  18 │   headline: z.string().min(10, "Headline must be at least 10 characters"),
+  19 │   bio: z.string().min(30, "Bio should be at least 30 characters"),
+  20 │   company: z.string().min(2, "Company name must be at least 2 characters"),
+  21 │   position: z.string().min(2, "Position must be at least 2 characters"),
+  22 │   location: z.string().min(2, "Location must be at least 2 characters"),
+  23 │   username: z.string().min(3, "Username must be at least 3 characters").regex(/^[a-z0-9_-]+$/, "Username can only contain lowercase letters, numbers, underscores, and hyphens"),
+  24 │ })
+  25 │ 
+  26 │ export default function ProfileSetupPage() {
+  27 │   const router = useRouter()
+  28 │   const { toast } = useToast()
+  29 │   const [loading, setLoading] = React.useState(false)
+  30 │   const [user, setUser] = React.useState<any>(null)
+  31 │   
+  32 │   const form = useForm<z.infer<typeof profileSetupSchema>>({
+  33 │     resolver: zodResolver(profileSetupSchema),
+  34 │     defaultValues: {
+  35 │       headline: "",
+  36 │       bio: "",
+  37 │       company: "",
+  38 │       position: "",
+  39 │       location: "",
+  40 │       username: "",
+  41 │     },
+  42 │   })
+  43 │ 
+  44 │   React.useEffect(() => {
+  45 │     async function getUserInfo() {
+  46 │       const { data: { user } } = await supabase.auth.getUser()
+  47 │       setUser(user)
+  48 │       
+  49 │       // Generate a suggested username
+  50 │       if (user?.user_metadata?.name) {
+  51 │         const nameSuggestion = user.user_metadata.name
+  52 │           .toLowerCase()
+  53 │           .replace(/[^a-z0-9]/g, '')
+  54 │         
+  55 │         form.setValue('username', nameSuggestion)
+  56 │       }
+  57 │     }
+  58 │     
+  59 │     getUserInfo()
+  60 │   }, [form])
+  61 │ 
+  62 │   async function onSubmit(values: z.infer<typeof profileSetupSchema>) {
+  63 │     setLoading(true)
+  64 │     
+  65 │     try {
+  66 │       // Check if username is already taken
+  67 │       const { data: existingUser, error: usernameCheckError } = await supabase
+  68 │         .from('profiles')
+  69 │         .select('username')
+  70 │         .eq('username', values.username)
+  71 │         .single()
+  72 │       
+  73 │       if (existingUser) {
+  74 │         form.setError('username', { 
+  75 │           type: 'manual', 
+  76 │           message: 'This username is already taken' 
+  77 │         })
+  78 │         setLoading(false)
+  79 │         return
+  80 │       }
+  81 │       
+  82 │       // Create user profile in profiles table
+  83 │       const { error } = await supabase
+  84 │         .from('profiles')
+  85 │         .insert({
+  86 │           id: user.id,
+  87 │           username: values.username,
+  88 │           headline: values.headline,
+  89 │           bio: values.bio,
+  90 │           company: values.company,
+  91 │           position: values.position,
+  92 │           location: values.location,
+  93 │           avatar_url: user?.user_metadata?.avatar_url || null,
+  94 │         })
+  95 │ 
+  96 │       if (error) {
+  97 │         toast({
+  98 │           title: "Profile setup failed",
+  99 │           description: error.message,
+ 100 │           variant: "destructive",
+ 101 │         })
+ 102 │         return
+ 103 │       }
+ 104 │ 
+ 105 │       toast({
+ 106 │         title: "Profile created successfully",
+ 107 │         description: "Redirecting to your profile...",
+ 108 │       })
+ 109 │       
+ 110 │       setTimeout(() => router.push(`/profile/${values.username}`), 1500)
+ 111 │     } catch (error) {
+ 112 │       toast({
+ 113 │         title: "An error occurred",
+ 114 │         description: "Please try again later",
+ 115 │         variant: "destructive",
+ 116 │       })
+ 117 │     } finally {
+ 118 │       setLoading(false)
+ 119 │     }
+ 120 │   }
+ 121 │ 
+ 122 │   return (
+ 123 │     <div className="container max-w-3xl py-10">
+ 124 │       <Card>
+ 125 │         <CardHeader>
+ 126 │           <CardTitle className="text-2xl">Complete Your Profile</CardTitle>
+ 127 │         </CardHeader>
+ 128 │         <CardContent>
+ 129 │           <Form {...form}>
+ 130 │             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+ 131 │               <FormField
+ 132 │                 control={form.control}
+ 133 │                 name="username"
+ 134 │                 render={({ field }) => (
+ 135 │                   <FormItem>
+ 136 │                     <FormLabel>Username</FormLabel>
+ 137 │                     <FormControl>
+ 138 │                       <Input {...field} />
+ 139 │                     </FormControl>
+ 140 │                     <FormDescription>
+ 141 │                       This will be your unique profile URL: safetyshaper.com/profile/{field.value || 'username'}
+ 142 │                     </FormDescription>
+ 143 │                     <FormMessage />
+ 144 │                   </FormItem>
+ 145 │                 )}
+ 146 │               />
+ 147 │               
+ 148 │               <FormField
+ 149 │                 control={form.control}
+ 150 │                 name="headline"
+ 151 │                 render={({ field }) => (
+ 152 │                   <FormItem>
+ 153 │                     <FormLabel>Professional Headline</FormLabel>
+ 154 │                     <FormControl>
+ 155 │                       <Input placeholder="ESG Compliance Manager | Safety Specialist" {...field} />
+ 156 │                     </FormControl>
+ 157 │                     <FormDescription>
+ 158 │                       A brief summary of your professional role
+ 159 │                     </FormDescription>
+ 160 │                     <FormMessage />
+ 161 │                   </FormItem>
+ 162 │                 )}
+ 163 │               />
+ 164 │               
+ 165 │               <FormField
+ 166 │                 control={form.control}
+ 167 │                 name="bio"
+ 168 │                 render={({ field }) => (
+ 169 │                   <FormItem>
+ 170 │                     <FormLabel>Bio</FormLabel>
+ 171 │                     <FormControl>
+ 172 │                       <Textarea 
+ 173 │                         placeholder="I'm a safety professional with 5+ years of experience in..." 
+ 174 │                         className="min-h-32" 
+ 175 │                         {...field}
+ 176 │                       />
+ 177 │                     </FormControl>
+ 178 │                     <FormDescription>
+ 179 │                       Tell other professionals about your experience and expertise
+ 180 │                     </FormDescription>
+ 181 │                     <FormMessage />
+ 182 │                   </FormItem>
+ 183 │                 )}
+ 184 │               />
+ 185 │               
+ 186 │               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+ 187 │                 <FormField
+ 188 │                   control={form.control}
+ 189 │                   name="company"
+ 190 │                   render={({ field }) => (
+ 191 │                     <FormItem>
+ 192 │                       <FormLabel>Current Company</FormLabel>
+ 193 │                       <FormControl>
+ 194 │                         <Input placeholder="GreenTech Solutions" {...field} />
+ 195 │                       </FormControl>
+ 196 │                       <FormMessage />
+ 197 │                     </FormItem>
+ 198 │                   )}
+ 199 │                 />
+ 200 │                 
+ 201 │                 <FormField
+ 202 │                   control={form.control}
+ 203 │                   name="position"
+ 204 │                   render={({ field }) => (
+ 205 │                     <FormItem>
+ 206 │                       <FormLabel>Current Position</FormLabel>
+ 207 │                       <FormControl>
+ 208 │                         <Input placeholder="ESG Compliance Manager" {...field} />
+ 209 │                       </FormControl>
+ 210 │                       <FormMessage />
+ 211 │                     </FormItem>
+ 212 │                   )}
+ 213 │                 />
+ 214 │               </div>
+ 215 │               
+ 216 │               <FormField
+ 217 │                 control={form.control}
+ 218 │                 name="location"
+ 219 │                 render={({ field }) => (
+ 220 │                   <FormItem>
+ 221 │                     <FormLabel>Location</FormLabel>
+ 222 │                     <FormControl>
+ 223 │                       <Input placeholder="San Francisco, CA" {...field} />
+ 224 │                     </FormControl>
+ 225 │                     <FormMessage />
+ 226 │                   </FormItem>
+ 227 │                 )}
+ 228 │               />
+ 229 │               
+ 230 │               <Button type="submit" className="w-full" disabled={loading}>
+ 231 │                 {loading ? "Saving Profile..." : "Complete Profile Setup"}
+ 232 │               </Button>
+ 233 │             </form>
+ 234 │           </Form>
+ 235 │         </CardContent>
+ 236 │       </Card>
+ 237 │     </div>
+ 238 │   )
+ 239 │ }
+ 240 │ "use client"
+ 241 │ 
+ 242 │ import { useEffect, useState } from "react"
+ 243 │ import { useRouter } from "next/navigation"
+ 244 │ import { supabase } from "@/lib/supabase"
+ 245 │ import { Button } from "@/components/ui/button"
+     ·          ───┬──
+     ·             ╰── `Button` redefined here
+ 246 │ import { Input } from "@/components/ui/input"
+ 247 │ import { Label } from "@/components/ui/label"
+ 248 │ import { Textarea } from "@/components/ui/textarea"
+     ╰────
+
+  × the name `Input` is defined multiple times
+     ╭─[/home/runner/workspace/app/profile/setup/page.tsx:8:1]
+   8 │ import * as z from "zod"
+   9 │ import { Button } from "@/components/ui/button"
+  10 │ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+  11 │ import { Input } from "@/components/ui/input"
+     ·          ──┬──
+     ·            ╰── previous definition of `Input` here
+  12 │ import { Textarea } from "@/components/ui/textarea"
+  13 │ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+  14 │ import { useToast } from "@/hooks/use-toast"
+  15 │ import { supabase } from "@/lib/supabase"
+  16 │ 
+  17 │ const profileSetupSchema = z.object({
+  18 │   headline: z.string().min(10, "Headline must be at least 10 characters"),
+  19 │   bio: z.string().min(30, "Bio should be at least 30 characters"),
+  20 │   company: z.string().min(2, "Company name must be at least 2 characters"),
+  21 │   position: z.string().min(2, "Position must be at least 2 characters"),
+  22 │   location: z.string().min(2, "Location must be at least 2 characters"),
+  23 │   username: z.string().min(3, "Username must be at least 3 characters").regex(/^[a-z0-9_-]+$/, "Username can only contain lowercase letters, numbers, underscores, and hyphens"),
+  24 │ })
+  25 │ 
+  26 │ export default function ProfileSetupPage() {
+  27 │   const router = useRouter()
+  28 │   const { toast } = useToast()
+  29 │   const [loading, setLoading] = React.useState(false)
+  30 │   const [user, setUser] = React.useState<any>(null)
+  31 │   
+  32 │   const form = useForm<z.infer<typeof profileSetupSchema>>({
+  33 │     resolver: zodResolver(profileSetupSchema),
+  34 │     defaultValues: {
+  35 │       headline: "",
+  36 │       bio: "",
+  37 │       company: "",
+  38 │       position: "",
+  39 │       location: "",
+  40 │       username: "",
+  41 │     },
+  42 │   })
+  43 │ 
+  44 │   React.useEffect(() => {
+  45 │     async function getUserInfo() {
+  46 │       const { data: { user } } = await supabase.auth.getUser()
+  47 │       setUser(user)
+  48 │       
+  49 │       // Generate a suggested username
+  50 │       if (user?.user_metadata?.name) {
+  51 │         const nameSuggestion = user.user_metadata.name
+  52 │           .toLowerCase()
+  53 │           .replace(/[^a-z0-9]/g, '')
+  54 │         
+  55 │         form.setValue('username', nameSuggestion)
+  56 │       }
+  57 │     }
+  58 │     
+  59 │     getUserInfo()
+  60 │   }, [form])
+  61 │ 
+  62 │   async function onSubmit(values: z.infer<typeof profileSetupSchema>) {
+  63 │     setLoading(true)
+  64 │     
+  65 │     try {
+  66 │       // Check if username is already taken
+  67 │       const { data: existingUser, error: usernameCheckError } = await supabase
+  68 │         .from('profiles')
+  69 │         .select('username')
+  70 │         .eq('username', values.username)
+  71 │         .single()
+  72 │       
+  73 │       if (existingUser) {
+  74 │         form.setError('username', { 
+  75 │           type: 'manual', 
+  76 │           message: 'This username is already taken' 
+  77 │         })
+  78 │         setLoading(false)
+  79 │         return
+  80 │       }
+  81 │       
+  82 │       // Create user profile in profiles table
+  83 │       const { error } = await supabase
+  84 │         .from('profiles')
+  85 │         .insert({
+  86 │           id: user.id,
+  87 │           username: values.username,
+  88 │           headline: values.headline,
+  89 │           bio: values.bio,
+  90 │           company: values.company,
+  91 │           position: values.position,
+  92 │           location: values.location,
+  93 │           avatar_url: user?.user_metadata?.avatar_url || null,
+  94 │         })
+  95 │ 
+  96 │       if (error) {
+  97 │         toast({
+  98 │           title: "Profile setup failed",
+  99 │           description: error.message,
+ 100 │           variant: "destructive",
+ 101 │         })
+ 102 │         return
+ 103 │       }
+ 104 │ 
+ 105 │       toast({
+ 106 │         title: "Profile created successfully",
+ 107 │         description: "Redirecting to your profile...",
+ 108 │       })
+ 109 │       
+ 110 │       setTimeout(() => router.push(`/profile/${values.username}`), 1500)
+ 111 │     } catch (error) {
+ 112 │       toast({
+ 113 │         title: "An error occurred",
+ 114 │         description: "Please try again later",
+ 115 │         variant: "destructive",
+ 116 │       })
+ 117 │     } finally {
+ 118 │       setLoading(false)
+ 119 │     }
+ 120 │   }
+ 121 │ 
+ 122 │   return (
+ 123 │     <div className="container max-w-3xl py-10">
+ 124 │       <Card>
+ 125 │         <CardHeader>
+ 126 │           <CardTitle className="text-2xl">Complete Your Profile</CardTitle>
+ 127 │         </CardHeader>
+ 128 │         <CardContent>
+ 129 │           <Form {...form}>
+ 130 │             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+ 131 │               <FormField
+ 132 │                 control={form.control}
+ 133 │                 name="username"
+ 134 │                 render={({ field }) => (
+ 135 │                   <FormItem>
+ 136 │                     <FormLabel>Username</FormLabel>
+ 137 │                     <FormControl>
+ 138 │                       <Input {...field} />
+ 139 │                     </FormControl>
+ 140 │                     <FormDescription>
+ 141 │                       This will be your unique profile URL: safetyshaper.com/profile/{field.value || 'username'}
+ 142 │                     </FormDescription>
+ 143 │                     <FormMessage />
+ 144 │                   </FormItem>
+ 145 │                 )}
+ 146 │               />
+ 147 │               
+ 148 │               <FormField
+ 149 │                 control={form.control}
+ 150 │                 name="headline"
+ 151 │                 render={({ field }) => (
+ 152 │                   <FormItem>
+ 153 │                     <FormLabel>Professional Headline</FormLabel>
+ 154 │                     <FormControl>
+ 155 │                       <Input placeholder="ESG Compliance Manager | Safety Specialist" {...field} />
+ 156 │                     </FormControl>
+ 157 │                     <FormDescription>
+ 158 │                       A brief summary of your professional role
+ 159 │                     </FormDescription>
+ 160 │                     <FormMessage />
+ 161 │                   </FormItem>
+ 162 │                 )}
+ 163 │               />
+ 164 │               
+ 165 │               <FormField
+ 166 │                 control={form.control}
+ 167 │                 name="bio"
+ 168 │                 render={({ field }) => (
+ 169 │                   <FormItem>
+ 170 │                     <FormLabel>Bio</FormLabel>
+ 171 │                     <FormControl>
+ 172 │                       <Textarea 
+ 173 │                         placeholder="I'm a safety professional with 5+ years of experience in..." 
+ 174 │                         className="min-h-32" 
+ 175 │                         {...field}
+ 176 │                       />
+ 177 │                     </FormControl>
+ 178 │                     <FormDescription>
+ 179 │                       Tell other professionals about your experience and expertise
+ 180 │                     </FormDescription>
+ 181 │                     <FormMessage />
+ 182 │                   </FormItem>
+ 183 │                 )}
+ 184 │               />
+ 185 │               
+ 186 │               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+ 187 │                 <FormField
+ 188 │                   control={form.control}
+ 189 │                   name="company"
+ 190 │                   render={({ field }) => (
+ 191 │                     <FormItem>
+ 192 │                       <FormLabel>Current Company</FormLabel>
+ 193 │                       <FormControl>
+ 194 │                         <Input placeholder="GreenTech Solutions" {...field} />
+ 195 │                       </FormControl>
+ 196 │                       <FormMessage />
+ 197 │                     </FormItem>
+ 198 │                   )}
+ 199 │                 />
+ 200 │                 
+ 201 │                 <FormField
+ 202 │                   control={form.control}
+ 203 │                   name="position"
+ 204 │                   render={({ field }) => (
+ 205 │                     <FormItem>
+ 206 │                       <FormLabel>Current Position</FormLabel>
+ 207 │                       <FormControl>
+ 208 │                         <Input placeholder="ESG Compliance Manager" {...field} />
+ 209 │                       </FormControl>
+ 210 │                       <FormMessage />
+ 211 │                     </FormItem>
+ 212 │                   )}
+ 213 │                 />
+ 214 │               </div>
+ 215 │               
+ 216 │               <FormField
+ 217 │                 control={form.control}
+ 218 │                 name="location"
+ 219 │                 render={({ field }) => (
+ 220 │                   <FormItem>
+ 221 │                     <FormLabel>Location</FormLabel>
+ 222 │                     <FormControl>
+ 223 │                       <Input placeholder="San Francisco, CA" {...field} />
+ 224 │                     </FormControl>
+ 225 │                     <FormMessage />
+ 226 │                   </FormItem>
+ 227 │                 )}
+ 228 │               />
+ 229 │               
+ 230 │               <Button type="submit" className="w-full" disabled={loading}>
+ 231 │                 {loading ? "Saving Profile..." : "Complete Profile Setup"}
+ 232 │               </Button>
+ 233 │             </form>
+ 234 │           </Form>
+ 235 │         </CardContent>
+ 236 │       </Card>
+ 237 │     </div>
+ 238 │   )
+ 239 │ }
+ 240 │ "use client"
+ 241 │ 
+ 242 │ import { useEffect, useState } from "react"
+ 243 │ import { useRouter } from "next/navigation"
+ 244 │ import { supabase } from "@/lib/supabase"
+ 245 │ import { Button } from "@/components/ui/button"
+ 246 │ import { Input } from "@/components/ui/input"
+     ·          ──┬──
+     ·            ╰── `Input` redefined here
+ 247 │ import { Label } from "@/components/ui/label"
+ 248 │ import { Textarea } from "@/components/ui/textarea"
+ 249 │ import { useToast } from "@/hooks/use-toast"
+     ╰────
+
+  × the name `Textarea` is defined multiple times
+     ╭─[/home/runner/workspace/app/profile/setup/page.tsx:9:1]
+   9 │ import { Button } from "@/components/ui/button"
+  10 │ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+  11 │ import { Input } from "@/components/ui/input"
+  12 │ import { Textarea } from "@/components/ui/textarea"
+     ·          ────┬───
+     ·              ╰── previous definition of `Textarea` here
+  13 │ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+  14 │ import { useToast } from "@/hooks/use-toast"
+  15 │ import { supabase } from "@/lib/supabase"
+  16 │ 
+  17 │ const profileSetupSchema = z.object({
+  18 │   headline: z.string().min(10, "Headline must be at least 10 characters"),
+  19 │   bio: z.string().min(30, "Bio should be at least 30 characters"),
+  20 │   company: z.string().min(2, "Company name must be at least 2 characters"),
+  21 │   position: z.string().min(2, "Position must be at least 2 characters"),
+  22 │   location: z.string().min(2, "Location must be at least 2 characters"),
+  23 │   username: z.string().min(3, "Username must be at least 3 characters").regex(/^[a-z0-9_-]+$/, "Username can only contain lowercase letters, numbers, underscores, and hyphens"),
+  24 │ })
+  25 │ 
+  26 │ export default function ProfileSetupPage() {
+  27 │   const router = useRouter()
+  28 │   const { toast } = useToast()
+  29 │   const [loading, setLoading] = React.useState(false)
+  30 │   const [user, setUser] = React.useState<any>(null)
+  31 │   
+  32 │   const form = useForm<z.infer<typeof profileSetupSchema>>({
+  33 │     resolver: zodResolver(profileSetupSchema),
+  34 │     defaultValues: {
+  35 │       headline: "",
+  36 │       bio: "",
+  37 │       company: "",
+  38 │       position: "",
+  39 │       location: "",
+  40 │       username: "",
+  41 │     },
+  42 │   })
+  43 │ 
+  44 │   React.useEffect(() => {
+  45 │     async function getUserInfo() {
+  46 │       const { data: { user } } = await supabase.auth.getUser()
+  47 │       setUser(user)
+  48 │       
+  49 │       // Generate a suggested username
+  50 │       if (user?.user_metadata?.name) {
+  51 │         const nameSuggestion = user.user_metadata.name
+  52 │           .toLowerCase()
+  53 │           .replace(/[^a-z0-9]/g, '')
+  54 │         
+  55 │         form.setValue('username', nameSuggestion)
+  56 │       }
+  57 │     }
+  58 │     
+  59 │     getUserInfo()
+  60 │   }, [form])
+  61 │ 
+  62 │   async function onSubmit(values: z.infer<typeof profileSetupSchema>) {
+  63 │     setLoading(true)
+  64 │     
+  65 │     try {
+  66 │       // Check if username is already taken
+  67 │       const { data: existingUser, error: usernameCheckError } = await supabase
+  68 │         .from('profiles')
+  69 │         .select('username')
+  70 │         .eq('username', values.username)
+  71 │         .single()
+  72 │       
+  73 │       if (existingUser) {
+  74 │         form.setError('username', { 
+  75 │           type: 'manual', 
+  76 │           message: 'This username is already taken' 
+  77 │         })
+  78 │         setLoading(false)
+  79 │         return
+  80 │       }
+  81 │       
+  82 │       // Create user profile in profiles table
+  83 │       const { error } = await supabase
+  84 │         .from('profiles')
+  85 │         .insert({
+  86 │           id: user.id,
+  87 │           username: values.username,
+  88 │           headline: values.headline,
+  89 │           bio: values.bio,
+  90 │           company: values.company,
+  91 │           position: values.position,
+  92 │           location: values.location,
+  93 │           avatar_url: user?.user_metadata?.avatar_url || null,
+  94 │         })
+  95 │ 
+  96 │       if (error) {
+  97 │         toast({
+  98 │           title: "Profile setup failed",
+  99 │           description: error.message,
+ 100 │           variant: "destructive",
+ 101 │         })
+ 102 │         return
+ 103 │       }
+ 104 │ 
+ 105 │       toast({
+ 106 │         title: "Profile created successfully",
+ 107 │         description: "Redirecting to your profile...",
+ 108 │       })
+ 109 │       
+ 110 │       setTimeout(() => router.push(`/profile/${values.username}`), 1500)
+ 111 │     } catch (error) {
+ 112 │       toast({
+ 113 │         title: "An error occurred",
+ 114 │         description: "Please try again later",
+ 115 │         variant: "destructive",
+ 116 │       })
+ 117 │     } finally {
+ 118 │       setLoading(false)
+ 119 │     }
+ 120 │   }
+ 121 │ 
+ 122 │   return (
+ 123 │     <div className="container max-w-3xl py-10">
+ 124 │       <Card>
+ 125 │         <CardHeader>
+ 126 │           <CardTitle className="text-2xl">Complete Your Profile</CardTitle>
+ 127 │         </CardHeader>
+ 128 │         <CardContent>
+ 129 │           <Form {...form}>
+ 130 │             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+ 131 │               <FormField
+ 132 │                 control={form.control}
+ 133 │                 name="username"
+ 134 │                 render={({ field }) => (
+ 135 │                   <FormItem>
+ 136 │                     <FormLabel>Username</FormLabel>
+ 137 │                     <FormControl>
+ 138 │                       <Input {...field} />
+ 139 │                     </FormControl>
+ 140 │                     <FormDescription>
+ 141 │                       This will be your unique profile URL: safetyshaper.com/profile/{field.value || 'username'}
+ 142 │                     </FormDescription>
+ 143 │                     <FormMessage />
+ 144 │                   </FormItem>
+ 145 │                 )}
+ 146 │               />
+ 147 │               
+ 148 │               <FormField
+ 149 │                 control={form.control}
+ 150 │                 name="headline"
+ 151 │                 render={({ field }) => (
+ 152 │                   <FormItem>
+ 153 │                     <FormLabel>Professional Headline</FormLabel>
+ 154 │                     <FormControl>
+ 155 │                       <Input placeholder="ESG Compliance Manager | Safety Specialist" {...field} />
+ 156 │                     </FormControl>
+ 157 │                     <FormDescription>
+ 158 │                       A brief summary of your professional role
+ 159 │                     </FormDescription>
+ 160 │                     <FormMessage />
+ 161 │                   </FormItem>
+ 162 │                 )}
+ 163 │               />
+ 164 │               
+ 165 │               <FormField
+ 166 │                 control={form.control}
+ 167 │                 name="bio"
+ 168 │                 render={({ field }) => (
+ 169 │                   <FormItem>
+ 170 │                     <FormLabel>Bio</FormLabel>
+ 171 │                     <FormControl>
+ 172 │                       <Textarea 
+ 173 │                         placeholder="I'm a safety professional with 5+ years of experience in..." 
+ 174 │                         className="min-h-32" 
+ 175 │                         {...field}
+ 176 │                       />
+ 177 │                     </FormControl>
+ 178 │                     <FormDescription>
+ 179 │                       Tell other professionals about your experience and expertise
+ 180 │                     </FormDescription>
+ 181 │                     <FormMessage />
+ 182 │                   </FormItem>
+ 183 │                 )}
+ 184 │               />
+ 185 │               
+ 186 │               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+ 187 │                 <FormField
+ 188 │                   control={form.control}
+ 189 │                   name="company"
+ 190 │                   render={({ field }) => (
+ 191 │                     <FormItem>
+ 192 │                       <FormLabel>Current Company</FormLabel>
+ 193 │                       <FormControl>
+ 194 │                         <Input placeholder="GreenTech Solutions" {...field} />
+ 195 │                       </FormControl>
+ 196 │                       <FormMessage />
+ 197 │                     </FormItem>
+ 198 │                   )}
+ 199 │                 />
+ 200 │                 
+ 201 │                 <FormField
+ 202 │                   control={form.control}
+ 203 │                   name="position"
+ 204 │                   render={({ field }) => (
+ 205 │                     <FormItem>
+ 206 │                       <FormLabel>Current Position</FormLabel>
+ 207 │                       <FormControl>
+ 208 │                         <Input placeholder="ESG Compliance Manager" {...field} />
+ 209 │                       </FormControl>
+ 210 │                       <FormMessage />
+ 211 │                     </FormItem>
+ 212 │                   )}
+ 213 │                 />
+ 214 │               </div>
+ 215 │               
+ 216 │               <FormField
+ 217 │                 control={form.control}
+ 218 │                 name="location"
+ 219 │                 render={({ field }) => (
+ 220 │                   <FormItem>
+ 221 │                     <FormLabel>Location</FormLabel>
+ 222 │                     <FormControl>
+ 223 │                       <Input placeholder="San Francisco, CA" {...field} />
+ 224 │                     </FormControl>
+ 225 │                     <FormMessage />
+ 226 │                   </FormItem>
+ 227 │                 )}
+ 228 │               />
+ 229 │               
+ 230 │               <Button type="submit" className="w-full" disabled={loading}>
+ 231 │                 {loading ? "Saving Profile..." : "Complete Profile Setup"}
+ 232 │               </Button>
+ 233 │             </form>
+ 234 │           </Form>
+ 235 │         </CardContent>
+ 236 │       </Card>
+ 237 │     </div>
+ 238 │   )
+ 239 │ }
+ 240 │ "use client"
+ 241 │ 
+ 242 │ import { useEffect, useState } from "react"
+ 243 │ import { useRouter } from "next/navigation"
+ 244 │ import { supabase } from "@/lib/supabase"
+ 245 │ import { Button } from "@/components/ui/button"
+ 246 │ import { Input } from "@/components/ui/input"
+ 247 │ import { Label } from "@/components/ui/label"
+ 248 │ import { Textarea } from "@/components/ui/textarea"
+     ·          ────┬───
+     ·              ╰── `Textarea` redefined here
+ 249 │ import { useToast } from "@/hooks/use-toast"
+ 250 │ 
+ 251 │ export default function ProfileSetupPage() {
+     ╰────
+
+  × the name `useToast` is defined multiple times
+     ╭─[/home/runner/workspace/app/profile/setup/page.tsx:11:1]
+  11 │ import { Input } from "@/components/ui/input"
+  12 │ import { Textarea } from "@/components/ui/textarea"
+  13 │ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+  14 │ import { useToast } from "@/hooks/use-toast"
+     ·          ────┬───
+     ·              ╰── previous definition of `useToast` here
+  15 │ import { supabase } from "@/lib/supabase"
+  16 │ 
+  17 │ const profileSetupSchema = z.object({
+  18 │   headline: z.string().min(10, "Headline must be at least 10 characters"),
+  19 │   bio: z.string().min(30, "Bio should be at least 30 characters"),
+  20 │   company: z.string().min(2, "Company name must be at least 2 characters"),
+  21 │   position: z.string().min(2, "Position must be at least 2 characters"),
+  22 │   location: z.string().min(2, "Location must be at least 2 characters"),
+  23 │   username: z.string().min(3, "Username must be at least 3 characters").regex(/^[a-z0-9_-]+$/, "Username can only contain lowercase letters, numbers, underscores, and hyphens"),
+  24 │ })
+  25 │ 
+  26 │ export default function ProfileSetupPage() {
+  27 │   const router = useRouter()
+  28 │   const { toast } = useToast()
+  29 │   const [loading, setLoading] = React.useState(false)
+  30 │   const [user, setUser] = React.useState<any>(null)
+  31 │   
+  32 │   const form = useForm<z.infer<typeof profileSetupSchema>>({
+  33 │     resolver: zodResolver(profileSetupSchema),
+  34 │     defaultValues: {
+  35 │       headline: "",
+  36 │       bio: "",
+  37 │       company: "",
+  38 │       position: "",
+  39 │       location: "",
+  40 │       username: "",
+  41 │     },
+  42 │   })
+  43 │ 
+  44 │   React.useEffect(() => {
+  45 │     async function getUserInfo() {
+  46 │       const { data: { user } } = await supabase.auth.getUser()
+  47 │       setUser(user)
+  48 │       
+  49 │       // Generate a suggested username
+  50 │       if (user?.user_metadata?.name) {
+  51 │         const nameSuggestion = user.user_metadata.name
+  52 │           .toLowerCase()
+  53 │           .replace(/[^a-z0-9]/g, '')
+  54 │         
+  55 │         form.setValue('username', nameSuggestion)
+  56 │       }
+  57 │     }
+  58 │     
+  59 │     getUserInfo()
+  60 │   }, [form])
+  61 │ 
+  62 │   async function onSubmit(values: z.infer<typeof profileSetupSchema>) {
+  63 │     setLoading(true)
+  64 │     
+  65 │     try {
+  66 │       // Check if username is already taken
+  67 │       const { data: existingUser, error: usernameCheckError } = await supabase
+  68 │         .from('profiles')
+  69 │         .select('username')
+  70 │         .eq('username', values.username)
+  71 │         .single()
+  72 │       
+  73 │       if (existingUser) {
+  74 │         form.setError('username', { 
+  75 │           type: 'manual', 
+  76 │           message: 'This username is already taken' 
+  77 │         })
+  78 │         setLoading(false)
+  79 │         return
+  80 │       }
+  81 │       
+  82 │       // Create user profile in profiles table
+  83 │       const { error } = await supabase
+  84 │         .from('profiles')
+  85 │         .insert({
+  86 │           id: user.id,
+  87 │           username: values.username,
+  88 │           headline: values.headline,
+  89 │           bio: values.bio,
+  90 │           company: values.company,
+  91 │           position: values.position,
+  92 │           location: values.location,
+  93 │           avatar_url: user?.user_metadata?.avatar_url || null,
+  94 │         })
+  95 │ 
+  96 │       if (error) {
+  97 │         toast({
+  98 │           title: "Profile setup failed",
+  99 │           description: error.message,
+ 100 │           variant: "destructive",
+ 101 │         })
+ 102 │         return
+ 103 │       }
+ 104 │ 
+ 105 │       toast({
+ 106 │         title: "Profile created successfully",
+ 107 │         description: "Redirecting to your profile...",
+ 108 │       })
+ 109 │       
+ 110 │       setTimeout(() => router.push(`/profile/${values.username}`), 1500)
+ 111 │     } catch (error) {
+ 112 │       toast({
+ 113 │         title: "An error occurred",
+ 114 │         description: "Please try again later",
+ 115 │         variant: "destructive",
+ 116 │       })
+ 117 │     } finally {
+ 118 │       setLoading(false)
+ 119 │     }
+ 120 │   }
+ 121 │ 
+ 122 │   return (
+ 123 │     <div className="container max-w-3xl py-10">
+ 124 │       <Card>
+ 125 │         <CardHeader>
+ 126 │           <CardTitle className="text-2xl">Complete Your Profile</CardTitle>
+ 127 │         </CardHeader>
+ 128 │         <CardContent>
+ 129 │           <Form {...form}>
+ 130 │             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+ 131 │               <FormField
+ 132 │                 control={form.control}
+ 133 │                 name="username"
+ 134 │                 render={({ field }) => (
+ 135 │                   <FormItem>
+ 136 │                     <FormLabel>Username</FormLabel>
+ 137 │                     <FormControl>
+ 138 │                       <Input {...field} />
+ 139 │                     </FormControl>
+ 140 │                     <FormDescription>
+ 141 │                       This will be your unique profile URL: safetyshaper.com/profile/{field.value || 'username'}
+ 142 │                     </FormDescription>
+ 143 │                     <FormMessage />
+ 144 │                   </FormItem>
+ 145 │                 )}
+ 146 │               />
+ 147 │               
+ 148 │               <FormField
+ 149 │                 control={form.control}
+ 150 │                 name="headline"
+ 151 │                 render={({ field }) => (
+ 152 │                   <FormItem>
+ 153 │                     <FormLabel>Professional Headline</FormLabel>
+ 154 │                     <FormControl>
+ 155 │                       <Input placeholder="ESG Compliance Manager | Safety Specialist" {...field} />
+ 156 │                     </FormControl>
+ 157 │                     <FormDescription>
+ 158 │                       A brief summary of your professional role
+ 159 │                     </FormDescription>
+ 160 │                     <FormMessage />
+ 161 │                   </FormItem>
+ 162 │                 )}
+ 163 │               />
+ 164 │               
+ 165 │               <FormField
+ 166 │                 control={form.control}
+ 167 │                 name="bio"
+ 168 │                 render={({ field }) => (
+ 169 │                   <FormItem>
+ 170 │                     <FormLabel>Bio</FormLabel>
+ 171 │                     <FormControl>
+ 172 │                       <Textarea 
+ 173 │                         placeholder="I'm a safety professional with 5+ years of experience in..." 
+ 174 │                         className="min-h-32" 
+ 175 │                         {...field}
+ 176 │                       />
+ 177 │                     </FormControl>
+ 178 │                     <FormDescription>
+ 179 │                       Tell other professionals about your experience and expertise
+ 180 │                     </FormDescription>
+ 181 │                     <FormMessage />
+ 182 │                   </FormItem>
+ 183 │                 )}
+ 184 │               />
+ 185 │               
+ 186 │               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+ 187 │                 <FormField
+ 188 │                   control={form.control}
+ 189 │                   name="company"
+ 190 │                   render={({ field }) => (
+ 191 │                     <FormItem>
+ 192 │                       <FormLabel>Current Company</FormLabel>
+ 193 │                       <FormControl>
+ 194 │                         <Input placeholder="GreenTech Solutions" {...field} />
+ 195 │                       </FormControl>
+ 196 │                       <FormMessage />
+ 197 │                     </FormItem>
+ 198 │                   )}
+ 199 │                 />
+ 200 │                 
+ 201 │                 <FormField
+ 202 │                   control={form.control}
+ 203 │                   name="position"
+ 204 │                   render={({ field }) => (
+ 205 │                     <FormItem>
+ 206 │                       <FormLabel>Current Position</FormLabel>
+ 207 │                       <FormControl>
+ 208 │                         <Input placeholder="ESG Compliance Manager" {...field} />
+ 209 │                       </FormControl>
+ 210 │                       <FormMessage />
+ 211 │                     </FormItem>
+ 212 │                   )}
+ 213 │                 />
+ 214 │               </div>
+ 215 │               
+ 216 │               <FormField
+ 217 │                 control={form.control}
+ 218 │                 name="location"
+ 219 │                 render={({ field }) => (
+ 220 │                   <FormItem>
+ 221 │                     <FormLabel>Location</FormLabel>
+ 222 │                     <FormControl>
+ 223 │                       <Input placeholder="San Francisco, CA" {...field} />
+ 224 │                     </FormControl>
+ 225 │                     <FormMessage />
+ 226 │                   </FormItem>
+ 227 │                 )}
+ 228 │               />
+ 229 │               
+ 230 │               <Button type="submit" className="w-full" disabled={loading}>
+ 231 │                 {loading ? "Saving Profile..." : "Complete Profile Setup"}
+ 232 │               </Button>
+ 233 │             </form>
+ 234 │           </Form>
+ 235 │         </CardContent>
+ 236 │       </Card>
+ 237 │     </div>
+ 238 │   )
+ 239 │ }
+ 240 │ "use client"
+ 241 │ 
+ 242 │ import { useEffect, useState } from "react"
+ 243 │ import { useRouter } from "next/navigation"
+ 244 │ import { supabase } from "@/lib/supabase"
+ 245 │ import { Button } from "@/components/ui/button"
+ 246 │ import { Input } from "@/components/ui/input"
+ 247 │ import { Label } from "@/components/ui/label"
+ 248 │ import { Textarea } from "@/components/ui/textarea"
+ 249 │ import { useToast } from "@/hooks/use-toast"
+     ·          ────┬───
+     ·              ╰── `useToast` redefined here
+ 250 │ 
+ 251 │ export default function ProfileSetupPage() {
+ 252 │   const router = useRouter()
+     ╰────
+
+  × the name `ProfileSetupPage` is defined multiple times
+     ╭─[/home/runner/workspace/app/profile/setup/page.tsx:23:1]
+  23 │   username: z.string().min(3, "Username must be at least 3 characters").regex(/^[a-z0-9_-]+$/, "Username can only contain lowercase letters, numbers, underscores, and hyphens"),
+  24 │ })
+  25 │ 
+  26 │ export default function ProfileSetupPage() {
+     ·                         ────────┬───────
+     ·                                 ╰── previous definition of `ProfileSetupPage` here
+  27 │   const router = useRouter()
+  28 │   const { toast } = useToast()
+  29 │   const [loading, setLoading] = React.useState(false)
+  30 │   const [user, setUser] = React.useState<any>(null)
+  31 │   
+  32 │   const form = useForm<z.infer<typeof profileSetupSchema>>({
+  33 │     resolver: zodResolver(profileSetupSchema),
+  34 │     defaultValues: {
+  35 │       headline: "",
+  36 │       bio: "",
+  37 │       company: "",
+  38 │       position: "",
+  39 │       location: "",
+  40 │       username: "",
+  41 │     },
+  42 │   })
+  43 │ 
+  44 │   React.useEffect(() => {
+  45 │     async function getUserInfo() {
+  46 │       const { data: { user } } = await supabase.auth.getUser()
+  47 │       setUser(user)
+  48 │       
+  49 │       // Generate a suggested username
+  50 │       if (user?.user_metadata?.name) {
+  51 │         const nameSuggestion = user.user_metadata.name
+  52 │           .toLowerCase()
+  53 │           .replace(/[^a-z0-9]/g, '')
+  54 │         
+  55 │         form.setValue('username', nameSuggestion)
+  56 │       }
+  57 │     }
+  58 │     
+  59 │     getUserInfo()
+  60 │   }, [form])
+  61 │ 
+  62 │   async function onSubmit(values: z.infer<typeof profileSetupSchema>) {
+  63 │     setLoading(true)
+  64 │     
+  65 │     try {
+  66 │       // Check if username is already taken
+  67 │       const { data: existingUser, error: usernameCheckError } = await supabase
+  68 │         .from('profiles')
+  69 │         .select('username')
+  70 │         .eq('username', values.username)
+  71 │         .single()
+  72 │       
+  73 │       if (existingUser) {
+  74 │         form.setError('username', { 
+  75 │           type: 'manual', 
+  76 │           message: 'This username is already taken' 
+  77 │         })
+  78 │         setLoading(false)
+  79 │         return
+  80 │       }
+  81 │       
+  82 │       // Create user profile in profiles table
+  83 │       const { error } = await supabase
+  84 │         .from('profiles')
+  85 │         .insert({
+  86 │           id: user.id,
+  87 │           username: values.username,
+  88 │           headline: values.headline,
+  89 │           bio: values.bio,
+  90 │           company: values.company,
+  91 │           position: values.position,
+  92 │           location: values.location,
+  93 │           avatar_url: user?.user_metadata?.avatar_url || null,
+  94 │         })
+  95 │ 
+  96 │       if (error) {
+  97 │         toast({
+  98 │           title: "Profile setup failed",
+  99 │           description: error.message,
+ 100 │           variant: "destructive",
+ 101 │         })
+ 102 │         return
+ 103 │       }
+ 104 │ 
+ 105 │       toast({
+ 106 │         title: "Profile created successfully",
+ 107 │         description: "Redirecting to your profile...",
+ 108 │       })
+ 109 │       
+ 110 │       setTimeout(() => router.push(`/profile/${values.username}`), 1500)
+ 111 │     } catch (error) {
+ 112 │       toast({
+ 113 │         title: "An error occurred",
+ 114 │         description: "Please try again later",
+ 115 │         variant: "destructive",
+ 116 │       })
+ 117 │     } finally {
+ 118 │       setLoading(false)
+ 119 │     }
+ 120 │   }
+ 121 │ 
+ 122 │   return (
+ 123 │     <div className="container max-w-3xl py-10">
+ 124 │       <Card>
+ 125 │         <CardHeader>
+ 126 │           <CardTitle className="text-2xl">Complete Your Profile</CardTitle>
+ 127 │         </CardHeader>
+ 128 │         <CardContent>
+ 129 │           <Form {...form}>
+ 130 │             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+ 131 │               <FormField
+ 132 │                 control={form.control}
+ 133 │                 name="username"
+ 134 │                 render={({ field }) => (
+ 135 │                   <FormItem>
+ 136 │                     <FormLabel>Username</FormLabel>
+ 137 │                     <FormControl>
+ 138 │                       <Input {...field} />
+ 139 │                     </FormControl>
+ 140 │                     <FormDescription>
+ 141 │                       This will be your unique profile URL: safetyshaper.com/profile/{field.value || 'username'}
+ 142 │                     </FormDescription>
+ 143 │                     <FormMessage />
+ 144 │                   </FormItem>
+ 145 │                 )}
+ 146 │               />
+ 147 │               
+ 148 │               <FormField
+ 149 │                 control={form.control}
+ 150 │                 name="headline"
+ 151 │                 render={({ field }) => (
+ 152 │                   <FormItem>
+ 153 │                     <FormLabel>Professional Headline</FormLabel>
+ 154 │                     <FormControl>
+ 155 │                       <Input placeholder="ESG Compliance Manager | Safety Specialist" {...field} />
+ 156 │                     </FormControl>
+ 157 │                     <FormDescription>
+ 158 │                       A brief summary of your professional role
+ 159 │                     </FormDescription>
+ 160 │                     <FormMessage />
+ 161 │                   </FormItem>
+ 162 │                 )}
+ 163 │               />
+ 164 │               
+ 165 │               <FormField
+ 166 │                 control={form.control}
+ 167 │                 name="bio"
+ 168 │                 render={({ field }) => (
+ 169 │                   <FormItem>
+ 170 │                     <FormLabel>Bio</FormLabel>
+ 171 │                     <FormControl>
+ 172 │                       <Textarea 
+ 173 │                         placeholder="I'm a safety professional with 5+ years of experience in..." 
+ 174 │                         className="min-h-32" 
+ 175 │                         {...field}
+ 176 │                       />
+ 177 │                     </FormControl>
+ 178 │                     <FormDescription>
+ 179 │                       Tell other professionals about your experience and expertise
+ 180 │                     </FormDescription>
+ 181 │                     <FormMessage />
+ 182 │                   </FormItem>
+ 183 │                 )}
+ 184 │               />
+ 185 │               
+ 186 │               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+ 187 │                 <FormField
+ 188 │                   control={form.control}
+ 189 │                   name="company"
+ 190 │                   render={({ field }) => (
+ 191 │                     <FormItem>
+ 192 │                       <FormLabel>Current Company</FormLabel>
+ 193 │                       <FormControl>
+ 194 │                         <Input placeholder="GreenTech Solutions" {...field} />
+ 195 │                       </FormControl>
+ 196 │                       <FormMessage />
+ 197 │                     </FormItem>
+ 198 │                   )}
+ 199 │                 />
+ 200 │                 
+ 201 │                 <FormField
+ 202 │                   control={form.control}
+ 203 │                   name="position"
+ 204 │                   render={({ field }) => (
+ 205 │                     <FormItem>
+ 206 │                       <FormLabel>Current Position</FormLabel>
+ 207 │                       <FormControl>
+ 208 │                         <Input placeholder="ESG Compliance Manager" {...field} />
+ 209 │                       </FormControl>
+ 210 │                       <FormMessage />
+ 211 │                     </FormItem>
+ 212 │                   )}
+ 213 │                 />
+ 214 │               </div>
+ 215 │               
+ 216 │               <FormField
+ 217 │                 control={form.control}
+ 218 │                 name="location"
+ 219 │                 render={({ field }) => (
+ 220 │                   <FormItem>
+ 221 │                     <FormLabel>Location</FormLabel>
+ 222 │                     <FormControl>
+ 223 │                       <Input placeholder="San Francisco, CA" {...field} />
+ 224 │                     </FormControl>
+ 225 │                     <FormMessage />
+ 226 │                   </FormItem>
+ 227 │                 )}
+ 228 │               />
+ 229 │               
+ 230 │               <Button type="submit" className="w-full" disabled={loading}>
+ 231 │                 {loading ? "Saving Profile..." : "Complete Profile Setup"}
+ 232 │               </Button>
+ 233 │             </form>
+ 234 │           </Form>
+ 235 │         </CardContent>
+ 236 │       </Card>
+ 237 │     </div>
+ 238 │   )
+ 239 │ }
+ 240 │ "use client"
+ 241 │ 
+ 242 │ import { useEffect, useState } from "react"
+ 243 │ import { useRouter } from "next/navigation"
+ 244 │ import { supabase } from "@/lib/supabase"
+ 245 │ import { Button } from "@/components/ui/button"
+ 246 │ import { Input } from "@/components/ui/input"
+ 247 │ import { Label } from "@/components/ui/label"
+ 248 │ import { Textarea } from "@/components/ui/textarea"
+ 249 │ import { useToast } from "@/hooks/use-toast"
+ 250 │ 
+ 251 │ export default function ProfileSetupPage() {
+     ·                         ────────┬───────
+     ·                                 ╰── `ProfileSetupPage` redefined here
+ 252 │   const router = useRouter()
+ 253 │   const { toast } = useToast()
+ 254 │   const [loading, setLoading] = useState(true)
+     ╰────
+
+  × the name `default` is exported multiple times
+     ╭─[/home/runner/workspace/app/profile/setup/page.tsx:23:1]
+  23 │       username: z.string().min(3, "Username must be at least 3 characters").regex(/^[a-z0-9_-]+$/, "Username can only contain lowercase letters, numbers, underscores, and hyphens"),
+  24 │     })
+  25 │     
+  26 │ ╭─▶ export default function ProfileSetupPage() {
+  27 │ │     const router = useRouter()
+  28 │ │     const { toast } = useToast()
+  29 │ │     const [loading, setLoading] = React.useState(false)
+  30 │ │     const [user, setUser] = React.useState<any>(null)
+  31 │ │     
+  32 │ │     const form = useForm<z.infer<typeof profileSetupSchema>>({
+  33 │ │       resolver: zodResolver(profileSetupSchema),
+  34 │ │       defaultValues: {
+  35 │ │         headline: "",
+  36 │ │         bio: "",
+  37 │ │         company: "",
+  38 │ │         position: "",
+  39 │ │         location: "",
+  40 │ │         username: "",
+  41 │ │       },
+  42 │ │     })
+  43 │ │   
+  44 │ │     React.useEffect(() => {
+  45 │ │       async function getUserInfo() {
+  46 │ │         const { data: { user } } = await supabase.auth.getUser()
+  47 │ │         setUser(user)
+  48 │ │         
+  49 │ │         // Generate a suggested username
+  50 │ │         if (user?.user_metadata?.name) {
+  51 │ │           const nameSuggestion = user.user_metadata.name
+  52 │ │             .toLowerCase()
+  53 │ │             .replace(/[^a-z0-9]/g, '')
+  54 │ │           
+  55 │ │           form.setValue('username', nameSuggestion)
+  56 │ │         }
+  57 │ │       }
+  58 │ │       
+  59 │ │       getUserInfo()
+  60 │ │     }, [form])
+  61 │ │   
+  62 │ │     async function onSubmit(values: z.infer<typeof profileSetupSchema>) {
+  63 │ │       setLoading(true)
+  64 │ │       
+  65 │ │       try {
+  66 │ │         // Check if username is already taken
+  67 │ │         const { data: existingUser, error: usernameCheckError } = await supabase
+  68 │ │           .from('profiles')
+  69 │ │           .select('username')
+  70 │ │           .eq('username', values.username)
+  71 │ │           .single()
+  72 │ │         
+  73 │ │         if (existingUser) {
+  74 │ │           form.setError('username', { 
+  75 │ │             type: 'manual', 
+  76 │ │             message: 'This username is already taken' 
+  77 │ │           })
+  78 │ │           setLoading(false)
+  79 │ │           return
+  80 │ │         }
+  81 │ │         
+  82 │ │         // Create user profile in profiles table
+  83 │ │         const { error } = await supabase
+  84 │ │           .from('profiles')
+  85 │ │           .insert({
+  86 │ │             id: user.id,
+  87 │ │             username: values.username,
+  88 │ │             headline: values.headline,
+  89 │ │             bio: values.bio,
+  90 │ │             company: values.company,
+  91 │ │             position: values.position,
+  92 │ │             location: values.location,
+  93 │ │             avatar_url: user?.user_metadata?.avatar_url || null,
+  94 │ │           })
+  95 │ │   
+  96 │ │         if (error) {
+  97 │ │           toast({
+  98 │ │             title: "Profile setup failed",
+  99 │ │             description: error.message,
+ 100 │ │             variant: "destructive",
+ 101 │ │           })
+ 102 │ │           return
+ 103 │ │         }
+ 104 │ │   
+ 105 │ │         toast({
+ 106 │ │           title: "Profile created successfully",
+ 107 │ │           description: "Redirecting to your profile...",
+ 108 │ │         })
+ 109 │ │         
+ 110 │ │         setTimeout(() => router.push(`/profile/${values.username}`), 1500)
+ 111 │ │       } catch (error) {
+ 112 │ │         toast({
+ 113 │ │           title: "An error occurred",
+ 114 │ │           description: "Please try again later",
+ 115 │ │           variant: "destructive",
+ 116 │ │         })
+ 117 │ │       } finally {
+ 118 │ │         setLoading(false)
+ 119 │ │       }
+ 120 │ │     }
+ 121 │ │   
+ 122 │ │     return (
+ 123 │ │       <div className="container max-w-3xl py-10">
+ 124 │ │         <Card>
+ 125 │ │           <CardHeader>
+ 126 │ │             <CardTitle className="text-2xl">Complete Your Profile</CardTitle>
+ 127 │ │           </CardHeader>
+ 128 │ │           <CardContent>
+ 129 │ │             <Form {...form}>
+ 130 │ │               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+ 131 │ │                 <FormField
+ 132 │ │                   control={form.control}
+ 133 │ │                   name="username"
+ 134 │ │                   render={({ field }) => (
+ 135 │ │                     <FormItem>
+ 136 │ │                       <FormLabel>Username</FormLabel>
+ 137 │ │                       <FormControl>
+ 138 │ │                         <Input {...field} />
+ 139 │ │                       </FormControl>
+ 140 │ │                       <FormDescription>
+ 141 │ │                         This will be your unique profile URL: safetyshaper.com/profile/{field.value || 'username'}
+ 142 │ │                       </FormDescription>
+ 143 │ │                       <FormMessage />
+ 144 │ │                     </FormItem>
+ 145 │ │                   )}
+ 146 │ │                 />
+ 147 │ │                 
+ 148 │ │                 <FormField
+ 149 │ │                   control={form.control}
+ 150 │ │                   name="headline"
+ 151 │ │                   render={({ field }) => (
+ 152 │ │                     <FormItem>
+ 153 │ │                       <FormLabel>Professional Headline</FormLabel>
+ 154 │ │                       <FormControl>
+ 155 │ │                         <Input placeholder="ESG Compliance Manager | Safety Specialist" {...field} />
+ 156 │ │                       </FormControl>
+ 157 │ │                       <FormDescription>
+ 158 │ │                         A brief summary of your professional role
+ 159 │ │                       </FormDescription>
+ 160 │ │                       <FormMessage />
+ 161 │ │                     </FormItem>
+ 162 │ │                   )}
+ 163 │ │                 />
+ 164 │ │                 
+ 165 │ │                 <FormField
+ 166 │ │                   control={form.control}
+ 167 │ │                   name="bio"
+ 168 │ │                   render={({ field }) => (
+ 169 │ │                     <FormItem>
+ 170 │ │                       <FormLabel>Bio</FormLabel>
+ 171 │ │                       <FormControl>
+ 172 │ │                         <Textarea 
+ 173 │ │                           placeholder="I'm a safety professional with 5+ years of experience in..." 
+ 174 │ │                           className="min-h-32" 
+ 175 │ │                           {...field}
+ 176 │ │                         />
+ 177 │ │                       </FormControl>
+ 178 │ │                       <FormDescription>
+ 179 │ │                         Tell other professionals about your experience and expertise
+ 180 │ │                       </FormDescription>
+ 181 │ │                       <FormMessage />
+ 182 │ │                     </FormItem>
+ 183 │ │                   )}
+ 184 │ │                 />
+ 185 │ │                 
+ 186 │ │                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+ 187 │ │                   <FormField
+ 188 │ │                     control={form.control}
+ 189 │ │                     name="company"
+ 190 │ │                     render={({ field }) => (
+ 191 │ │                       <FormItem>
+ 192 │ │                         <FormLabel>Current Company</FormLabel>
+ 193 │ │                         <FormControl>
+ 194 │ │                           <Input placeholder="GreenTech Solutions" {...field} />
+ 195 │ │                         </FormControl>
+ 196 │ │                         <FormMessage />
+ 197 │ │                       </FormItem>
+ 198 │ │                     )}
+ 199 │ │                   />
+ 200 │ │                   
+ 201 │ │                   <FormField
+ 202 │ │                     control={form.control}
+ 203 │ │                     name="position"
+ 204 │ │                     render={({ field }) => (
+ 205 │ │                       <FormItem>
+ 206 │ │                         <FormLabel>Current Position</FormLabel>
+ 207 │ │                         <FormControl>
+ 208 │ │                           <Input placeholder="ESG Compliance Manager" {...field} />
+ 209 │ │                         </FormControl>
+ 210 │ │                         <FormMessage />
+ 211 │ │                       </FormItem>
+ 212 │ │                     )}
+ 213 │ │                   />
+ 214 │ │                 </div>
+ 215 │ │                 
+ 216 │ │                 <FormField
+ 217 │ │                   control={form.control}
+ 218 │ │                   name="location"
+ 219 │ │                   render={({ field }) => (
+ 220 │ │                     <FormItem>
+ 221 │ │                       <FormLabel>Location</FormLabel>
+ 222 │ │                       <FormControl>
+ 223 │ │                         <Input placeholder="San Francisco, CA" {...field} />
+ 224 │ │                       </FormControl>
+ 225 │ │                       <FormMessage />
+ 226 │ │                     </FormItem>
+ 227 │ │                   )}
+ 228 │ │                 />
+ 229 │ │                 
+ 230 │ │                 <Button type="submit" className="w-full" disabled={loading}>
+ 231 │ │                   {loading ? "Saving Profile..." : "Complete Profile Setup"}
+ 232 │ │                 </Button>
+ 233 │ │               </form>
+ 234 │ │             </Form>
+ 235 │ │           </CardContent>
+ 236 │ │         </Card>
+ 237 │ │       </div>
+ 238 │ │     )
+ 239 │ ├─▶ }
+     · ╰──── previous exported here
+ 240 │     "use client"
+ 241 │     
+ 242 │     import { useEffect, useState } from "react"
+ 243 │     import { useRouter } from "next/navigation"
+ 244 │     import { supabase } from "@/lib/supabase"
+ 245 │     import { Button } from "@/components/ui/button"
+ 246 │     import { Input } from "@/components/ui/input"
+ 247 │     import { Label } from "@/components/ui/label"
+ 248 │     import { Textarea } from "@/components/ui/textarea"
+ 249 │     import { useToast } from "@/hooks/use-toast"
+ 250 │     
+ 251 │ ╭─▶ export default function ProfileSetupPage() {
+ 252 │ │     const router = useRouter()
+ 253 │ │     const { toast } = useToast()
+ 254 │ │     const [loading, setLoading] = useState(true)
+ 255 │ │     const [saving, setSaving] = useState(false)
+ 256 │ │     const [user, setUser] = useState<any>(null)
+ 257 │ │     const [profile, setProfile] = useState({
+ 258 │ │       username: "",
+ 259 │ │       full_name: "",
+ 260 │ │       headline: "",
+ 261 │ │       bio: "",
+ 262 │ │     })
+ 263 │ │   
+ 264 │ │     useEffect(() => {
+ 265 │ │       const initProfile = async () => {
+ 266 │ │         try {
+ 267 │ │           const { data: { session } } = await supabase.auth.getSession()
+ 268 │ │           
+ 269 │ │           if (!session) {
+ 270 │ │             router.push('/auth/login')
+ 271 │ │             return
+ 272 │ │           }
+ 273 │ │           
+ 274 │ │           setUser(session.user)
+ 275 │ │           
+ 276 │ │           // Check if they already have a profile
+ 277 │ │           const { data: existingProfile } = await supabase
+ 278 │ │             .from('profiles')
+ 279 │ │             .select('*')
+ 280 │ │             .eq('id', session.user.id)
+ 281 │ │             .single()
+ 282 │ │           
+ 283 │ │           if (existingProfile) {
+ 284 │ │             setProfile({
+ 285 │ │               username: existingProfile.username || "",
+ 286 │ │               full_name: existingProfile.full_name || "",
+ 287 │ │               headline: existingProfile.headline || "",
+ 288 │ │               bio: existingProfile.bio || "",
+ 289 │ │             })
+ 290 │ │           } else {
+ 291 │ │             // Generate defaults from user data
+ 292 │ │             setProfile({
+ 293 │ │               username: `${session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'user'}`
+ 294 │ │                 .toLowerCase()
+ 295 │ │                 .replace(/\s+/g, '-')
+ 296 │ │                 .replace(/[^a-z0-9-]/g, '') + 
+ 297 │ │                 `-${Math.floor(Math.random() * 10000)}`,
+ 298 │ │               full_name: session.user.user_metadata?.name || "",
+ 299 │ │               headline: "",
+ 300 │ │               bio: "",
+ 301 │ │             })
+ 302 │ │           }
+ 303 │ │         } catch (error) {
+ 304 │ │           console.error('Error loading profile:', error)
+ 305 │ │           toast({
+ 306 │ │             title: "Error loading profile",
+ 307 │ │             variant: "destructive",
+ 308 │ │           })
+ 309 │ │         } finally {
+ 310 │ │           setLoading(false)
+ 311 │ │         }
+ 312 │ │       }
+ 313 │ │       
+ 314 │ │       initProfile()
+ 315 │ │     }, [router, toast])
+ 316 │ │   
+ 317 │ │     const handleSubmit = async (e: React.FormEvent) => {
+ 318 │ │       e.preventDefault()
+ 319 │ │       setSaving(true)
+ 320 │ │       
+ 321 │ │       try {
+ 322 │ │         if (!user) {
+ 323 │ │           throw new Error("User not found")
+ 324 │ │         }
+ 325 │ │         
+ 326 │ │         // Check if username is unique
+ 327 │ │         const { data: usernameCheck, error: usernameError } = await supabase
+ 328 │ │           .from('profiles')
+ 329 │ │           .select('id')
+ 330 │ │           .eq('username', profile.username)
+ 331 │ │           .neq('id', user.id)
+ 332 │ │           .single()
+ 333 │ │         
+ 334 │ │         if (usernameCheck) {
+ 335 │ │           toast({
+ 336 │ │             title: "Username already taken",
+ 337 │ │             description: "Please choose a different username",
+ 338 │ │             variant: "destructive",
+ 339 │ │           })
+ 340 │ │           setSaving(false)
+ 341 │ │           return
+ 342 │ │         }
+ 343 │ │         
+ 344 │ │         // Update or insert profile
+ 345 │ │         const { error } = await supabase
+ 346 │ │           .from('profiles')
+ 347 │ │           .upsert({
+ 348 │ │             id: user.id,
+ 349 │ │             username: profile.username,
+ 350 │ │             full_name: profile.full_name,
+ 351 │ │             headline: profile.headline,
+ 352 │ │             bio: profile.bio,
+ 353 │ │             avatar_url: user.user_metadata?.avatar_url || user.user_metadata?.picture,
+ 354 │ │             updated_at: new Date().toISOString(),
+ 355 │ │           })
+ 356 │ │         
+ 357 │ │         if (error) throw error
+ 358 │ │         
+ 359 │ │         toast({
+ 360 │ │           title: "Profile saved",
+ 361 │ │           description: "Your profile has been updated successfully",
+ 362 │ │         })
+ 363 │ │         
+ 364 │ │         // Redirect to profile page
+ 365 │ │         router.push(`/profile/${profile.username}`)
+ 366 │ │       } catch (error: any) {
+ 367 │ │         console.error('Error saving profile:', error)
+ 368 │ │         toast({
+ 369 │ │           title: "Error saving profile",
+ 370 │ │           description: error.message,
+ 371 │ │           variant: "destructive",
+ 372 │ │         })
+ 373 │ │       } finally {
+ 374 │ │         setSaving(false)
+ 375 │ │       }
+ 376 │ │     }
+ 377 │ │   
+ 378 │ │     if (loading) {
+ 379 │ │       return (
+ 380 │ │         <div className="flex items-center justify-center min-h-screen">
+ 381 │ │           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+ 382 │ │         </div>
+ 383 │ │       )
+ 384 │ │     }
+ 385 │ │   
+ 386 │ │     return (
+ 387 │ │       <div className="container max-w-2xl py-10">
+ 388 │ │         <div className="space-y-6">
+ 389 │ │           <div>
+ 390 │ │             <h1 className="text-3xl font-bold">Complete Your Profile</h1>
+ 391 │ │             <p className="text-muted-foreground">
+ 392 │ │               Set up your profile information to get started with the Safety Shaper network
+ 393 │ │             </p>
+ 394 │ │           </div>
+ 395 │ │   
+ 396 │ │           <form onSubmit={handleSubmit} className="space-y-6">
+ 397 │ │             <div className="space-y-4">
+ 398 │ │               <div className="space-y-2">
+ 399 │ │                 <Label htmlFor="username">Username</Label>
+ 400 │ │                 <Input
+ 401 │ │                   id="username"
+ 402 │ │                   value={profile.username}
+ 403 │ │                   onChange={(e) => setProfile({ ...profile, username: e.target.value })}
+ 404 │ │                   required
+ 405 │ │                 />
+ 406 │ │                 <p className="text-xs text-muted-foreground">
+ 407 │ │                   This will be used for your profile URL: example.com/profile/{profile.username}
+ 408 │ │                 </p>
+ 409 │ │               </div>
+ 410 │ │               
+ 411 │ │               <div className="space-y-2">
+ 412 │ │                 <Label htmlFor="full_name">Full Name</Label>
+ 413 │ │                 <Input
+ 414 │ │                   id="full_name"
+ 415 │ │                   value={profile.full_name}
+ 416 │ │                   onChange={(e) => setProfile({ ...profile, full_name: e.target.value })}
+ 417 │ │                   required
+ 418 │ │                 />
+ 419 │ │               </div>
+ 420 │ │               
+ 421 │ │               <div className="space-y-2">
+ 422 │ │                 <Label htmlFor="headline">Headline</Label>
+ 423 │ │                 <Input
+ 424 │ │                   id="headline"
+ 425 │ │                   value={profile.headline}
+ 426 │ │                   onChange={(e) => setProfile({ ...profile, headline: e.target.value })}
+ 427 │ │                   placeholder="e.g. EHS Manager at Company ABC"
+ 428 │ │                 />
+ 429 │ │               </div>
+ 430 │ │               
+ 431 │ │               <div className="space-y-2">
+ 432 │ │                 <Label htmlFor="bio">Bio</Label>
+ 433 │ │                 <Textarea
+ 434 │ │                   id="bio"
+ 435 │ │                   value={profile.bio}
+ 436 │ │                   onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
+ 437 │ │                   placeholder="Tell us about yourself, your experience, and your interests"
+ 438 │ │                   className="min-h-[150px]"
+ 439 │ │                 />
+ 440 │ │               </div>
+ 441 │ │             </div>
+ 442 │ │             
+ 443 │ │             <Button type="submit" disabled={saving} className="w-full">
+ 444 │ │               {saving ? "Saving..." : "Save Profile"}
+ 445 │ │             </Button>
+ 446 │ │           </form>
+ 447 │ │         </div>
+ 448 │ │       </div>
+ 449 │ │     )
+ 450 │ ├─▶ }
+     · ╰──── exported more than once
+     ╰────
+
+Error: 
+  ☞ Exported identifiers must be unique
+
+  × The "use client" directive must be placed before other expressions. Move it to the top of the file to resolve this issue.
+     ╭─[/home/runner/workspace/app/profile/setup/page.tsx:237:1]
+ 237 │     </div>
+ 238 │   )
+ 239 │ }
+ 240 │ "use client"
+     · ────────────
+ 241 │ 
+ 242 │ import { useEffect, useState } from "react"
+ 243 │ import { useRouter } from "next/navigation"
+     ╰────
+This error occurred during the build process and can only be dismissed by fixing the error.
