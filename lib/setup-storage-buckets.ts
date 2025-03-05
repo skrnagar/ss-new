@@ -1,76 +1,77 @@
-import { createClient } from '@supabase/supabase-js'
-import { config } from 'dotenv'
 
-config()
+import { supabase } from '@/lib/supabase'
 
-async function setupStorageBuckets() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-
-  if (!supabaseUrl || !supabaseServiceKey) {
-    console.error('Required environment variables are missing')
-    return
-  }
-
-  const supabase = createClient(supabaseUrl, supabaseServiceKey)
-
-  // Define buckets we need
-  const buckets = [
-    { name: 'avatars', public: true },
-    { name: 'post-images', public: true },
-    { name: 'post-videos', public: true },
-    { name: 'post-documents', public: true }
-  ]
-
-  // Create each bucket
-  for (const bucket of buckets) {
-    console.log(`Setting up bucket: ${bucket.name}...`)
-
-    // Check if bucket exists
-    const { data: existingBucket, error: checkError } = await supabase
-      .storage
-      .getBucket(bucket.name)
-
-    if (checkError && checkError.message !== 'Bucket not found') {
-      console.error(`Error checking bucket ${bucket.name}:`, checkError)
-      continue
-    }
-
-    // Create bucket if it doesn't exist
-    if (!existingBucket) {
-      const { data, error } = await supabase
-        .storage
-        .createBucket(bucket.name, {
-          public: bucket.public,
-          fileSizeLimit: 10485760, // 10MB
-        })
-
-      if (error) {
-        console.error(`Error creating bucket ${bucket.name}:`, error)
-      } else {
-        console.log(`Created bucket: ${bucket.name}`)
-      }
+export async function setupStorageBuckets() {
+  console.log('Setting up storage buckets...')
+  
+  try {
+    // Create post-images bucket
+    const { data: imagesBucket, error: imagesBucketError } = await supabase.storage
+      .createBucket('post-images', {
+        public: true,
+        fileSizeLimit: 10485760, // 10MB
+        allowedMimeTypes: ['image/png', 'image/jpeg', 'image/gif', 'image/webp', 'application/pdf']
+      })
+    
+    if (imagesBucketError && imagesBucketError.message !== 'Bucket already exists') {
+      console.error('Error creating post-images bucket:', imagesBucketError)
     } else {
-      console.log(`Bucket already exists: ${bucket.name}`)
-
-      // Update bucket to ensure correct settings
-      const { error } = await supabase
-        .storage
-        .updateBucket(bucket.name, {
-          public: bucket.public,
-          fileSizeLimit: 10485760, // 10MB
-        })
-
-      if (error) {
-        console.error(`Error updating bucket ${bucket.name}:`, error)
-      } else {
-        console.log(`Updated bucket: ${bucket.name}`)
+      console.log('post-images bucket created or already exists')
+    }
+    
+    // Create post-videos bucket
+    const { data: videosBucket, error: videosBucketError } = await supabase.storage
+      .createBucket('post-videos', {
+        public: true,
+        fileSizeLimit: 104857600, // 100MB
+        allowedMimeTypes: ['video/mp4', 'video/quicktime', 'video/webm']
+      })
+    
+    if (videosBucketError && videosBucketError.message !== 'Bucket already exists') {
+      console.error('Error creating post-videos bucket:', videosBucketError)
+    } else {
+      console.log('post-videos bucket created or already exists')
+    }
+    
+    // Create post-documents bucket
+    const { data: documentsBucket, error: documentsBucketError } = await supabase.storage
+      .createBucket('post-documents', {
+        public: true,
+        fileSizeLimit: 20971520, // 20MB
+        allowedMimeTypes: ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']
+      })
+    
+    if (documentsBucketError && documentsBucketError.message !== 'Bucket already exists') {
+      console.error('Error creating post-documents bucket:', documentsBucketError)
+    } else {
+      console.log('post-documents bucket created or already exists')
+    }
+    
+    // Set public bucket policies for each bucket
+    for (const bucketName of ['post-images', 'post-videos', 'post-documents']) {
+      const { error: policyError } = await supabase.storage
+        .from(bucketName)
+        .getPublicUrl('test')
+      
+      if (policyError) {
+        // If bucket doesn't have public policy, set it
+        const { error: updatePolicyError } = await supabase.storage
+          .updateBucket(bucketName, {
+            public: true
+          })
+        
+        if (updatePolicyError) {
+          console.error(`Error setting public policy for ${bucketName}:`, updatePolicyError)
+        } else {
+          console.log(`Public policy set for ${bucketName}`)
+        }
       }
     }
+    
+    console.log('Storage buckets setup complete')
+    return { success: true }
+  } catch (error) {
+    console.error('Error setting up storage buckets:', error)
+    return { success: false, error }
   }
-
-  console.log('Storage buckets setup complete')
 }
-
-setupStorageBuckets()
-  .catch(console.error)

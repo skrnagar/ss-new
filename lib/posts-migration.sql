@@ -1,44 +1,66 @@
 
--- Add video_url column if it doesn't exist
-DO $$
-BEGIN
-    IF NOT EXISTS (
-        SELECT FROM information_schema.columns 
-        WHERE table_name = 'posts' AND column_name = 'video_url'
-    ) THEN
-        ALTER TABLE posts ADD COLUMN video_url TEXT;
-    END IF;
-END $$;
+-- Run this to update posts table policies
 
--- Add document_url column if it doesn't exist
-DO $$
-BEGIN
-    IF NOT EXISTS (
-        SELECT FROM information_schema.columns 
-        WHERE table_name = 'posts' AND column_name = 'document_url'
-    ) THEN
-        ALTER TABLE posts ADD COLUMN document_url TEXT;
-    END IF;
-END $$;
+-- First drop existing policies if they exist
+DROP POLICY IF EXISTS "Posts are viewable by everyone" ON posts;
+DROP POLICY IF EXISTS "Users can create their own posts" ON posts;
+DROP POLICY IF EXISTS "Users can update their own posts" ON posts;
+DROP POLICY IF EXISTS "Users can delete their own posts" ON posts;
 
--- Create a function to add columns if they don't exist
-CREATE OR REPLACE FUNCTION add_column_if_not_exists(
-  table_name text,
-  column_name text,
-  column_type text
-) RETURNS void AS $$
-DECLARE
-  column_exists boolean;
-BEGIN
-  SELECT EXISTS (
-    SELECT FROM information_schema.columns 
-    WHERE table_name = add_column_if_not_exists.table_name 
-    AND column_name = add_column_if_not_exists.column_name
-  ) INTO column_exists;
+-- Create new policies with correct user_id check
+CREATE POLICY "Posts are viewable by everyone" 
+ON posts FOR SELECT USING (true);
+
+-- Users can create their own posts
+CREATE POLICY "Users can create their own posts" 
+ON posts FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+-- Users can update their own posts
+CREATE POLICY "Users can update their own posts" 
+ON posts FOR UPDATE USING (auth.uid() = user_id);
+
+-- Users can delete their own posts
+CREATE POLICY "Users can delete their own posts" 
+ON posts FOR DELETE USING (auth.uid() = user_id);
+
+-- Storage bucket policies
+-- Create policy to allow authenticated users to upload to post-images bucket
+BEGIN;
+  INSERT INTO storage.buckets (id, name, public) 
+  VALUES ('post-images', 'post-images', true)
+  ON CONFLICT (id) DO NOTHING;
+
+  INSERT INTO storage.buckets (id, name, public) 
+  VALUES ('post-videos', 'post-videos', true)
+  ON CONFLICT (id) DO NOTHING;
+
+  INSERT INTO storage.buckets (id, name, public) 
+  VALUES ('post-documents', 'post-documents', true)
+  ON CONFLICT (id) DO NOTHING;
+COMMIT;
+
+-- Create RLS policies for storage buckets
+BEGIN;
+  -- Anyone can read
+  CREATE POLICY "Public Access" ON storage.objects FOR SELECT USING (bucket_id IN ('post-images', 'post-videos', 'post-documents'));
   
-  IF NOT column_exists THEN
-    EXECUTE format('ALTER TABLE %I ADD COLUMN %I %s', 
-      table_name, column_name, column_type);
-  END IF;
-END;
-$$ LANGUAGE plpgsql;
+  -- Authenticated users can upload
+  CREATE POLICY "Authenticated users can upload" ON storage.objects 
+    FOR INSERT WITH CHECK (
+      bucket_id IN ('post-images', 'post-videos', 'post-documents') 
+      AND auth.role() = 'authenticated'
+    );
+  
+  -- Users can update and delete their own uploads
+  CREATE POLICY "Users can update their own uploads" ON storage.objects 
+    FOR UPDATE USING (
+      bucket_id IN ('post-images', 'post-videos', 'post-documents') 
+      AND auth.uid() = owner
+    );
+  
+  CREATE POLICY "Users can delete their own uploads" ON storage.objects 
+    FOR DELETE USING (
+      bucket_id IN ('post-images', 'post-videos', 'post-documents') 
+      AND auth.uid() = owner
+    );
+COMMIT;

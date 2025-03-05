@@ -106,11 +106,28 @@ export function PostCreator({ userProfile }) {
           bucket = "post-documents"
         }
 
+        console.log(`Uploading to ${bucket} bucket with file name: ${fileName}`)
+        
+        // Check if bucket exists first
+        const { data: buckets } = await supabase.storage.listBuckets()
+        const bucketExists = buckets?.some(b => b.name === bucket)
+        
+        if (!bucketExists) {
+          console.log(`Bucket ${bucket} doesn't exist, creating it...`)
+          await supabase.storage.createBucket(bucket, {
+            public: true
+          })
+        }
+
         const { data: uploadData, error: uploadError } = await supabase.storage
           .from(bucket)
-          .upload(fileName, attachmentFile)
+          .upload(fileName, attachmentFile, {
+            cacheControl: '3600',
+            upsert: false
+          })
 
         if (uploadError) {
+          console.error("Upload error:", uploadError)
           throw uploadError
         }
 
