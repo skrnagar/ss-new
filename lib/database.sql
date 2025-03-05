@@ -6,6 +6,9 @@ CREATE TABLE profiles (
   headline TEXT,
   bio TEXT,
   avatar_url TEXT,
+  company TEXT,
+  position TEXT,
+  location TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
 );
