@@ -1,4 +1,3 @@
-
 "use client"
 
 import * as React from "react"
@@ -28,7 +27,7 @@ export default function ProfileSetupPage() {
   const { toast } = useToast()
   const [loading, setLoading] = React.useState(false)
   const [user, setUser] = React.useState<any>(null)
-  
+
   const form = useForm<z.infer<typeof profileSetupSchema>>({
     resolver: zodResolver(profileSetupSchema),
     defaultValues: {
@@ -47,7 +46,7 @@ export default function ProfileSetupPage() {
       try {
         const { data: { user } } = await supabase.auth.getUser()
         setUser(user)
-        
+
         if (user) {
           // Try to fetch existing profile data
           const { data: profile } = await supabase
@@ -55,7 +54,7 @@ export default function ProfileSetupPage() {
             .select('*')
             .eq('id', user.id)
             .single()
-            
+
           if (profile) {
             // Pre-fill form with existing data if available
             form.reset({
@@ -72,9 +71,34 @@ export default function ProfileSetupPage() {
         console.error('Error fetching user:', error)
       }
     }
-    
+
     fetchUser()
   }, [form])
+
+  // Check if username is available
+  const checkUsernameAvailability = async (username: string) => {
+    try {
+      // First, ensure the table exists
+      await fetch('/api/setup-db')
+
+      // Now check for the username
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('username')
+        .eq('username', username)
+
+      if (error) {
+        console.error('Supabase error checking username:', error)
+        throw error
+      }
+
+      return data.length === 0
+    } catch (error) {
+      console.error('Error checking username availability:', error)
+      throw new Error(`Error checking username availability: ${error instanceof Error ? error.message : String(error)}`)
+    }
+  }
+
 
   async function onSubmit(values: z.infer<typeof profileSetupSchema>) {
     if (!user) {
@@ -85,23 +109,14 @@ export default function ProfileSetupPage() {
       })
       return
     }
-    
+
     setLoading(true)
-    
+
     try {
       // Check if username is already taken
-      const { data: existingUser, error: checkError } = await supabase
-        .from('profiles')
-        .select('username')
-        .eq('username', values.username)
-        .neq('id', user.id) // Exclude current user
-        .single()
-      
-      if (checkError && checkError.code !== 'PGRST116') { // PGRST116 is "no rows returned" which is good
-        throw new Error("Error checking username availability")
-      }
-      
-      if (existingUser) {
+      const isUsernameAvailable = await checkUsernameAvailability(values.username);
+
+      if (!isUsernameAvailable) {
         toast({
           title: "Username already taken",
           description: "Please choose a different username",
@@ -110,7 +125,7 @@ export default function ProfileSetupPage() {
         setLoading(false)
         return
       }
-      
+
       // Update the user's profile
       const { error: updateError } = await supabase
         .from('profiles')
@@ -124,16 +139,16 @@ export default function ProfileSetupPage() {
           location: values.location,
           updated_at: new Date().toISOString(),
         }, { onConflict: 'id' })
-      
+
       if (updateError) {
         throw updateError
       }
-      
+
       toast({
         title: "Profile updated",
         description: "Your profile has been successfully updated",
       })
-      
+
       // Redirect to the user's profile page
       router.push(`/profile/${values.username}`)
     } catch (error: any) {
@@ -173,7 +188,7 @@ export default function ProfileSetupPage() {
                   </FormItem>
                 )}
               />
-              
+
               <FormField
                 control={form.control}
                 name="headline"
@@ -190,7 +205,7 @@ export default function ProfileSetupPage() {
                   </FormItem>
                 )}
               />
-              
+
               <FormField
                 control={form.control}
                 name="bio"
@@ -208,7 +223,7 @@ export default function ProfileSetupPage() {
                   </FormItem>
                 )}
               />
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
@@ -223,7 +238,7 @@ export default function ProfileSetupPage() {
                     </FormItem>
                   )}
                 />
-                
+
                 <FormField
                   control={form.control}
                   name="position"
@@ -238,7 +253,7 @@ export default function ProfileSetupPage() {
                   )}
                 />
               </div>
-              
+
               <FormField
                 control={form.control}
                 name="location"
@@ -252,7 +267,7 @@ export default function ProfileSetupPage() {
                   </FormItem>
                 )}
               />
-              
+
               <Button type="submit" className="w-full" disabled={loading}>
                 {loading ? "Saving..." : "Save Profile"}
               </Button>

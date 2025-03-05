@@ -36,7 +36,9 @@ export function createClient() {
 
 // Legacy client using auth-helpers-nextjs
 export function createLegacyClient() {
+  const cookieStore = cookies()
+  
   return createServerComponentClient<Database>({
-    cookies,
+    cookies: () => cookieStore,
   })
 }
