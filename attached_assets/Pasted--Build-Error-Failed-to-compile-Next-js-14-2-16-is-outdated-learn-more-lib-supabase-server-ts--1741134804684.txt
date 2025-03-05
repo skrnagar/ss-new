@@ -1,0 +1,99 @@
+
+Build Error
+Failed to compile
+
+Next.js (14.2.16) is outdated (learn more)
+./lib/supabase-server.ts
+Error: 
+  × the name `cookies` is defined multiple times
+    ╭─[/home/runner/workspace/lib/supabase-server.ts:1:1]
+  1 │ import { cookies } from 'next/headers'
+    ·          ───┬───
+    ·             ╰── previous definition of `cookies` here
+  2 │ import { createServerClient } from '@supabase/ssr'
+  3 │ 
+  4 │ // This creates a Supabase client for server-side operations
+  5 │ export function createClient() {
+  6 │   const cookieStore = cookies()
+  7 │ 
+  8 │   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+  9 │   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+ 10 │ 
+ 11 │   if (!supabaseUrl || !supabaseAnonKey) {
+ 12 │     throw new Error('Supabase URL or key is missing in environment variables')
+ 13 │   }
+ 14 │ 
+ 15 │   return createServerClient(
+ 16 │     supabaseUrl,
+ 17 │     supabaseAnonKey,
+ 18 │     {
+ 19 │       cookies: {
+ 20 │         get(name) {
+ 21 │           return cookieStore.get(name)?.value
+ 22 │         },
+ 23 │         set(name, value, options) {
+ 24 │           cookieStore.set({ name, value, ...options })
+ 25 │         },
+ 26 │         remove(name, options) {
+ 27 │           cookieStore.set({ name, value: '', ...options })
+ 28 │         },
+ 29 │       },
+ 30 │     }
+ 31 │   )
+ 32 │ }
+ 33 │ import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
+ 34 │ import { cookies } from 'next/headers'
+    ·          ───┬───
+    ·             ╰── `cookies` redefined here
+ 35 │ import { Database } from '@/types/supabase'
+ 36 │ 
+ 37 │ export const createClient = () => {
+    ╰────
+
+  × the name `createClient` is defined multiple times
+    ╭─[/home/runner/workspace/lib/supabase-server.ts:2:1]
+  2 │ import { createServerClient } from '@supabase/ssr'
+  3 │ 
+  4 │ // This creates a Supabase client for server-side operations
+  5 │ export function createClient() {
+    ·                 ──────┬─────
+    ·                       ╰── previous definition of `createClient` here
+  6 │   const cookieStore = cookies()
+  7 │ 
+  8 │   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+  9 │   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+ 10 │ 
+ 11 │   if (!supabaseUrl || !supabaseAnonKey) {
+ 12 │     throw new Error('Supabase URL or key is missing in environment variables')
+ 13 │   }
+ 14 │ 
+ 15 │   return createServerClient(
+ 16 │     supabaseUrl,
+ 17 │     supabaseAnonKey,
+ 18 │     {
+ 19 │       cookies: {
+ 20 │         get(name) {
+ 21 │           return cookieStore.get(name)?.value
+ 22 │         },
+ 23 │         set(name, value, options) {
+ 24 │           cookieStore.set({ name, value, ...options })
+ 25 │         },
+ 26 │         remove(name, options) {
+ 27 │           cookieStore.set({ name, value: '', ...options })
+ 28 │         },
+ 29 │       },
+ 30 │     }
+ 31 │   )
+ 32 │ }
+ 33 │ import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
+ 34 │ import { cookies } from 'next/headers'
+ 35 │ import { Database } from '@/types/supabase'
+ 36 │ 
+ 37 │ export const createClient = () => {
+    ·              ──────┬─────
+    ·                    ╰── `createClient` redefined here
+ 38 │   return createServerComponentClient<Database>({
+ 39 │     cookies,
+ 40 │   })
+    ╰────
+This error occurred during the build process and can only be dismissed by fixing the error.
