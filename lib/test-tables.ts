@@ -1,17 +1,19 @@
 
-#!/usr/bin/env node
-
-// This file is meant to be run directly with ts-node or transpiled before running with Node
-// You can run it with: npx ts-node lib/test-tables.ts
 import { createClient } from '@supabase/supabase-js'
 
 // Create a test client
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-const supabase = createClient(supabaseUrl, supabaseKey)
-
-async function testTables() {
+export async function testTables() {
   console.log('Testing tables in Supabase...')
+  
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  
+  if (!supabaseUrl || !supabaseKey) {
+    console.error('Missing Supabase URL or key in environment variables')
+    return { success: false, error: 'Missing environment variables' }
+  }
+  
+  const supabase = createClient(supabaseUrl, supabaseKey)
   
   try {
     // Try to fetch from profiles table
@@ -29,6 +31,7 @@ async function testTables() {
     // List all tables in the public schema
     const { data: tables, error: tablesError } = await supabase
       .rpc('get_tables')
+      .then(result => result)
       .catch(() => ({ data: null, error: { message: 'get_tables RPC not available' } }))
     
     if (tablesError) {
@@ -45,8 +48,11 @@ async function testTables() {
     } else {
       console.log('Available tables:', tables)
     }
+    
+    return { success: true }
   } catch (err) {
     console.error('General error testing tables:', err)
+    return { success: false, error: err }
   }
 }
 
@@ -56,6 +62,3 @@ if (require.main === module) {
     .then(() => console.log('Table test complete'))
     .catch(err => console.error('Error running table test:', err))
 }
-
-// Export for import usage
-export { testTables }
