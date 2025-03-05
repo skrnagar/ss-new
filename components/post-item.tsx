@@ -81,6 +81,15 @@ export function PostItem({ post, currentUser }) {
       } else {
         setIsLiked(false)
       }
+      
+      if (error && error.code !== 'PGRST116') { // Not found error is expected
+        console.error("Error checking like status:", error)
+        toast({
+          title: "Error checking like status",
+          description: error.message,
+          variant: "destructive"
+        })
+      }
     } catch (error) {
       console.error("Error checking like status:", error)
     }
@@ -126,8 +135,11 @@ export function PostItem({ post, currentUser }) {
       console.error("Error fetching comments:", error)
       toast({
         title: "Error loading comments",
+        description: error.message || "Failed to load comments",
         variant: "destructive"
       })
+      // Set empty array to prevent undefined errors
+      setComments([])
     } finally {
       setIsLoadingComments(false)
     }
@@ -145,6 +157,10 @@ export function PostItem({ post, currentUser }) {
     
     try {
       if (isLiked) {
+        // Optimistically update UI
+        setIsLiked(false)
+        setLikes(likes.filter(like => like.user_id !== currentUser.id))
+        
         // Unlike the post
         const { error } = await supabase
           .from('likes')
@@ -152,29 +168,47 @@ export function PostItem({ post, currentUser }) {
           .eq('post_id', post.id)
           .eq('user_id', currentUser.id)
         
-        if (error) throw error
-        
-        setIsLiked(false)
-        setLikes(likes.filter(like => like.user_id !== currentUser.id))
+        if (error) {
+          // Revert UI if error
+          setIsLiked(true)
+          setLikes([...likes])
+          throw error
+        }
       } else {
+        // Optimistically update UI
+        setIsLiked(true)
+        const newLike = { id: Date.now().toString(), post_id: post.id, user_id: currentUser.id }
+        setLikes([...likes, newLike])
+        
         // Like the post
-        const { error } = await supabase
+        const { error, data } = await supabase
           .from('likes')
           .insert({
             post_id: post.id,
             user_id: currentUser.id
           })
+          .select('id')
+          .single()
         
-        if (error) throw error
+        if (error) {
+          // Revert UI if error
+          setIsLiked(false)
+          setLikes(likes.filter(like => like.id !== newLike.id))
+          throw error
+        }
         
-        setIsLiked(true)
-        setLikes([...likes, { id: Date.now().toString(), post_id: post.id, user_id: currentUser.id }])
+        // Update the temporary ID with the real one from DB
+        if (data) {
+          setLikes(likes.map(like => 
+            like.id === newLike.id ? { ...like, id: data.id } : like
+          ))
+        }
       }
     } catch (error) {
       console.error("Error toggling like:", error)
       toast({
         title: "Action failed",
-        description: "Unable to process your like",
+        description: error.message || "Unable to process your like",
         variant: "destructive"
       })
     }
@@ -197,6 +231,7 @@ export function PostItem({ post, currentUser }) {
     setIsSubmittingComment(true)
     
     try {
+      // Create comment
       const { data, error } = await supabase
         .from('comments')
         .insert({
@@ -204,6 +239,12 @@ export function PostItem({ post, currentUser }) {
           user_id: currentUser.id,
           content: commentContent.trim()
         })
+      
+      if (error) throw error
+      
+      // Fetch the newly created comment with profile data
+      const { data: newComment, error: fetchError } = await supabase
+        .from('comments')
         .select(`
           *,
           profiles:user_id (
@@ -213,21 +254,31 @@ export function PostItem({ post, currentUser }) {
             avatar_url
           )
         `)
+        .eq('post_id', post.id)
+        .eq('user_id', currentUser.id)
+        .order('created_at', { ascending: false })
+        .limit(1)
         .single()
       
-      if (error) throw error
+      if (fetchError) throw fetchError
       
       setCommentContent("")
-      setComments([...comments, data])
+      setComments([...comments, newComment])
       
       if (!showComments) {
         setShowComments(true)
       }
+      
+      toast({
+        title: "Comment posted",
+        description: "Your comment was added successfully",
+        variant: "default"
+      })
     } catch (error) {
       console.error("Error submitting comment:", error)
       toast({
         title: "Comment failed",
-        description: "Unable to post your comment",
+        description: error.message || "Unable to post your comment",
         variant: "destructive"
       })
     } finally {
