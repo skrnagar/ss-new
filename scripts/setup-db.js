@@ -35,6 +35,15 @@ async function setupDatabase() {
       );
     `;
     
+    // SQL to check if table exists
+    const checkTableSQL = `
+      SELECT EXISTS (
+        SELECT FROM information_schema.tables 
+        WHERE table_schema = 'public' 
+        AND table_name = 'profiles'
+      );
+    `;
+    
     try {
       // Check if table exists using PostgreSQL's information_schema
       console.log('Checking if profiles table exists...');
@@ -43,33 +52,29 @@ async function setupDatabase() {
       if (checkError && checkError.code === '42P01') {
         console.log('Profiles table does not exist, attempting to create it...');
         
-        // Try to create the profiles table using REST API
+        // Try to create the profiles table
         try {
-          // Try direct SQL execution through Supabase REST API
-          const { error: sqlError } = await supabase.rpc('exec_sql', { sql: createProfilesTable });
+          // First approach: Try using Supabase's SQL API
+          const { error: sqlError } = await supabase.auth.admin.executeSql(createProfilesTable);
           
           if (sqlError) {
-            console.error('Error using RPC exec_sql:', sqlError);
-            console.log('Attempting alternative method...');
-            
-            // Create SQL function if it doesn't exist
-            const createSqlFunc = `
-              CREATE OR REPLACE FUNCTION exec_sql(sql text) RETURNS void AS $$
-              BEGIN
-                EXECUTE sql;
-              END;
-              $$ LANGUAGE plpgsql SECURITY DEFINER;
-            `;
-            
-            // Need to use pg directly for this level of SQL execution
-            console.log('Note: You may need to create the exec_sql function in the SQL editor directly');
-            console.log('Consider using the Supabase dashboard SQL editor to run this SQL directly:');
-            console.log(createProfilesTable);
+            console.error('Error using admin.executeSql:', sqlError);
+            // Try second approach using SQL RPC if available
+            try {
+              const { error: rpcError } = await supabase.rpc('exec_sql', { sql: createProfilesTable });
+              if (rpcError) {
+                console.error('Error using RPC exec_sql:', rpcError);
+              } else {
+                console.log('Created profiles table using RPC');
+              }
+            } catch (rpcErr) {
+              console.error('RPC execution error:', rpcErr);
+            }
           } else {
-            console.log('Created profiles table using RPC');
+            console.log('Created profiles table using SQL API');
           }
-        } catch (execErr) {
-          console.error('SQL execution error:', execErr);
+        } catch (createErr) {
+          console.error('Error creating table:', createErr);
         }
       } else {
         console.log('Profiles table already exists');
