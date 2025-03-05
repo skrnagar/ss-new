@@ -1,8 +1,7 @@
-
 import { createClient } from '@supabase/supabase-js'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 
-// Create a Supabase client with environment variables
+// Get environment variables
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
 
@@ -10,16 +9,13 @@ if (!supabaseUrl || !supabaseAnonKey) {
   console.error('Missing Supabase URL or Anon Key in environment variables')
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    persistSession: true,
-    storage: typeof window !== 'undefined' ? window.localStorage : undefined,
-    detectSessionInUrl: true,
-    autoRefreshToken: true,
-  },
+// Create a singleton Supabase client for client-side usage
+export const supabase = createClientComponentClient({
+  supabaseUrl,
+  supabaseKey: supabaseAnonKey,
 })
 
-// Function to get a new Supabase client instance using the newer client 
+// Function to get a new Supabase client instance (largely redundant now)
 export const getSupabase = () => createClientComponentClient()
 
 // Initialize auth listener for debugging

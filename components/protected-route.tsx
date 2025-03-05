@@ -3,6 +3,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { Session } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
 
 type ProtectedRouteProps = {
@@ -11,20 +12,19 @@ type ProtectedRouteProps = {
 
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const [isLoading, setIsLoading] = useState(true)
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [session, setSession] = useState<Session | null>(null)
   const router = useRouter()
 
   useEffect(() => {
-    const checkAuth = async () => {
+    async function checkAuth() {
       try {
         const { data: { session } } = await supabase.auth.getSession()
+        setSession(session)
         
         if (!session) {
           router.push('/auth/login')
           return
         }
-        
-        setIsAuthenticated(true)
       } catch (error) {
         console.error('Auth check failed:', error)
         router.push('/auth/login')
@@ -37,7 +37,9 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
     
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
-        if (event === 'SIGNED_OUT') {
+        setSession(session)
+        
+        if (event === 'SIGNED_OUT' || !session) {
           router.push('/auth/login')
         }
       }
@@ -56,7 +58,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
     )
   }
 
-  if (!isAuthenticated) {
+  if (!session) {
     return null
   }
 
