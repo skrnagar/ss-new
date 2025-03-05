@@ -114,17 +114,10 @@ export function PostItem({ post, currentUser }) {
     setIsLoadingComments(true)
     
     try {
+      // Updated the fetch to use the correct query format and handle CORS
       const { data, error } = await supabase
         .from('comments')
-        .select(`
-          *,
-          profiles:user_id (
-            id,
-            username,
-            full_name,
-            avatar_url
-          )
-        `)
+        .select('*, profiles:profiles(id, username, full_name, avatar_url)')
         .eq('post_id', post.id)
         .order('created_at', { ascending: true })
       
@@ -135,7 +128,7 @@ export function PostItem({ post, currentUser }) {
       console.error("Error fetching comments:", error)
       toast({
         title: "Error loading comments",
-        description: error.message || "Failed to load comments",
+        description: "Failed to load comments. Please try again.",
         variant: "destructive"
       })
       // Set empty array to prevent undefined errors
@@ -232,7 +225,7 @@ export function PostItem({ post, currentUser }) {
     
     try {
       // Create comment
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('comments')
         .insert({
           post_id: post.id,
@@ -242,28 +235,11 @@ export function PostItem({ post, currentUser }) {
       
       if (error) throw error
       
-      // Fetch the newly created comment with profile data
-      const { data: newComment, error: fetchError } = await supabase
-        .from('comments')
-        .select(`
-          *,
-          profiles:user_id (
-            id,
-            username,
-            full_name,
-            avatar_url
-          )
-        `)
-        .eq('post_id', post.id)
-        .eq('user_id', currentUser.id)
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .single()
-      
-      if (fetchError) throw fetchError
-      
       setCommentContent("")
-      setComments([...comments, newComment])
+      
+      // Instead of trying to fetch the new comment right away,
+      // refresh all comments to ensure we get the latest data
+      await fetchComments()
       
       if (!showComments) {
         setShowComments(true)
@@ -278,7 +254,7 @@ export function PostItem({ post, currentUser }) {
       console.error("Error submitting comment:", error)
       toast({
         title: "Comment failed",
-        description: error.message || "Unable to post your comment",
+        description: "Unable to post your comment. Please try again.",
         variant: "destructive"
       })
     } finally {
