@@ -475,9 +475,14 @@ export function PostItem({ post, currentUser }) {
             <ThumbsUp className={`h-4 w-4 mr-2 ${isLiked ? 'fill-primary' : ''}`} />
             {isLiked ? 'Liked' : 'Like'}
           </Button>
-          <Button variant="ghost" size="sm" className="text-muted-foreground" onClick={handleToggleComments}>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className={`text-muted-foreground ${showComments ? 'bg-muted/50' : ''}`} 
+            onClick={handleToggleComments}
+          >
             <MessageSquare className="h-4 w-4 mr-2" />
-            Comment
+            {showComments ? 'Hide Comments' : 'Comment'}
           </Button>
           <Button variant="ghost" size="sm" className="text-muted-foreground">
             <Share2 className="h-4 w-4 mr-2" />
@@ -489,7 +494,7 @@ export function PostItem({ post, currentUser }) {
         {showComments && (
           <div className="w-full mt-4 space-y-4">
             {/* Comment form */}
-            {currentUser && (
+            {currentUser ? (
               <form onSubmit={handleCommentSubmit} className="flex items-start gap-2">
                 <Avatar className="h-8 w-8 mt-1">
                   <AvatarImage 
@@ -502,7 +507,7 @@ export function PostItem({ post, currentUser }) {
                 </Avatar>
                 <div className="flex-1 relative">
                   <Textarea
-                    placeholder="Add a comment..."
+                    placeholder="Write a comment..."
                     value={commentContent}
                     onChange={(e) => setCommentContent(e.target.value)}
                     className="min-h-[60px] pr-10 resize-none"
@@ -518,6 +523,10 @@ export function PostItem({ post, currentUser }) {
                   </Button>
                 </div>
               </form>
+            ) : (
+              <div className="text-center py-2 text-muted-foreground">
+                Please sign in to comment
+              </div>
             )}
             
             {/* Comments list */}
