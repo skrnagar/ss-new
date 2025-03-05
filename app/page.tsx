@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Shield, Users, BookOpen, Briefcase, Award, ClipboardCheck, Leaf, BarChart, Heart } from "lucide-react"
 import { AuthButtons } from "./components/auth-buttons"
 import { redirect } from "next/navigation"
-import { createClient } from "@/lib/supabase-server"
+import { createLegacyClient } from "@/lib/supabase-server"
 
 export default async function Home() {
   // Check if user is authenticated and redirect to feed
