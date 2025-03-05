@@ -8,7 +8,7 @@ import { createClient } from "@/lib/supabase-server"
 
 export default async function Home() {
   // Check if user is authenticated and redirect to feed
-  const supabase = createClient()
+  const supabase = createLegacyClient()
   const { data: { session } } = await supabase.auth.getSession()
 
   if (session) {

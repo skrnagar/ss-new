@@ -1,7 +1,10 @@
+
 import { cookies } from 'next/headers'
 import { createServerClient } from '@supabase/ssr'
+import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
+import { Database } from '@/types/supabase'
 
-// This creates a Supabase client for server-side operations
+// This creates a Supabase client for server-side operations using @supabase/ssr
 export function createClient() {
   const cookieStore = cookies()
 
@@ -30,11 +33,9 @@ export function createClient() {
     }
   )
 }
-import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
-import { cookies } from 'next/headers'
-import { Database } from '@/types/supabase'
 
-export const createClient = () => {
+// Legacy client using auth-helpers-nextjs
+export function createLegacyClient() {
   return createServerComponentClient<Database>({
     cookies,
   })
