@@ -6,8 +6,21 @@ export async function GET() {
   try {
     const result = await setupDatabase()
     
-    return NextResponse.json(result)
+    if (result.success) {
+      return NextResponse.json({ 
+        message: 'Database tables created successfully' 
+      })
+    } else {
+      return NextResponse.json({ 
+        error: 'Error setting up database', 
+        details: result.error 
+      }, { status: 500 })
+    }
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to set up database' }, { status: 500 })
+    console.error('Error in setup-db route:', error)
+    return NextResponse.json({ 
+      error: 'Internal server error', 
+      details: error 
+    }, { status: 500 })
   }
 }

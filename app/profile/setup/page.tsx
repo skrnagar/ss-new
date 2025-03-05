@@ -75,27 +75,43 @@ export default function ProfileSetupPage() {
     fetchUser()
   }, [form])
 
-  // Check if username is available
+  // Helper function to check if a username is available
   const checkUsernameAvailability = async (username: string) => {
     try {
-      // First, ensure the table exists
-      await fetch('/api/setup-db')
+      // First, check if the profiles table exists
+      const { error: tableCheckError } = await supabase
+        .from('profiles')
+        .select('count(*)', { count: 'exact', head: true })
 
-      // Now check for the username
+      if (tableCheckError) {
+        console.error("Profiles table error:", tableCheckError)
+
+        // Try to set up the database
+        const response = await fetch('/api/setup-db')
+        if (!response.ok) {
+          throw new Error(`Database setup failed: ${await response.text()}`)
+        }
+
+        // Wait a moment for tables to be available
+        await new Promise(resolve => setTimeout(resolve, 1000))
+      }
+
+      // Now check username availability
       const { data, error } = await supabase
         .from('profiles')
         .select('username')
         .eq('username', username)
+        .neq('id', user?.id || '')
 
       if (error) {
-        console.error('Supabase error checking username:', error)
-        throw error
+        console.error("Supabase error checking username: ", error)
+        throw new Error(`Error checking username availability: ${JSON.stringify(error)}`)
       }
 
       return data.length === 0
-    } catch (error) {
-      console.error('Error checking username availability:', error)
-      throw new Error(`Error checking username availability: ${error instanceof Error ? error.message : String(error)}`)
+    } catch (err) {
+      console.error("Error checking username availability: ", err)
+      throw new Error(`Error checking username availability: ${err}`)
     }
   }
 
