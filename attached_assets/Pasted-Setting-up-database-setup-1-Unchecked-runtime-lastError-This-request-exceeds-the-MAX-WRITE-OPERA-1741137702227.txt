@@ -1,0 +1,165 @@
+Setting up database...
+setup:1 Unchecked runtime.lastError: This request exceeds the MAX_WRITE_OPERATIONS_PER_HOUR quota.Understand this errorAI
+page.tsx:83 
+            
+            
+           GET https://3adfc305-31eb-4741-9506-4d4b5862f73b-00-1phvtd2v60o1t.pike.replit.dev/api/setup-db 500 (Internal Server Error)
+checkUsernameAvailability @ page.tsx:83
+onSubmit @ page.tsx:182
+eval @ index.esm.mjs:2317
+await in eval
+callCallback @ react-dom.development.js:20565
+invokeGuardedCallbackImpl @ react-dom.development.js:20614
+invokeGuardedCallback @ react-dom.development.js:20689
+invokeGuardedCallbackAndCatchFirstError @ react-dom.development.js:20703
+executeDispatch @ react-dom.development.js:32128
+processDispatchQueueItemsInOrder @ react-dom.development.js:32160
+processDispatchQueue @ react-dom.development.js:32173
+dispatchEventsForPlugins @ react-dom.development.js:32184
+eval @ react-dom.development.js:32374
+batchedUpdates$1 @ react-dom.development.js:24953
+batchedUpdates @ react-dom.development.js:28844
+dispatchEventForPluginEventSystem @ react-dom.development.js:32373
+dispatchEvent @ react-dom.development.js:30141
+dispatchDiscreteEvent @ react-dom.development.js:30112Understand this errorAI
+page.tsx:85 Database setup response not OK: {"error":"Failed to create database tables","details":{"verifyError":{"code":"42P01","details":null,"hint":null,"message":"relation \"public.profiles\" does not exist"},"failedStatements":[{"statement":"-- Create profiles table\nCREATE TABLE IF NOT EXISTS profiles (\n  id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,\n  username TEXT UNIQUE NOT NULL,\n  full_name TEXT,\n  headline TEXT,\n  bio TEXT,\n  avatar_url TEXT,\n  company TEXT,\n  position TEXT,\n  location TEXT,\n  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,\n  updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP\n)","error":{}},{"statement":"-- Create index for username search\nCREATE UNIQUE INDEX IF NOT EXISTS profiles_username_idx ON profiles(username)","error":{}},{"statement":"-- Enable RLS on the profiles table\nALTER TABLE profiles ENABLE ROW LEVEL SECURITY","error":{}},{"statement":"-- Create policies for the profiles table\nCREATE POLICY \"Public profiles are viewable by everyone\" \nON profiles FOR SELECT USING (true)","error":{}},{"statement":"CREATE POLICY \"Users can insert their own profile\" \nON profiles FOR INSERT WITH CHECK (auth.uid() = id)","error":{}},{"statement":"CREATE POLICY \"Users can update own profile\" \nON profiles FOR UPDATE USING (auth.uid() = id)","error":{}},{"statement":"-- Create posts table for feed\nCREATE TABLE posts (\n  id UUID DEFAULT extensions.uuid_generate_v4() PRIMARY KEY,\n  user_id UUID REFERENCES auth.users(id) NOT NULL,\n  content TEXT NOT NULL,\n  image_url TEXT,\n  created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,\n  updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL\n)","error":{}},{"statement":"-- Enable RLS on posts\nALTER TABLE posts ENABLE ROW LEVEL SECURITY","error":{}},{"statement":"-- Posts policies\nCREATE POLICY \"Posts are viewable by everyone\" \nON posts FOR SELECT USING (true)","error":{}},{"statement":"-- Users can create their own posts\nCREATE POLICY \"Users can create their own posts\" \nON posts FOR INSERT WITH CHECK (auth.uid() = user_id)","error":{}},{"statement":"-- Users can update their own posts\nCREATE POLICY \"Users can update their own posts\" \nON posts FOR UPDATE USING (auth.uid() = user_id)","error":{}},{"statement":"-- Users can delete their own posts\nCREATE POLICY \"Users can delete their own posts\" \nON posts FOR DELETE USING (auth.uid() = user_id)","error":{}},{"statement":"-- Create a function to handle new user signups\nCREATE OR REPLACE FUNCTION public.handle_new_user() \nRETURNS TRIGGER AS $$\nBEGIN\n  INSERT INTO public.profiles (id, username, full_name, avatar_url)\n  VALUES (\n    NEW.id, \n    LOWER(REGEXP_REPLACE(COALESCE(NEW.raw_user_meta_data->>'name', SPLIT_PART(NEW.email, '@', 1)), '[^a-zA-Z0-9]', '', 'g')) || '-' || FLOOR(RANDOM() * 10000)::TEXT,\n    COALESCE(NEW.raw_user_meta_data->>'name', SPLIT_PART(NEW.email, '@', 1)),\n    COALESCE(NEW.raw_user_meta_data->>'avatar_url', NEW.raw_user_meta_data->>'picture')\n  )","error":{}},{"statement":"RETURN NEW","error":{}},{"statement":"END","error":{}},{"statement":"$$ LANGUAGE plpgsql SECURITY DEFINER","error":{}},{"statement":"-- Trigger the function every time a user is created\nCREATE TRIGGER on_auth_user_created\n  AFTER INSERT ON auth.users\n  FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user()","error":{}}],"tablesFound":[]}}
+overrideMethod @ hook.js:608
+checkUsernameAvailability @ page.tsx:85
+await in checkUsernameAvailability
+onSubmit @ page.tsx:182
+eval @ index.esm.mjs:2317
+await in eval
+callCallback @ react-dom.development.js:20565
+invokeGuardedCallbackImpl @ react-dom.development.js:20614
+invokeGuardedCallback @ react-dom.development.js:20689
+invokeGuardedCallbackAndCatchFirstError @ react-dom.development.js:20703
+executeDispatch @ react-dom.development.js:32128
+processDispatchQueueItemsInOrder @ react-dom.development.js:32160
+processDispatchQueue @ react-dom.development.js:32173
+dispatchEventsForPlugins @ react-dom.development.js:32184
+eval @ react-dom.development.js:32374
+batchedUpdates$1 @ react-dom.development.js:24953
+batchedUpdates @ react-dom.development.js:28844
+dispatchEventForPluginEventSystem @ react-dom.development.js:32373
+dispatchEvent @ react-dom.development.js:30141
+dispatchDiscreteEvent @ react-dom.development.js:30112Understand this warningAI
+page.tsx:91 
+            
+            
+           GET https://lephbkawjuyyygguxqio.supabase.co/rest/v1/profiles?select=username&username=eq.sunilkumarnagar 404 (Not Found)
+eval @ fetch.js:30
+eval @ fetch.js:51
+fulfilled @ fetch.js:11
+Promise.then
+step @ fetch.js:13
+eval @ fetch.js:14
+__awaiter @ fetch.js:10
+eval @ fetch.js:41
+then @ PostgrestBuilder.js:65
+setTimeout
+data.data @ page.tsx:91
+checkUsernameAvailability @ page.tsx:91
+await in checkUsernameAvailability
+onSubmit @ page.tsx:182
+eval @ index.esm.mjs:2317
+await in eval
+callCallback @ react-dom.development.js:20565
+invokeGuardedCallbackImpl @ react-dom.development.js:20614
+invokeGuardedCallback @ react-dom.development.js:20689
+invokeGuardedCallbackAndCatchFirstError @ react-dom.development.js:20703
+executeDispatch @ react-dom.development.js:32128
+processDispatchQueueItemsInOrder @ react-dom.development.js:32160
+processDispatchQueue @ react-dom.development.js:32173
+dispatchEventsForPlugins @ react-dom.development.js:32184
+eval @ react-dom.development.js:32374
+batchedUpdates$1 @ react-dom.development.js:24953
+batchedUpdates @ react-dom.development.js:28844
+dispatchEventForPluginEventSystem @ react-dom.development.js:32373
+dispatchEvent @ react-dom.development.js:30141
+dispatchDiscreteEvent @ react-dom.development.js:30112Understand this errorAI
+page.tsx:100 Supabase error checking username: {code: '42P01', details: null, hint: null, message: 'relation "public.profiles" does not exist'}
+overrideMethod @ hook.js:608
+window.console.error @ app-index.js:33
+console.error @ hydration-error-info.js:63
+checkUsernameAvailability @ page.tsx:100
+await in checkUsernameAvailability
+onSubmit @ page.tsx:182
+eval @ index.esm.mjs:2317
+await in eval
+callCallback @ react-dom.development.js:20565
+invokeGuardedCallbackImpl @ react-dom.development.js:20614
+invokeGuardedCallback @ react-dom.development.js:20689
+invokeGuardedCallbackAndCatchFirstError @ react-dom.development.js:20703
+executeDispatch @ react-dom.development.js:32128
+processDispatchQueueItemsInOrder @ react-dom.development.js:32160
+processDispatchQueue @ react-dom.development.js:32173
+dispatchEventsForPlugins @ react-dom.development.js:32184
+eval @ react-dom.development.js:32374
+batchedUpdates$1 @ react-dom.development.js:24953
+batchedUpdates @ react-dom.development.js:28844
+dispatchEventForPluginEventSystem @ react-dom.development.js:32373
+dispatchEvent @ react-dom.development.js:30141
+dispatchDiscreteEvent @ react-dom.development.js:30112Understand this errorAI
+page.tsx:104 Table doesn't exist, trying direct SQL setup...
+page.tsx:151 Failed to create table with direct SQL: TypeError: _lib_supabase__WEBPACK_IMPORTED_MODULE_10__.supabase.query is not a function
+    at checkUsernameAvailability (page.tsx:108:28)
+    at async onSubmit (page.tsx:182:35)
+    at async eval (index.esm.mjs:2317:17)
+overrideMethod @ hook.js:608
+window.console.error @ app-index.js:33
+console.error @ hydration-error-info.js:63
+checkUsernameAvailability @ page.tsx:151
+await in checkUsernameAvailability
+onSubmit @ page.tsx:182
+eval @ index.esm.mjs:2317
+await in eval
+callCallback @ react-dom.development.js:20565
+invokeGuardedCallbackImpl @ react-dom.development.js:20614
+invokeGuardedCallback @ react-dom.development.js:20689
+invokeGuardedCallbackAndCatchFirstError @ react-dom.development.js:20703
+executeDispatch @ react-dom.development.js:32128
+processDispatchQueueItemsInOrder @ react-dom.development.js:32160
+processDispatchQueue @ react-dom.development.js:32173
+dispatchEventsForPlugins @ react-dom.development.js:32184
+eval @ react-dom.development.js:32374
+batchedUpdates$1 @ react-dom.development.js:24953
+batchedUpdates @ react-dom.development.js:28844
+dispatchEventForPluginEventSystem @ react-dom.development.js:32373
+dispatchEvent @ react-dom.development.js:30141
+dispatchDiscreteEvent @ react-dom.development.js:30112Understand this errorAI
+fetch.js:30 
+            
+            
+           POST https://lephbkawjuyyygguxqio.supabase.co/rest/v1/profiles?on_conflict=id 404 (Not Found)
+eval @ fetch.js:30
+eval @ fetch.js:51
+fulfilled @ fetch.js:11
+Promise.then
+step @ fetch.js:13
+eval @ fetch.js:14
+__awaiter @ fetch.js:10
+eval @ fetch.js:41
+then @ PostgrestBuilder.js:65Understand this errorAI
+page.tsx:220 Error updating profile: {}
+overrideMethod @ hook.js:608
+window.console.error @ app-index.js:33
+console.error @ hydration-error-info.js:63
+onSubmit @ page.tsx:220
+await in onSubmit
+eval @ index.esm.mjs:2317
+await in eval
+callCallback @ react-dom.development.js:20565
+invokeGuardedCallbackImpl @ react-dom.development.js:20614
+invokeGuardedCallback @ react-dom.development.js:20689
+invokeGuardedCallbackAndCatchFirstError @ react-dom.development.js:20703
+executeDispatch @ react-dom.development.js:32128
+processDispatchQueueItemsInOrder @ react-dom.development.js:32160
+processDispatchQueue @ react-dom.development.js:32173
+dispatchEventsForPlugins @ react-dom.development.js:32184
+eval @ react-dom.development.js:32374
+batchedUpdates$1 @ react-dom.development.js:24953
+batchedUpdates @ react-dom.development.js:28844
+dispatchEventForPluginEventSystem @ react-dom.development.js:32373
+dispatchEvent @ react-dom.development.js:30141
+dispatchDiscreteEvent @ react-dom.development.js:30112Understand this errorAI
+setup:1 The resource https://3adfc305-31eb-4741-9506-4d4b5862f73b-00-1phvtd2v60o1t.pike.replit.dev/_next/static/css/app/layout.css?v=1741137459660 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.Understand this warningAI
