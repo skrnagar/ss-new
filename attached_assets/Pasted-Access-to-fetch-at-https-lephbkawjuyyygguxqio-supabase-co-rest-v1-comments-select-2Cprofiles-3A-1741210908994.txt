@@ -1,0 +1,35 @@
+Access to fetch at 'https://lephbkawjuyyygguxqio.supabase.co/rest/v1/comments?select=*%2Cprofiles%3Auser_id%28id%2Cusername%2Cfull_name%2Cavatar_url%29&post_id=eq.924350f4-299f-4e08-9c6b-a6395ea9c809&order=created_at.asc' from origin 'https://3adfc305-31eb-4741-9506-4d4b5862f73b-00-1phvtd2v60o1t.pike.replit.dev:3001' has been blocked by CORS policy: The 'Access-Control-Allow-Origin' header has a value 'https://3adfc305-31eb-4741-9506-4d4b5862f73b-00-1phvtd2v60o1t.pike.replit.dev' that is not equal to the supplied origin. Have the server send the header with a valid value, or, if an opaque response serves your needs, set the request's mode to 'no-cors' to fetch the resource with CORS disabled.Understand this errorAI
+fetch.js:30 
+            
+            
+           GET https://lephbkawjuyyygguxqio.supabase.co/rest/v1/comments?select=*%2Cprofiles%3Auser_id%28id%2Cusername%2Cfull_name%2Cavatar_url%29&post_id=eq.924350f4-299f-4e08-9c6b-a6395ea9c809&order=created_at.asc net::ERR_FAILED
+eval @ fetch.js:30
+eval @ fetch.js:51
+fulfilled @ fetch.js:11
+Promise.then
+step @ fetch.js:13
+eval @ fetch.js:14
+__awaiter @ fetch.js:10
+eval @ fetch.js:41
+then @ PostgrestBuilder.js:65Understand this errorAI
+post-item.tsx:135 Error fetching comments: {message: 'TypeError: Failed to fetch', details: 'TypeError: Failed to fetch\n    at eval (webpack-in…abase/supabase-js/dist/module/lib/fetch.js:11:58)', hint: '', code: ''}
+overrideMethod @ hook.js:608
+window.console.error @ app-index.js:33
+console.error @ hydration-error-info.js:63
+fetchComments @ post-item.tsx:135
+await in fetchComments
+handleToggleComments @ post-item.tsx:347
+callCallback @ react-dom.development.js:20565
+invokeGuardedCallbackImpl @ react-dom.development.js:20614
+invokeGuardedCallback @ react-dom.development.js:20689
+invokeGuardedCallbackAndCatchFirstError @ react-dom.development.js:20703
+executeDispatch @ react-dom.development.js:32128
+processDispatchQueueItemsInOrder @ react-dom.development.js:32160
+processDispatchQueue @ react-dom.development.js:32173
+dispatchEventsForPlugins @ react-dom.development.js:32184
+eval @ react-dom.development.js:32374
+batchedUpdates$1 @ react-dom.development.js:24953
+batchedUpdates @ react-dom.development.js:28844
+dispatchEventForPluginEventSystem @ react-dom.development.js:32373
+dispatchEvent @ react-dom.development.js:30141
+dispatchDiscreteEvent @ react-dom.development.js:30112Understand this errorAI
