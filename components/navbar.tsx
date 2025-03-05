@@ -141,7 +141,7 @@ export function Navbar() {
               <NavigationMenuList>
                 <NavigationMenuItem>
                   <Link href="/feed" legacyBehavior passHref>
-                    <NavigationMenuLink className={navigationMenuTriggerStyle()}>Feed</NavigationMenuLink>
+                    <NavigationMenuLink className={navigationMenuTriggerStyle()}>Home</NavigationMenuLink>
                   </Link>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
