@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase-server'
+import { createLegacyClient } from '@/lib/supabase-server'
 import { notFound } from 'next/navigation'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
@@ -11,7 +11,7 @@ export default async function UserProfilePage({
 }: {
   params: { username: string }
 }) {
-  const supabase = createClient()
+  const supabase = createLegacyClient()
 
   // Get the username from the URL params
   const { username } = params

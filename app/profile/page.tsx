@@ -1,9 +1,9 @@
 
 import { redirect } from "next/navigation"
-import { createClient } from "@/lib/supabase-server"
+import { createLegacyClient } from "@/lib/supabase-server"
 
 export default async function ProfileRedirectPage() {
-  const supabase = createClient()
+  const supabase = createLegacyClient()
 
   const { data: { session } } = await supabase.auth.getSession()
 
