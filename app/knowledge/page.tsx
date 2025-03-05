@@ -1,6 +1,4 @@
-"use client"
 
-import * as React from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Search, FileText, FileCheck, FilePlus, FileWarning, Filter, Download, Star, Share2 } from "lucide-react"
@@ -83,19 +81,15 @@ export default function KnowledgePage() {
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <div className="md:col-span-3">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input className="pl-10" placeholder="Search resources..." />
-          </div>
+      <div className="flex flex-col md:flex-row gap-4 mb-8">
+        <div className="relative flex-grow">
+          <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+          <Input placeholder="Search resources..." className="pl-10" />
         </div>
-        <div>
-          <Button variant="outline" className="w-full">
-            <Filter className="mr-2 h-4 w-4" />
-            Filters
-          </Button>
-        </div>
+        <Button variant="outline">
+          <Filter className="mr-2 h-4 w-4" />
+          Filters
+        </Button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -103,41 +97,34 @@ export default function KnowledgePage() {
           <Card key={resource.id} className="overflow-hidden">
             <CardContent className="p-0">
               <div className="p-6">
-                <div className="flex items-start justify-between">
-                  <div className="bg-primary/10 p-2 rounded-lg mb-3">
-                    <resource.icon className="h-5 w-5 text-primary" />
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex items-center">
+                    <resource.icon className="h-10 w-10 text-primary bg-primary/10 p-2 rounded-lg mr-3" />
+                    <div>
+                      <div className="text-sm font-medium text-muted-foreground">{resource.type}</div>
+                      <div className="font-semibold">{resource.title}</div>
+                    </div>
                   </div>
-                  <div className="flex space-x-1 mt-1">
-                    <Button variant="ghost" size="icon" className="h-7 w-7">
-                      <Star className="h-4 w-4" />
-                    </Button>
-                    <Button variant="ghost" size="icon" className="h-7 w-7">
-                      <Share2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-                <h3 className="font-semibold text-lg line-clamp-1">{resource.title}</h3>
-                <div className="flex items-center mt-2 text-sm text-muted-foreground">
-                  <span className="bg-secondary px-2 py-0.5 rounded text-secondary-foreground">{resource.type}</span>
-                  <span className="mx-2">•</span>
-                  <span>{resource.industry}</span>
-                </div>
-                <div className="mt-4 flex items-center justify-between">
-                  <div className="text-sm text-muted-foreground">By {resource.author}</div>
-                  <div className="flex items-center text-sm">
-                    <Download className="h-4 w-4 mr-1 text-muted-foreground" />
-                    <span className="text-muted-foreground">{resource.downloads}</span>
-                    <span className="mx-2">•</span>
-                    <Star className="h-4 w-4 mr-1 text-yellow-500" />
-                    <span>{resource.rating}</span>
+                  <div className="flex items-center space-x-1">
+                    <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
+                    <span className="text-sm">{resource.rating}</span>
                   </div>
                 </div>
-              </div>
-              <div className="bg-muted p-4 border-t">
-                <Button variant="default" className="w-full">
-                  <Download className="mr-2 h-4 w-4" />
-                  Download
-                </Button>
+                <div className="text-sm mb-6">
+                  <div className="text-muted-foreground mb-1">Industry: {resource.industry}</div>
+                  <div className="text-muted-foreground">Author: {resource.author}</div>
+                </div>
+                <div className="flex justify-between items-center">
+                  <Button variant="outline" size="sm">
+                    <Download className="mr-1 h-4 w-4" />
+                    Download
+                    <span className="ml-1 text-xs text-muted-foreground">({resource.downloads})</span>
+                  </Button>
+                  <Button variant="ghost" size="sm">
+                    <Share2 className="mr-1 h-4 w-4" />
+                    Share
+                  </Button>
+                </div>
               </div>
             </CardContent>
           </Card>

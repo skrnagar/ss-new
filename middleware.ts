@@ -17,11 +17,12 @@ export async function middleware(request: NextRequest) {
   const supabase = createMiddlewareClient({ req: request, res })
   
   // Get the session using the supabase middleware client
-  const { data: { session } } = await supabase.auth.getSession()
-  const isAuthenticated = !!session
-  
-  const url = new URL(request.url)
-  const path = url.pathname
+  try {
+    const { data: { session } } = await supabase.auth.getSession()
+    const isAuthenticated = !!session
+    
+    const url = new URL(request.url)
+    const path = url.pathname
   
   // Skip middleware for specific paths
   if (path.startsWith('/auth/callback') || 
@@ -53,6 +54,11 @@ export async function middleware(request: NextRequest) {
   }
 
   return res
+  } catch (error) {
+    console.error('Middleware auth error:', error)
+    // If there's an error with auth, let the request through and let client-side handle auth
+    return res
+  }
 }
 
 export const config = {

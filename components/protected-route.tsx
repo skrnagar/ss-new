@@ -16,40 +16,56 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const router = useRouter()
 
   useEffect(() => {
-    async function checkAuth() {
+    let mounted = true
+    
+    // Check for session only once when component mounts
+    async function checkSession() {
       try {
         const { data: { session } } = await supabase.auth.getSession()
-        setSession(session)
         
-        if (!session) {
-          router.push('/auth/login')
-          return
+        if (mounted) {
+          setSession(session)
+          
+          if (!session) {
+            router.push('/auth/login')
+          } else {
+            setIsLoading(false)
+          }
         }
       } catch (error) {
         console.error('Auth check failed:', error)
-        router.push('/auth/login')
+        if (mounted) {
+          router.push('/auth/login')
+        }
       } finally {
-        setIsLoading(false)
+        if (mounted) {
+          setIsLoading(false)
+        }
       }
     }
 
-    checkAuth()
+    checkSession()
     
+    // Set up auth state change listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
-        setSession(session)
-        
-        if (event === 'SIGNED_OUT' || !session) {
-          router.push('/auth/login')
+        if (mounted) {
+          setSession(session)
+          
+          if (event === 'SIGNED_OUT' || !session) {
+            router.push('/auth/login')
+          }
         }
       }
     )
 
     return () => {
+      mounted = false
       subscription?.unsubscribe()
     }
   }, [router])
 
+  // Show loading indicator
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -58,9 +74,6 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
     )
   }
 
-  if (!session) {
-    return null
-  }
-
-  return <>{children}</>
+  // If there's a session and not loading, render children
+  return session ? <>{children}</> : null
 }

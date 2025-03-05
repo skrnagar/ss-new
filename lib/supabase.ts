@@ -1,5 +1,5 @@
-import { createClient } from '@supabase/supabase-js'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { Database } from '@/types/supabase'
 
 // Get environment variables
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
@@ -10,17 +10,9 @@ if (!supabaseUrl || !supabaseAnonKey) {
 }
 
 // Create a singleton Supabase client for client-side usage
-export const supabase = createClientComponentClient({
-  supabaseUrl,
-  supabaseKey: supabaseAnonKey,
-})
+export const supabase = createClientComponentClient<Database>()
 
-// Function to get a new Supabase client instance (largely redundant now)
-export const getSupabase = () => createClientComponentClient()
+// Export a function that provides a fresh client instance when needed
+export const getSupabase = () => createClientComponentClient<Database>()
 
-// Initialize auth listener for debugging
-if (typeof window !== 'undefined') {
-  supabase.auth.onAuthStateChange((event, session) => {
-    console.log('Auth state changed:', event, session)
-  })
-}
+// Removed auth listener to prevent multiple listeners
