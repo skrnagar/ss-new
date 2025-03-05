@@ -34,12 +34,26 @@ export function PostCreator({ userProfile }) {
 
   const handleAttachmentSelect = (type: "image" | "video" | "document") => {
     setAttachmentType(type)
-    fileInputRef.current?.click()
+    
+    // Reset file input before clicking to ensure the change event fires even if selecting the same file
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ""
+    }
+    
+    setTimeout(() => {
+      fileInputRef.current?.click()
+    }, 100)
   }
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    console.log("File input changed:", event.target.files)
     const file = event.target.files?.[0]
-    if (!file) return
+    if (!file) {
+      console.log("No file selected")
+      return
+    }
+
+    console.log("Selected file:", file.name, file.type, file.size)
 
     // Validate file size (10MB max)
     if (file.size > 10 * 1024 * 1024) {
@@ -273,10 +287,10 @@ export function PostCreator({ userProfile }) {
                   onChange={handleFileChange}
                   accept={
                     attachmentType === "image" 
-                      ? "image/*" 
+                      ? ".jpg,.jpeg,.png,.gif,.webp,image/*" 
                       : attachmentType === "video" 
-                        ? "video/*" 
-                        : "application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                        ? ".mp4,.mov,.avi,video/*" 
+                        : ".pdf,.doc,.docx,.txt,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain"
                   }
                 />
               </div>
