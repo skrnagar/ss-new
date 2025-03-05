@@ -524,8 +524,11 @@ export function PostItem({ post, currentUser }) {
                 </div>
               </form>
             ) : (
-              <div className="text-center py-2 text-muted-foreground">
-                Please sign in to comment
+              <div className="flex flex-col items-center py-4 space-y-3 border border-dashed border-muted-foreground/30 rounded-md">
+                <p className="text-muted-foreground">Sign in to join the conversation</p>
+                <Button asChild variant="outline" size="sm">
+                  <Link href="/auth/login">Sign in</Link>
+                </Button>
               </div>
             )}
             
