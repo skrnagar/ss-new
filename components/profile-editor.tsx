@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState } from "react"
@@ -22,17 +21,28 @@ export function ProfileEditor({ profile, onUpdate }: { profile: any, onUpdate: (
     setLoading(true)
 
     try {
+      // Log the data being sent for debugging
+      console.log('Updating profile with data:', {
+        name,
+        bio,
+        position: position || null,
+        company: company || null,
+        location: location || null,
+        updated_at: new Date().toISOString(),
+      })
+
+      // Use upsert to handle both insert and update cases
       const { error } = await supabase
         .from("profiles")
-        .update({
+        .upsert({
+          id: profile.id,
           name,
           bio,
-          position,
-          company,
-          location,
+          position: position || null,
+          company: company || null,
+          location: location || null,
           updated_at: new Date().toISOString(),
-        })
-        .eq("id", profile.id)
+        }, { onConflict: 'id' })
 
       if (error) throw error
 
@@ -40,7 +50,7 @@ export function ProfileEditor({ profile, onUpdate }: { profile: any, onUpdate: (
         title: "Profile updated",
         description: "Your profile has been updated successfully",
       })
-      
+
       onUpdate()
     } catch (error: any) {
       toast({
@@ -64,7 +74,7 @@ export function ProfileEditor({ profile, onUpdate }: { profile: any, onUpdate: (
           required
         />
       </div>
-      
+
       <div>
         <label className="block text-sm font-medium mb-1">Bio</label>
         <Textarea 
@@ -74,7 +84,7 @@ export function ProfileEditor({ profile, onUpdate }: { profile: any, onUpdate: (
           rows={4}
         />
       </div>
-      
+
       <div>
         <label className="block text-sm font-medium mb-1">Position</label>
         <Input 
@@ -83,7 +93,7 @@ export function ProfileEditor({ profile, onUpdate }: { profile: any, onUpdate: (
           placeholder="Your job position"
         />
       </div>
-      
+
       <div>
         <label className="block text-sm font-medium mb-1">Company</label>
         <Input 
@@ -92,7 +102,7 @@ export function ProfileEditor({ profile, onUpdate }: { profile: any, onUpdate: (
           placeholder="Your company"
         />
       </div>
-      
+
       <div>
         <label className="block text-sm font-medium mb-1">Location</label>
         <Input 
@@ -101,7 +111,7 @@ export function ProfileEditor({ profile, onUpdate }: { profile: any, onUpdate: (
           placeholder="Your location"
         />
       </div>
-      
+
       <div className="flex justify-end space-x-2">
         <Button type="submit" disabled={loading}>
           {loading ? "Saving..." : "Save Changes"}

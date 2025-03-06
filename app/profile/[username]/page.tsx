@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
-import { Briefcase, MapPin, Calendar, Edit, MessageSquare, UserPlus, User } from "lucide-react"
+import { Briefcase, MapPin, Calendar, Edit, MessageSquare, UserPlus } from "lucide-react"
 import { supabase } from '@/lib/supabase'
 import { ProfileEditor } from '@/components/profile-editor'
 import { PostItem } from '@/components/post-item'
