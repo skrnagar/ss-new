@@ -1,6 +1,7 @@
-// SERVER-SIDE METHODS - Only use in Server Components
+
 import { cookies } from 'next/headers'
 import { createServerClient } from '@supabase/ssr'
+import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
 import { Database } from '@/types/supabase'
 
 // This creates a Supabase client for server-side operations using @supabase/ssr
@@ -33,15 +34,9 @@ export function createClient() {
   )
 }
 
-
-// CLIENT-SIDE METHODS - Safe to use in Client Components
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
-import { Database } from '@/types/supabase'
-
-// This is a client-safe version that can be used in Client Components
-export const createClientLegacyClient = () => {
-  return createClientComponentClient<Database>()
+// Legacy client using auth-helpers-nextjs
+export function createLegacyClient() {
+  return createServerComponentClient<Database>({
+    cookies,
+  })
 }
-
-// Re-export for compatibility
-export const createLegacyClient = createClientLegacyClient

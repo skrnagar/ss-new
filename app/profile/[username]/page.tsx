@@ -1,7 +1,4 @@
-
-"use client"
-
-import { createClient } from '@/lib/supabase-client';
+import { createLegacyClient } from '@/lib/supabase-server'
 import { notFound, redirect } from 'next/navigation'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
@@ -9,137 +6,75 @@ import Link from 'next/link'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { Briefcase, MapPin, Calendar, Edit, MessageSquare, UserPlus, User } from "lucide-react"
-import { useState, useEffect } from 'react';
 
-export default function ProfilePage({ params }: { params: { username: string } }) {
+export const revalidate = 3600 // Revalidate the data at most every hour
+
+export default async function ProfilePage({ params }: { params: { username: string } }) {
   const { username } = params
-  const supabase = createClient() // Initialize client-side
+  const supabase = createLegacyClient()
 
-  const [session, setSession] = useState(null);
-  const [profile, setProfile] = useState(null);
-  const [error, setError] = useState(null);
-  const [isOwnProfile, setIsOwnProfile] = useState(false);
-  const [joinDate, setJoinDate] = useState('');
-  const [loading, setLoading] = useState(true);
+  // Get session
+  const { data: { session } } = await supabase.auth.getSession()
 
-  useEffect(() => {
-    const fetchSessionAndProfile = async () => {
-      try {
-        // Get current session
-        const { data: sessionData } = await supabase.auth.getSession();
-        setSession(sessionData.session);
+  // Get profile by username
+  const { data: profile, error } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("username", username)
+    .single()
 
-        // Get profile data for the username in the URL
-        const { data: profileData, error: profileError } = await supabase
-          .from("profiles")
-          .select("*")
-          .eq("username", username)
-          .single();
-
-        if (profileError) {
-          setError(profileError);
-          setLoading(false);
-          return;
-        }
-
-        if (!profileData) {
-          setError(new Error("Profile not found"));
-          setLoading(false);
-          return;
-        }
-
-        setProfile(profileData);
-        
-        // Check if this is the user's own profile
-        if (sessionData.session && profileData.id === sessionData.session.user.id) {
-          setIsOwnProfile(true);
-        }
-
-        // Format the created_at date
-        if (profileData.created_at) {
-          const date = new Date(profileData.created_at);
-          setJoinDate(date.toLocaleDateString('en-US', { 
-            year: 'numeric',
-            month: 'long'
-          }));
-        }
-      } catch (err) {
-        console.error("Error fetching data:", err);
-        setError(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchSessionAndProfile();
-  }, [supabase, username]);
-
-  // Handle loading state
-  if (loading) {
-    return (
-      <div className="container py-8">
-        <div className="flex justify-center items-center h-64">
-          <p>Loading profile...</p>
-        </div>
-      </div>
-    );
+  if (error || !profile) {
+    // Profile not found
+    return notFound()
   }
 
-  // Handle error state
-  if (error) {
-    return (
-      <div className="container py-8">
-        <div className="flex justify-center items-center h-64">
-          <p>Profile not found or error loading profile.</p>
-        </div>
-      </div>
-    );
+  // Check if viewing own profile
+  const isOwnProfile = session?.user.id === profile.id
+
+  // Format date for display
+  const joinDate = new Date(profile.created_at).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+  })
+
+  // Helper function to get initials
+  const getInitials = (name: string) => {
+    if (!name) return 'U'
+    return name
+      .split(' ')
+      .map(part => part?.[0] || '')
+      .join('')
+      .toUpperCase()
+      .substring(0, 2)
   }
 
   return (
     <div className="container py-8">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        {/* Left sidebar - Profile info */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Profile Sidebar */}
         <div className="space-y-6">
           <Card>
             <CardContent className="pt-6">
-              <div className="flex flex-col items-center text-center">
+              <div className="flex flex-col items-center">
                 <Avatar className="h-24 w-24 mb-4">
-                  <AvatarImage src={profile?.avatar_url || "/placeholder-user.jpg"} alt={profile?.full_name || 'User'} />
-                  <AvatarFallback>{profile?.full_name?.[0] || 'U'}</AvatarFallback>
+                  <AvatarImage src={profile.avatar_url || "/placeholder-user.jpg"} alt={profile.full_name} />
+                  <AvatarFallback>
+                    {profile.full_name?.split(" ").map((n: string) => n[0]).join("") || username[0].toUpperCase()}
+                  </AvatarFallback>
                 </Avatar>
-                <h2 className="text-2xl font-bold">{profile?.full_name || 'User'}</h2>
-                <p className="text-muted-foreground">@{profile?.username}</p>
-                
-                {profile?.position && profile?.company && (
-                  <div className="flex items-center mt-2 text-muted-foreground">
-                    <Briefcase className="h-4 w-4 mr-1" />
-                    <span>{profile.position} at {profile.company}</span>
-                  </div>
-                )}
-                
-                {profile?.location && (
-                  <div className="flex items-center mt-1 text-muted-foreground">
-                    <MapPin className="h-4 w-4 mr-1" />
-                    <span>{profile.location}</span>
-                  </div>
-                )}
-                
-                <div className="flex items-center mt-1 text-muted-foreground">
-                  <Calendar className="h-4 w-4 mr-1" />
-                  <span>Joined {joinDate}</span>
-                </div>
-                
-                <div className="flex mt-6 w-full">
+                <h2 className="text-2xl font-bold">{profile.full_name}</h2>
+                <p className="text-muted-foreground text-center">{profile.headline}</p>
+
+                <div className="w-full flex gap-2 mt-4">
                   {isOwnProfile ? (
-                    <Button asChild className="w-full">
-                      <Link href="/profile/edit">
+                    <Button className="w-full" asChild>
+                      <a href="/profile/setup">
                         <Edit className="h-4 w-4 mr-2" />
                         Edit Profile
-                      </Link>
+                      </a>
                     </Button>
                   ) : (
-                    <div className="flex w-full gap-2">
+                    <>
                       <Button className="flex-1">
                         <MessageSquare className="h-4 w-4 mr-2" />
                         Message
@@ -148,102 +83,86 @@ export default function ProfilePage({ params }: { params: { username: string } }
                         <UserPlus className="h-4 w-4 mr-2" />
                         Connect
                       </Button>
-                    </div>
+                    </>
                   )}
                 </div>
               </div>
             </CardContent>
           </Card>
-          
-          {/* About section */}
+
           <Card>
             <CardHeader>
-              <CardTitle>About</CardTitle>
+              <CardTitle className="text-lg">Details</CardTitle>
             </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">
-                {profile?.bio || 'This user has not added a bio yet.'}
-              </p>
+            <CardContent className="space-y-4">
+              {profile.company && (
+                <div className="flex items-center gap-2">
+                  <Briefcase className="h-4 w-4 text-muted-foreground" />
+                  <div>
+                    <p className="text-sm font-medium">
+                      {profile.position ? `${profile.position} at ` : "Works at "}
+                      {profile.company}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {profile.location && (
+                <div className="flex items-center gap-2">
+                  <MapPin className="h-4 w-4 text-muted-foreground" />
+                  <p className="text-sm">{profile.location}</p>
+                </div>
+              )}
+
+              <div className="flex items-center gap-2">
+                <Calendar className="h-4 w-4 text-muted-foreground" />
+                <p className="text-sm">Joined {joinDate}</p>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <User className="h-4 w-4 text-muted-foreground" />
+                <p className="text-sm">@{profile.username}</p>
+              </div>
             </CardContent>
           </Card>
-          
-          {/* Skills section could go here */}
         </div>
-        
-        {/* Main content area - Posts, Activity, etc. */}
-        <div className="md:col-span-2 space-y-6">
+
+        {/* Main Profile Content */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* Bio Section */}
           <Card>
             <CardHeader>
-              <CardTitle>Posts</CardTitle>
-              <CardDescription>Recent posts by {profile?.full_name || 'this user'}</CardDescription>
+              <CardTitle className="text-lg">About</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-muted-foreground text-center py-8">
-                No posts yet.
-              </p>
+              {profile.bio ? (
+                <p className="whitespace-pre-line">{profile.bio}</p>
+              ) : (
+                <p className="text-muted-foreground italic">
+                  {isOwnProfile ? "Add a bio to tell others about yourself." : "No bio available."}
+                </p>
+              )}
             </CardContent>
           </Card>
-          
-          {/* Activity feed would go here */}
+
+          {/* Activity Section */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Recent Activity</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-8">
+                <p className="text-muted-foreground">No recent activity to display</p>
+                {isOwnProfile && (
+                  <Button variant="link" asChild>
+                    <a href="/feed">Share your first post</a>
+                  </Button>
+                )}
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>
-  );
-}
-
-// Profile Setup Component
-export function ProfileSetupPage(){
-    const [fullName, setFullName] = useState('');
-    const supabase = createClient();
-    const [session, setSession] = useState(null);
-    
-    useEffect(() => {
-      const getSession = async () => {
-        const { data } = await supabase.auth.getSession();
-        setSession(data.session);
-      };
-      getSession();
-    }, [supabase]);
-
-    const updateProfile = async (e) => {
-        e.preventDefault();
-        if (!session) return;
-        
-        const { error } = await supabase
-            .from('profiles')
-            .update({ full_name: fullName })
-            .eq('id', session.user.id);
-            
-        if (error) {
-            console.error('Error updating profile:', error);
-            return;
-        }
-        
-        // Redirect to profile page
-        window.location.href = '/profile';
-    };
-
-    return (
-        <div className="container py-8 max-w-md mx-auto">
-            <h1 className="text-2xl font-bold mb-6">Complete Your Profile</h1>
-            <form onSubmit={updateProfile} className="space-y-4">
-                <div>
-                    <label className="block mb-2">Full Name</label>
-                    <input 
-                        type="text" 
-                        value={fullName} 
-                        onChange={(e) => setFullName(e.target.value)} 
-                        className="w-full p-2 border rounded" 
-                        required 
-                    />
-                </div>
-                <button 
-                    type="submit" 
-                    className="w-full p-2 bg-blue-600 text-white rounded"
-                >
-                    Save Profile
-                </button>
-            </form>
-        </div>
-    );
+  )
 }
