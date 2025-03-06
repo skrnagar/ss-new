@@ -10,9 +10,10 @@ DROP POLICY IF EXISTS "Users can create their own comments" ON comments;
 DROP POLICY IF EXISTS "Users can read all comments" ON comments;
 DROP POLICY IF EXISTS "Users can update their own comments" ON comments;
 DROP POLICY IF EXISTS "Users can delete their own comments" ON comments;
+DROP POLICY IF EXISTS "Comments are viewable by everyone" ON comments;
 
 -- Create comprehensive policies
--- Allow users to insert their own comments
+-- Allow users to insert their own comments (using auth.uid())
 CREATE POLICY "Users can create their own comments" 
 ON comments FOR INSERT 
 WITH CHECK (auth.uid() = user_id);

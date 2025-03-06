@@ -113,30 +113,61 @@ export function PostItem({ post, currentUser }) {
   }
 
   const fetchComments = async () => {
-    setIsLoadingComments(true)
+    setIsLoadingComments(true);
 
     try {
-      // Specify the exact relationship to use between comments and profiles
+      console.log("Fetching comments for post:", post.id);
+
+      // Simplify the query to avoid join issues
       const { data, error } = await supabase
         .from('comments')
-        .select('*, profiles!fk_comments_profiles(id, username, full_name, avatar_url)')
+        .select('*')
         .eq('post_id', post.id)
-        .order('created_at', { ascending: true })
+        .order('created_at', { ascending: true });
 
-      if (error) throw error
+      if (error) throw error;
 
-      setComments(data || [])
+      console.log("Comments fetched:", data?.length || 0);
+
+      // If we have comments, fetch the user profiles separately
+      if (data && data.length > 0) {
+        // Get unique user IDs from comments
+        const userIds = [...new Set(data.map(comment => comment.user_id))];
+
+        // Fetch profiles for these users
+        const { data: profiles, error: profilesError } = await supabase
+          .from('profiles')
+          .select('id, username, full_name, avatar_url')
+          .in('id', userIds);
+
+        if (profilesError) {
+          console.error("Error fetching profiles:", profilesError);
+        } else {
+          // Create a map of user_id to profile data
+          const profileMap = (profiles || []).reduce((map, profile) => {
+            map[profile.id] = profile;
+            return map;
+          }, {});
+
+          // Attach profile data to each comment
+          data.forEach(comment => {
+            comment.profiles = profileMap[comment.user_id] || null;
+          });
+        }
+      }
+
+      setComments(data || []);
     } catch (error) {
-      console.error("Error fetching comments:", error)
+      console.error("Error fetching comments:", error);
       toast({
         title: "Error loading comments",
         description: "Failed to load comments. Please try again.",
         variant: "destructive"
-      })
+      });
       // Set empty array to prevent undefined errors
-      setComments([])
+      setComments([]);
     } finally {
-      setIsLoadingComments(false)
+      setIsLoadingComments(false);
     }
   }
 
