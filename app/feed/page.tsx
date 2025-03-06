@@ -1,11 +1,9 @@
 "use client"
 
 import { useState, useEffect, useRef, useCallback } from "react"
-import { Navbar } from "@/components/navbar"
 import { PostCreator } from "@/components/post-creator"
 import { PostItem } from "@/components/post-item"
 import { supabase } from "@/lib/supabase"
-import { Footer } from "@/components/footer"
 import { useToast } from "@/hooks/use-toast"
 
 export default function FeedPage() {
@@ -104,8 +102,6 @@ export default function FeedPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar />
-
       <main className="container py-6">
         <div className="max-w-2xl mx-auto">
           {currentUser && (
@@ -164,8 +160,6 @@ export default function FeedPage() {
           </div>
         </div>
       </main>
-
-      <Footer />
     </div>
   )
 }
