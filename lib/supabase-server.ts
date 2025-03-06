@@ -1,26 +1,23 @@
 
 import { cookies } from 'next/headers'
-import { createServerClient as createSupabaseServerClient } from '@supabase/ssr'
+import { createServerClient } from '@supabase/ssr'
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
 import { Database } from '@/types/supabase'
-import { createClient as createSupabaseClient } from '@supabase/supabase-js'
-import { cache } from 'react'
 
-// Create a cached version of the client to improve performance
-export const createLegacyClient = cache(() => {
-  return createSupabaseClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
-});
-
-// New SSR client creation function
+// This creates a Supabase client for server-side operations using @supabase/ssr
 export function createClient() {
   const cookieStore = cookies()
-  
-  return createSupabaseServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+
+  if (!supabaseUrl || !supabaseAnonKey) {
+    throw new Error('Supabase URL or key is missing in environment variables')
+  }
+
+  return createServerClient(
+    supabaseUrl,
+    supabaseAnonKey,
     {
       cookies: {
         get(name) {
@@ -37,9 +34,9 @@ export function createClient() {
   )
 }
 
-// Legacy client for backward compatibility
-export const createLegacyServerClient = () => {
-  const cookieStore = cookies()
-  
-  return createServerComponentClient<Database>({ cookies: () => cookieStore })
+// Legacy client using auth-helpers-nextjs
+export function createLegacyClient() {
+  return createServerComponentClient<Database>({
+    cookies,
+  })
 }

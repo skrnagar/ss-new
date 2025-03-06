@@ -14,10 +14,10 @@ import {
 } from "lucide-react"
 import { supabase } from "@/lib/supabase"
 import { useRouter } from "next/navigation"
-import { PostItem } from "@/components/post-item"
 import { PostCreator } from "@/components/post-creator"
+import { PostItem } from "@/components/post-item"
 import { Skeleton } from "@/components/ui/skeleton"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar" // Added import
 
 export default function FeedPage() {
   const [posts, setPosts] = useState<any[]>([])
