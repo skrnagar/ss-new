@@ -114,17 +114,23 @@ export function PostItem({ post, currentUser }) {
   }
 
   const fetchComments = async () => {
+    // If we already have comments, no need to fetch again
+    if (comments.length > 0 && !isLoadingComments) {
+      return;
+    }
+    
     setIsLoadingComments(true);
 
     try {
       console.log("Fetching comments for post:", post.id);
 
-      // Simplify the query to avoid join issues
+      // Use a more efficient query with pagination for better performance
       const { data, error } = await supabase
         .from('comments')
         .select('*')
         .eq('post_id', post.id)
-        .order('created_at', { ascending: true });
+        .order('created_at', { ascending: false })
+        .limit(10); // Start with a reasonable limit
 
       if (error) throw error;
 
@@ -135,7 +141,7 @@ export function PostItem({ post, currentUser }) {
         // Get unique user IDs from comments
         const userIds = [...new Set(data.map(comment => comment.user_id))];
 
-        // Fetch profiles for these users
+        // Fetch profiles for these users in a single query
         const { data: profiles, error: profilesError } = await supabase
           .from('profiles')
           .select('id, username, full_name, avatar_url')
@@ -144,7 +150,7 @@ export function PostItem({ post, currentUser }) {
         if (profilesError) {
           console.error("Error fetching profiles:", profilesError);
         } else {
-          // Create a map of user_id to profile data
+          // Create a map of user_id to profile data for efficient lookup
           const profileMap = (profiles || []).reduce((map, profile) => {
             map[profile.id] = profile;
             return map;
@@ -522,22 +528,26 @@ export function PostItem({ post, currentUser }) {
       </CardContent>
 
       <CardFooter className="flex flex-col px-6 py-3">
-        {/* Like, comment counts */}
-        {(likes.length > 0 || comments.length > 0) && (
-          <div className="flex justify-between w-full mb-3 text-sm text-muted-foreground">
-            {likes.length > 0 && (
-              <div className="flex items-center">
-                <ThumbsUp className="h-3 w-3 mr-1" />
-                <span>{likes.length}</span>
-              </div>
-            )}
-            {comments.length > 0 && (
-              <div className="flex items-center">
-                <span>{comments.length} {comments.length === 1 ? "comment" : "comments"}</span>
-              </div>
+        {/* Like, comment counts - Always visible */}
+        <div className="flex justify-between w-full mb-3 text-sm text-muted-foreground">
+          <div className="flex items-center">
+            {likes.length > 0 ? (
+              <>
+                <ThumbsUp className="h-3 w-3 mr-1 text-primary" />
+                <span>{likes.length} {likes.length === 1 ? "like" : "likes"}</span>
+              </>
+            ) : (
+              <span className="text-muted-foreground/60">Be the first to like this post</span>
             )}
           </div>
-        )}
+          <div className="flex items-center">
+            {comments.length > 0 ? (
+              <span>{comments.length} {comments.length === 1 ? "comment" : "comments"}</span>
+            ) : (
+              <span className="text-muted-foreground/60">No comments yet</span>
+            )}
+          </div>
+        </div>
 
         {/* Action buttons */}
         <div className="flex justify-between w-full border-t pt-3">
@@ -557,7 +567,7 @@ export function PostItem({ post, currentUser }) {
             onClick={handleToggleComments}
           >
             <MessageSquare className="h-4 w-4 mr-2" />
-            {comments.length > 0 ? `Comments (${comments.length})` : 'Comments'}
+            Comment
           </Button>
           <Button variant="ghost" size="sm" className="text-muted-foreground">
             <Share2 className="h-4 w-4 mr-2" />
