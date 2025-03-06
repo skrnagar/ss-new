@@ -20,11 +20,7 @@ import { supabase } from "@/lib/supabase"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 
-export function PostItem({ post, currentUserId, onUpdate }: {
-  post: any
-  currentUserId: string | null
-  onUpdate?: () => void
-}) {
+export function PostItem({ post, currentUser }) {
   const [isExpanded, setIsExpanded] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
   const [likes, setLikes] = useState([])
@@ -37,21 +33,21 @@ export function PostItem({ post, currentUserId, onUpdate }: {
   const { toast } = useToast()
   const router = useRouter()
 
-  const isAuthor = currentUserId && post.user_id === currentUserId
+  const isAuthor = currentUser && post.user_id === currentUser.id
   const MAX_CONTENT_LENGTH = 300
 
   useEffect(() => {
     // Debug log to check current user status
-    console.log("Current user in post item:", currentUserId ? "Logged in" : "Not logged in")
+    console.log("Current user in post item:", currentUser ? "Logged in" : "Not logged in")
 
     // Check if current user has liked the post
-    if (currentUserId) {
+    if (currentUser && currentUser.id) {
       checkLikeStatus()
     }
 
     // Fetch likes count
     fetchLikes()
-  }, [post.id, currentUserId])
+  }, [post.id, currentUser?.id])
 
   const getInitials = (name: string) => {
     if (!name) return 'U'
@@ -72,7 +68,7 @@ export function PostItem({ post, currentUserId, onUpdate }: {
   }
 
   const checkLikeStatus = async () => {
-    if (!currentUserId) return
+    if (!currentUser) return
 
     try {
       // Fix the query format by using proper AND logic between conditions
@@ -80,8 +76,8 @@ export function PostItem({ post, currentUserId, onUpdate }: {
         .from('likes')
         .select('id')
         .eq('post_id', post.id)
-        .eq('user_id', currentUserId)
-
+        .eq('user_id', currentUser.id)
+        
       // Check if any likes were found
       if (data && data.length > 0) {
         setIsLiked(true)
@@ -177,7 +173,7 @@ export function PostItem({ post, currentUserId, onUpdate }: {
   }
 
   const handleLikeToggle = async () => {
-    if (!currentUserId) {
+    if (!currentUser || !currentUser.id) {
       toast({
         title: "Please sign in",
         description: "You need to be signed in to like posts",
@@ -188,20 +184,20 @@ export function PostItem({ post, currentUserId, onUpdate }: {
 
     try {
       console.log("Attempting to toggle like for post:", post.id);
-      console.log("Current user ID:", currentUserId);
+      console.log("Current user ID:", currentUser.id);
       console.log("Current isLiked status:", isLiked);
 
       if (isLiked) {
         // Optimistically update UI
         setIsLiked(false)
-        setLikes(likes.filter(like => like.user_id !== currentUserId))
+        setLikes(likes.filter(like => like.user_id !== currentUser.id))
 
         // Unlike the post
         const { error } = await supabase
           .from('likes')
           .delete()
           .eq('post_id', post.id)
-          .eq('user_id', currentUserId)
+          .eq('user_id', currentUser.id)
 
         if (error) {
           console.error("Error removing like:", error);
@@ -213,7 +209,7 @@ export function PostItem({ post, currentUserId, onUpdate }: {
       } else {
         // Optimistically update UI
         setIsLiked(true)
-        const newLike = { id: Date.now().toString(), post_id: post.id, user_id: currentUserId }
+        const newLike = { id: Date.now().toString(), post_id: post.id, user_id: currentUser.id }
         setLikes([...likes, newLike])
 
         // Like the post
@@ -221,7 +217,7 @@ export function PostItem({ post, currentUserId, onUpdate }: {
           .from('likes')
           .insert({
             post_id: post.id,
-            user_id: currentUserId
+            user_id: currentUser.id
           })
           .select('id')
 
@@ -260,7 +256,7 @@ export function PostItem({ post, currentUserId, onUpdate }: {
       return;
     }
 
-    if (!currentUserId) {
+    if (!currentUser || !currentUser.id) {
       toast({
         title: "Authentication required",
         description: "Please sign in to comment",
@@ -273,7 +269,7 @@ export function PostItem({ post, currentUserId, onUpdate }: {
 
     try {
       console.log("Attempting to submit comment for post:", post.id);
-      console.log("Current user ID:", currentUserId);
+      console.log("Current user ID:", currentUser.id);
 
       // Simplified comment insertion with better error handling
       const { data, error } = await supabase
@@ -281,7 +277,7 @@ export function PostItem({ post, currentUserId, onUpdate }: {
         .insert({
           content: commentContent.trim(),
           post_id: post.id,
-          user_id: currentUserId
+          user_id: currentUser.id
         })
         .select('*');
 
@@ -302,7 +298,7 @@ export function PostItem({ post, currentUserId, onUpdate }: {
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('id, username, full_name, avatar_url')
-        .eq('id', currentUserId)
+        .eq('id', currentUser.id)
         .single();
 
       if (profileError) {
@@ -616,7 +612,7 @@ export function PostItem({ post, currentUserId, onUpdate }: {
                               <Link href={`/profile/${comment.profiles?.username || '#'}`} className="font-medium text-sm hover:underline">
                                 {comment.profiles?.full_name || "Anonymous User"}
                               </Link>
-                              {currentUserId && comment.user_id === currentUserId && (
+                              {currentUser && comment.user_id === currentUser.id && (
                                 <DropdownMenu>
                                   <DropdownMenuTrigger asChild>
                                     <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
