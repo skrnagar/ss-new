@@ -71,20 +71,21 @@ export function PostItem({ post, currentUser }) {
     if (!currentUser) return
 
     try {
+      // Fix the query format by using proper AND logic between conditions
       const { data, error } = await supabase
         .from('likes')
         .select('id')
         .eq('post_id', post.id)
         .eq('user_id', currentUser.id)
-        .single()
-
-      if (data) {
+        
+      // Check if any likes were found
+      if (data && data.length > 0) {
         setIsLiked(true)
       } else {
         setIsLiked(false)
       }
 
-      if (error && error.code !== 'PGRST116') { // Not found error is expected
+      if (error) {
         console.error("Error checking like status:", error)
         toast({
           title: "Error checking like status",
