@@ -1,4 +1,3 @@
-
 "use client"
 
 import * as React from "react"
@@ -33,19 +32,19 @@ export function PostItem({ post, currentUser }) {
   const [isLoadingComments, setIsLoadingComments] = useState(false)
   const { toast } = useToast()
   const router = useRouter()
-  
+
   const isAuthor = currentUser && post.user_id === currentUser.id
   const MAX_CONTENT_LENGTH = 300
 
   useEffect(() => {
     // Debug log to check current user status
     console.log("Current user in post item:", currentUser ? "Logged in" : "Not logged in")
-    
+
     // Check if current user has liked the post
     if (currentUser) {
       checkLikeStatus()
     }
-    
+
     // Fetch likes count
     fetchLikes()
   }, [post.id, currentUser])
@@ -59,7 +58,7 @@ export function PostItem({ post, currentUser }) {
       .toUpperCase()
       .substring(0, 2)
   }
-  
+
   const formatDate = (date: string) => {
     try {
       return formatDistanceToNow(new Date(date), { addSuffix: true })
@@ -70,7 +69,7 @@ export function PostItem({ post, currentUser }) {
 
   const checkLikeStatus = async () => {
     if (!currentUser) return
-    
+
     try {
       const { data, error } = await supabase
         .from('likes')
@@ -78,13 +77,13 @@ export function PostItem({ post, currentUser }) {
         .eq('post_id', post.id)
         .eq('user_id', currentUser.id)
         .single()
-      
+
       if (data) {
         setIsLiked(true)
       } else {
         setIsLiked(false)
       }
-      
+
       if (error && error.code !== 'PGRST116') { // Not found error is expected
         console.error("Error checking like status:", error)
         toast({
@@ -104,9 +103,9 @@ export function PostItem({ post, currentUser }) {
         .from('likes')
         .select('*')
         .eq('post_id', post.id)
-      
+
       if (error) throw error
-      
+
       setLikes(data || [])
     } catch (error) {
       console.error("Error fetching likes:", error)
@@ -115,7 +114,7 @@ export function PostItem({ post, currentUser }) {
 
   const fetchComments = async () => {
     setIsLoadingComments(true)
-    
+
     try {
       // Specify the exact relationship to use between comments and profiles
       const { data, error } = await supabase
@@ -123,9 +122,9 @@ export function PostItem({ post, currentUser }) {
         .select('*, profiles!fk_comments_profiles(id, username, full_name, avatar_url)')
         .eq('post_id', post.id)
         .order('created_at', { ascending: true })
-      
+
       if (error) throw error
-      
+
       setComments(data || [])
     } catch (error) {
       console.error("Error fetching comments:", error)
@@ -150,20 +149,20 @@ export function PostItem({ post, currentUser }) {
       })
       return
     }
-    
+
     try {
       if (isLiked) {
         // Optimistically update UI
         setIsLiked(false)
         setLikes(likes.filter(like => like.user_id !== currentUser.id))
-        
+
         // Unlike the post
         const { error } = await supabase
           .from('likes')
           .delete()
           .eq('post_id', post.id)
           .eq('user_id', currentUser.id)
-        
+
         if (error) {
           // Revert UI if error
           setIsLiked(true)
@@ -175,7 +174,7 @@ export function PostItem({ post, currentUser }) {
         setIsLiked(true)
         const newLike = { id: Date.now().toString(), post_id: post.id, user_id: currentUser.id }
         setLikes([...likes, newLike])
-        
+
         // Like the post
         const { error, data } = await supabase
           .from('likes')
@@ -185,14 +184,14 @@ export function PostItem({ post, currentUser }) {
           })
           .select('id')
           .single()
-        
+
         if (error) {
           // Revert UI if error
           setIsLiked(false)
           setLikes(likes.filter(like => like.id !== newLike.id))
           throw error
         }
-        
+
         // Update the temporary ID with the real one from DB
         if (data) {
           setLikes(likes.map(like => 
@@ -211,48 +210,82 @@ export function PostItem({ post, currentUser }) {
   }
 
   const handleCommentSubmit = async (e) => {
-    e.preventDefault()
-    
-    if (!commentContent.trim()) return
-    
-    setIsSubmittingComment(true)
-    
+    e.preventDefault();
+
+    if (!commentContent.trim() || !currentUser?.id) {
+      toast({
+        title: "Error",
+        description: "You must be logged in to comment",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsSubmittingComment(true);
+
     try {
-      // Create comment
-      const { error } = await supabase
+      // Get the current session to ensure we're authenticated
+      const { data: { session } } = await supabase.auth.getSession();
+
+      if (!session) {
+        toast({
+          title: "Error",
+          description: "Your session has expired. Please log in again.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Insert comment with proper authentication
+      const { data, error } = await supabase
         .from('comments')
         .insert({
           post_id: post.id,
-          user_id: currentUser ? currentUser.id : null,
+          user_id: currentUser.id,
           content: commentContent.trim()
         })
-      
-      if (error) throw error
-      
-      setCommentContent("")
-      
-      // Instead of trying to fetch the new comment right away,
-      // refresh all comments to ensure we get the latest data
-      await fetchComments()
-      
-      if (!showComments) {
-        setShowComments(true)
+        .select('*, profiles:user_id(username, avatar_url, full_name)');
+
+      if (error) {
+        console.error('Error submitting comment:', error);
+        toast({
+          title: "Error",
+          description: "Could not save your comment. Please try again.",
+          variant: "destructive"
+        });
+        return;
       }
-      
-      toast({
-        title: "Comment posted",
-        description: "Your comment was added successfully",
-        variant: "default"
-      })
+
+      // Add the new comment to state
+      if (data && data[0]) {
+        // Transform the data to match your component's expected format
+        const newComment = {
+          ...data[0],
+          user: {
+            username: data[0].profiles?.username || "User",
+            avatar_url: data[0].profiles?.avatar_url || "/placeholder-user.jpg",
+            name: data[0].profiles?.full_name || "User"
+          }
+        };
+
+        setComments((prev) => [newComment, ...prev]);
+        setCommentContent('');
+
+        toast({
+          title: "Success",
+          description: "Your comment has been posted!",
+          variant: "default"
+        });
+      }
     } catch (error) {
-      console.error("Error submitting comment:", error)
+      console.error('Error:', error);
       toast({
-        title: "Comment failed",
-        description: "Unable to post your comment. Please try again.",
+        title: "Error",
+        description: "An unexpected error occurred",
         variant: "destructive"
-      })
+      });
     } finally {
-      setIsSubmittingComment(false)
+      setIsSubmittingComment(false);
     }
   }
 
@@ -262,11 +295,11 @@ export function PostItem({ post, currentUser }) {
         .from('comments')
         .delete()
         .eq('id', commentId)
-      
+
       if (error) throw error
-      
+
       setComments(comments.filter(comment => comment.id !== commentId))
-      
+
       toast({
         title: "Comment deleted",
         description: "Your comment has been removed"
@@ -283,22 +316,22 @@ export function PostItem({ post, currentUser }) {
 
   const handleDeletePost = async () => {
     if (!isAuthor) return
-    
+
     setIsDeleting(true)
-    
+
     try {
       const { error } = await supabase
         .from('posts')
         .delete()
         .eq('id', post.id)
-      
+
       if (error) throw error
-      
+
       toast({
         title: "Post deleted",
         description: "Your post has been removed successfully"
       })
-      
+
       router.refresh()
     } catch (error) {
       console.error("Error deleting post:", error)
@@ -318,7 +351,7 @@ export function PostItem({ post, currentUser }) {
     }
     setShowComments(!showComments)
   }
-  
+
   const shouldTruncate = post.content && post.content.length > MAX_CONTENT_LENGTH
   const displayContent = shouldTruncate && !isExpanded 
     ? `${post.content.substring(0, MAX_CONTENT_LENGTH)}...` 
@@ -350,7 +383,7 @@ export function PostItem({ post, currentUser }) {
               </div>
             </div>
           </div>
-          
+
           {isAuthor && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -372,7 +405,7 @@ export function PostItem({ post, currentUser }) {
             </DropdownMenu>
           )}
         </div>
-        
+
         {/* Post content */}
         <div className="space-y-4">
           {post.content && (
@@ -389,7 +422,7 @@ export function PostItem({ post, currentUser }) {
               )}
             </div>
           )}
-          
+
           {/* Image attachment */}
           {post.image_url && (
             <div className="mt-3 rounded-md overflow-hidden">
@@ -400,7 +433,7 @@ export function PostItem({ post, currentUser }) {
               />
             </div>
           )}
-          
+
           {/* Video attachment */}
           {post.video_url && (
             <div className="mt-3 rounded-md overflow-hidden">
@@ -412,7 +445,7 @@ export function PostItem({ post, currentUser }) {
               />
             </div>
           )}
-          
+
           {/* Document attachment */}
           {post.document_url && (
             <div className="mt-3">
@@ -439,7 +472,7 @@ export function PostItem({ post, currentUser }) {
           )}
         </div>
       </CardContent>
-      
+
       <CardFooter className="flex flex-col px-6 py-3">
         {/* Like, comment counts */}
         {(likes.length > 0 || comments.length > 0) && (
@@ -457,7 +490,7 @@ export function PostItem({ post, currentUser }) {
             )}
           </div>
         )}
-        
+
         {/* Action buttons */}
         <div className="flex justify-between w-full border-t pt-3">
           <Button 
@@ -483,7 +516,7 @@ export function PostItem({ post, currentUser }) {
             Share
           </Button>
         </div>
-        
+
         {/* Comments section */}
         {showComments && (
           <div className="w-full mt-4 space-y-4">
@@ -509,7 +542,7 @@ export function PostItem({ post, currentUser }) {
                 </div>
               </div>
             </form>
-            
+
             {/* Comments list */}
             {isLoadingComments ? (
               <div className="text-center py-4">Loading comments...</div>
