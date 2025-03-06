@@ -211,7 +211,6 @@ export function PostItem({ post, currentUser }) {
 
   const handleCommentSubmit = async (e) => {
     e.preventDefault();
-
     if (!commentContent.trim() || !currentUser?.id) {
       toast({
         title: "Error",
@@ -224,27 +223,32 @@ export function PostItem({ post, currentUser }) {
     setIsSubmittingComment(true);
 
     try {
-      // Get the current session to ensure we're authenticated
-      const { data: { session } } = await supabase.auth.getSession();
+      // Get the current user
+      const { data: { user } } = await supabase.auth.getUser();
 
-      if (!session) {
+      if (!user) {
         toast({
-          title: "Error",
-          description: "Your session has expired. Please log in again.",
+          title: "Authentication required",
+          description: "Please sign in to comment",
           variant: "destructive"
         });
+        setIsSubmittingComment(false);
         return;
       }
 
-      // Insert comment with proper authentication
+      console.log("Submitting comment as user:", user.id);
+
+      // Insert the comment
       const { data, error } = await supabase
         .from('comments')
-        .insert({
-          post_id: post.id,
-          user_id: currentUser.id,
-          content: commentContent.trim()
-        })
-        .select('*, profiles:user_id(username, avatar_url, full_name)');
+        .insert([
+          { 
+            content: commentContent, 
+            post_id: post.id,
+            user_id: user.id
+          }
+        ])
+        .select('*, profiles:profiles(*)');
 
       if (error) {
         console.error('Error submitting comment:', error);
