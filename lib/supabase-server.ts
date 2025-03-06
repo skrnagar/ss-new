@@ -1,6 +1,6 @@
 
 import { cookies } from 'next/headers'
-import { createServerClient } from '@supabase/ssr'
+import { createServerClient as createSupabaseServerClient } from '@supabase/ssr'
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
 import { Database } from '@/types/supabase'
 import { createClient as createSupabaseClient } from '@supabase/supabase-js'
@@ -18,7 +18,7 @@ export const createLegacyClient = cache(() => {
 export function createClient() {
   const cookieStore = cookies()
   
-  return createServerClient(
+  return createSupabaseServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
@@ -38,7 +38,7 @@ export function createClient() {
 }
 
 // Legacy client for backward compatibility
-export const createServerClient = () => {
+export const createLegacyServerClient = () => {
   const cookieStore = cookies()
   
   return createServerComponentClient<Database>({ cookies: () => cookieStore })
