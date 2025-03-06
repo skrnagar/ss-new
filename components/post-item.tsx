@@ -185,7 +185,7 @@ export function PostItem({ post, currentUser }) {
       console.log("Attempting to toggle like for post:", post.id);
       console.log("Current user ID:", currentUser.id);
       console.log("Current isLiked status:", isLiked);
-      
+
       if (isLiked) {
         // Optimistically update UI
         setIsLiked(false)
@@ -269,7 +269,7 @@ export function PostItem({ post, currentUser }) {
     try {
       console.log("Attempting to submit comment for post:", post.id);
       console.log("Current user ID:", currentUser.id);
-      
+
       // Simplified comment insertion with better error handling
       const { data, error } = await supabase
         .from('comments')
@@ -292,18 +292,18 @@ export function PostItem({ post, currentUser }) {
       }
 
       console.log("Comment inserted successfully:", data);
-      
+
       // Get the user profile for the comment
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('id, username, full_name, avatar_url')
         .eq('id', currentUser.id)
         .single();
-        
+
       if (profileError) {
         console.error('Error fetching profile:', profileError);
       }
-      
+
       // Create new comment object with profile data
       const newComment = {
         ...data,
@@ -323,7 +323,7 @@ export function PostItem({ post, currentUser }) {
         description: "Your comment has been posted!",
         variant: "default"
       });
-      
+
     } catch (error) {
       console.error('Unexpected error during comment submission:', error);
       toast({
@@ -600,7 +600,7 @@ export function PostItem({ post, currentUser }) {
                 ) : (
                   <div className="space-y-4">
                     {comments.map((comment) => (
-                      <div key={comment.id} className="flex items-start gap-2">
+                      <div key={comment.id || `temp-comment-${Date.now()}-${Math.random()}`} className="flex items-start gap-2">
                         <Avatar className="h-8 w-8 mt-1">
                           <AvatarImage src={comment.profiles?.avatar_url} alt={comment.profiles?.full_name} />
                           <AvatarFallback>{getInitials(comment.profiles?.full_name || "User")}</AvatarFallback>
