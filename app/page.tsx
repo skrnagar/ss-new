@@ -22,7 +22,7 @@ export default async function Home() {
       <section className="relative py-20 md:py-32 overflow-hidden">
         <div className="absolute inset-0 w-full h-full overflow-hidden">
           <video 
-            className="absolute inset-0 w-full h-full object-cover opacity-60" 
+            className="absolute inset-0 w-full h-full object-cover opacity-20" 
             autoPlay 
             loop 
             muted 
@@ -34,7 +34,7 @@ export default async function Home() {
         <div className="container relative z-10">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             <div>
-              <h1 className="text-4xl md:text-5xl font-bold mb-6 text-black/80">Connect with ESG & EHS Professionals Worldwide</h1>
+              <h1 className="text-4xl leading-20 md:text-5xl font-bold mb-6 text-black/89">Connect with ESG & EHS Professionals Worldwide</h1>
               <p className="text-lg md:text-xl mb-8 text-black/70">
                 Join the premier network for Environmental, Social, Governance, and Health & Safety professionals to
                 share knowledge, advance your career, and shape a safer future.
@@ -59,34 +59,35 @@ export default async function Home() {
                 className="rounded-lg shadow-2xl"
               />
             </div>
+            </div>
+              <div>
+                <p className='mt-20'>Trusted by the world’s leading organizations professional</p>
+              </div>
+              <div className='mt-10 flex items-center gap-20'>
+                <div>
+                  <Image src="/acc.webp" alt="" width={80} height={80} className='w-20 grayscale	backdrop-opacity-10' />
+                </div>
+                <div>
+                  <Image src="/adiyalogo.webp" alt="" width={80} height={80} className='w-16 grayscale	backdrop-opacity-10' />
+                </div>
+                <div>
+                  <Image src="/lt.webp" alt="" width={80} height={80} className='w-10 grayscale	backdrop-opacity-10' />
+                </div>
+                <div>
+                  <Image src="/tatas.svg" alt="" width={80} height={80} className='w-16 grayscale	backdrop-opacity-10' />
+                </div>
+                <div>
+                  <Image src="/Siemens-logo.webp" alt="" width={80} height={80} className='w-20 grayscale	backdrop-opacity-10' />
+                </div>
+                <div>
+                  <Image src="/kpmg.svg" alt="" width={80} height={80} className='w-20' />
+                </div>
+                <div>
+                  <Image src="/sap.svg" alt="" width={80} height={80} className='w-20' />
+                </div>
+              </div>
           </div>
-        </div>
-        <div>
-          <p className='mt-20'>Trusted by the world’s leading organizations professional</p>
-        </div>
-        <div className='mt-10 flex items-center gap-20'>
-          <div>
-            <Image src="/acc.png" alt="" width={80} height={80} className='w-20 grayscale	backdrop-opacity-10' />
-          </div>
-          <div>
-            <Image src="/adiyalogo.png" alt="" width={80} height={80} className='w-16 grayscale	backdrop-opacity-10' />
-          </div>
-          <div>
-            <Image src="/lt.png" alt="" width={80} height={80} className='w-10 grayscale	backdrop-opacity-10' />
-          </div>
-          <div>
-            <Image src="/tatas.svg" alt="" width={80} height={80} className='w-16 grayscale	backdrop-opacity-10' />
-          </div>
-          <div>
-            <Image src="/Siemens-logo.png" alt="" width={80} height={80} className='w-20 grayscale	backdrop-opacity-10' />
-          </div>
-          <div>
-            <Image src="/kpmg.svg" alt="" width={80} height={80} className='w-20' />
-          </div>
-          <div>
-            <Image src="/sap.svg" alt="" width={80} height={80} className='w-20' />
-          </div>
-        </div>
+    
       </section>
 
       {/* Features Section */}
