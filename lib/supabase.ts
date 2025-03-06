@@ -18,14 +18,14 @@ export const getSupabase = () => createClientComponentClient<Database>()
 // Utility function to check database health
 export const checkDatabaseHealth = async () => {
   const client = createClientComponentClient<Database>()
-  
+
   try {
     // Try to access the profiles table
     const { data, error } = await client
       .from('profiles')
       .select('count(*)', { count: 'exact' })
       .limit(1)
-    
+
     if (error) {
       console.error('Database health check failed:', error.message)
       return {
@@ -34,7 +34,7 @@ export const checkDatabaseHealth = async () => {
         statusCode: error.code
       }
     }
-    
+
     return {
       healthy: true,
       count: data?.[0]?.count || 0

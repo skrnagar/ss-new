@@ -24,33 +24,39 @@ export async function middleware(request: NextRequest) {
     const url = new URL(request.url)
     const path = url.pathname
   
-  // Skip middleware for specific paths
-  if (path.startsWith('/auth/callback') || 
-      path.includes('/_next') || 
-      path.includes('/api/') || 
-      path.includes('.')) {
-    return res
-  }
-  
-  // Check if the route is protected and user is not authenticated
-  const isProtectedRoute = protectedRoutes.some(route => 
-    path === route || path.startsWith(`${route}/`)
-  )
-  
-  if (isProtectedRoute && !isAuthenticated) {
-    // Store the original URL to redirect back after login
-    const redirectUrl = new URL('/auth/login', request.url)
-    redirectUrl.searchParams.set('redirectUrl', url.pathname)
-    return NextResponse.redirect(redirectUrl)
-  }
+    // Skip middleware for specific paths
+    if (path.startsWith('/auth/callback') || 
+        path.includes('/_next') || 
+        path.includes('/api/') || 
+        path.includes('.')) {
+      return res
+    }
+    
+    // Check if the route is protected and user is not authenticated
+    const isProtectedRoute = protectedRoutes.some(route => 
+      path === route || path.startsWith(`${route}/`)
+    )
+    
+    if (isProtectedRoute && !isAuthenticated) {
+      // Store the original URL to redirect back after login
+      const redirectUrl = new URL('/auth/login', request.url)
+      redirectUrl.searchParams.set('redirectUrl', url.pathname)
+      return NextResponse.redirect(redirectUrl)
+    }
 
-  // Check if the user is accessing auth routes while already authenticated
-  const isAuthRoute = authRoutes.some(route => 
-    path === route || path.startsWith(`${route}/`)
-  )
-  
-  if (isAuthRoute && isAuthenticated) {
-    return NextResponse.redirect(new URL('/feed', request.url))
+    // Check if the user is accessing auth routes while already authenticated
+    const isAuthRoute = authRoutes.some(route => 
+      path === route || path.startsWith(`${route}/`)
+    )
+    
+    if (isAuthRoute && isAuthenticated) {
+      return NextResponse.redirect(new URL('/feed', request.url))
+    }
+    
+    return res
+  } catch (error) {
+    console.error('Middleware error:', error)
+    return res
   }
 
   return res
