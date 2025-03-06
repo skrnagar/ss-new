@@ -242,10 +242,19 @@ export function PostItem({ post, currentUser }) {
 
   const handleCommentSubmit = async (e) => {
     e.preventDefault();
-    if (!commentContent.trim() || !currentUser?.id) {
+    if (!commentContent.trim()) {
       toast({
         title: "Error",
-        description: "You must be logged in to comment",
+        description: "Comment cannot be empty",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!currentUser) {
+      toast({
+        title: "Authentication required",
+        description: "Please sign in to comment",
         variant: "destructive"
       });
       return;
@@ -254,69 +263,69 @@ export function PostItem({ post, currentUser }) {
     setIsSubmittingComment(true);
 
     try {
-      // Get the current user
-      const { data: { user } } = await supabase.auth.getUser();
-
-      if (!user) {
-        toast({
-          title: "Authentication required",
-          description: "Please sign in to comment",
-          variant: "destructive"
-        });
-        setIsSubmittingComment(false);
-        return;
-      }
-
-      console.log("Submitting comment as user:", user.id);
-
-      // Insert the comment
+      console.log("Attempting to submit comment for post:", post.id);
+      console.log("Current user ID:", currentUser.id);
+      
+      // Simplified comment insertion - direct approach
       const { data, error } = await supabase
         .from('comments')
-        .insert([
-          { 
-            content: commentContent, 
-            post_id: post.id,
-            user_id: user.id
-          }
-        ])
-        .select('*, profiles:profiles(*)');
+        .insert({
+          content: commentContent.trim(),
+          post_id: post.id,
+          user_id: currentUser.id
+        })
+        .select('id, content, created_at, user_id')
+        .single();
 
       if (error) {
         console.error('Error submitting comment:', error);
+        // Include more detailed error information
         toast({
-          title: "Error",
-          description: "Could not save your comment. Please try again.",
+          title: "Comment submission failed",
+          description: error.message || "Could not save your comment. Please try again.",
           variant: "destructive"
         });
         return;
       }
 
-      // Add the new comment to state
-      if (data && data[0]) {
-        // Transform the data to match your component's expected format
-        const newComment = {
-          ...data[0],
-          user: {
-            username: data[0].profiles?.username || "User",
-            avatar_url: data[0].profiles?.avatar_url || "/placeholder-user.jpg",
-            name: data[0].profiles?.full_name || "User"
-          }
-        };
-
-        setComments((prev) => [newComment, ...prev]);
-        setCommentContent('');
-
-        toast({
-          title: "Success",
-          description: "Your comment has been posted!",
-          variant: "default"
-        });
+      console.log("Comment inserted successfully:", data);
+      
+      // Get the user profile for the comment
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('id, username, full_name, avatar_url')
+        .eq('id', currentUser.id)
+        .single();
+        
+      if (profileError) {
+        console.error('Error fetching profile:', profileError);
       }
+      
+      // Create new comment object with profile data
+      const newComment = {
+        ...data,
+        profiles: profileData || {
+          username: "User",
+          full_name: "User",
+          avatar_url: "/placeholder-user.jpg"
+        }
+      };
+
+      // Add to beginning of comments array
+      setComments(prev => [newComment, ...prev]);
+      setCommentContent('');
+
+      toast({
+        title: "Success",
+        description: "Your comment has been posted!",
+        variant: "default"
+      });
+      
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Unexpected error during comment submission:', error);
       toast({
         title: "Error",
-        description: "An unexpected error occurred",
+        description: "An unexpected error occurred while posting your comment",
         variant: "destructive"
       });
     } finally {
