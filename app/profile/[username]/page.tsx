@@ -1,4 +1,6 @@
-import { createLegacyClient } from '@/lib/supabase-server'
+"use client"
+
+import { supabase } from '@/lib/supabase'
 import { notFound, redirect } from 'next/navigation'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
