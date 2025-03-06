@@ -55,12 +55,6 @@ export async function middleware(request: NextRequest) {
     
     return res
   } catch (error) {
-    console.error('Middleware error:', error)
-    return res
-  }
-
-  return res
-  } catch (error) {
     console.error('Middleware auth error:', error)
     // If there's an error with auth, let the request through and let client-side handle auth
     return res
