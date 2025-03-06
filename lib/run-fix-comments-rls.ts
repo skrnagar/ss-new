@@ -35,3 +35,30 @@ const fixCommentsRLS = async () => {
 }
 
 fixCommentsRLS()
+// Script to fix comments RLS policies and constraints
+import { supabase } from './supabase';
+import * as fs from 'fs';
+import * as path from 'path';
+
+async function main() {
+  try {
+    // Read the SQL file
+    const sqlContent = fs.readFileSync(path.join(process.cwd(), 'lib', 'fix-comments-rls.sql'), 'utf8');
+    
+    console.log('Running comments RLS fix SQL...');
+    
+    // Execute the SQL statements
+    const { error } = await supabase.rpc('exec_sql', { sql: sqlContent });
+    
+    if (error) {
+      console.error('Error executing SQL for comments RLS fix:', error);
+      return;
+    }
+    
+    console.log('Comments RLS policies and constraints fixed successfully!');
+  } catch (err) {
+    console.error('Error running comments RLS fix:', err);
+  }
+}
+
+main();

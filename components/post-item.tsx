@@ -41,13 +41,13 @@ export function PostItem({ post, currentUser }) {
     console.log("Current user in post item:", currentUser ? "Logged in" : "Not logged in")
 
     // Check if current user has liked the post
-    if (currentUser) {
+    if (currentUser && currentUser.id) {
       checkLikeStatus()
     }
 
     // Fetch likes count
     fetchLikes()
-  }, [post.id, currentUser])
+  }, [post.id, currentUser?.id])
 
   const getInitials = (name: string) => {
     if (!name) return 'U'
@@ -172,7 +172,7 @@ export function PostItem({ post, currentUser }) {
   }
 
   const handleLikeToggle = async () => {
-    if (!currentUser) {
+    if (!currentUser || !currentUser.id) {
       toast({
         title: "Please sign in",
         description: "You need to be signed in to like posts",
@@ -182,6 +182,10 @@ export function PostItem({ post, currentUser }) {
     }
 
     try {
+      console.log("Attempting to toggle like for post:", post.id);
+      console.log("Current user ID:", currentUser.id);
+      console.log("Current isLiked status:", isLiked);
+      
       if (isLiked) {
         // Optimistically update UI
         setIsLiked(false)
@@ -195,6 +199,7 @@ export function PostItem({ post, currentUser }) {
           .eq('user_id', currentUser.id)
 
         if (error) {
+          console.error("Error removing like:", error);
           // Revert UI if error
           setIsLiked(true)
           setLikes([...likes])
@@ -214,7 +219,6 @@ export function PostItem({ post, currentUser }) {
             user_id: currentUser.id
           })
           .select('id')
-          .single()
 
         if (error) {
           // Revert UI if error
@@ -251,7 +255,7 @@ export function PostItem({ post, currentUser }) {
       return;
     }
 
-    if (!currentUser) {
+    if (!currentUser || !currentUser.id) {
       toast({
         title: "Authentication required",
         description: "Please sign in to comment",
@@ -266,7 +270,7 @@ export function PostItem({ post, currentUser }) {
       console.log("Attempting to submit comment for post:", post.id);
       console.log("Current user ID:", currentUser.id);
       
-      // Simplified comment insertion - direct approach
+      // Simplified comment insertion with better error handling
       const { data, error } = await supabase
         .from('comments')
         .insert({
@@ -274,8 +278,7 @@ export function PostItem({ post, currentUser }) {
           post_id: post.id,
           user_id: currentUser.id
         })
-        .select('id, content, created_at, user_id')
-        .single();
+        .select('*');
 
       if (error) {
         console.error('Error submitting comment:', error);

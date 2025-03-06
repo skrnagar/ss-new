@@ -36,3 +36,25 @@ DO $$
 BEGIN
   RAISE NOTICE 'Comments table RLS policies have been successfully recreated';
 END $$;
+-- Add policies for users to create their own comments
+CREATE POLICY IF NOT EXISTS "Users can insert their own comments" ON comments
+FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+-- Add policies for users to update their own comments
+CREATE POLICY IF NOT EXISTS "Users can update their own comments" ON comments
+FOR UPDATE USING (auth.uid() = user_id);
+
+-- Add policies for users to delete their own comments
+CREATE POLICY IF NOT EXISTS "Users can delete their own comments" ON comments
+FOR DELETE USING (auth.uid() = user_id);
+
+-- Debug issues with the comments table by ensuring the FK constraint exists
+ALTER TABLE IF EXISTS comments
+DROP CONSTRAINT IF EXISTS comments_user_id_fkey,
+ADD CONSTRAINT comments_user_id_fkey
+FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+
+ALTER TABLE IF EXISTS comments
+DROP CONSTRAINT IF EXISTS comments_post_id_fkey,
+ADD CONSTRAINT comments_post_id_fkey
+FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE;
