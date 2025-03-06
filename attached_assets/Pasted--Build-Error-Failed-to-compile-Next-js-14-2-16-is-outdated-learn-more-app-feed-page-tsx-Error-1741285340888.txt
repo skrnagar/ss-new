@@ -1,0 +1,1019 @@
+
+Build Error
+Failed to compile
+
+Next.js (14.2.16) is outdated (learn more)
+./app/feed/page.tsx
+Error: 
+  × the name `PostCreator` is defined multiple times
+     ╭─[/home/runner/workspace/app/feed/page.tsx:14:1]
+  14 │ } from "lucide-react"
+  15 │ import { supabase } from "@/lib/supabase"
+  16 │ import { useRouter } from "next/navigation"
+  17 │ import { PostCreator } from "@/components/post-creator"
+     ·          ─────┬─────
+     ·               ╰── previous definition of `PostCreator` here
+  18 │ import { PostItem } from "@/components/post-item"
+  19 │ import { Skeleton } from "@/components/ui/skeleton"
+  20 │ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar" // Added import
+  21 │ 
+  22 │ export default function FeedPage() {
+  23 │   const [posts, setPosts] = useState<any[]>([])
+  24 │   const [loading, setLoading] = useState(true)
+  25 │   const [userProfile, setUserProfile] = useState<any>(null)
+  26 │   const [currentUserId, setCurrentUserId] = useState<string | null>(null)
+  27 │   const router = useRouter()
+  28 │ 
+  29 │   useEffect(() => {
+  30 │     async function fetchUserAndPosts() {
+  31 │       try {
+  32 │         setLoading(true)
+  33 │ 
+  34 │         // Get current user
+  35 │         const { data: { user } } = await supabase.auth.getUser()
+  36 │ 
+  37 │         if (user) {
+  38 │           setCurrentUserId(user.id)
+  39 │ 
+  40 │           // Get user profile
+  41 │           const { data: profileData } = await supabase
+  42 │             .from('profiles')
+  43 │             .select('*')
+  44 │             .eq('id', user.id)
+  45 │             .single()
+  46 │ 
+  47 │           setUserProfile(profileData)
+  48 │         }
+  49 │ 
+  50 │         // Fetch posts with user information
+  51 │         const { data, error } = await supabase
+  52 │           .from('posts')
+  53 │           .select(`
+  54 │             *,
+  55 │             profile:user_id (
+  56 │               id,
+  57 │               username,
+  58 │               full_name,
+  59 │               avatar_url,
+  60 │               position,
+  61 │               company
+  62 │             )
+  63 │           `)
+  64 │           .order('created_at', { ascending: false })
+  65 │           .limit(20)
+  66 │ 
+  67 │         if (error) {
+  68 │           throw error
+  69 │         }
+  70 │ 
+  71 │         if (data) {
+  72 │           setPosts(data)
+  73 │         }
+  74 │       } catch (error) {
+  75 │         console.error("Error fetching data:", error)
+  76 │       } finally {
+  77 │         setLoading(false)
+  78 │       }
+  79 │     }
+  80 │ 
+  81 │     fetchUserAndPosts()
+  82 │ 
+  83 │     // Subscribe to new posts
+  84 │     const postsSubscription = supabase
+  85 │       .channel('public:posts')
+  86 │       .on('postgres_changes', {
+  87 │         event: 'INSERT',
+  88 │         schema: 'public',
+  89 │         table: 'posts',
+  90 │       }, async (payload) => {
+  91 │         // When a new post is created, fetch its user data as well
+  92 │         const { data: newPostWithUser } = await supabase
+  93 │           .from('posts')
+  94 │           .select(`
+  95 │             *,
+  96 │             profile:user_id (
+  97 │               id,
+  98 │               username,
+  99 │               full_name,
+ 100 │               avatar_url,
+ 101 │               position,
+ 102 │               company
+ 103 │             )
+ 104 │           `)
+ 105 │           .eq('id', payload.new.id)
+ 106 │           .single()
+ 107 │ 
+ 108 │         if (newPostWithUser) {
+ 109 │           setPosts(prevPosts => [newPostWithUser, ...prevPosts])
+ 110 │         }
+ 111 │       })
+ 112 │       .subscribe()
+ 113 │ 
+ 114 │     return () => {
+ 115 │       postsSubscription.unsubscribe()
+ 116 │     }
+ 117 │   }, [router])
+ 118 │ 
+ 119 │   return (
+ 120 │     <div className="container py-8">
+ 121 │       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+ 122 │         <div className="md:col-span-2 space-y-6">
+ 123 │           {/* Post creation card */}
+ 124 │           {userProfile ? (
+ 125 │             <PostCreator userProfile={userProfile} />
+ 126 │           ) : currentUserId ? (
+ 127 │             <Card>
+ 128 │               <CardContent className="py-6 text-center">
+ 129 │                 <p className="text-muted-foreground mb-2">Complete your profile to start posting</p>
+ 130 │                 <Button onClick={() => router.push('/profile/setup')}>
+ 131 │                   Set Up Profile
+ 132 │                 </Button>
+ 133 │               </CardContent>
+ 134 │             </Card>
+ 135 │           ) : (
+ 136 │             <Card>
+ 137 │               <CardContent className="py-6 text-center">
+ 138 │                 <p className="text-muted-foreground mb-2">Sign in to create posts and interact with the community</p>
+ 139 │                 <Button onClick={() => router.push('/auth/login')}>
+ 140 │                   Sign In
+ 141 │                 </Button>
+ 142 │               </CardContent>
+ 143 │             </Card>
+ 144 │           )}
+ 145 │ 
+ 146 │           {/* Posts list */}
+ 147 │           {loading ? (
+ 148 │             // Loading skeletons
+ 149 │             Array(3).fill(0).map((_, index) => (
+ 150 │               <Card key={index} className="mb-4">
+ 151 │                 <CardContent className="pt-6">
+ 152 │                   <div className="flex items-start gap-3 mb-4">
+ 153 │                     <Skeleton className="h-10 w-10 rounded-full" />
+ 154 │                     <div className="space-y-2">
+ 155 │                       <Skeleton className="h-4 w-[120px]" />
+ 156 │                       <Skeleton className="h-3 w-[160px]" />
+ 157 │                     </div>
+ 158 │                   </div>
+ 159 │                   <div className="space-y-2 mb-4">
+ 160 │                     <Skeleton className="h-4 w-full" />
+ 161 │                     <Skeleton className="h-4 w-full" />
+ 162 │                     <Skeleton className="h-4 w-3/4" />
+ 163 │                   </div>
+ 164 │                   <Skeleton className="h-[200px] w-full rounded-md" />
+ 165 │                 </CardContent>
+ 166 │               </Card>
+ 167 │             ))
+ 168 │           ) : posts.length > 0 ? (
+ 169 │             posts.map((post) => (
+ 170 │               <PostItem key={post.id} post={post} currentUser={userProfile} />
+ 171 │             ))
+ 172 │           ) : (
+ 173 │             <Card>
+ 174 │               <CardContent className="py-12 text-center">
+ 175 │                 <p className="text-xl font-medium mb-2">No posts yet</p>
+ 176 │                 <p className="text-muted-foreground">
+ 177 │                   Be the first to share something with the community!
+ 178 │                 </p>
+ 179 │               </CardContent>
+ 180 │             </Card>
+ 181 │           )}
+ 182 │         </div>
+ 183 │ 
+ 184 │         {/* Right sidebar */}
+ 185 │         <div className="hidden md:block space-y-6">
+ 186 │           <Card>
+ 187 │             <CardContent className="pt-6">
+ 188 │               <h3 className="font-semibold mb-3">Your Profile</h3>
+ 189 │               {userProfile ? (
+ 190 │                 <div className="flex flex-col items-center text-center mb-4">
+ 191 │                   <Avatar className="h-16 w-16 mb-3">
+ 192 │                     <AvatarImage src={userProfile.avatar_url || ""} alt={userProfile.full_name || "User"} />
+ 193 │                     <AvatarFallback>
+ 194 │                       <User className="h-8 w-8" />
+ 195 │                     </AvatarFallback>
+ 196 │                   </Avatar>
+ 197 │                   <h4 className="font-medium">{userProfile.full_name}</h4>
+ 198 │                   <p className="text-sm text-muted-foreground">{userProfile.headline || "No headline"}</p>
+ 199 │ 
+ 200 │                   <div className="w-full mt-4">
+ 201 │                     {userProfile.position && (
+ 202 │                       <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
+ 203 │                         <Briefcase className="h-3 w-3" />
+ 204 │                         <span>{userProfile.position}</span>
+ 205 │                       </div>
+ 206 │                     )}
+ 207 │                     {userProfile.company && (
+ 208 │                       <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
+ 209 │                         <Briefcase className="h-3 w-3" />
+ 210 │                         <span>{userProfile.company}</span>
+ 211 │                       </div>
+ 212 │                     )}
+ 213 │                     {userProfile.location && (
+ 214 │                       <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
+ 215 │                         <MapPin className="h-3 w-3" />
+ 216 │                         <span>{userProfile.location}</span>
+ 217 │                       </div>
+ 218 │                     )}
+ 219 │                   </div>
+ 220 │ 
+ 221 │                   <Button 
+ 222 │                     className="w-full mt-3" 
+ 223 │                     variant="outline"
+ 224 │                     onClick={() => router.push(`/profile/${userProfile.username}`)}
+ 225 │                   >
+ 226 │                     View Profile
+ 227 │                   </Button>
+ 228 │                 </div>
+ 229 │               ) : (
+ 230 │                 <div className="text-center py-4">
+ 231 │                   <p className="text-muted-foreground mb-3">
+ 232 │                     Sign in to access your profile and all features
+ 233 │                   </p>
+ 234 │                   <Button onClick={() => router.push('/auth/login')}>
+ 235 │                     Sign In
+ 236 │                   </Button>
+ 237 │                 </div>
+ 238 │               )}
+ 239 │             </CardContent>
+ 240 │           </Card>
+ 241 │ 
+ 242 │           <Card>
+ 243 │             <CardContent className="pt-6">
+ 244 │               <h3 className="font-semibold mb-3">Upcoming Events</h3>
+ 245 │               <div className="space-y-3">
+ 246 │                 <div className="border rounded-md p-3">
+ 247 │                   <div className="flex items-center gap-2 mb-1">
+ 248 │                     <Clock className="h-4 w-4 text-primary" />
+ 249 │                     <span className="text-sm font-medium">Tomorrow, 3:00 PM</span>
+ 250 │                   </div>
+ 251 │                   <h4 className="font-medium">ESG Reporting Best Practices</h4>
+ 252 │                   <p className="text-sm text-muted-foreground">
+ 253 │                     Join industry experts for a webinar on ESG reporting standards
+ 254 │                   </p>
+ 255 │                 </div>
+ 256 │ 
+ 257 │                 <div className="border rounded-md p-3">
+ 258 │                   <div className="flex items-center gap-2 mb-1">
+ 259 │                     <Clock className="h-4 w-4 text-primary" />
+ 260 │                     <span className="text-sm font-medium">May 15, 2:00 PM</span>
+ 261 │                   </div>
+ 262 │                   <h4 className="font-medium">Workplace Safety Forum</h4>
+ 263 │                   <p className="text-sm text-muted-foreground">
+ 264 │                     Virtual panel discussion on improving safety culture
+ 265 │                   </p>
+ 266 │                 </div>
+ 267 │ 
+ 268 │                 <Button variant="link" className="px-0">See all events</Button>
+ 269 │               </div>
+ 270 │             </CardContent>
+ 271 │           </Card>
+ 272 │ 
+ 273 │           <Card>
+ 274 │             <CardContent className="pt-6">
+ 275 │               <h3 className="font-semibold mb-3">Suggested Connections</h3>
+ 276 │               <div className="space-y-4">
+ 277 │                 <div className="flex items-center justify-between">
+ 278 │                   <div className="flex items-center gap-2">
+ 279 │                     <Avatar className="h-8 w-8">
+ 280 │                       <AvatarFallback>JP</AvatarFallback>
+ 281 │                     </Avatar>
+ 282 │                     <div>
+ 283 │                       <p className="text-sm font-medium">James Peterson</p>
+ 284 │                       <p className="text-xs text-muted-foreground">Safety Director at Construct Co.</p>
+ 285 │                     </div>
+ 286 │                   </div>
+ 287 │                   <Button variant="outline" size="sm">Connect</Button>
+ 288 │                 </div>
+ 289 │ 
+ 290 │                 <div className="flex items-center justify-between">
+ 291 │                   <div className="flex items-center gap-2">
+ 292 │                     <Avatar className="h-8 w-8">
+ 293 │                       <AvatarFallback>MJ</AvatarFallback>
+ 294 │                     </Avatar>
+ 295 │                     <div>
+ 296 │                       <p className="text-sm font-medium">Maria Johnson</p>
+ 297 │                       <p className="text-xs text-muted-foreground">ESG Analyst at Green Metrics</p>
+ 298 │                     </div>
+ 299 │                   </div>
+ 300 │                   <Button variant="outline" size="sm">Connect</Button>
+ 301 │                 </div>
+ 302 │ 
+ 303 │                 <div className="flex items-center justify-between">
+ 304 │                   <div className="flex items-center gap-2">
+ 305 │                     <Avatar className="h-8 w-8">
+ 306 │                       <AvatarFallback>RL</AvatarFallback>
+ 307 │                     </Avatar>
+ 308 │                     <div>
+ 309 │                       <p className="text-sm font-medium">Robert Lee</p>
+ 310 │                       <p className="text-xs text-muted-foreground">EHS Manager at Industrial Tech</p>
+ 311 │                     </div>
+ 312 │                   </div>
+ 313 │                   <Button variant="outline" size="sm">Connect</Button>
+ 314 │                 </div>
+ 315 │ 
+ 316 │                 <Button variant="link" className="px-0">See more suggestions</Button>
+ 317 │               </div>
+ 318 │             </CardContent>
+ 319 │           </Card>
+ 320 │         </div>
+ 321 │       </div>
+ 322 │     </div>
+ 323 │   )
+ 324 │ }
+ 325 │ import { createLegacyClient } from "@/lib/supabase-server"
+ 326 │ import { PostCreator } from "@/components/post-creator"
+     ·          ─────┬─────
+     ·               ╰── `PostCreator` redefined here
+ 327 │ import { ProtectedRoute } from "@/components/protected-route"
+ 328 │ import { Metadata } from "next"
+ 329 │ import { LazyFeed } from "./lazy-feed"
+     ╰────
+
+  × the name `FeedPage` is defined multiple times
+     ╭─[/home/runner/workspace/app/feed/page.tsx:19:1]
+  19 │ import { Skeleton } from "@/components/ui/skeleton"
+  20 │ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar" // Added import
+  21 │ 
+  22 │ export default function FeedPage() {
+     ·                         ────┬───
+     ·                             ╰── previous definition of `FeedPage` here
+  23 │   const [posts, setPosts] = useState<any[]>([])
+  24 │   const [loading, setLoading] = useState(true)
+  25 │   const [userProfile, setUserProfile] = useState<any>(null)
+  26 │   const [currentUserId, setCurrentUserId] = useState<string | null>(null)
+  27 │   const router = useRouter()
+  28 │ 
+  29 │   useEffect(() => {
+  30 │     async function fetchUserAndPosts() {
+  31 │       try {
+  32 │         setLoading(true)
+  33 │ 
+  34 │         // Get current user
+  35 │         const { data: { user } } = await supabase.auth.getUser()
+  36 │ 
+  37 │         if (user) {
+  38 │           setCurrentUserId(user.id)
+  39 │ 
+  40 │           // Get user profile
+  41 │           const { data: profileData } = await supabase
+  42 │             .from('profiles')
+  43 │             .select('*')
+  44 │             .eq('id', user.id)
+  45 │             .single()
+  46 │ 
+  47 │           setUserProfile(profileData)
+  48 │         }
+  49 │ 
+  50 │         // Fetch posts with user information
+  51 │         const { data, error } = await supabase
+  52 │           .from('posts')
+  53 │           .select(`
+  54 │             *,
+  55 │             profile:user_id (
+  56 │               id,
+  57 │               username,
+  58 │               full_name,
+  59 │               avatar_url,
+  60 │               position,
+  61 │               company
+  62 │             )
+  63 │           `)
+  64 │           .order('created_at', { ascending: false })
+  65 │           .limit(20)
+  66 │ 
+  67 │         if (error) {
+  68 │           throw error
+  69 │         }
+  70 │ 
+  71 │         if (data) {
+  72 │           setPosts(data)
+  73 │         }
+  74 │       } catch (error) {
+  75 │         console.error("Error fetching data:", error)
+  76 │       } finally {
+  77 │         setLoading(false)
+  78 │       }
+  79 │     }
+  80 │ 
+  81 │     fetchUserAndPosts()
+  82 │ 
+  83 │     // Subscribe to new posts
+  84 │     const postsSubscription = supabase
+  85 │       .channel('public:posts')
+  86 │       .on('postgres_changes', {
+  87 │         event: 'INSERT',
+  88 │         schema: 'public',
+  89 │         table: 'posts',
+  90 │       }, async (payload) => {
+  91 │         // When a new post is created, fetch its user data as well
+  92 │         const { data: newPostWithUser } = await supabase
+  93 │           .from('posts')
+  94 │           .select(`
+  95 │             *,
+  96 │             profile:user_id (
+  97 │               id,
+  98 │               username,
+  99 │               full_name,
+ 100 │               avatar_url,
+ 101 │               position,
+ 102 │               company
+ 103 │             )
+ 104 │           `)
+ 105 │           .eq('id', payload.new.id)
+ 106 │           .single()
+ 107 │ 
+ 108 │         if (newPostWithUser) {
+ 109 │           setPosts(prevPosts => [newPostWithUser, ...prevPosts])
+ 110 │         }
+ 111 │       })
+ 112 │       .subscribe()
+ 113 │ 
+ 114 │     return () => {
+ 115 │       postsSubscription.unsubscribe()
+ 116 │     }
+ 117 │   }, [router])
+ 118 │ 
+ 119 │   return (
+ 120 │     <div className="container py-8">
+ 121 │       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+ 122 │         <div className="md:col-span-2 space-y-6">
+ 123 │           {/* Post creation card */}
+ 124 │           {userProfile ? (
+ 125 │             <PostCreator userProfile={userProfile} />
+ 126 │           ) : currentUserId ? (
+ 127 │             <Card>
+ 128 │               <CardContent className="py-6 text-center">
+ 129 │                 <p className="text-muted-foreground mb-2">Complete your profile to start posting</p>
+ 130 │                 <Button onClick={() => router.push('/profile/setup')}>
+ 131 │                   Set Up Profile
+ 132 │                 </Button>
+ 133 │               </CardContent>
+ 134 │             </Card>
+ 135 │           ) : (
+ 136 │             <Card>
+ 137 │               <CardContent className="py-6 text-center">
+ 138 │                 <p className="text-muted-foreground mb-2">Sign in to create posts and interact with the community</p>
+ 139 │                 <Button onClick={() => router.push('/auth/login')}>
+ 140 │                   Sign In
+ 141 │                 </Button>
+ 142 │               </CardContent>
+ 143 │             </Card>
+ 144 │           )}
+ 145 │ 
+ 146 │           {/* Posts list */}
+ 147 │           {loading ? (
+ 148 │             // Loading skeletons
+ 149 │             Array(3).fill(0).map((_, index) => (
+ 150 │               <Card key={index} className="mb-4">
+ 151 │                 <CardContent className="pt-6">
+ 152 │                   <div className="flex items-start gap-3 mb-4">
+ 153 │                     <Skeleton className="h-10 w-10 rounded-full" />
+ 154 │                     <div className="space-y-2">
+ 155 │                       <Skeleton className="h-4 w-[120px]" />
+ 156 │                       <Skeleton className="h-3 w-[160px]" />
+ 157 │                     </div>
+ 158 │                   </div>
+ 159 │                   <div className="space-y-2 mb-4">
+ 160 │                     <Skeleton className="h-4 w-full" />
+ 161 │                     <Skeleton className="h-4 w-full" />
+ 162 │                     <Skeleton className="h-4 w-3/4" />
+ 163 │                   </div>
+ 164 │                   <Skeleton className="h-[200px] w-full rounded-md" />
+ 165 │                 </CardContent>
+ 166 │               </Card>
+ 167 │             ))
+ 168 │           ) : posts.length > 0 ? (
+ 169 │             posts.map((post) => (
+ 170 │               <PostItem key={post.id} post={post} currentUser={userProfile} />
+ 171 │             ))
+ 172 │           ) : (
+ 173 │             <Card>
+ 174 │               <CardContent className="py-12 text-center">
+ 175 │                 <p className="text-xl font-medium mb-2">No posts yet</p>
+ 176 │                 <p className="text-muted-foreground">
+ 177 │                   Be the first to share something with the community!
+ 178 │                 </p>
+ 179 │               </CardContent>
+ 180 │             </Card>
+ 181 │           )}
+ 182 │         </div>
+ 183 │ 
+ 184 │         {/* Right sidebar */}
+ 185 │         <div className="hidden md:block space-y-6">
+ 186 │           <Card>
+ 187 │             <CardContent className="pt-6">
+ 188 │               <h3 className="font-semibold mb-3">Your Profile</h3>
+ 189 │               {userProfile ? (
+ 190 │                 <div className="flex flex-col items-center text-center mb-4">
+ 191 │                   <Avatar className="h-16 w-16 mb-3">
+ 192 │                     <AvatarImage src={userProfile.avatar_url || ""} alt={userProfile.full_name || "User"} />
+ 193 │                     <AvatarFallback>
+ 194 │                       <User className="h-8 w-8" />
+ 195 │                     </AvatarFallback>
+ 196 │                   </Avatar>
+ 197 │                   <h4 className="font-medium">{userProfile.full_name}</h4>
+ 198 │                   <p className="text-sm text-muted-foreground">{userProfile.headline || "No headline"}</p>
+ 199 │ 
+ 200 │                   <div className="w-full mt-4">
+ 201 │                     {userProfile.position && (
+ 202 │                       <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
+ 203 │                         <Briefcase className="h-3 w-3" />
+ 204 │                         <span>{userProfile.position}</span>
+ 205 │                       </div>
+ 206 │                     )}
+ 207 │                     {userProfile.company && (
+ 208 │                       <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
+ 209 │                         <Briefcase className="h-3 w-3" />
+ 210 │                         <span>{userProfile.company}</span>
+ 211 │                       </div>
+ 212 │                     )}
+ 213 │                     {userProfile.location && (
+ 214 │                       <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
+ 215 │                         <MapPin className="h-3 w-3" />
+ 216 │                         <span>{userProfile.location}</span>
+ 217 │                       </div>
+ 218 │                     )}
+ 219 │                   </div>
+ 220 │ 
+ 221 │                   <Button 
+ 222 │                     className="w-full mt-3" 
+ 223 │                     variant="outline"
+ 224 │                     onClick={() => router.push(`/profile/${userProfile.username}`)}
+ 225 │                   >
+ 226 │                     View Profile
+ 227 │                   </Button>
+ 228 │                 </div>
+ 229 │               ) : (
+ 230 │                 <div className="text-center py-4">
+ 231 │                   <p className="text-muted-foreground mb-3">
+ 232 │                     Sign in to access your profile and all features
+ 233 │                   </p>
+ 234 │                   <Button onClick={() => router.push('/auth/login')}>
+ 235 │                     Sign In
+ 236 │                   </Button>
+ 237 │                 </div>
+ 238 │               )}
+ 239 │             </CardContent>
+ 240 │           </Card>
+ 241 │ 
+ 242 │           <Card>
+ 243 │             <CardContent className="pt-6">
+ 244 │               <h3 className="font-semibold mb-3">Upcoming Events</h3>
+ 245 │               <div className="space-y-3">
+ 246 │                 <div className="border rounded-md p-3">
+ 247 │                   <div className="flex items-center gap-2 mb-1">
+ 248 │                     <Clock className="h-4 w-4 text-primary" />
+ 249 │                     <span className="text-sm font-medium">Tomorrow, 3:00 PM</span>
+ 250 │                   </div>
+ 251 │                   <h4 className="font-medium">ESG Reporting Best Practices</h4>
+ 252 │                   <p className="text-sm text-muted-foreground">
+ 253 │                     Join industry experts for a webinar on ESG reporting standards
+ 254 │                   </p>
+ 255 │                 </div>
+ 256 │ 
+ 257 │                 <div className="border rounded-md p-3">
+ 258 │                   <div className="flex items-center gap-2 mb-1">
+ 259 │                     <Clock className="h-4 w-4 text-primary" />
+ 260 │                     <span className="text-sm font-medium">May 15, 2:00 PM</span>
+ 261 │                   </div>
+ 262 │                   <h4 className="font-medium">Workplace Safety Forum</h4>
+ 263 │                   <p className="text-sm text-muted-foreground">
+ 264 │                     Virtual panel discussion on improving safety culture
+ 265 │                   </p>
+ 266 │                 </div>
+ 267 │ 
+ 268 │                 <Button variant="link" className="px-0">See all events</Button>
+ 269 │               </div>
+ 270 │             </CardContent>
+ 271 │           </Card>
+ 272 │ 
+ 273 │           <Card>
+ 274 │             <CardContent className="pt-6">
+ 275 │               <h3 className="font-semibold mb-3">Suggested Connections</h3>
+ 276 │               <div className="space-y-4">
+ 277 │                 <div className="flex items-center justify-between">
+ 278 │                   <div className="flex items-center gap-2">
+ 279 │                     <Avatar className="h-8 w-8">
+ 280 │                       <AvatarFallback>JP</AvatarFallback>
+ 281 │                     </Avatar>
+ 282 │                     <div>
+ 283 │                       <p className="text-sm font-medium">James Peterson</p>
+ 284 │                       <p className="text-xs text-muted-foreground">Safety Director at Construct Co.</p>
+ 285 │                     </div>
+ 286 │                   </div>
+ 287 │                   <Button variant="outline" size="sm">Connect</Button>
+ 288 │                 </div>
+ 289 │ 
+ 290 │                 <div className="flex items-center justify-between">
+ 291 │                   <div className="flex items-center gap-2">
+ 292 │                     <Avatar className="h-8 w-8">
+ 293 │                       <AvatarFallback>MJ</AvatarFallback>
+ 294 │                     </Avatar>
+ 295 │                     <div>
+ 296 │                       <p className="text-sm font-medium">Maria Johnson</p>
+ 297 │                       <p className="text-xs text-muted-foreground">ESG Analyst at Green Metrics</p>
+ 298 │                     </div>
+ 299 │                   </div>
+ 300 │                   <Button variant="outline" size="sm">Connect</Button>
+ 301 │                 </div>
+ 302 │ 
+ 303 │                 <div className="flex items-center justify-between">
+ 304 │                   <div className="flex items-center gap-2">
+ 305 │                     <Avatar className="h-8 w-8">
+ 306 │                       <AvatarFallback>RL</AvatarFallback>
+ 307 │                     </Avatar>
+ 308 │                     <div>
+ 309 │                       <p className="text-sm font-medium">Robert Lee</p>
+ 310 │                       <p className="text-xs text-muted-foreground">EHS Manager at Industrial Tech</p>
+ 311 │                     </div>
+ 312 │                   </div>
+ 313 │                   <Button variant="outline" size="sm">Connect</Button>
+ 314 │                 </div>
+ 315 │ 
+ 316 │                 <Button variant="link" className="px-0">See more suggestions</Button>
+ 317 │               </div>
+ 318 │             </CardContent>
+ 319 │           </Card>
+ 320 │         </div>
+ 321 │       </div>
+ 322 │     </div>
+ 323 │   )
+ 324 │ }
+ 325 │ import { createLegacyClient } from "@/lib/supabase-server"
+ 326 │ import { PostCreator } from "@/components/post-creator"
+ 327 │ import { ProtectedRoute } from "@/components/protected-route"
+ 328 │ import { Metadata } from "next"
+ 329 │ import { LazyFeed } from "./lazy-feed"
+ 330 │ 
+ 331 │ export const metadata: Metadata = {
+ 332 │   title: "Feed | Safety Shaper",
+ 333 │   description: "Stay updated with the latest posts from safety professionals.",
+ 334 │ }
+ 335 │ 
+ 336 │ export const dynamic = 'force-dynamic'
+ 337 │ 
+ 338 │ export default async function FeedPage() {
+     ·                               ────┬───
+     ·                                   ╰── `FeedPage` redefined here
+ 339 │   const supabase = createLegacyClient()
+ 340 │   
+ 341 │   // Get current user
+     ╰────
+
+  × the name `default` is exported multiple times
+     ╭─[/home/runner/workspace/app/feed/page.tsx:19:1]
+  19 │     import { Skeleton } from "@/components/ui/skeleton"
+  20 │     import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar" // Added import
+  21 │     
+  22 │ ╭─▶ export default function FeedPage() {
+  23 │ │     const [posts, setPosts] = useState<any[]>([])
+  24 │ │     const [loading, setLoading] = useState(true)
+  25 │ │     const [userProfile, setUserProfile] = useState<any>(null)
+  26 │ │     const [currentUserId, setCurrentUserId] = useState<string | null>(null)
+  27 │ │     const router = useRouter()
+  28 │ │   
+  29 │ │     useEffect(() => {
+  30 │ │       async function fetchUserAndPosts() {
+  31 │ │         try {
+  32 │ │           setLoading(true)
+  33 │ │   
+  34 │ │           // Get current user
+  35 │ │           const { data: { user } } = await supabase.auth.getUser()
+  36 │ │   
+  37 │ │           if (user) {
+  38 │ │             setCurrentUserId(user.id)
+  39 │ │   
+  40 │ │             // Get user profile
+  41 │ │             const { data: profileData } = await supabase
+  42 │ │               .from('profiles')
+  43 │ │               .select('*')
+  44 │ │               .eq('id', user.id)
+  45 │ │               .single()
+  46 │ │   
+  47 │ │             setUserProfile(profileData)
+  48 │ │           }
+  49 │ │   
+  50 │ │           // Fetch posts with user information
+  51 │ │           const { data, error } = await supabase
+  52 │ │             .from('posts')
+  53 │ │             .select(`
+  54 │ │               *,
+  55 │ │               profile:user_id (
+  56 │ │                 id,
+  57 │ │                 username,
+  58 │ │                 full_name,
+  59 │ │                 avatar_url,
+  60 │ │                 position,
+  61 │ │                 company
+  62 │ │               )
+  63 │ │             `)
+  64 │ │             .order('created_at', { ascending: false })
+  65 │ │             .limit(20)
+  66 │ │   
+  67 │ │           if (error) {
+  68 │ │             throw error
+  69 │ │           }
+  70 │ │   
+  71 │ │           if (data) {
+  72 │ │             setPosts(data)
+  73 │ │           }
+  74 │ │         } catch (error) {
+  75 │ │           console.error("Error fetching data:", error)
+  76 │ │         } finally {
+  77 │ │           setLoading(false)
+  78 │ │         }
+  79 │ │       }
+  80 │ │   
+  81 │ │       fetchUserAndPosts()
+  82 │ │   
+  83 │ │       // Subscribe to new posts
+  84 │ │       const postsSubscription = supabase
+  85 │ │         .channel('public:posts')
+  86 │ │         .on('postgres_changes', {
+  87 │ │           event: 'INSERT',
+  88 │ │           schema: 'public',
+  89 │ │           table: 'posts',
+  90 │ │         }, async (payload) => {
+  91 │ │           // When a new post is created, fetch its user data as well
+  92 │ │           const { data: newPostWithUser } = await supabase
+  93 │ │             .from('posts')
+  94 │ │             .select(`
+  95 │ │               *,
+  96 │ │               profile:user_id (
+  97 │ │                 id,
+  98 │ │                 username,
+  99 │ │                 full_name,
+ 100 │ │                 avatar_url,
+ 101 │ │                 position,
+ 102 │ │                 company
+ 103 │ │               )
+ 104 │ │             `)
+ 105 │ │             .eq('id', payload.new.id)
+ 106 │ │             .single()
+ 107 │ │   
+ 108 │ │           if (newPostWithUser) {
+ 109 │ │             setPosts(prevPosts => [newPostWithUser, ...prevPosts])
+ 110 │ │           }
+ 111 │ │         })
+ 112 │ │         .subscribe()
+ 113 │ │   
+ 114 │ │       return () => {
+ 115 │ │         postsSubscription.unsubscribe()
+ 116 │ │       }
+ 117 │ │     }, [router])
+ 118 │ │   
+ 119 │ │     return (
+ 120 │ │       <div className="container py-8">
+ 121 │ │         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+ 122 │ │           <div className="md:col-span-2 space-y-6">
+ 123 │ │             {/* Post creation card */}
+ 124 │ │             {userProfile ? (
+ 125 │ │               <PostCreator userProfile={userProfile} />
+ 126 │ │             ) : currentUserId ? (
+ 127 │ │               <Card>
+ 128 │ │                 <CardContent className="py-6 text-center">
+ 129 │ │                   <p className="text-muted-foreground mb-2">Complete your profile to start posting</p>
+ 130 │ │                   <Button onClick={() => router.push('/profile/setup')}>
+ 131 │ │                     Set Up Profile
+ 132 │ │                   </Button>
+ 133 │ │                 </CardContent>
+ 134 │ │               </Card>
+ 135 │ │             ) : (
+ 136 │ │               <Card>
+ 137 │ │                 <CardContent className="py-6 text-center">
+ 138 │ │                   <p className="text-muted-foreground mb-2">Sign in to create posts and interact with the community</p>
+ 139 │ │                   <Button onClick={() => router.push('/auth/login')}>
+ 140 │ │                     Sign In
+ 141 │ │                   </Button>
+ 142 │ │                 </CardContent>
+ 143 │ │               </Card>
+ 144 │ │             )}
+ 145 │ │   
+ 146 │ │             {/* Posts list */}
+ 147 │ │             {loading ? (
+ 148 │ │               // Loading skeletons
+ 149 │ │               Array(3).fill(0).map((_, index) => (
+ 150 │ │                 <Card key={index} className="mb-4">
+ 151 │ │                   <CardContent className="pt-6">
+ 152 │ │                     <div className="flex items-start gap-3 mb-4">
+ 153 │ │                       <Skeleton className="h-10 w-10 rounded-full" />
+ 154 │ │                       <div className="space-y-2">
+ 155 │ │                         <Skeleton className="h-4 w-[120px]" />
+ 156 │ │                         <Skeleton className="h-3 w-[160px]" />
+ 157 │ │                       </div>
+ 158 │ │                     </div>
+ 159 │ │                     <div className="space-y-2 mb-4">
+ 160 │ │                       <Skeleton className="h-4 w-full" />
+ 161 │ │                       <Skeleton className="h-4 w-full" />
+ 162 │ │                       <Skeleton className="h-4 w-3/4" />
+ 163 │ │                     </div>
+ 164 │ │                     <Skeleton className="h-[200px] w-full rounded-md" />
+ 165 │ │                   </CardContent>
+ 166 │ │                 </Card>
+ 167 │ │               ))
+ 168 │ │             ) : posts.length > 0 ? (
+ 169 │ │               posts.map((post) => (
+ 170 │ │                 <PostItem key={post.id} post={post} currentUser={userProfile} />
+ 171 │ │               ))
+ 172 │ │             ) : (
+ 173 │ │               <Card>
+ 174 │ │                 <CardContent className="py-12 text-center">
+ 175 │ │                   <p className="text-xl font-medium mb-2">No posts yet</p>
+ 176 │ │                   <p className="text-muted-foreground">
+ 177 │ │                     Be the first to share something with the community!
+ 178 │ │                   </p>
+ 179 │ │                 </CardContent>
+ 180 │ │               </Card>
+ 181 │ │             )}
+ 182 │ │           </div>
+ 183 │ │   
+ 184 │ │           {/* Right sidebar */}
+ 185 │ │           <div className="hidden md:block space-y-6">
+ 186 │ │             <Card>
+ 187 │ │               <CardContent className="pt-6">
+ 188 │ │                 <h3 className="font-semibold mb-3">Your Profile</h3>
+ 189 │ │                 {userProfile ? (
+ 190 │ │                   <div className="flex flex-col items-center text-center mb-4">
+ 191 │ │                     <Avatar className="h-16 w-16 mb-3">
+ 192 │ │                       <AvatarImage src={userProfile.avatar_url || ""} alt={userProfile.full_name || "User"} />
+ 193 │ │                       <AvatarFallback>
+ 194 │ │                         <User className="h-8 w-8" />
+ 195 │ │                       </AvatarFallback>
+ 196 │ │                     </Avatar>
+ 197 │ │                     <h4 className="font-medium">{userProfile.full_name}</h4>
+ 198 │ │                     <p className="text-sm text-muted-foreground">{userProfile.headline || "No headline"}</p>
+ 199 │ │   
+ 200 │ │                     <div className="w-full mt-4">
+ 201 │ │                       {userProfile.position && (
+ 202 │ │                         <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
+ 203 │ │                           <Briefcase className="h-3 w-3" />
+ 204 │ │                           <span>{userProfile.position}</span>
+ 205 │ │                         </div>
+ 206 │ │                       )}
+ 207 │ │                       {userProfile.company && (
+ 208 │ │                         <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
+ 209 │ │                           <Briefcase className="h-3 w-3" />
+ 210 │ │                           <span>{userProfile.company}</span>
+ 211 │ │                         </div>
+ 212 │ │                       )}
+ 213 │ │                       {userProfile.location && (
+ 214 │ │                         <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
+ 215 │ │                           <MapPin className="h-3 w-3" />
+ 216 │ │                           <span>{userProfile.location}</span>
+ 217 │ │                         </div>
+ 218 │ │                       )}
+ 219 │ │                     </div>
+ 220 │ │   
+ 221 │ │                     <Button 
+ 222 │ │                       className="w-full mt-3" 
+ 223 │ │                       variant="outline"
+ 224 │ │                       onClick={() => router.push(`/profile/${userProfile.username}`)}
+ 225 │ │                     >
+ 226 │ │                       View Profile
+ 227 │ │                     </Button>
+ 228 │ │                   </div>
+ 229 │ │                 ) : (
+ 230 │ │                   <div className="text-center py-4">
+ 231 │ │                     <p className="text-muted-foreground mb-3">
+ 232 │ │                       Sign in to access your profile and all features
+ 233 │ │                     </p>
+ 234 │ │                     <Button onClick={() => router.push('/auth/login')}>
+ 235 │ │                       Sign In
+ 236 │ │                     </Button>
+ 237 │ │                   </div>
+ 238 │ │                 )}
+ 239 │ │               </CardContent>
+ 240 │ │             </Card>
+ 241 │ │   
+ 242 │ │             <Card>
+ 243 │ │               <CardContent className="pt-6">
+ 244 │ │                 <h3 className="font-semibold mb-3">Upcoming Events</h3>
+ 245 │ │                 <div className="space-y-3">
+ 246 │ │                   <div className="border rounded-md p-3">
+ 247 │ │                     <div className="flex items-center gap-2 mb-1">
+ 248 │ │                       <Clock className="h-4 w-4 text-primary" />
+ 249 │ │                       <span className="text-sm font-medium">Tomorrow, 3:00 PM</span>
+ 250 │ │                     </div>
+ 251 │ │                     <h4 className="font-medium">ESG Reporting Best Practices</h4>
+ 252 │ │                     <p className="text-sm text-muted-foreground">
+ 253 │ │                       Join industry experts for a webinar on ESG reporting standards
+ 254 │ │                     </p>
+ 255 │ │                   </div>
+ 256 │ │   
+ 257 │ │                   <div className="border rounded-md p-3">
+ 258 │ │                     <div className="flex items-center gap-2 mb-1">
+ 259 │ │                       <Clock className="h-4 w-4 text-primary" />
+ 260 │ │                       <span className="text-sm font-medium">May 15, 2:00 PM</span>
+ 261 │ │                     </div>
+ 262 │ │                     <h4 className="font-medium">Workplace Safety Forum</h4>
+ 263 │ │                     <p className="text-sm text-muted-foreground">
+ 264 │ │                       Virtual panel discussion on improving safety culture
+ 265 │ │                     </p>
+ 266 │ │                   </div>
+ 267 │ │   
+ 268 │ │                   <Button variant="link" className="px-0">See all events</Button>
+ 269 │ │                 </div>
+ 270 │ │               </CardContent>
+ 271 │ │             </Card>
+ 272 │ │   
+ 273 │ │             <Card>
+ 274 │ │               <CardContent className="pt-6">
+ 275 │ │                 <h3 className="font-semibold mb-3">Suggested Connections</h3>
+ 276 │ │                 <div className="space-y-4">
+ 277 │ │                   <div className="flex items-center justify-between">
+ 278 │ │                     <div className="flex items-center gap-2">
+ 279 │ │                       <Avatar className="h-8 w-8">
+ 280 │ │                         <AvatarFallback>JP</AvatarFallback>
+ 281 │ │                       </Avatar>
+ 282 │ │                       <div>
+ 283 │ │                         <p className="text-sm font-medium">James Peterson</p>
+ 284 │ │                         <p className="text-xs text-muted-foreground">Safety Director at Construct Co.</p>
+ 285 │ │                       </div>
+ 286 │ │                     </div>
+ 287 │ │                     <Button variant="outline" size="sm">Connect</Button>
+ 288 │ │                   </div>
+ 289 │ │   
+ 290 │ │                   <div className="flex items-center justify-between">
+ 291 │ │                     <div className="flex items-center gap-2">
+ 292 │ │                       <Avatar className="h-8 w-8">
+ 293 │ │                         <AvatarFallback>MJ</AvatarFallback>
+ 294 │ │                       </Avatar>
+ 295 │ │                       <div>
+ 296 │ │                         <p className="text-sm font-medium">Maria Johnson</p>
+ 297 │ │                         <p className="text-xs text-muted-foreground">ESG Analyst at Green Metrics</p>
+ 298 │ │                       </div>
+ 299 │ │                     </div>
+ 300 │ │                     <Button variant="outline" size="sm">Connect</Button>
+ 301 │ │                   </div>
+ 302 │ │   
+ 303 │ │                   <div className="flex items-center justify-between">
+ 304 │ │                     <div className="flex items-center gap-2">
+ 305 │ │                       <Avatar className="h-8 w-8">
+ 306 │ │                         <AvatarFallback>RL</AvatarFallback>
+ 307 │ │                       </Avatar>
+ 308 │ │                       <div>
+ 309 │ │                         <p className="text-sm font-medium">Robert Lee</p>
+ 310 │ │                         <p className="text-xs text-muted-foreground">EHS Manager at Industrial Tech</p>
+ 311 │ │                       </div>
+ 312 │ │                     </div>
+ 313 │ │                     <Button variant="outline" size="sm">Connect</Button>
+ 314 │ │                   </div>
+ 315 │ │   
+ 316 │ │                   <Button variant="link" className="px-0">See more suggestions</Button>
+ 317 │ │                 </div>
+ 318 │ │               </CardContent>
+ 319 │ │             </Card>
+ 320 │ │           </div>
+ 321 │ │         </div>
+ 322 │ │       </div>
+ 323 │ │     )
+ 324 │ ├─▶ }
+     · ╰──── previous exported here
+ 325 │     import { createLegacyClient } from "@/lib/supabase-server"
+ 326 │     import { PostCreator } from "@/components/post-creator"
+ 327 │     import { ProtectedRoute } from "@/components/protected-route"
+ 328 │     import { Metadata } from "next"
+ 329 │     import { LazyFeed } from "./lazy-feed"
+ 330 │     
+ 331 │     export const metadata: Metadata = {
+ 332 │       title: "Feed | Safety Shaper",
+ 333 │       description: "Stay updated with the latest posts from safety professionals.",
+ 334 │     }
+ 335 │     
+ 336 │     export const dynamic = 'force-dynamic'
+ 337 │     
+ 338 │ ╭─▶ export default async function FeedPage() {
+ 339 │ │     const supabase = createLegacyClient()
+ 340 │ │     
+ 341 │ │     // Get current user
+ 342 │ │     const { data: { user } } = await supabase.auth.getUser()
+ 343 │ │     
+ 344 │ │     // Fetch initial batch of posts with profile information
+ 345 │ │     const { data: initialPosts } = await supabase
+ 346 │ │       .from('posts')
+ 347 │ │       .select(`
+ 348 │ │         *,
+ 349 │ │         profile:profiles(id, username, full_name, headline, position, company, avatar_url)
+ 350 │ │       `)
+ 351 │ │       .order('created_at', { ascending: false })
+ 352 │ │       .limit(5)
+ 353 │ │     
+ 354 │ │     return (
+ 355 │ │       <ProtectedRoute>
+ 356 │ │         <div className="container py-6 max-w-3xl">
+ 357 │ │           <div className="mb-6">
+ 358 │ │             <PostCreator currentUser={user || null} />
+ 359 │ │           </div>
+ 360 │ │           
+ 361 │ │           <LazyFeed initialPosts={initialPosts || []} currentUser={user || null} />
+ 362 │ │         </div>
+ 363 │ │       </ProtectedRoute>
+ 364 │ │     )
+ 365 │ ├─▶ }
+     · ╰──── exported more than once
+     ╰────
+
+Error: 
+  ☞ Exported identifiers must be unique
+This error occurred during the build process and can only be dismissed by fixing the error.
+
