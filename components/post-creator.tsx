@@ -12,7 +12,7 @@ import { useToast } from "@/hooks/use-toast"
 import { supabase } from "@/lib/supabase"
 import { useRouter } from "next/navigation"
 
-export function PostCreator({ userProfile }) {
+export function PostCreator({ userProfile = {} }) {
   const [content, setContent] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [attachmentType, setAttachmentType] = useState<"image" | "video" | "document" | null>(null)
@@ -204,12 +204,12 @@ export function PostCreator({ userProfile }) {
       <CardContent className="pt-6">
         <div className="flex items-start gap-4">
           <Avatar className="h-10 w-10">
-            <AvatarImage src={userProfile.avatar_url} alt={userProfile.full_name} />
-            <AvatarFallback>{getInitials(userProfile.full_name)}</AvatarFallback>
+            <AvatarImage src={userProfile?.avatar_url || ''} alt={userProfile?.full_name || 'User'} />
+            <AvatarFallback>{getInitials(userProfile?.full_name || '')}</AvatarFallback>
           </Avatar>
           <div className="flex-1 space-y-4">
             <Textarea
-              placeholder={`What's on your mind, ${userProfile.full_name?.split(' ')[0]}?`}
+              placeholder={`What's on your mind, ${userProfile?.full_name?.split(' ')[0] || 'there'}?`}
               value={content}
               onChange={(e) => setContent(e.target.value)}
               className="min-h-[120px] resize-none"

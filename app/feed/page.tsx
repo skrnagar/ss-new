@@ -32,7 +32,7 @@ export default async function FeedPage() {
     <ProtectedRoute>
       <div className="container py-6 max-w-3xl">
         <div className="mb-6">
-          <PostCreator currentUser={user || null} />
+          <PostCreator userProfile={user?.user_metadata || {}} />
         </div>
 
         <LazyFeed initialPosts={initialPosts || []} currentUser={user || null} />
