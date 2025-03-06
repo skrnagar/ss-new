@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast"
 
 export function ProfileEditor({ profile, onUpdate }: { profile: any, onUpdate: () => void }) {
   const [name, setName] = useState(profile.name || "")
+  const [fullName, setFullName] = useState(profile.full_name || "")
   const [bio, setBio] = useState(profile.bio || "")
   const [position, setPosition] = useState(profile.position || "")
   const [company, setCompany] = useState(profile.company || "")
@@ -26,6 +27,7 @@ export function ProfileEditor({ profile, onUpdate }: { profile: any, onUpdate: (
         .from("profiles")
         .update({
           name,
+          full_name: fullName,
           bio,
           position,
           company,
@@ -56,11 +58,21 @@ export function ProfileEditor({ profile, onUpdate }: { profile: any, onUpdate: (
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label className="block text-sm font-medium mb-1">Name</label>
+        <label className="block text-sm font-medium mb-1">Username</label>
         <Input 
           value={name} 
           onChange={(e) => setName(e.target.value)} 
-          placeholder="Your name"
+          placeholder="Your username"
+          required
+        />
+      </div>
+      
+      <div>
+        <label className="block text-sm font-medium mb-1">Full Name</label>
+        <Input 
+          value={fullName} 
+          onChange={(e) => setFullName(e.target.value)} 
+          placeholder="Your full name"
           required
         />
       </div>
