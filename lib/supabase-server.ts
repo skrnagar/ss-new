@@ -1,6 +1,7 @@
+
 import { cookies } from 'next/headers'
 import { createServerClient } from '@supabase/ssr'
-import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
+import { createServerComponentClient as createAuthHelperClient } from '@supabase/auth-helpers-nextjs'
 import { Database } from '@/types/supabase'
 import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 import { cache } from 'react';
@@ -42,7 +43,7 @@ export function createClient() {
   )
 }
 
-// This function remains unchanged as the changes only affect the legacy client.
+// This function uses the renamed import for the auth helper client
 export function createServerComponentClient() {
-  return createServerComponentClient<Database>({ cookies });
+  return createAuthHelperClient<Database>({ cookies });
 }

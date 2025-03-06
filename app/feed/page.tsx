@@ -1,3 +1,4 @@
+
 import { createLegacyClient } from "@/lib/supabase-server"
 import { PostCreator } from "@/components/post-creator"
 import { ProtectedRoute } from "@/components/protected-route"
