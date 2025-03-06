@@ -6,6 +6,8 @@ import Link from 'next/link'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { Briefcase, MapPin, Calendar, Edit, MessageSquare, UserPlus, User } from "lucide-react"
+import { useState } from 'react';
+
 
 export const revalidate = 3600 // Revalidate the data at most every hour
 
@@ -165,4 +167,28 @@ export default async function ProfilePage({ params }: { params: { username: stri
       </div>
     </div>
   )
+}
+
+
+// Added Profile Setup Page
+export async function ProfileSetupPage(){
+    const [fullName, setFullName] = useState('');
+    const supabase = createLegacyClient();
+    const { data: { session } } = await supabase.auth.getSession();
+
+    const updateProfile = async (e: any) => {
+        e.preventDefault();
+        await supabase.from('profiles').update({full_name: fullName}).eq('id', session?.user.id);
+    }
+
+
+    return (
+        <form onSubmit={updateProfile}>
+            <label>
+                Full Name:
+                <input type="text" value={fullName} onChange={e => setFullName(e.target.value)} />
+            </label>
+            <button type="submit">Update</button>
+        </form>
+    )
 }

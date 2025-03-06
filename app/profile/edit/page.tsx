@@ -1,4 +1,3 @@
-
 "use client"
 
 import * as React from "react"
@@ -16,7 +15,7 @@ import { supabase } from "@/lib/supabase"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 const profileEditSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
+  full_name: z.string().min(2, "Name must be at least 2 characters"),
   username: z.string().min(3, "Username must be at least 3 characters").regex(/^[a-z0-9_-]+$/, "Username can only contain lowercase letters, numbers, underscores, and hyphens"),
   headline: z.string().min(10, "Headline must be at least 10 characters"),
   bio: z.string().min(30, "Bio should be at least 30 characters"),
@@ -35,11 +34,11 @@ export default function ProfileEditPage() {
   const [profile, setProfile] = React.useState<any>(null)
   const [avatarUrl, setAvatarUrl] = React.useState<string | null>(null)
   const fileInputRef = React.useRef<HTMLInputElement>(null)
-  
+
   const form = useForm<z.infer<typeof profileEditSchema>>({
     resolver: zodResolver(profileEditSchema),
     defaultValues: {
-      name: "",
+      full_name: "",
       username: "",
       headline: "",
       bio: "",
@@ -54,23 +53,23 @@ export default function ProfileEditPage() {
   React.useEffect(() => {
     async function getProfileData() {
       setLoading(true)
-      
+
       try {
         const { data: { user } } = await supabase.auth.getUser()
         setUser(user)
-        
+
         if (!user) {
           router.push('/auth/login')
           return
         }
-        
+
         // Get profile data
         const { data: profileData, error } = await supabase
           .from('profiles')
           .select('*')
           .eq('id', user.id)
           .single()
-        
+
         if (error || !profileData) {
           toast({
             title: "Error loading profile",
@@ -80,22 +79,24 @@ export default function ProfileEditPage() {
           router.push('/profile/setup')
           return
         }
-        
+
         setProfile(profileData)
         setAvatarUrl(profileData.avatar_url || user?.user_metadata?.avatar_url || null)
-        
-        // Set form values
-        form.reset({
-          name: profileData.name || user?.user_metadata?.name || "",
-          username: profileData.username || "",
-          headline: profileData.headline || "",
-          bio: profileData.bio || "",
-          company: profileData.company || "",
-          position: profileData.position || "",
-          location: profileData.location || "",
-          phone: profileData.phone || "",
-          website: profileData.website || "",
-        })
+
+        // Populate form with existing data if available
+        if (profile) {
+          form.reset({
+            full_name: profile.full_name || "",
+            username: profile.username || "",
+            headline: profile.headline || "",
+            bio: profile.bio || "",
+            company: profile.company || "",
+            position: profile.position || "",
+            location: profile.location || "",
+            phone: profile.phone || "",
+            website: profile.website || "",
+          })
+        }
       } catch (error) {
         console.error("Error loading profile:", error)
         toast({
@@ -107,22 +108,24 @@ export default function ProfileEditPage() {
         setLoading(false)
       }
     }
-    
+
     getProfileData()
   }, [router, form, toast])
 
   async function onSubmit(values: z.infer<typeof profileEditSchema>) {
     setLoading(true)
-    
+
     try {
-      // Check if username is already taken (if changed)
+      const { full_name, username, headline, bio, company, position, location, phone, website } = values
+
+      // First, check if the username is already taken (if it changed)
       if (values.username !== profile.username) {
         const { data: existingUser, error: usernameCheckError } = await supabase
           .from('profiles')
           .select('username')
           .eq('username', values.username)
           .single()
-        
+
         if (existingUser) {
           form.setError('username', { 
             type: 'manual', 
@@ -132,12 +135,12 @@ export default function ProfileEditPage() {
           return
         }
       }
-      
+
       // Update user profile
       const { error } = await supabase
         .from('profiles')
         .update({
-          name: values.name,
+          full_name: values.full_name,
           username: values.username,
           headline: values.headline,
           bio: values.bio,
@@ -164,7 +167,7 @@ export default function ProfileEditPage() {
         title: "Profile updated successfully",
         description: "Redirecting to your profile...",
       })
-      
+
       setTimeout(() => router.push(`/profile/${values.username}`), 1500)
     } catch (error) {
       toast({
@@ -176,15 +179,15 @@ export default function ProfileEditPage() {
       setLoading(false)
     }
   }
-  
+
   const handleAvatarClick = () => {
     fileInputRef.current?.click()
   }
-  
+
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (!file) return
-    
+
     // Check file size (max 2MB)
     if (file.size > 2 * 1024 * 1024) {
       toast({
@@ -194,10 +197,10 @@ export default function ProfileEditPage() {
       })
       return
     }
-    
+
     try {
       setLoading(true)
-      
+
       // Upload to Supabase Storage
       const fileName = `avatar-${user.id}-${Date.now()}`
       const { data, error } = await supabase.storage
@@ -206,16 +209,16 @@ export default function ProfileEditPage() {
           cacheControl: '3600',
           upsert: true
         })
-      
+
       if (error) throw error
-      
+
       // Get public URL
       const { data: { publicUrl } } = supabase.storage
         .from('avatars')
         .getPublicUrl(fileName)
-      
+
       setAvatarUrl(publicUrl)
-      
+
       toast({
         title: "Avatar uploaded",
         description: "Your profile picture has been updated",
@@ -231,7 +234,7 @@ export default function ProfileEditPage() {
       setLoading(false)
     }
   }
-  
+
   const getInitials = (name: string = "") => {
     return name
       .split(' ')
@@ -264,23 +267,23 @@ export default function ProfileEditPage() {
               Change Photo
             </Button>
           </div>
-          
+
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <FormField
                 control={form.control}
-                name="name"
+                name="full_name"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Full Name</FormLabel>
                     <FormControl>
-                      <Input placeholder="John Doe" {...field} />
+                      <Input placeholder="Your full name" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              
+
               <FormField
                 control={form.control}
                 name="username"
@@ -297,7 +300,7 @@ export default function ProfileEditPage() {
                   </FormItem>
                 )}
               />
-              
+
               <FormField
                 control={form.control}
                 name="headline"
@@ -314,7 +317,7 @@ export default function ProfileEditPage() {
                   </FormItem>
                 )}
               />
-              
+
               <FormField
                 control={form.control}
                 name="bio"
@@ -335,7 +338,7 @@ export default function ProfileEditPage() {
                   </FormItem>
                 )}
               />
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FormField
                   control={form.control}
@@ -350,7 +353,7 @@ export default function ProfileEditPage() {
                     </FormItem>
                   )}
                 />
-                
+
                 <FormField
                   control={form.control}
                   name="position"
@@ -365,7 +368,7 @@ export default function ProfileEditPage() {
                   )}
                 />
               </div>
-              
+
               <FormField
                 control={form.control}
                 name="location"
@@ -379,7 +382,7 @@ export default function ProfileEditPage() {
                   </FormItem>
                 )}
               />
-              
+
               <FormField
                 control={form.control}
                 name="phone"
@@ -393,7 +396,7 @@ export default function ProfileEditPage() {
                   </FormItem>
                 )}
               />
-              
+
               <FormField
                 control={form.control}
                 name="website"
@@ -407,7 +410,7 @@ export default function ProfileEditPage() {
                   </FormItem>
                 )}
               />
-              
+
               <div className="flex gap-2 pt-4">
                 <Button type="submit" disabled={loading}>
                   {loading ? "Saving Changes..." : "Save Changes"}
