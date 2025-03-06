@@ -1,6 +1,6 @@
 "use client"
 
-import { createClientLegacyClient } from '@/lib/supabase-server'
+import { createClient as createClientLegacyClient } from '@/lib/supabase-client' // Changed import path
 import { notFound, redirect } from 'next/navigation'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
@@ -8,38 +8,50 @@ import Link from 'next/link'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { Briefcase, MapPin, Calendar, Edit, MessageSquare, UserPlus, User } from "lucide-react"
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 
 export const revalidate = 3600 // Revalidate the data at most every hour
 
 export default async function ProfilePage({ params }: { params: { username: string } }) {
   const { username } = params
-  const supabase = createClientLegacyClient()
+  const supabase = createClientLegacyClient() // Initialize client-side
 
-  // Get session
-  const { data: { session } } = await supabase.auth.getSession()
+  const [session, setSession] = useState(null);
+  const [profile, setProfile] = useState(null);
+  const [error, setError] = useState(null);
+  const [isOwnProfile, setIsOwnProfile] = useState(false);
+  const [joinDate, setJoinDate] = useState('');
 
-  // Get profile by username
-  const { data: profile, error } = await supabase
-    .from("profiles")
-    .select("*")
-    .eq("username", username)
-    .single()
+  useEffect(() => {
+    const fetchSessionAndProfile = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setSession(session);
 
-  if (error || !profile) {
-    // Profile not found
+      const { data: profileData, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("username", username)
+        .single();
+
+      if (error || !profileData) {
+        setError(error);
+        return;
+      }
+      setProfile(profileData);
+      setIsOwnProfile(session?.user.id === profileData.id);
+      setJoinDate(new Date(profileData.created_at).toLocaleDateString("en-US", { year: "numeric", month: "long" }));
+    }
+    fetchSessionAndProfile();
+  }, [username, supabase]);
+
+  if (error) {
+    // Profile not found or other error
     return notFound()
   }
 
-  // Check if viewing own profile
-  const isOwnProfile = session?.user.id === profile.id
+  if(!profile) return <p>Loading...</p>; //Added loading state
 
-  // Format date for display
-  const joinDate = new Date(profile.created_at).toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "long",
-  })
 
   // Helper function to get initials
   const getInitials = (name: string) => {
