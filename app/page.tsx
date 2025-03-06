@@ -1,4 +1,6 @@
+
 import Link from "next/link"
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Shield, Users, BookOpen, Briefcase, Award, ClipboardCheck, Leaf, BarChart, Heart } from "lucide-react"
@@ -17,10 +19,10 @@ export default async function Home() {
   return (
     <div className="flex flex-col min-h-screen">
       {/* Hero Section */}
-      <section className="relative py-20 md:py-32 overflow-hidden  text-white">
-        <div className="absolute inset-0 w-full h-screen overflow-hidden">
+      <section className="relative bg-[url('/ssbg.mp4')] bg-repeat bg-center bg-cover bg-blue-900 justify-center grid gap-6">
+        <div className="absolute inset-0 w-full h-full overflow-hidden">
           <video 
-            className="absolute inset-0 w-full h-full object-cover opacity-100" 
+            className="absolute inset-0 w-full h-full object-cover opacity-20" 
             autoPlay 
             loop 
             muted 
@@ -29,25 +31,38 @@ export default async function Home() {
             <source src="/ssbg.mp4" type="video/mp4" />
           </video>
         </div>
-        <div className="container relative z-10">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-            <div>
-              <h1 className="text-4xl md:text-5xl font-bold mb-6">Connect with ESG & EHS Professionals Worldwide</h1>
-              <p className="text-lg md:text-xl mb-8 text-white/90">
-                Join the premier network for Environmental, Social, Governance, and Health & Safety professionals to
-                share knowledge, advance your career, and shape a safer future.
-              </p>
-              <div>
-                <AuthButtons />
-              </div>
+        <div className="relative z-10 w-full max-w-[1200px] mx-auto h-screen flex items-start pt-40 justify-between px-8">
+          <div className="text-white pr-0 md:pr-20 max-w-2xl">
+            <h1 className="text-4xl md:text-7xl leading-normal font-bold">
+              Let's Connect with here
+            </h1>
+            <p className="mt-4 mb-10 text-xl md:text-2xl">
+              The world's leading AI-powered ESH Knowledge and Community platform.
+            </p>
+            
+            <div className="flex flex-col w-full md:w-1/2">
+              <AuthButtons className="mt-4 px-4 py-3 bg-white rounded-xl hover:bg-gray-100 hover:border-blue-700" />
+              
+              <Link href="/auth/login">
+                <button type="submit" className="bg-blue-700 mt-6 py-3 text-white px-4 rounded-xl w-full">
+                  Sign in with email
+                </button>
+              </Link>
             </div>
-            {/* <div className="hidden md:block">
-              <img
-                src="/placeholder.svg?height=400&width=500"
-                alt="Safety Shaper Platform"
-                className="rounded-lg shadow-2xl"
-              />
-            </div> */}
+            
+            <div className="mt-20">
+              <p className="text-white opacity-90">Trusted by the world's leading organizations professional</p>
+            </div>
+            
+            <div className="mt-10 flex flex-wrap items-center gap-8 md:gap-12">
+              {/* Placeholder logos - we'll use empty divs with fixed width/height for now */}
+              <div className="w-16 h-12 bg-white/10 rounded"></div>
+              <div className="w-16 h-12 bg-white/10 rounded"></div>
+              <div className="w-16 h-12 bg-white/10 rounded"></div>
+              <div className="w-16 h-12 bg-white/10 rounded"></div>
+              <div className="w-16 h-12 bg-white/10 rounded"></div>
+              <div className="w-16 h-12 bg-white/10 rounded"></div>
+            </div>
           </div>
         </div>
       </section>
