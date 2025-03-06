@@ -1,4 +1,5 @@
 
+// SERVER-SIDE METHODS - Only use in Server Components
 import { cookies } from 'next/headers'
 import { createServerClient } from '@supabase/ssr'
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
@@ -34,23 +35,17 @@ export function createClient() {
   )
 }
 
-// Legacy client using auth-helpers-nextjs
+// Legacy client using auth-helpers-nextjs (SERVER ONLY)
 export function createLegacyClient() {
   return createServerComponentClient<Database>({
     cookies,
   })
 }
 
+// CLIENT-SIDE METHODS - Safe to use in Client Components
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+
 // This is a version that can be used in client components
-// It doesn't use the cookies import from next/headers
 export const createClientLegacyClient = () => {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  
-  if (!supabaseUrl || !supabaseAnonKey) {
-    throw new Error('Supabase URL or key is missing in environment variables')
-  }
-  
-  const { createClientComponentClient } = require('@supabase/auth-helpers-nextjs')
   return createClientComponentClient<Database>()
 }
