@@ -1,11 +1,12 @@
+
 "use client"
 
 import * as React from "react"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
-import { Textarea } from "@/components/ui/textarea" // Added for comments
+import { Textarea } from "@/components/ui/textarea"
 import { ThumbsUp, MessageSquare, Share2, FileText, MoreHorizontal, Clock, Send } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
 import {
@@ -25,28 +26,27 @@ export function PostItem({ post, currentUser }) {
   const [isDeleting, setIsDeleting] = useState(false)
   const [likes, setLikes] = useState([])
   const [comments, setComments] = useState([])
+  const [commentCount, setCommentCount] = useState(post.comment_count || 0)
   const [commentContent, setCommentContent] = useState("")
   const [showComments, setShowComments] = useState(false)
   const [isLiked, setIsLiked] = useState(false)
   const [isSubmittingComment, setIsSubmittingComment] = useState(false)
   const [isLoadingComments, setIsLoadingComments] = useState(false)
+  const [commentsLoaded, setCommentsLoaded] = useState(false)
   const { toast } = useToast()
   const router = useRouter()
 
   const isAuthor = currentUser && post.user_id === currentUser.id
   const MAX_CONTENT_LENGTH = 300
 
+  // Load initial like count and status
   useEffect(() => {
-    // Debug log to check current user status
-    console.log("Current user in post item:", currentUser ? "Logged in" : "Not logged in")
-
-    // Check if current user has liked the post
+    fetchLikes()
+    fetchCommentCount()
+    
     if (currentUser && currentUser.id) {
       checkLikeStatus()
     }
-
-    // Fetch likes count
-    fetchLikes()
   }, [post.id, currentUser?.id])
 
   const getInitials = (name: string) => {
@@ -67,18 +67,33 @@ export function PostItem({ post, currentUser }) {
     }
   }
 
-  const checkLikeStatus = async () => {
+  const fetchCommentCount = async () => {
+    try {
+      const { count, error } = await supabase
+        .from('comments')
+        .select('*', { count: 'exact', head: true })
+        .eq('post_id', post.id)
+      
+      if (error) throw error
+      
+      if (count !== null) {
+        setCommentCount(count)
+      }
+    } catch (error) {
+      console.error("Error fetching comment count:", error)
+    }
+  }
+
+  const checkLikeStatus = useCallback(async () => {
     if (!currentUser) return
 
     try {
-      // Fix the query format by using proper AND logic between conditions
       const { data, error } = await supabase
         .from('likes')
         .select('id')
         .eq('post_id', post.id)
         .eq('user_id', currentUser.id)
         
-      // Check if any likes were found
       if (data && data.length > 0) {
         setIsLiked(true)
       } else {
@@ -87,16 +102,11 @@ export function PostItem({ post, currentUser }) {
 
       if (error) {
         console.error("Error checking like status:", error)
-        toast({
-          title: "Error checking like status",
-          description: error.message,
-          variant: "destructive"
-        })
       }
     } catch (error) {
       console.error("Error checking like status:", error)
     }
-  }
+  }, [currentUser, post.id])
 
   const fetchLikes = async () => {
     try {
@@ -114,21 +124,18 @@ export function PostItem({ post, currentUser }) {
   }
 
   const fetchComments = async () => {
+    if (commentsLoaded) return;
     setIsLoadingComments(true);
 
     try {
-      console.log("Fetching comments for post:", post.id);
-
       // Simplify the query to avoid join issues
       const { data, error } = await supabase
         .from('comments')
         .select('*')
         .eq('post_id', post.id)
-        .order('created_at', { ascending: true });
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
-
-      console.log("Comments fetched:", data?.length || 0);
 
       // If we have comments, fetch the user profiles separately
       if (data && data.length > 0) {
@@ -158,13 +165,9 @@ export function PostItem({ post, currentUser }) {
       }
 
       setComments(data || []);
+      setCommentsLoaded(true);
     } catch (error) {
       console.error("Error fetching comments:", error);
-      toast({
-        title: "Error loading comments",
-        description: "Failed to load comments. Please try again.",
-        variant: "destructive"
-      });
       // Set empty array to prevent undefined errors
       setComments([]);
     } finally {
@@ -183,10 +186,6 @@ export function PostItem({ post, currentUser }) {
     }
 
     try {
-      console.log("Attempting to toggle like for post:", post.id);
-      console.log("Current user ID:", currentUser.id);
-      console.log("Current isLiked status:", isLiked);
-
       if (isLiked) {
         // Optimistically update UI
         setIsLiked(false)
@@ -200,7 +199,6 @@ export function PostItem({ post, currentUser }) {
           .eq('user_id', currentUser.id)
 
         if (error) {
-          console.error("Error removing like:", error);
           // Revert UI if error
           setIsLiked(true)
           setLikes([...likes])
@@ -213,26 +211,18 @@ export function PostItem({ post, currentUser }) {
         setLikes([...likes, newLike])
 
         // Like the post
-        const { error, data } = await supabase
+        const { error } = await supabase
           .from('likes')
           .insert({
             post_id: post.id,
             user_id: currentUser.id
           })
-          .select('id')
 
         if (error) {
           // Revert UI if error
           setIsLiked(false)
           setLikes(likes.filter(like => like.id !== newLike.id))
           throw error
-        }
-
-        // Update the temporary ID with the real one from DB
-        if (data) {
-          setLikes(likes.map(like => 
-            like.id === newLike.id ? { ...like, id: data.id } : like
-          ))
         }
       }
     } catch (error) {
@@ -268,9 +258,6 @@ export function PostItem({ post, currentUser }) {
     setIsSubmittingComment(true);
 
     try {
-      console.log("Attempting to submit comment for post:", post.id);
-      console.log("Current user ID:", currentUser.id);
-
       // Simplified comment insertion with better error handling
       const { data, error } = await supabase
         .from('comments')
@@ -283,7 +270,6 @@ export function PostItem({ post, currentUser }) {
 
       if (error) {
         console.error('Error submitting comment:', error);
-        // Include more detailed error information
         toast({
           title: "Comment submission failed",
           description: error.message || "Could not save your comment. Please try again.",
@@ -291,8 +277,6 @@ export function PostItem({ post, currentUser }) {
         });
         return;
       }
-
-      console.log("Comment inserted successfully:", data);
 
       // Get the user profile for the comment
       const { data: profileData, error: profileError } = await supabase
@@ -307,17 +291,18 @@ export function PostItem({ post, currentUser }) {
 
       // Create new comment object with profile data
       const newComment = {
-        ...data,
+        ...data[0],
         profiles: profileData || {
           username: "User",
           full_name: "User",
-          avatar_url: "/placeholder-user.jpg"
+          avatar_url: null
         }
       };
 
       // Add to beginning of comments array
       setComments(prev => [newComment, ...prev]);
       setCommentContent('');
+      setCommentCount(prev => prev + 1);
 
       toast({
         title: "Success",
@@ -347,6 +332,7 @@ export function PostItem({ post, currentUser }) {
       if (error) throw error
 
       setComments(comments.filter(comment => comment.id !== commentId))
+      setCommentCount(prev => prev - 1);
 
       toast({
         title: "Comment deleted",
@@ -477,7 +463,8 @@ export function PostItem({ post, currentUser }) {
               <img 
                 src={post.image_url} 
                 alt="Post attachment" 
-                className="w-full object-cover max-h-[500px]" 
+                className="w-full object-cover max-h-[500px]"
+                loading="lazy" 
               />
             </div>
           )}
@@ -490,6 +477,7 @@ export function PostItem({ post, currentUser }) {
                 controls 
                 className="w-full" 
                 poster="/placeholder.jpg"
+                preload="none"
               />
             </div>
           )}
@@ -522,22 +510,20 @@ export function PostItem({ post, currentUser }) {
       </CardContent>
 
       <CardFooter className="flex flex-col px-6 py-3">
-        {/* Like, comment counts */}
-        {(likes.length > 0 || comments.length > 0) && (
-          <div className="flex justify-between w-full mb-3 text-sm text-muted-foreground">
-            {likes.length > 0 && (
-              <div className="flex items-center">
-                <ThumbsUp className="h-3 w-3 mr-1" />
-                <span>{likes.length}</span>
-              </div>
-            )}
-            {comments.length > 0 && (
-              <div className="flex items-center">
-                <span>{comments.length} {comments.length === 1 ? "comment" : "comments"}</span>
-              </div>
-            )}
-          </div>
-        )}
+        {/* Like, comment counts - Always visible */}
+        <div className="flex justify-between w-full mb-3 text-sm text-muted-foreground">
+          {likes.length > 0 && (
+            <div className="flex items-center">
+              <ThumbsUp className="h-3 w-3 mr-1" />
+              <span>{likes.length}</span>
+            </div>
+          )}
+          {commentCount > 0 && (
+            <div className="flex items-center ml-auto">
+              <span>{commentCount} {commentCount === 1 ? "comment" : "comments"}</span>
+            </div>
+          )}
+        </div>
 
         {/* Action buttons */}
         <div className="flex justify-between w-full border-t pt-3">
@@ -557,7 +543,7 @@ export function PostItem({ post, currentUser }) {
             onClick={handleToggleComments}
           >
             <MessageSquare className="h-4 w-4 mr-2" />
-            {comments.length > 0 ? `Comments (${comments.length})` : 'Comments'}
+            Comments
           </Button>
           <Button variant="ghost" size="sm" className="text-muted-foreground">
             <Share2 className="h-4 w-4 mr-2" />

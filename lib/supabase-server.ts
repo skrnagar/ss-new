@@ -1,10 +1,18 @@
-
 import { cookies } from 'next/headers'
 import { createServerClient } from '@supabase/ssr'
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
 import { Database } from '@/types/supabase'
+import { createClient } from '@supabase/supabase-js';
+import { cache } from 'react';
 
-// This creates a Supabase client for server-side operations using @supabase/ssr
+// Create a cached version of the client to improve performance
+export const createLegacyClient = cache(() => {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+});
+
 export function createClient() {
   const cookieStore = cookies()
 
@@ -34,9 +42,7 @@ export function createClient() {
   )
 }
 
-// Legacy client using auth-helpers-nextjs
-export function createLegacyClient() {
-  return createServerComponentClient<Database>({
-    cookies,
-  })
+// This function remains unchanged as the changes only affect the legacy client.
+export function createServerComponentClient() {
+  return createServerComponentClient<Database>({ cookies });
 }
