@@ -167,7 +167,7 @@ export default function FeedPage() {
             ))
           ) : posts.length > 0 ? (
             posts.map((post) => (
-              <PostItem key={post.id} post={post} currentUser={user} />
+              <PostItem key={post.id} post={post} currentUser={userProfile} />
             ))
           ) : (
             <Card>
