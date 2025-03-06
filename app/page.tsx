@@ -17,7 +17,7 @@ export default async function Home() {
   return (
     <div className="flex flex-col min-h-screen">
       {/* Hero Section */}
-      <section className="relative py-20 md:py-32 overflow-hidden bg-gradient-to-r from-primary to-primary/80 text-white">
+      <section className="relative py-20 md:py-32 overflow-hidden">
         <div className="absolute inset-0 w-full h-full overflow-hidden">
           <video 
             className="absolute inset-0 w-full h-full object-cover opacity-20" 
@@ -32,8 +32,8 @@ export default async function Home() {
         <div className="container relative z-10">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             <div>
-              <h1 className="text-4xl md:text-5xl font-bold mb-6">Connect with ESG & EHS Professionals Worldwide</h1>
-              <p className="text-lg md:text-xl mb-8 text-white/90">
+              <h1 className="text-4xl md:text-5xl font-bold mb-6 text-black/80">Connect with ESG & EHS Professionals Worldwide</h1>
+              <p className="text-lg md:text-xl mb-8 text-black/70">
                 Join the premier network for Environmental, Social, Governance, and Health & Safety professionals to
                 share knowledge, advance your career, and shape a safer future.
               </p>
@@ -43,7 +43,7 @@ export default async function Home() {
             </div>
             <div className="hidden md:block">
               <img
-                src="/placeholder.svg?height=400&width=500"
+                src="/medium-shot-people-working-together.jpg?height=400&width=500"
                 alt="Safety Shaper Platform"
                 className="rounded-lg shadow-2xl"
               />
