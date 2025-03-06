@@ -1,6 +1,6 @@
 "use client"
 
-import { createLegacyClient } from '@/lib/supabase-server'
+import { createClientLegacyClient } from '@/lib/supabase-server'
 import { notFound, redirect } from 'next/navigation'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
@@ -15,7 +15,7 @@ export const revalidate = 3600 // Revalidate the data at most every hour
 
 export default async function ProfilePage({ params }: { params: { username: string } }) {
   const { username } = params
-  const supabase = createLegacyClient()
+  const supabase = createClientLegacyClient()
 
   // Get session
   const { data: { session } } = await supabase.auth.getSession()
@@ -175,7 +175,7 @@ export default async function ProfilePage({ params }: { params: { username: stri
 // Added Profile Setup Page
 export async function ProfileSetupPage(){
     const [fullName, setFullName] = useState('');
-    const supabase = createLegacyClient();
+    const supabase = createClientLegacyClient();
     const { data: { session } } = await supabase.auth.getSession();
 
     const updateProfile = async (e: any) => {

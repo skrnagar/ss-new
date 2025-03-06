@@ -40,3 +40,17 @@ export function createLegacyClient() {
     cookies,
   })
 }
+
+// This is a version that can be used in client components
+// It doesn't use the cookies import from next/headers
+export const createClientLegacyClient = () => {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  
+  if (!supabaseUrl || !supabaseAnonKey) {
+    throw new Error('Supabase URL or key is missing in environment variables')
+  }
+  
+  const { createClientComponentClient } = require('@supabase/auth-helpers-nextjs')
+  return createClientComponentClient<Database>()
+}
