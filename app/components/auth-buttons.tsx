@@ -8,20 +8,20 @@ export function AuthButtons() {
   const router = useRouter()
 
   return (
-    <div className="flex flex-wrap gap-4">
+    <div className="w-full">
       <Button 
         onClick={() => router.push('/auth/login')} 
         variant="outline" 
-        className="bg-white text-primary hover:bg-white/90"
+        className="bg-white py-6 w-full text-primary hover:bg-white/90"
       >
-        Sign In
+        Sign in with email
       </Button>
-      <Button 
+      {/* <Button 
         onClick={() => router.push('/auth/login?tab=register')} 
         className="bg-secondary hover:bg-secondary/90"
       >
         Join Now
-      </Button>
+      </Button> */}
     </div>
   )
 }

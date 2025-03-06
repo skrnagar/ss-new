@@ -1,4 +1,5 @@
 import Link from "next/link"
+import Image from 'next/image';
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Shield, Users, BookOpen, Briefcase, Award, ClipboardCheck, Leaf, BarChart, Heart } from "lucide-react"
@@ -37,14 +38,16 @@ export default async function Home() {
                 Join the premier network for Environmental, Social, Governance, and Health & Safety professionals to
                 share knowledge, advance your career, and shape a safer future.
               </p>
-              <div className="flex flex-col w-full md:w-1/2">
+              <div className="flex flex-col w-full ">
                 <div className="mt-4 w-full">
-                  <AuthButtons className="w-full px-4 py-3 bg-white rounded-xl hover:bg-gray-100 hover:border-blue-700" />
+                  <AuthButtons className="w-max px-4 py-3 bg-white rounded-xl hover:bg-gray-100 hover:border-blue-700" />
+                  
                 </div>
+                
 
                 <div className="mt-6 flex flex-row space-x-3">
                   <Link href="/auth/google" className="flex-1"> {/* Assuming /auth/google handles Google OAuth */}
-                    <button className="flex items-center justify-center bg-white py-3 px-4 rounded-xl w-full hover:bg-gray-100 transition-colors">
+                    <button className="flex items-center justify-center bg-white py-3 px-4 rounded-lg w-full hover:bg-gray-100 transition-colors">
                       <svg className="mr-2 h-5 w-5" viewBox="0 0 24 24">
                         <path
                           d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -67,7 +70,7 @@ export default async function Home() {
                     </button>
                   </Link>
                   <Link href="/auth/linkedin" className="flex-1"> {/* Assuming /auth/linkedin handles LinkedIn OAuth */}
-                    <button className="flex items-center justify-center bg-[#0077B5] py-3 px-4 rounded-xl w-full text-white hover:bg-[#0077B5]/90 transition-colors">
+                    <button className="flex items-center justify-center bg-[#0077B5] py-3 px-4 rounded-lg w-full text-white hover:bg-[#0077B5]/90 transition-colors">
                       <svg className="mr-2 h-5 w-5 text-white" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.32 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.79M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z"></path>
                       </svg>
@@ -84,6 +87,32 @@ export default async function Home() {
                 className="rounded-lg shadow-2xl"
               />
             </div>
+          </div>
+        </div>
+        <div>
+          <p className='mt-20'>Trusted by the world’s leading organizations professional</p>
+        </div>
+        <div className='mt-10 flex items-center gap-20'>
+          <div>
+            <Image src="/acc.png" alt="" width={80} height={80} className='w-20 grayscale	backdrop-opacity-10' />
+          </div>
+          <div>
+            <Image src="/adiyalogo.png" alt="" width={80} height={80} className='w-16 grayscale	backdrop-opacity-10' />
+          </div>
+          <div>
+            <Image src="/lt.png" alt="" width={80} height={80} className='w-10 grayscale	backdrop-opacity-10' />
+          </div>
+          <div>
+            <Image src="/tatas.svg" alt="" width={80} height={80} className='w-16 grayscale	backdrop-opacity-10' />
+          </div>
+          <div>
+            <Image src="/Siemens-logo.png" alt="" width={80} height={80} className='w-20 grayscale	backdrop-opacity-10' />
+          </div>
+          <div>
+            <Image src="/kpmg.svg" alt="" width={80} height={80} className='w-20' />
+          </div>
+          <div>
+            <Image src="/sap.svg" alt="" width={80} height={80} className='w-20' />
           </div>
         </div>
       </section>
