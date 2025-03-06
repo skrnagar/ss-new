@@ -36,7 +36,7 @@ export default function FeedPage() {
     fetchPosts(0)
   }, [])
 
-  // Intersection observer for infinite scroll
+  // Intersection observer for infinite scroll with improved performance
   const lastPostElementRef = useCallback(node => {
     if (loadingMore) return
     if (observer.current) observer.current.disconnect()
@@ -45,7 +45,10 @@ export default function FeedPage() {
       if (entries[0].isIntersecting && hasMore && !loadingMore) {
         loadMorePosts()
       }
-    }, { threshold: 0.5 })
+    }, { 
+      threshold: 0.1,
+      rootMargin: "100px" // Load earlier before user reaches the bottom
+    })
 
     if (node) observer.current.observe(node)
   }, [loadingMore, hasMore])

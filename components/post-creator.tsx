@@ -12,7 +12,9 @@ import { useToast } from "@/hooks/use-toast"
 import { supabase } from "@/lib/supabase"
 import { useRouter } from "next/navigation"
 
-export function PostCreator({ userProfile }) {
+export function PostCreator({ currentUser }) {
+  // Rename prop to match what's being passed from feed page
+  const userProfile = currentUser;
   const [content, setContent] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [attachmentType, setAttachmentType] = useState<"image" | "video" | "document" | null>(null)

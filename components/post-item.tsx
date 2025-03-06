@@ -30,6 +30,8 @@ export function PostItem({ post, currentUser }) {
   const [isLiked, setIsLiked] = useState(false)
   const [isSubmittingComment, setIsSubmittingComment] = useState(false)
   const [isLoadingComments, setIsLoadingComments] = useState(false)
+  const [likeCount, setLikeCount] = useState(0); // Added state for like count
+  const [commentCount, setCommentCount] = useState(0); // Added state for comment count
   const { toast } = useToast()
   const router = useRouter()
 
@@ -46,7 +48,8 @@ export function PostItem({ post, currentUser }) {
     }
 
     // Fetch likes count
-    fetchLikes()
+    fetchLikesInfo()
+    fetchCommentCount(); // Fetch comment count immediately
   }, [post.id, currentUser?.id])
 
   const getInitials = (name: string) => {
@@ -71,13 +74,12 @@ export function PostItem({ post, currentUser }) {
     if (!currentUser) return
 
     try {
-      // Fix the query format by using proper AND logic between conditions
       const { data, error } = await supabase
         .from('likes')
         .select('id')
         .eq('post_id', post.id)
         .eq('user_id', currentUser.id)
-        
+
       // Check if any likes were found
       if (data && data.length > 0) {
         setIsLiked(true)
@@ -87,29 +89,43 @@ export function PostItem({ post, currentUser }) {
 
       if (error) {
         console.error("Error checking like status:", error)
-        toast({
-          title: "Error checking like status",
-          description: error.message,
-          variant: "destructive"
-        })
       }
     } catch (error) {
       console.error("Error checking like status:", error)
     }
   }
 
-  const fetchLikes = async () => {
+  // Fetch likes count and check user's like status
+  const fetchLikesInfo = async () => {
     try {
-      const { data, error } = await supabase
+      // Get like count
+      const { data: likesData, error: likesError } = await supabase
         .from('likes')
-        .select('*')
+        .select('id', { count: 'exact' })
+        .eq('post_id', post.id)
+
+      if (likesError) throw likesError
+      setLikeCount(likesData?.length || 0)
+
+      // Check if current user has liked the post
+      checkLikeStatus()
+    } catch (error) {
+      console.error("Error fetching likes info:", error)
+    }
+  }
+
+  // Fetch comment count
+  const fetchCommentCount = async () => {
+    try {
+      const { data, error, count } = await supabase
+        .from('comments')
+        .select('id', { count: 'exact' })
         .eq('post_id', post.id)
 
       if (error) throw error
-
-      setLikes(data || [])
+      setCommentCount(count || 0)
     } catch (error) {
-      console.error("Error fetching likes:", error)
+      console.error("Error fetching comment count:", error)
     }
   }
 
@@ -118,7 +134,7 @@ export function PostItem({ post, currentUser }) {
     if (comments.length > 0 && !isLoadingComments) {
       return;
     }
-    
+
     setIsLoadingComments(true);
 
     try {
@@ -193,11 +209,22 @@ export function PostItem({ post, currentUser }) {
       console.log("Current user ID:", currentUser.id);
       console.log("Current isLiked status:", isLiked);
 
-      if (isLiked) {
-        // Optimistically update UI
-        setIsLiked(false)
-        setLikes(likes.filter(like => like.user_id !== currentUser.id))
+      // Optimistically update UI
+      const newIsLiked = !isLiked;
+      setIsLiked(newIsLiked);
+      setLikeCount(prev => newIsLiked ? prev + 1 : prev - 1);
 
+      if (newIsLiked) {
+        // Like the post
+        const { error } = await supabase
+          .from('likes')
+          .insert({
+            post_id: post.id,
+            user_id: currentUser.id
+          })
+
+        if (error) throw error
+      } else {
         // Unlike the post
         const { error } = await supabase
           .from('likes')
@@ -205,48 +232,18 @@ export function PostItem({ post, currentUser }) {
           .eq('post_id', post.id)
           .eq('user_id', currentUser.id)
 
-        if (error) {
-          console.error("Error removing like:", error);
-          // Revert UI if error
-          setIsLiked(true)
-          setLikes([...likes])
-          throw error
-        }
-      } else {
-        // Optimistically update UI
-        setIsLiked(true)
-        const newLike = { id: Date.now().toString(), post_id: post.id, user_id: currentUser.id }
-        setLikes([...likes, newLike])
-
-        // Like the post
-        const { error, data } = await supabase
-          .from('likes')
-          .insert({
-            post_id: post.id,
-            user_id: currentUser.id
-          })
-          .select('id')
-
-        if (error) {
-          // Revert UI if error
-          setIsLiked(false)
-          setLikes(likes.filter(like => like.id !== newLike.id))
-          throw error
-        }
-
-        // Update the temporary ID with the real one from DB
-        if (data) {
-          setLikes(likes.map(like => 
-            like.id === newLike.id ? { ...like, id: data.id } : like
-          ))
-        }
+        if (error) throw error
       }
     } catch (error) {
       console.error("Error toggling like:", error)
+      // Revert optimistic update on error
+      setIsLiked(!newIsLiked);
+      setLikeCount(prev => isLiked ? prev + 1 : prev - 1);
+
       toast({
         title: "Action failed",
-        description: error.message || "Unable to process your like",
-        variant: "destructive"
+        description: "There was an error processing your request",
+        variant: "destructive",
       })
     }
   }
@@ -277,6 +274,9 @@ export function PostItem({ post, currentUser }) {
       console.log("Attempting to submit comment for post:", post.id);
       console.log("Current user ID:", currentUser.id);
 
+      // Optimistically update comment count
+      setCommentCount(prev => prev + 1);
+
       // Simplified comment insertion with better error handling
       const { data, error } = await supabase
         .from('comments')
@@ -289,6 +289,8 @@ export function PostItem({ post, currentUser }) {
 
       if (error) {
         console.error('Error submitting comment:', error);
+        // Revert the optimistic update
+        setCommentCount(prev => prev -1);
         // Include more detailed error information
         toast({
           title: "Comment submission failed",
@@ -313,7 +315,7 @@ export function PostItem({ post, currentUser }) {
 
       // Create new comment object with profile data
       const newComment = {
-        ...data,
+        ...data[0], // Access the first element of the data array
         profiles: profileData || {
           username: "User",
           full_name: "User",
@@ -353,6 +355,7 @@ export function PostItem({ post, currentUser }) {
       if (error) throw error
 
       setComments(comments.filter(comment => comment.id !== commentId))
+      setCommentCount(prev => prev -1); // Update comment count after deletion
 
       toast({
         title: "Comment deleted",
@@ -527,136 +530,120 @@ export function PostItem({ post, currentUser }) {
         </div>
       </CardContent>
 
-      <CardFooter className="flex flex-col px-6 py-3">
-        {/* Like, comment counts - Always visible */}
-        <div className="flex justify-between w-full mb-3 text-sm text-muted-foreground">
-          <div className="flex items-center">
-            {likes.length > 0 ? (
-              <>
-                <ThumbsUp className="h-3 w-3 mr-1 text-primary" />
-                <span>{likes.length} {likes.length === 1 ? "like" : "likes"}</span>
-              </>
-            ) : (
-              <span className="text-muted-foreground/60">Be the first to like this post</span>
-            )}
-          </div>
-          <div className="flex items-center">
-            {comments.length > 0 ? (
-              <span>{comments.length} {comments.length === 1 ? "comment" : "comments"}</span>
-            ) : (
-              <span className="text-muted-foreground/60">No comments yet</span>
-            )}
-          </div>
+      <CardFooter className="flex justify-between w-full mb-3 text-sm text-muted-foreground">
+        <div className="flex items-center">
+          <ThumbsUp className="h-3 w-3 mr-1 text-primary" />
+          <span>{likeCount} {likeCount === 1 ? "like" : "likes"}</span>
         </div>
-
-        {/* Action buttons */}
-        <div className="flex justify-between w-full border-t pt-3">
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            className={`text-muted-foreground ${isLiked ? 'text-primary' : ''}`}
-            onClick={handleLikeToggle}
-          >
-            <ThumbsUp className={`h-4 w-4 mr-2 ${isLiked ? 'fill-primary' : ''}`} />
-            {isLiked ? 'Liked' : 'Like'}
-          </Button>
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            className={`text-muted-foreground ${showComments ? 'bg-muted/50' : ''}`} 
-            onClick={handleToggleComments}
-          >
-            <MessageSquare className="h-4 w-4 mr-2" />
-            Comment
-          </Button>
-          <Button variant="ghost" size="sm" className="text-muted-foreground">
-            <Share2 className="h-4 w-4 mr-2" />
-            Share
-          </Button>
+        <div className="flex items-center">
+          <MessageSquare className="h-3 w-3 mr-1" />
+          <span>{commentCount} {commentCount === 1 ? "comment" : "comments"}</span>
         </div>
+      </CardFooter>
 
-        {/* Comments section */}
-        {showComments && (
-          <div className="w-full mt-4 space-y-4">
-            {/* Comment form */}
-            <form onSubmit={handleCommentSubmit} className="flex items-start gap-2 w-full">
-              <div className="w-full">
-                <div className="flex-1 relative">
-                  <Textarea
-                    placeholder="Write a comment..."
-                    value={commentContent}
-                    onChange={(e) => setCommentContent(e.target.value)}
-                    className="min-h-[60px] pr-10 resize-none w-full"
-                  />
-                  <Button 
-                    type="submit" 
-                    size="icon" 
-                    variant="ghost" 
-                    className="absolute right-2 bottom-2"
-                    disabled={isSubmittingComment || !commentContent.trim()}
-                  >
-                    <Send className="h-4 w-4" />
-                  </Button>
-                </div>
+      <div className="flex justify-between w-full border-t pt-3">
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          className={`text-muted-foreground ${isLiked ? 'text-primary' : ''}`}
+          onClick={handleLikeToggle}
+        >
+          <ThumbsUp className={`h-4 w-4 mr-2 ${isLiked ? 'fill-primary' : ''}`} />
+          {isLiked ? 'Liked' : 'Like'}
+        </Button>
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          className={`text-muted-foreground ${showComments ? 'bg-muted/50' : ''}`} 
+          onClick={handleToggleComments}
+        >
+          <MessageSquare className="h-4 w-4 mr-2" />
+          Comment {commentCount > 0 && `(${commentCount})`}
+        </Button>
+        <Button variant="ghost" size="sm" className="text-muted-foreground">
+          <Share2 className="h-4 w-4 mr-2" />
+          Share
+        </Button>
+      </div>
+
+      {showComments && (
+        <div className="w-full mt-4 space-y-4">
+          <form onSubmit={handleCommentSubmit} className="flex items-start gap-2 w-full">
+            <div className="w-full">
+              <div className="flex-1 relative">
+                <Textarea
+                  placeholder="Write a comment..."
+                  value={commentContent}
+                  onChange={(e) => setCommentContent(e.target.value)}
+                  className="min-h-[60px] pr-10 resize-none w-full"
+                />
+                <Button 
+                  type="submit" 
+                  size="icon" 
+                  variant="ghost" 
+                  className="absolute right-2 bottom-2"
+                  disabled={isSubmittingComment || !commentContent.trim()}
+                >
+                  <Send className="h-4 w-4" />
+                </Button>
               </div>
-            </form>
+            </div>
+          </form>
 
-            {/* Comments list */}
-            {isLoadingComments ? (
-              <div className="text-center py-4">Loading comments...</div>
-            ) : (
-              <>
-                {comments.length === 0 ? (
-                  <div className="text-center py-4 text-muted-foreground">No comments yet</div>
-                ) : (
-                  <div className="space-y-4">
-                    {comments.map((comment) => (
-                      <div key={comment.id || `temp-comment-${Date.now()}-${Math.random()}`} className="flex items-start gap-2">
-                        <Avatar className="h-8 w-8 mt-1">
-                          <AvatarImage src={comment.profiles?.avatar_url} alt={comment.profiles?.full_name} />
-                          <AvatarFallback>{getInitials(comment.profiles?.full_name || "User")}</AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1">
-                          <div className="bg-muted rounded-lg p-3">
-                            <div className="flex justify-between items-start">
-                              <Link href={`/profile/${comment.profiles?.username || '#'}`} className="font-medium text-sm hover:underline">
-                                {comment.profiles?.full_name || "Anonymous User"}
-                              </Link>
-                              {currentUser && comment.user_id === currentUser.id && (
-                                <DropdownMenu>
-                                  <DropdownMenuTrigger asChild>
-                                    <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-                                      <MoreHorizontal className="h-3 w-3" />
-                                    </Button>
-                                  </DropdownMenuTrigger>
-                                  <DropdownMenuContent align="end">
-                                    <DropdownMenuItem>Edit</DropdownMenuItem>
-                                    <DropdownMenuSeparator />
-                                    <DropdownMenuItem 
-                                      className="text-red-600 focus:text-red-600" 
-                                      onClick={() => handleDeleteComment(comment.id)}
-                                    >
-                                      Delete
-                                    </DropdownMenuItem>
-                                  </DropdownMenuContent>
-                                </DropdownMenu>
-                              )}
-                            </div>
-                            <p className="text-sm mt-1">{comment.content}</p>
+          {isLoadingComments ? (
+            <div className="text-center py-4">Loading comments...</div>
+          ) : (
+            <>
+              {comments.length === 0 ? (
+                <div className="text-center py-4 text-muted-foreground">No comments yet</div>
+              ) : (
+                <div className="space-y-4">
+                  {comments.map((comment) => (
+                    <div key={comment.id || `temp-comment-${Date.now()}-${Math.random()}`} className="flex items-start gap-2">
+                      <Avatar className="h-8 w-8 mt-1">
+                        <AvatarImage src={comment.profiles?.avatar_url} alt={comment.profiles?.full_name} />
+                        <AvatarFallback>{getInitials(comment.profiles?.full_name || "User")}</AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1">
+                        <div className="bg-muted rounded-lg p-3">
+                          <div className="flex justify-between items-start">
+                            <Link href={`/profile/${comment.profiles?.username || '#'}`} className="font-medium text-sm hover:underline">
+                              {comment.profiles?.full_name || "Anonymous User"}
+                            </Link>
+                            {currentUser && comment.user_id === currentUser.id && (
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                                    <MoreHorizontal className="h-3 w-3" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                  <DropdownMenuItem>Edit</DropdownMenuItem>
+                                  <DropdownMenuSeparator />
+                                  <DropdownMenuItem 
+                                    className="text-red-600 focus:text-red-600" 
+                                    onClick={() => handleDeleteComment(comment.id)}
+                                  >
+                                    Delete
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            )}
                           </div>
-                          <div className="text-xs text-muted-foreground mt-1 flex items-center">
-                            <span>{formatDate(comment.created_at)}</span>
-                          </div>
+                          <p className="text-sm mt-1">{comment.content}</p>
+                        </div>
+                        <div className="text-xs text-muted-foreground mt-1 flex items-center">
+                          <span>{formatDate(comment.created_at)}</span>
                         </div>
                       </div>
-                    ))}
-                  </div>
-                )}
-              </>
-            )}
-          </div>
-        )}
-      </CardFooter>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      )}
     </Card>
   )
 }
