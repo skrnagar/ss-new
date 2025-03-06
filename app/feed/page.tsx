@@ -13,11 +13,11 @@ import {
   Clock,
 } from "lucide-react"
 import { supabase } from "@/lib/supabase"
-import { useRouter } from "next/navigation"
+import { useRouter } from "next/navigation" 
 import { PostCreator } from "@/components/post-creator"
 import { PostItem } from "@/components/post-item"
 import { Skeleton } from "@/components/ui/skeleton"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar" // Added import
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 export default function FeedPage() {
   const [posts, setPosts] = useState<any[]>([])
