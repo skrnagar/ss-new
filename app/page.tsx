@@ -18,7 +18,17 @@ export default async function Home() {
     <div className="flex flex-col min-h-screen">
       {/* Hero Section */}
       <section className="relative py-20 md:py-32 overflow-hidden bg-gradient-to-r from-primary to-primary/80 text-white">
-        <div className="absolute inset-0 bg-[url('/placeholder.svg?height=800&width=1600')] bg-cover bg-center opacity-10"></div>
+        <div className="absolute inset-0 w-full h-full overflow-hidden">
+          <video 
+            className="absolute inset-0 w-full h-full object-cover opacity-20" 
+            autoPlay 
+            loop 
+            muted 
+            playsInline
+          >
+            <source src="/ssbg.mp4" type="video/mp4" />
+          </video>
+        </div>
         <div className="container relative z-10">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             <div>
