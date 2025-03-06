@@ -17,10 +17,10 @@ export default async function Home() {
   return (
     <div className="flex flex-col min-h-screen">
       {/* Hero Section */}
-      <section className="relative py-20 md:py-32 overflow-hidden bg-gradient-to-r from-primary to-primary/80 text-white">
-        <div className="absolute inset-0 w-full h-full overflow-hidden">
+      <section className="relative py-20 md:py-32 overflow-hidden  text-white">
+        <div className="absolute inset-0 w-full h-screen overflow-hidden">
           <video 
-            className="absolute inset-0 w-full h-full object-cover opacity-20" 
+            className="absolute inset-0 w-full h-full object-cover opacity-100" 
             autoPlay 
             loop 
             muted 
@@ -41,13 +41,13 @@ export default async function Home() {
                 <AuthButtons />
               </div>
             </div>
-            <div className="hidden md:block">
+            {/* <div className="hidden md:block">
               <img
                 src="/placeholder.svg?height=400&width=500"
                 alt="Safety Shaper Platform"
                 className="rounded-lg shadow-2xl"
               />
-            </div>
+            </div> */}
           </div>
         </div>
       </section>

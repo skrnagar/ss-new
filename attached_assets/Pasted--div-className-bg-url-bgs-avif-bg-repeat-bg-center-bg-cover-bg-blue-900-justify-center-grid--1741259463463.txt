@@ -1,0 +1,46 @@
+ <div className="bg-[url('/bgs.avif')] bg-repeat bg-center bg-cover bg-blue-900 justify-center grid gap-6">
+      <div className="w-[1200px] h-screen flex items-top pt-40 justify-between px-8">
+        <div className="text-blue pr-20  ">
+          <h1 className="text-7xl leading-normal	 font-bold">
+            Let’s Connect with here </h1>
+          <p className="mt-4 mb-10 text-2xl">The world’s leading AI-powered ESH Knowledge and Community platform.</p>
+       
+          {/* Google Login */}
+          <GoogleLoginButton className="w-1/2 mt-4 px-4 py-3 bg-white  rounded-xl hover:boder-4 hover:bg-gray-100 hover:border-blue-700" /> {/* Custom class */}
+
+          {/* LinkedIn Login */}
+          <LinkedInLoginButton className="w-1/2 mt-4 px-4 py-3 bg-white rounded-xl hover:boder-4 hover:bg-gray-100 hover:border-blue-700" /> {/* Custom class */}
+          <a href="/login">
+            <button type="submit" className="bg-blue-700 mt-6 py-3 text-white px-4 rounded-xl w-1/2">Sign in with email</button>
+          </a>
+          <div>
+            <p className='mt-20'>Trusted by the world’s leading organizations professional</p>
+          </div>
+          <div className='mt-10 flex items-center gap-20'>
+            <div>
+              <Image src="/acc.png" alt="" width={80} height={80} className='w-20 grayscale	backdrop-opacity-10' />
+            </div>
+            <div>
+              <Image src="/adiyalogo.png" alt="" width={80} height={80} className='w-16 grayscale	backdrop-opacity-10' />
+            </div>
+            <div>
+              <Image src="/lt.png" alt="" width={80} height={80} className='w-10 grayscale	backdrop-opacity-10' />
+            </div>
+            <div>
+              <Image src="/tatas.svg" alt="" width={80} height={80} className='w-16 grayscale	backdrop-opacity-10' />
+            </div>
+            <div>
+              <Image src="/Siemens-logo.png" alt="" width={80} height={80} className='w-20 grayscale	backdrop-opacity-10' />
+            </div>
+            <div>
+              <Image src="/kpmg.svg" alt="" width={80} height={80} className='w-20' />
+            </div>
+            <div>
+              <Image src="/sap.svg" alt="" width={80} height={80} className='w-20' />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
