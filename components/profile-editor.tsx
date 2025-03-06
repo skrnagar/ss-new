@@ -8,7 +8,7 @@ import { supabase } from "@/lib/supabase"
 import { useToast } from "@/hooks/use-toast"
 
 export function ProfileEditor({ profile, onUpdate }: { profile: any, onUpdate: () => void }) {
-  const [name, setName] = useState(profile.name || "")
+  const [name, setName] = useState(profile.full_name || profile.name || "")
   const [bio, setBio] = useState(profile.bio || "")
   const [position, setPosition] = useState(profile.position || "")
   const [company, setCompany] = useState(profile.company || "")
@@ -36,7 +36,7 @@ export function ProfileEditor({ profile, onUpdate }: { profile: any, onUpdate: (
         .from("profiles")
         .upsert({
           id: profile.id,
-          name,
+          full_name: name,
           bio,
           position: position || null,
           company: company || null,
