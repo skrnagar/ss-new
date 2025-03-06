@@ -1,22 +1,27 @@
-// CLIENT-SIDE METHODS - Only for use in Client Components
-
-import { createClient } from '@supabase/supabase-js'
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { Database } from '@/types/supabase'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+// Get environment variables
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing Supabase URL or key in environment variables')
+  console.error('Missing Supabase URL or Anon Key in environment variables')
 }
 
-export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey)
+// Create a singleton Supabase client for client-side usage
+export const supabase = createClientComponentClient<Database>()
 
-// Utility function to check database health (moved here for client-side use)
+// Export a function that provides a fresh client instance when needed
+export const getSupabase = () => createClientComponentClient<Database>()
+
+// Utility function to check database health
 export const checkDatabaseHealth = async () => {
+  const client = createClientComponentClient<Database>()
+
   try {
     // Try to access the profiles table
-    const { data, error } = await supabase
+    const { data, error } = await client
       .from('profiles')
       .select('count(*)', { count: 'exact' })
       .limit(1)
