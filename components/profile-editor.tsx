@@ -7,6 +7,8 @@ import { Textarea } from "@/components/ui/textarea"
 import { supabase } from "@/lib/supabase"
 import { useToast } from "@/hooks/use-toast"
 
+import { DebugProfileUpdate } from "./debug-profile-update"
+
 export function ProfileEditor({ profile, onUpdate }: { profile: any, onUpdate: () => void }) {
   const [name, setName] = useState(profile.name || "")
   const [fullName, setFullName] = useState(profile.full_name || "")
@@ -22,22 +24,35 @@ export function ProfileEditor({ profile, onUpdate }: { profile: any, onUpdate: (
     setLoading(true)
 
     try {
-      const { error, data } = await supabase
+      // Get current session user to ensure we have the latest user ID
+      const { data: sessionData } = await supabase.auth.getSession()
+      const userId = sessionData.session?.user.id
+      
+      if (!userId) {
+        throw new Error("User not authenticated")
+      }
+
+      // Prepare update data - only include non-empty fields
+      const updateData: any = {
+        updated_at: new Date().toISOString()
+      }
+      
+      if (name) updateData.name = name
+      if (fullName) updateData.full_name = fullName
+      if (bio !== undefined) updateData.bio = bio
+      if (position !== undefined) updateData.position = position
+      if (company !== undefined) updateData.company = company
+      if (location !== undefined) updateData.location = location
+
+      // Update using the session user ID rather than profile.id
+      const { data, error } = await supabase
         .from("profiles")
-        .update({
-          name,
-          full_name: fullName,
-          bio,
-          position,
-          company,
-          location,
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", profile.id)
-        .select('*');// Select all columns to ensure proper return
+        .update(updateData)
+        .eq("id", userId)
+        .select()
 
       if (error) {
-        console.error("Error updating profile:", error, data); //Added more detailed logging
+        console.error("Error updating profile:", error, JSON.stringify(updateData));
         throw error;
       }
 
@@ -48,7 +63,7 @@ export function ProfileEditor({ profile, onUpdate }: { profile: any, onUpdate: (
 
       onUpdate()
     } catch (error: any) {
-      console.error("Error updating profile:", error); //Added more detailed logging.
+      console.error("Error updating profile:", error);
       toast({
         title: "Error updating profile",
         description: error.message || "An unexpected error occurred.",
@@ -123,6 +138,8 @@ export function ProfileEditor({ profile, onUpdate }: { profile: any, onUpdate: (
           {loading ? "Saving..." : "Save Changes"}
         </Button>
       </div>
+      
+      <DebugProfileUpdate />
     </form>
   )
 }
