@@ -34,58 +34,24 @@ export function ProfileEditor({ profile, onUpdate }: { profile: any, onUpdate: (
 
       console.log("Updating profile for user:", userId);
 
-      // Prepare update data - only include non-empty fields
-      const updateData: any = { 
-        id: userId, // Include ID in update data to ensure proper matching
-        updated_at: new Date().toISOString()
+      // Call directly to our custom safe_upsert_profile function 
+      // This function was created in lib/create-profile-upsert-function.ts
+      const { data, error } = await supabase.rpc('safe_upsert_profile', {
+        user_id: userId,
+        username_val: name,
+        full_name_val: fullName,
+        bio_val: bio,
+        company_val: company,
+        position_val: position,
+        location_val: location
+      });
+
+      if (error) {
+        console.error("RPC Error:", error);
+        throw error;
       }
 
-      // Only include fields that have actual values (not undefined or empty)
-      if (name) updateData.name = name
-      if (fullName) updateData.full_name = fullName
-      if (bio !== undefined) updateData.bio = bio
-      if (position !== undefined) updateData.position = position
-      if (company !== undefined) updateData.company = company
-      if (location !== undefined) updateData.location = location
-
-      console.log("Update data:", updateData);
-
-      try {
-        console.log("Starting profile update process for user ID:", userId);
-
-        // Use upsert to handle both insert and update cases
-        const result = await supabase
-          .from("profiles")
-          .upsert({
-            id: userId,
-            ...updateData, //spread operator to add all fields from updateData
-          }, { 
-            onConflict: 'id', 
-            ignoreDuplicates: false,
-            returning: 'minimal' // Reduce data transferred
-          });
-
-        // Log the result for debugging
-        console.log("Upsert result status:", result.status);
-        console.log("Upsert error (if any):", result.error);
-
-        if (result.error) {
-          throw result.error;
-        }
-
-        // Fetch the updated profile to confirm changes
-        const { data: updatedProfile } = await supabase
-          .from("profiles")
-          .select("*")
-          .eq("id", userId)
-          .single();
-
-        console.log("Profile after update:", updatedProfile);
-      } catch (dbError) {
-        console.error("Database operation failed:", dbError);
-        throw dbError;
-      }
-
+      console.log("Profile updated successfully:", data);
 
       toast({
         title: "Profile updated",
