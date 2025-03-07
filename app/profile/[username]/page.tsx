@@ -69,7 +69,7 @@ export default async function ProfilePage({ params }: { params: { username: stri
                 <div className="w-full flex gap-2 mt-4">
                   {isOwnProfile ? (
                     <Button className="w-full" asChild>
-                      <a href="/profile/setup">
+                      <a href={`/profile/${profile.username}/edit`}>
                         <Edit className="h-4 w-4 mr-2" />
                         Edit Profile
                       </a>
