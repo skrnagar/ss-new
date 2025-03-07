@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { Briefcase, MapPin, Calendar, Edit, MessageSquare, UserPlus, User } from "lucide-react"
+import { UserActivity } from '@/components/user-activity'
 
 export const revalidate = 3600 // Revalidate the data at most every hour
 
@@ -146,21 +147,10 @@ export default async function ProfilePage({ params }: { params: { username: stri
           </Card>
 
           {/* Activity Section */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Recent Activity</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center py-8">
-                <p className="text-muted-foreground">No recent activity to display</p>
-                {isOwnProfile && (
-                  <Button variant="link" asChild>
-                    <a href="/feed">Share your first post</a>
-                  </Button>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+          <div className="client-only-component" suppressHydrationWarning>
+            {/* @ts-ignore */}
+            <UserActivity userId={profile.id} isOwnProfile={isOwnProfile} />
+          </div>
         </div>
       </div>
     </div>
