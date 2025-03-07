@@ -2,12 +2,12 @@
 "use client"
 
 import React, { useState, useRef } from "react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
+import { Camera, Upload, X } from "lucide-react"
 import { supabase } from "@/lib/supabase"
 import { useToast } from "@/hooks/use-toast"
-import { Loader2, Camera, Upload, X } from "lucide-react"
 
 interface AvatarEditPopupProps {
   isOpen: boolean
@@ -41,64 +41,72 @@ export function AvatarEditPopup({
       .toUpperCase()
       .substring(0, 2)
   }
-
+  
+  const triggerFileSelect = () => {
+    fileInputRef.current?.click()
+  }
+  
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
     
-    // Check file size (max 2MB)
-    if (file.size > 2 * 1024 * 1024) {
+    if (file.size > 5 * 1024 * 1024) {
       toast({
         title: "File too large",
-        description: "Please select an image under 2MB",
+        description: "Please select an image under 5MB",
+        variant: "destructive",
+      })
+      return
+    }
+    
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: "Invalid file type",
+        description: "Please select an image file",
         variant: "destructive",
       })
       return
     }
     
     setTempImageFile(file)
-    
-    // Create a preview
-    const reader = new FileReader()
-    reader.onload = (e) => {
-      setSelectedImage(e.target?.result as string)
-    }
-    reader.readAsDataURL(file)
+    const imageUrl = URL.createObjectURL(file)
+    setSelectedImage(imageUrl)
   }
   
-  const triggerFileSelect = () => {
-    fileInputRef.current?.click()
-  }
-  
-  const handleCancel = () => {
+  const removeImage = () => {
     setSelectedImage(null)
     setTempImageFile(null)
-    setIsOpen(false)
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''
+    }
   }
   
-  const handleSave = async () => {
+  const uploadAvatar = async () => {
     if (!tempImageFile) return
     
+    setIsUploading(true)
+    
     try {
-      setIsUploading(true)
+      // Create a unique file name
+      const fileExt = tempImageFile.name.split('.').pop()
+      const fileName = `${userId}_${Math.random().toString(36).substring(2, 15)}.${fileExt}`
+      const filePath = `avatars/${fileName}`
       
-      // Upload to Supabase Storage
-      const fileName = `avatar-${userId}-${Date.now()}`
-      const { data, error } = await supabase.storage
-        .from('avatars')
-        .upload(fileName, tempImageFile, {
-          cacheControl: '3600',
-          upsert: true
-        })
-      
-      if (error) throw error
+      // Upload to storage
+      const { error: uploadError } = await supabase
+        .storage
+        .from('profiles')
+        .upload(filePath, tempImageFile)
+        
+      if (uploadError) throw uploadError
       
       // Get public URL
-      const { data: { publicUrl } } = supabase.storage
-        .from('avatars')
-        .getPublicUrl(fileName)
+      const { data: { publicUrl } } = supabase
+        .storage
+        .from('profiles')
+        .getPublicUrl(filePath)
       
-      // Update the avatar URL in the profile
+      // Update avatar URL in profiles table
       const { error: updateError } = await supabase
         .from('profiles')
         .update({ avatar_url: publicUrl })
@@ -114,21 +122,54 @@ export function AvatarEditPopup({
         description: "Your profile picture has been updated successfully",
       })
       
-      handleCancel()
+      // Close the popup
+      setIsOpen(false)
     } catch (error: any) {
       toast({
-        title: "Failed to update avatar",
+        title: "Error uploading avatar",
+        description: error.message,
+        variant: "destructive",
+      })
+    } finally {
+      setIsUploading(false)
+      setSelectedImage(null)
+      setTempImageFile(null)
+    }
+  }
+  
+  const removeAvatar = async () => {
+    if (!currentAvatarUrl) return
+    
+    setIsUploading(true)
+    
+    try {
+      // Update profile to remove avatar URL
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ avatar_url: null })
+        .eq('id', userId)
+        
+      if (updateError) throw updateError
+      
+      // Call the callback with empty URL
+      onAvatarChange('')
+      
+      toast({
+        title: "Avatar removed",
+        description: "Your profile picture has been removed",
+      })
+      
+      // Close the popup
+      setIsOpen(false)
+    } catch (error: any) {
+      toast({
+        title: "Error removing avatar",
         description: error.message,
         variant: "destructive",
       })
     } finally {
       setIsUploading(false)
     }
-  }
-  
-  const removeImage = () => {
-    setSelectedImage(null)
-    setTempImageFile(null)
   }
 
   return (
@@ -177,35 +218,42 @@ export function AvatarEditPopup({
               className="flex items-center gap-2"
             >
               <Upload size={16} />
-              Upload photo
+              {selectedImage ? "Change Image" : "Upload Image"}
             </Button>
             
-            <Button 
-              variant="outline" 
-              onClick={triggerFileSelect} 
-              disabled={isUploading}
-              type="button"
-              className="flex items-center gap-2"
-            >
-              <Camera size={16} />
-              Take photo
-            </Button>
+            {currentAvatarUrl && !selectedImage && (
+              <Button 
+                variant="destructive" 
+                onClick={removeAvatar}
+                disabled={isUploading}
+                type="button"
+                className="flex items-center gap-2"
+              >
+                <X size={16} />
+                Remove
+              </Button>
+            )}
           </div>
         </div>
         
-        <div className="flex justify-end space-x-2 mt-4">
-          <Button variant="outline" onClick={handleCancel} disabled={isUploading}>
+        <DialogFooter>
+          <Button 
+            variant="ghost" 
+            onClick={() => setIsOpen(false)}
+            disabled={isUploading}
+          >
             Cancel
           </Button>
-          <Button 
-            onClick={handleSave} 
-            disabled={!selectedImage || isUploading}
-            className="flex items-center gap-2"
-          >
-            {isUploading && <Loader2 className="h-4 w-4 animate-spin" />}
-            {isUploading ? "Uploading..." : "Save"}
-          </Button>
-        </div>
+          {selectedImage && (
+            <Button 
+              onClick={uploadAvatar}
+              disabled={isUploading}
+              className="flex items-center gap-2"
+            >
+              {isUploading ? "Uploading..." : "Save"}
+            </Button>
+          )}
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   )
