@@ -34,7 +34,7 @@ export function ProfileEditor({ profile, onUpdate }: { profile: any, onUpdate: (
           updated_at: new Date().toISOString(),
         })
         .eq("id", profile.id)
-        .select();// Added select to retrieve updated data
+        .select('*');// Select all columns to ensure proper return
 
       if (error) {
         console.error("Error updating profile:", error, data); //Added more detailed logging

@@ -17,3 +17,8 @@ ON profiles FOR INSERT WITH CHECK (auth.uid() = id);
 
 CREATE POLICY "Users can update own profile" 
 ON profiles FOR UPDATE USING (auth.uid() = id);
+
+-- Grant necessary permissions to authenticated users
+GRANT SELECT ON profiles TO authenticated;
+GRANT INSERT ON profiles TO authenticated;
+GRANT UPDATE ON profiles TO authenticated;
