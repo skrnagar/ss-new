@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -48,11 +49,6 @@ export default function LoginPage() {
       password: "",
     },
   })
-
-  const redirectToFeed = () => {
-    router.push("/feed");
-  };
-
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setLoading(true)
@@ -115,10 +111,14 @@ export default function LoginPage() {
 
       toast({
         title: "Registration successful",
-        description: "You can now log in with your credentials",
+        description: "Please check your email to verify your account.",
       })
 
-      redirectToFeed();
+      // If email verification is not required, redirect to profile setup
+      if (!data.session) return
+
+      // Redirect to profile setup immediately using router
+      router.replace("/profile/setup")
     } catch (error) {
       toast({
         title: "An error occurred",

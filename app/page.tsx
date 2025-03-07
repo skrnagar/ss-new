@@ -47,7 +47,7 @@ export default async function Home() {
                 
 
                 <div className="mt-6">
-                  {/* Social auth buttons */}
+                  {/* Import the client component with the auth buttons */}
                   <HeroAuthButtons />
                 </div>
               </div>
