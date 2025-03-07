@@ -1,27 +1,40 @@
 
--- Completely reset profiles RLS
-ALTER TABLE profiles DISABLE ROW LEVEL SECURITY;
+-- Enable Row Level Security for profiles table if not already enabled
 ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 
--- Drop ALL existing policies on profiles to start clean
+-- Drop existing policies to avoid conflicts
 DROP POLICY IF EXISTS "Public profiles are viewable by everyone" ON profiles;
 DROP POLICY IF EXISTS "Users can insert their own profile" ON profiles;
 DROP POLICY IF EXISTS "Users can update own profile" ON profiles;
-DROP POLICY IF EXISTS "Users can update their own profile" ON profiles;
 
--- Simple policy setup
-CREATE POLICY "Everyone can view profiles" 
+-- Create new policies with proper security
+-- Everyone can view profiles
+CREATE POLICY "Public profiles are viewable by everyone" 
 ON profiles FOR SELECT 
 USING (true);
 
-CREATE POLICY "Users can insert profiles" 
+-- Users can insert their own profile
+CREATE POLICY "Users can insert their own profile" 
 ON profiles FOR INSERT 
 WITH CHECK (auth.uid() = id);
 
-CREATE POLICY "Users can update their profiles" 
+-- Users can update their own profile
+CREATE POLICY "Users can update own profile" 
 ON profiles FOR UPDATE 
 USING (auth.uid() = id);
 
--- Additional grants
-GRANT ALL ON profiles TO authenticated;
-GRANT ALL ON profiles TO service_role;
+-- Make sure the "updated_at" trigger exists
+DROP TRIGGER IF EXISTS update_profiles_updated_at ON profiles;
+CREATE TRIGGER update_profiles_updated_at
+BEFORE UPDATE ON profiles
+FOR EACH ROW
+EXECUTE FUNCTION update_timestamp();
+
+-- Create the function if it doesn't exist
+CREATE OR REPLACE FUNCTION update_timestamp()
+RETURNS TRIGGER AS $$
+BEGIN
+   NEW.updated_at = now();
+   RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;

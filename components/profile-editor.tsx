@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState } from "react"
@@ -32,28 +33,69 @@ export function ProfileEditor({ profile, onUpdate }: { profile: any, onUpdate: (
         throw new Error("User not authenticated")
       }
 
+      console.log("Updating profile for user:", userId);
+
       // Prepare update data - only include non-empty fields
-      const updateData: any = {
+      const updateData: any = { 
         updated_at: new Date().toISOString()
       }
       
+      // Only include fields that have actual values (not undefined or empty)
       if (name) updateData.name = name
       if (fullName) updateData.full_name = fullName
-      if (bio !== undefined) updateData.bio = bio
-      if (position !== undefined) updateData.position = position
-      if (company !== undefined) updateData.company = company
-      if (location !== undefined) updateData.location = location
+      updateData.bio = bio || null // Allow empty bio as null
+      updateData.position = position || null
+      updateData.company = company || null
+      updateData.location = location || null
 
-      // Update using the session user ID rather than profile.id
-      const { data, error } = await supabase
+      console.log("Update data:", updateData);
+
+      // First check if profile exists
+      const { data: existingProfile, error: profileError } = await supabase
         .from("profiles")
-        .update(updateData)
+        .select("id")
         .eq("id", userId)
-        .select()
+        .single();
 
-      if (error) {
-        console.error("Error updating profile:", error, JSON.stringify(updateData));
-        throw error;
+      if (profileError && profileError.code !== 'PGRST116') {
+        console.error("Error checking profile:", profileError);
+        throw profileError;
+      }
+
+      let result;
+      
+      if (!existingProfile) {
+        // Profile doesn't exist, insert instead
+        console.log("Profile doesn't exist, inserting new profile");
+        const insertData = {
+          id: userId,
+          name,
+          full_name: fullName,
+          bio: bio || null,
+          position: position || null,
+          company: company || null,
+          location: location || null,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        };
+        
+        result = await supabase
+          .from("profiles")
+          .insert(insertData)
+          .select();
+      } else {
+        // Update existing profile
+        console.log("Updating existing profile");
+        result = await supabase
+          .from("profiles")
+          .update(updateData)
+          .eq("id", userId)
+          .select();
+      }
+
+      if (result.error) {
+        console.error("Error updating profile:", result.error, JSON.stringify(updateData));
+        throw result.error;
       }
 
       toast({
@@ -99,7 +141,7 @@ export function ProfileEditor({ profile, onUpdate }: { profile: any, onUpdate: (
       <div>
         <label className="block text-sm font-medium mb-1">Bio</label>
         <Textarea 
-          value={bio} 
+          value={bio || ""} 
           onChange={(e) => setBio(e.target.value)} 
           placeholder="Tell others about yourself"
           rows={4}
@@ -109,7 +151,7 @@ export function ProfileEditor({ profile, onUpdate }: { profile: any, onUpdate: (
       <div>
         <label className="block text-sm font-medium mb-1">Position</label>
         <Input 
-          value={position} 
+          value={position || ""} 
           onChange={(e) => setPosition(e.target.value)} 
           placeholder="Your job position"
         />
@@ -118,7 +160,7 @@ export function ProfileEditor({ profile, onUpdate }: { profile: any, onUpdate: (
       <div>
         <label className="block text-sm font-medium mb-1">Company</label>
         <Input 
-          value={company} 
+          value={company || ""} 
           onChange={(e) => setCompany(e.target.value)} 
           placeholder="Your company"
         />
@@ -127,7 +169,7 @@ export function ProfileEditor({ profile, onUpdate }: { profile: any, onUpdate: (
       <div>
         <label className="block text-sm font-medium mb-1">Location</label>
         <Input 
-          value={location} 
+          value={location || ""} 
           onChange={(e) => setLocation(e.target.value)} 
           placeholder="Your location"
         />
