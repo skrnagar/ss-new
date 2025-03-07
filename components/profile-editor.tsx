@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState } from "react"
@@ -28,7 +27,7 @@ export function ProfileEditor({ profile, onUpdate }: { profile: any, onUpdate: (
       // Get current session user to ensure we have the latest user ID
       const { data: sessionData } = await supabase.auth.getSession()
       const userId = sessionData.session?.user.id
-      
+
       if (!userId) {
         throw new Error("User not authenticated")
       }
@@ -40,71 +39,37 @@ export function ProfileEditor({ profile, onUpdate }: { profile: any, onUpdate: (
         id: userId, // Include ID in update data to ensure proper matching
         updated_at: new Date().toISOString()
       }
-      
+
       // Only include fields that have actual values (not undefined or empty)
       if (name) updateData.name = name
       if (fullName) updateData.full_name = fullName
-      updateData.bio = bio || null // Allow empty bio as null
-      updateData.position = position || null
-      updateData.company = company || null
-      updateData.location = location || null
+      if (bio !== undefined) updateData.bio = bio
+      if (position !== undefined) updateData.position = position
+      if (company !== undefined) updateData.company = company
+      if (location !== undefined) updateData.location = location
 
       console.log("Update data:", updateData);
 
       try {
         console.log("Starting profile update process for user ID:", userId);
-        
-        // Simpler approach: Use upsert instead of checking for existence
-        const upsertData = {
-          id: userId,
-          name: name || "",
-          full_name: fullName || "",
-          bio: bio || null,
-          position: position || null,
-          company: company || null,
-          location: location || null,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        };
-        
-        console.log("Upserting profile with data:", upsertData);
-        
+
         // Use upsert to handle both insert and update cases
         const result = await supabase
           .from("profiles")
-          .upsert(upsertData, { 
+          .upsert({
+            id: userId,
+            ...updateData, //spread operator to add all fields from updateData
+          }, { 
             onConflict: 'id', 
             ignoreDuplicates: false,
             returning: 'minimal' // Reduce data transferred
           });
-        
+
         // Log the result for debugging
         console.log("Upsert result status:", result.status);
         console.log("Upsert error (if any):", result.error);
-        
-        if (result.error) {
-          // Attempt a direct update as fallback
-          console.log("Upsert failed, trying direct update...");
-          const updateResult = await supabase
-            .from("profiles")
-            .update(updateData)
-            .eq('id', userId);
-            
-          if (updateResult.error) {
-            throw updateResult.error;
-          }
-          
-          console.log("Direct update succeeded");
-        }
 
-        // Check for errors with more detailed logging
         if (result.error) {
-          console.error("Supabase error details:", {
-            code: result.error.code,
-            message: result.error.message,
-            details: result.error.details,
-            hint: result.error.hint
-          });
           throw result.error;
         }
 
@@ -114,32 +79,13 @@ export function ProfileEditor({ profile, onUpdate }: { profile: any, onUpdate: (
           .select("*")
           .eq("id", userId)
           .single();
-          
+
         console.log("Profile after update:", updatedProfile);
       } catch (dbError) {
         console.error("Database operation failed:", dbError);
         throw dbError;
       }
 
-      if (result.error) {
-        console.error("Error updating profile:", result.error);
-        console.error("Update data sent:", JSON.stringify(updateData));
-        console.error("Error details:", {
-          code: result.error.code,
-          message: result.error.message,
-          details: result.error.details,
-          hint: result.error.hint,
-          status: result.error.status
-        });
-        
-        // Try to get more details about the request
-        const { error: metadataError } = await supabase.from('profiles').select('id').single();
-        if (metadataError) {
-          console.error("Additional metadata error:", metadataError);
-        }
-        
-        throw result.error;
-      }
 
       toast({
         title: "Profile updated",
@@ -223,7 +169,7 @@ export function ProfileEditor({ profile, onUpdate }: { profile: any, onUpdate: (
           {loading ? "Saving..." : "Save Changes"}
         </Button>
       </div>
-      
+
       <DebugProfileUpdate />
     </form>
   )
