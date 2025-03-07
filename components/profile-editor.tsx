@@ -37,6 +37,7 @@ export function ProfileEditor({ profile, onUpdate }: { profile: any, onUpdate: (
 
       // Prepare update data - only include non-empty fields
       const updateData: any = { 
+        id: userId, // Include ID in update data to ensure proper matching
         updated_at: new Date().toISOString()
       }
       
@@ -89,7 +90,7 @@ export function ProfileEditor({ profile, onUpdate }: { profile: any, onUpdate: (
           result = await supabase
             .from("profiles")
             .update(updateData)
-            .eq("id", userId);
+            .match({ id: userId }); // Use match instead of eq for more reliable filtering
         }
 
         // Check for errors with more detailed logging
