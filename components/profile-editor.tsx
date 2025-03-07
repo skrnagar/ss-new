@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { supabase } from "@/lib/supabase"
 import { useToast } from "@/hooks/use-toast"
+import { ProfileAvatarEditor } from "@/components/profile-avatar-editor"
 
 export function ProfileEditor({ profile, onUpdate }: { profile: any, onUpdate: () => void }) {
   const [name, setName] = useState(profile.name || "")
@@ -15,6 +16,7 @@ export function ProfileEditor({ profile, onUpdate }: { profile: any, onUpdate: (
   const [position, setPosition] = useState(profile.position || "")
   const [company, setCompany] = useState(profile.company || "")
   const [location, setLocation] = useState(profile.location || "")
+  const [avatarUrl, setAvatarUrl] = useState(profile.avatar_url || null)
   const [loading, setLoading] = useState(false)
   const { toast } = useToast()
 
@@ -32,6 +34,7 @@ export function ProfileEditor({ profile, onUpdate }: { profile: any, onUpdate: (
           position,
           company,
           location,
+          avatar_url: avatarUrl,
           updated_at: new Date().toISOString(),
         })
         .eq("id", profile.id)
@@ -54,9 +57,22 @@ export function ProfileEditor({ profile, onUpdate }: { profile: any, onUpdate: (
       setLoading(false)
     }
   }
+  
+  const handleAvatarChange = (url: string) => {
+    setAvatarUrl(url)
+  }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="flex flex-col items-center mb-6">
+        <ProfileAvatarEditor
+          avatarUrl={avatarUrl}
+          userId={profile.id}
+          userName={fullName || name}
+          onAvatarChange={handleAvatarChange}
+          size="lg"
+        />
+      </div>
       <div>
         <label className="block text-sm font-medium mb-1">Username</label>
         <Input 
