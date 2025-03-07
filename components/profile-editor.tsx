@@ -52,16 +52,34 @@ export function ProfileEditor({ profile, onUpdate }: { profile: any, onUpdate: (
       console.log("Update data:", updateData);
 
       try {
+        console.log("Starting profile update process");
+        
         // First check if profile exists
+        console.log("Checking if profile exists for user ID:", userId);
         const { data: existingProfile, error: profileError } = await supabase
           .from("profiles")
           .select("id")
           .eq("id", userId)
           .single();
 
-        if (profileError && profileError.code !== 'PGRST116') {
+        if (profileError) {
           console.error("Error checking profile:", profileError);
-          throw profileError;
+          
+          if (profileError.code !== 'PGRST116') {
+            // Log more details about the error
+            console.error("Profile error details:", {
+              code: profileError.code,
+              message: profileError.message,
+              details: profileError.details,
+              hint: profileError.hint,
+              status: profileError.status
+            });
+            throw profileError;
+          } else {
+            console.log("Profile not found, will create a new one");
+          }
+        } else {
+          console.log("Existing profile found:", existingProfile);
         }
 
         let result;
@@ -85,12 +103,22 @@ export function ProfileEditor({ profile, onUpdate }: { profile: any, onUpdate: (
             .from("profiles")
             .insert(insertData);
         } else {
-          // Update existing profile
-          console.log("Updating existing profile with ID:", userId);
+          // Try using upsert instead of update to handle both insert and update cases
+          console.log("Using upsert for profile with ID:", userId);
           result = await supabase
             .from("profiles")
-            .update(updateData)
-            .match({ id: userId }); // Use match instead of eq for more reliable filtering
+            .upsert(updateData, { 
+              onConflict: 'id',
+              ignoreDuplicates: false 
+            });
+            
+          // Log the result
+          console.log("Upsert result:", {
+            data: result.data,
+            status: result.status,
+            statusText: result.statusText,
+            count: result.count
+          });
         }
 
         // Check for errors with more detailed logging
@@ -118,7 +146,22 @@ export function ProfileEditor({ profile, onUpdate }: { profile: any, onUpdate: (
       }
 
       if (result.error) {
-        console.error("Error updating profile:", result.error, JSON.stringify(updateData));
+        console.error("Error updating profile:", result.error);
+        console.error("Update data sent:", JSON.stringify(updateData));
+        console.error("Error details:", {
+          code: result.error.code,
+          message: result.error.message,
+          details: result.error.details,
+          hint: result.error.hint,
+          status: result.error.status
+        });
+        
+        // Try to get more details about the request
+        const { error: metadataError } = await supabase.from('profiles').select('id').single();
+        if (metadataError) {
+          console.error("Additional metadata error:", metadataError);
+        }
+        
         throw result.error;
       }
 
