@@ -6,6 +6,7 @@ ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Public profiles are viewable by everyone" ON profiles;
 DROP POLICY IF EXISTS "Users can insert their own profile" ON profiles;
 DROP POLICY IF EXISTS "Users can update own profile" ON profiles;
+DROP POLICY IF EXISTS "Users can update their own profile" ON profiles;
 
 -- Create new policies with proper security - only if they don't exist
 DO $$
@@ -34,14 +35,7 @@ BEGIN
 END;
 $$;
 
--- Make sure the "updated_at" trigger exists
-DROP TRIGGER IF EXISTS update_profiles_updated_at ON profiles;
-CREATE OR REPLACE TRIGGER update_profiles_updated_at
-BEFORE UPDATE ON profiles
-FOR EACH ROW
-EXECUTE FUNCTION update_timestamp();
-
--- Create the function if it doesn't exist
+-- Create the update_timestamp function if it doesn't exist
 CREATE OR REPLACE FUNCTION update_timestamp()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -49,3 +43,10 @@ BEGIN
    RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
+
+-- Make sure the "updated_at" trigger exists
+DROP TRIGGER IF EXISTS update_profiles_updated_at ON profiles;
+CREATE OR REPLACE TRIGGER update_profiles_updated_at
+BEFORE UPDATE ON profiles
+FOR EACH ROW
+EXECUTE FUNCTION update_timestamp();
