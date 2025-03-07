@@ -103,21 +103,22 @@ export function ProfileEditor({ profile, onUpdate }: { profile: any, onUpdate: (
             .from("profiles")
             .insert(insertData);
         } else {
-          // Try using upsert instead of update to handle both insert and update cases
-          console.log("Using upsert for profile with ID:", userId);
+          // Try using a different approach - direct update with where clause
+          console.log("Updating profile with direct approach for ID:", userId);
           result = await supabase
             .from("profiles")
-            .upsert(updateData, { 
-              onConflict: 'id',
-              ignoreDuplicates: false 
-            });
+            .update(updateData)
+            .eq('id', userId);
             
-          // Log the result
-          console.log("Upsert result:", {
-            data: result.data,
-            status: result.status,
-            statusText: result.statusText,
-            count: result.count
+          // Log the complete response
+          console.log("Update result:", result);
+          console.log("Update status:", result.status, result.statusText);
+          
+          // Also try to debug the request URL that's being used
+          console.log("Request info:", {
+            table: "profiles",
+            method: "UPDATE",
+            filter: `id=${userId}`
           });
         }
 
