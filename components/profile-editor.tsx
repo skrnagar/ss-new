@@ -52,74 +52,49 @@ export function ProfileEditor({ profile, onUpdate }: { profile: any, onUpdate: (
       console.log("Update data:", updateData);
 
       try {
-        console.log("Starting profile update process");
+        console.log("Starting profile update process for user ID:", userId);
         
-        // First check if profile exists
-        console.log("Checking if profile exists for user ID:", userId);
-        const { data: existingProfile, error: profileError } = await supabase
+        // Simpler approach: Use upsert instead of checking for existence
+        const upsertData = {
+          id: userId,
+          name: name || "",
+          full_name: fullName || "",
+          bio: bio || null,
+          position: position || null,
+          company: company || null,
+          location: location || null,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        };
+        
+        console.log("Upserting profile with data:", upsertData);
+        
+        // Use upsert to handle both insert and update cases
+        const result = await supabase
           .from("profiles")
-          .select("id")
-          .eq("id", userId)
-          .single();
-
-        if (profileError) {
-          console.error("Error checking profile:", profileError);
-          
-          if (profileError.code !== 'PGRST116') {
-            // Log more details about the error
-            console.error("Profile error details:", {
-              code: profileError.code,
-              message: profileError.message,
-              details: profileError.details,
-              hint: profileError.hint,
-              status: profileError.status
-            });
-            throw profileError;
-          } else {
-            console.log("Profile not found, will create a new one");
-          }
-        } else {
-          console.log("Existing profile found:", existingProfile);
-        }
-
-        let result;
+          .upsert(upsertData, { 
+            onConflict: 'id', 
+            ignoreDuplicates: false,
+            returning: 'minimal' // Reduce data transferred
+          });
         
-        if (!existingProfile) {
-          // Profile doesn't exist, insert instead
-          console.log("Profile doesn't exist, inserting new profile");
-          const insertData = {
-            id: userId,
-            name,
-            full_name: fullName,
-            bio: bio || null,
-            position: position || null,
-            company: company || null,
-            location: location || null,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          };
-          
-          result = await supabase
-            .from("profiles")
-            .insert(insertData);
-        } else {
-          // Try using a different approach - direct update with where clause
-          console.log("Updating profile with direct approach for ID:", userId);
-          result = await supabase
+        // Log the result for debugging
+        console.log("Upsert result status:", result.status);
+        console.log("Upsert error (if any):", result.error);
+        
+        if (result.error) {
+          // Attempt a direct update as fallback
+          console.log("Upsert failed, trying direct update...");
+          const updateResult = await supabase
             .from("profiles")
             .update(updateData)
             .eq('id', userId);
             
-          // Log the complete response
-          console.log("Update result:", result);
-          console.log("Update status:", result.status, result.statusText);
+          if (updateResult.error) {
+            throw updateResult.error;
+          }
           
-          // Also try to debug the request URL that's being used
-          console.log("Request info:", {
-            table: "profiles",
-            method: "UPDATE",
-            filter: `id=${userId}`
-          });
+          console.log("Direct update succeeded");
         }
 
         // Check for errors with more detailed logging
