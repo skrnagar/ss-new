@@ -49,8 +49,8 @@ export function AvatarUpdater({ userId, avatarUrl, username, onAvatarUpdate }: A
     try {
       setLoading(true)
       
-      // Upload to Supabase Storage
-      const fileName = `avatar-${userId}-${Date.now()}`
+      // Upload to Supabase Storage with proper folder structure
+      const fileName = `${userId}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '')}`
       const { data, error } = await supabase.storage
         .from('avatars')
         .upload(fileName, file, {
@@ -58,7 +58,10 @@ export function AvatarUpdater({ userId, avatarUrl, username, onAvatarUpdate }: A
           upsert: true
         })
       
-      if (error) throw error
+      if (error) {
+        console.error("Storage upload error:", error)
+        throw error
+      }
       
       // Get public URL
       const { data: { publicUrl } } = supabase.storage
@@ -71,7 +74,10 @@ export function AvatarUpdater({ userId, avatarUrl, username, onAvatarUpdate }: A
         .update({ avatar_url: publicUrl })
         .eq('id', userId)
         
-      if (updateError) throw updateError
+      if (updateError) {
+        console.error("Profile update error:", updateError)
+        throw updateError
+      }
       
       // Call the callback with the new URL
       onAvatarUpdate(publicUrl)
