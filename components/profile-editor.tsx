@@ -50,47 +50,70 @@ export function ProfileEditor({ profile, onUpdate }: { profile: any, onUpdate: (
 
       console.log("Update data:", updateData);
 
-      // First check if profile exists
-      const { data: existingProfile, error: profileError } = await supabase
-        .from("profiles")
-        .select("id")
-        .eq("id", userId)
-        .single();
-
-      if (profileError && profileError.code !== 'PGRST116') {
-        console.error("Error checking profile:", profileError);
-        throw profileError;
-      }
-
-      let result;
-      
-      if (!existingProfile) {
-        // Profile doesn't exist, insert instead
-        console.log("Profile doesn't exist, inserting new profile");
-        const insertData = {
-          id: userId,
-          name,
-          full_name: fullName,
-          bio: bio || null,
-          position: position || null,
-          company: company || null,
-          location: location || null,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        };
-        
-        result = await supabase
+      try {
+        // First check if profile exists
+        const { data: existingProfile, error: profileError } = await supabase
           .from("profiles")
-          .insert(insertData)
-          .select();
-      } else {
-        // Update existing profile
-        console.log("Updating existing profile");
-        result = await supabase
-          .from("profiles")
-          .update(updateData)
+          .select("id")
           .eq("id", userId)
-          .select();
+          .single();
+
+        if (profileError && profileError.code !== 'PGRST116') {
+          console.error("Error checking profile:", profileError);
+          throw profileError;
+        }
+
+        let result;
+        
+        if (!existingProfile) {
+          // Profile doesn't exist, insert instead
+          console.log("Profile doesn't exist, inserting new profile");
+          const insertData = {
+            id: userId,
+            name,
+            full_name: fullName,
+            bio: bio || null,
+            position: position || null,
+            company: company || null,
+            location: location || null,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          };
+          
+          result = await supabase
+            .from("profiles")
+            .insert(insertData);
+        } else {
+          // Update existing profile
+          console.log("Updating existing profile with ID:", userId);
+          result = await supabase
+            .from("profiles")
+            .update(updateData)
+            .eq("id", userId);
+        }
+
+        // Check for errors with more detailed logging
+        if (result.error) {
+          console.error("Supabase error details:", {
+            code: result.error.code,
+            message: result.error.message,
+            details: result.error.details,
+            hint: result.error.hint
+          });
+          throw result.error;
+        }
+
+        // Fetch the updated profile to confirm changes
+        const { data: updatedProfile } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("id", userId)
+          .single();
+          
+        console.log("Profile after update:", updatedProfile);
+      } catch (dbError) {
+        console.error("Database operation failed:", dbError);
+        throw dbError;
       }
 
       if (result.error) {
