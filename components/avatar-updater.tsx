@@ -73,6 +73,7 @@ export function AvatarUpdater({ userId, avatarUrl, username, onAvatarUpdate }: A
         .from('profiles')
         .update({ avatar_url: publicUrl })
         .eq('id', userId)
+        .select()
         
       if (updateError) {
         console.error("Profile update error:", updateError)
