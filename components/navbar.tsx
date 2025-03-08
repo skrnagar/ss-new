@@ -236,6 +236,11 @@ export function Navbar() {
             <div className="flex items-center gap-4">
               {!isMobile && (
                 <>
+                  <Link href="/jobs">
+                    <Button variant="ghost" size="icon" aria-label="Jobs">
+                      <Briefcase className="h-5 w-5" />
+                    </Button>
+                  </Link>
                   <Link href="/messages">
                     <Button variant="ghost" size="icon" aria-label="Messages">
                       <MessageCircle className="h-5 w-5" />
@@ -282,12 +287,14 @@ export function Navbar() {
                         <span>Settings</span>
                       </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link href="/jobs" className="cursor-pointer">
-                        <Briefcase className="mr-2 h-4 w-4" />
-                        <span>Jobs</span>
-                      </Link>
-                    </DropdownMenuItem>
+                    {isMobile && (
+                      <DropdownMenuItem asChild>
+                        <Link href="/jobs" className="cursor-pointer">
+                          <Briefcase className="mr-2 h-4 w-4" />
+                          <span>Jobs</span>
+                        </Link>
+                      </DropdownMenuItem>
+                    )}
                     {isMobile && (
                       <>
                         <DropdownMenuItem asChild>
