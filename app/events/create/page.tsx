@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState } from "react"
@@ -39,30 +40,30 @@ import { toast } from "@/hooks/use-toast"
 export default function CreateEventPage() {
   const router = useRouter()
   const [eventType, setEventType] = useState("in-person")
-
+  
   const handleSubmit = (e) => {
     e.preventDefault()
-
+    
     // In a real app, you'd submit the form data to your backend here
-
+    
     toast({
       title: "Event created successfully",
       description: "Your event has been submitted for review."
     })
-
+    
     // Navigate back to events page
     setTimeout(() => {
       router.push("/events")
     }, 1500)
   }
-
+  
   return (
     <div className="container py-6 max-w-4xl">
       <div className="mb-6">
         <h1 className="text-3xl font-bold">Create an Event</h1>
         <p className="text-muted-foreground">Share your knowledge and connect with other professionals</p>
       </div>
-
+      
       <form onSubmit={handleSubmit}>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="md:col-span-2 space-y-6">
@@ -76,7 +77,7 @@ export default function CreateEventPage() {
                   <Label htmlFor="title">Event Title *</Label>
                   <Input id="title" placeholder="Give your event a clear and descriptive title" required />
                 </div>
-
+                
                 <div className="space-y-2">
                   <Label htmlFor="description">Description *</Label>
                   <Textarea 
@@ -86,7 +87,7 @@ export default function CreateEventPage() {
                     required 
                   />
                 </div>
-
+                
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="event-type">Event Type *</Label>
@@ -103,7 +104,7 @@ export default function CreateEventPage() {
                       </SelectContent>
                     </Select>
                   </div>
-
+                  
                   <div className="space-y-2">
                     <Label htmlFor="category">Category *</Label>
                     <Select required>
@@ -121,7 +122,7 @@ export default function CreateEventPage() {
                     </Select>
                   </div>
                 </div>
-
+                
                 <div className="space-y-2">
                   <Label>Tags (Select up to 5)</Label>
                   <div className="flex flex-wrap gap-2">
@@ -140,7 +141,7 @@ export default function CreateEventPage() {
                     ))}
                   </div>
                 </div>
-
+                
                 <div className="space-y-2">
                   <Label htmlFor="image">Event Image</Label>
                   <div className="border-2 border-dashed rounded-md p-4 text-center">
@@ -153,7 +154,7 @@ export default function CreateEventPage() {
                 </div>
               </CardContent>
             </Card>
-
+            
             <Card>
               <CardHeader>
                 <CardTitle>Date & Time</CardTitle>
@@ -168,7 +169,7 @@ export default function CreateEventPage() {
                       <Input id="start-date" type="date" className="pl-10" required />
                     </div>
                   </div>
-
+                  
                   <div className="space-y-2">
                     <Label htmlFor="start-time">Start Time *</Label>
                     <div className="relative">
@@ -177,7 +178,7 @@ export default function CreateEventPage() {
                     </div>
                   </div>
                 </div>
-
+                
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="end-date">End Date *</Label>
@@ -186,7 +187,7 @@ export default function CreateEventPage() {
                       <Input id="end-date" type="date" className="pl-10" required />
                     </div>
                   </div>
-
+                  
                   <div className="space-y-2">
                     <Label htmlFor="end-time">End Time *</Label>
                     <div className="relative">
@@ -195,7 +196,7 @@ export default function CreateEventPage() {
                     </div>
                   </div>
                 </div>
-
+                
                 <div className="space-y-2">
                   <Label>Time Zone *</Label>
                   <Select required>
@@ -214,7 +215,7 @@ export default function CreateEventPage() {
                 </div>
               </CardContent>
             </Card>
-
+            
             <Card>
               <CardHeader>
                 <CardTitle>Location</CardTitle>
@@ -236,37 +237,37 @@ export default function CreateEventPage() {
                       <Label htmlFor="hybrid" className="font-normal">Hybrid event</Label>
                     </div>
                   </RadioGroup>
-
+                  
                   {(eventType === "in-person" || eventType === "hybrid") && (
                     <div className="space-y-4 mt-4">
                       <div className="space-y-2">
                         <Label htmlFor="venue">Venue Name *</Label>
                         <Input id="venue" placeholder="e.g., Conference Center, Hotel Name" />
                       </div>
-
+                      
                       <div className="space-y-2">
                         <Label htmlFor="address">Address *</Label>
                         <Input id="address" placeholder="Street address" />
                       </div>
-
+                      
                       <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <Label htmlFor="city">City *</Label>
                           <Input id="city" />
                         </div>
-
+                        
                         <div className="space-y-2">
                           <Label htmlFor="postal-code">Postal Code *</Label>
                           <Input id="postal-code" />
                         </div>
                       </div>
-
+                      
                       <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <Label htmlFor="state">State/Province *</Label>
                           <Input id="state" />
                         </div>
-
+                        
                         <div className="space-y-2">
                           <Label htmlFor="country">Country *</Label>
                           <Select>
@@ -278,7 +279,6 @@ export default function CreateEventPage() {
                               <SelectItem value="ca">Canada</SelectItem>
                               <SelectItem value="uk">United Kingdom</SelectItem>
                               <SelectItem value="in">India</SelectItem>
-                              {/* Add more countries as needed */}
                               <SelectItem value="au">Australia</SelectItem>
                               <SelectItem value="other">Other</SelectItem>
                             </SelectContent>
@@ -287,7 +287,7 @@ export default function CreateEventPage() {
                       </div>
                     </div>
                   )}
-
+                  
                   {(eventType === "virtual" || eventType === "hybrid") && (
                     <div className="space-y-4 mt-4">
                       <div className="space-y-2">
@@ -304,20 +304,20 @@ export default function CreateEventPage() {
                             </Tooltip>
                           </TooltipProvider>
                         </Label>
-                        <Select required>
+                        <Select>
                           <SelectTrigger>
                             <SelectValue placeholder="Select platform" />
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="zoom">Zoom</SelectItem>
-                            <SelectItem value="google_meet">Google Meet</SelectItem>
-                            <SelectItem value="ms_teams">Microsoft Teams</SelectItem>
-                            <SelectItem value="webex">WebEx</SelectItem>
+                            <SelectItem value="teams">Microsoft Teams</SelectItem>
+                            <SelectItem value="meet">Google Meet</SelectItem>
+                            <SelectItem value="webex">Cisco Webex</SelectItem>
                             <SelectItem value="other">Other</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
-
+                      
                       <div className="space-y-2">
                         <Label htmlFor="link">
                           Virtual Event Link
@@ -340,7 +340,7 @@ export default function CreateEventPage() {
               </CardContent>
             </Card>
           </div>
-
+          
           <div className="md:col-span-1 space-y-6">
             <Card>
               <CardHeader>
@@ -361,7 +361,7 @@ export default function CreateEventPage() {
                     </SelectContent>
                   </Select>
                 </div>
-
+                
                 <div className="space-y-2">
                   <Label htmlFor="capacity">Attendee Capacity</Label>
                   <div className="relative">
@@ -369,7 +369,7 @@ export default function CreateEventPage() {
                     <Input id="capacity" type="number" min="1" className="pl-10" placeholder="Leave blank for unlimited" />
                   </div>
                 </div>
-
+                
                 <div className="space-y-2">
                   <div className="flex items-center space-x-2">
                     <Checkbox id="approval" />
@@ -381,7 +381,7 @@ export default function CreateEventPage() {
                     </label>
                   </div>
                 </div>
-
+                
                 <div className="space-y-2">
                   <div className="flex items-center space-x-2">
                     <Checkbox id="reminders" defaultChecked />
@@ -395,7 +395,7 @@ export default function CreateEventPage() {
                 </div>
               </CardContent>
             </Card>
-
+            
             <Card>
               <CardHeader>
                 <CardTitle>Event Contact</CardTitle>
@@ -405,12 +405,12 @@ export default function CreateEventPage() {
                   <Label htmlFor="organizer">Event Organizer</Label>
                   <Input id="organizer" placeholder="Name or organization" />
                 </div>
-
+                
                 <div className="space-y-2">
                   <Label htmlFor="email">Contact Email</Label>
                   <Input id="email" type="email" placeholder="For attendee inquiries" />
                 </div>
-
+                
                 <div className="space-y-2">
                   <Label htmlFor="phone">Contact Phone (Optional)</Label>
                   <Input id="phone" placeholder="+1 234 567 8901" />
@@ -419,7 +419,7 @@ export default function CreateEventPage() {
             </Card>
           </div>
         </div>
-
+        
         <div className="mt-6 flex items-center justify-end gap-4">
           <Button variant="outline" type="button" onClick={() => router.back()}>
             <X className="mr-2 h-4 w-4" />
