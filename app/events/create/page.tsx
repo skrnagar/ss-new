@@ -41,7 +41,7 @@ export default function CreateEventPage() {
   const router = useRouter()
   const [eventType, setEventType] = useState("in-person")
   
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     
     // In a real app, you'd submit the form data to your backend here
