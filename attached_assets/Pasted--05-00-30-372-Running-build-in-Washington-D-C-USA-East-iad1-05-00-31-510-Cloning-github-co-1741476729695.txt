@@ -1,0 +1,46 @@
+[05:00:30.372] Running build in Washington, D.C., USA (East) – iad1
+[05:00:31.510] Cloning github.com/skrnagar/ss-new (Branch: main, Commit: 758accb)
+[05:00:31.893] Previous build caches not available
+[05:00:32.790] Cloning completed: 1.286s
+[05:00:33.142] Running "vercel build"
+[05:00:34.024] Vercel CLI 41.2.2
+[05:00:34.364] Installing dependencies...
+[05:00:37.692] npm warn deprecated @supabase/auth-helpers-shared@0.6.3: This package is now deprecated - please use the @supabase/ssr package instead.
+[05:00:38.089] npm warn deprecated @supabase/auth-helpers-nextjs@0.9.0: This package is now deprecated - please use the @supabase/ssr package instead.
+[05:00:45.375] 
+[05:00:45.377] added 269 packages in 11s
+[05:00:45.377] 
+[05:00:45.377] 39 packages are looking for funding
+[05:00:45.377]   run `npm fund` for details
+[05:00:45.428] Detected Next.js version: 14.2.16
+[05:00:45.431] Running "npm run build"
+[05:00:46.437] 
+[05:00:46.438] > my-v0-project@0.1.0 build
+[05:00:46.438] > next build
+[05:00:46.438] 
+[05:00:47.004] Attention: Next.js now collects completely anonymous telemetry regarding usage.
+[05:00:47.005] This information is used to shape Next.js' roadmap and prioritize features.
+[05:00:47.005] You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+[05:00:47.005] https://nextjs.org/telemetry
+[05:00:47.006] 
+[05:00:47.082]   ▲ Next.js 14.2.16
+[05:00:47.082]   - Experiments (use with caution):
+[05:00:47.082]     · instrumentationHook
+[05:00:47.082] 
+[05:00:47.147]    Creating an optimized production build ...
+[05:01:13.345]  ✓ Compiled successfully
+[05:01:13.346]    Linting and checking validity of types ...
+[05:01:24.165] Failed to compile.
+[05:01:24.167] 
+[05:01:24.167] ./app/events/page.tsx:573:28
+[05:01:24.167] Type error: Parameter 'event' implicitly has an 'any' type.
+[05:01:24.167] 
+[05:01:24.167] [0m [90m 571 |[39m[0m
+[05:01:24.167] [0m [90m 572 |[39m   [90m// Function to render event cards[39m[0m
+[05:01:24.168] [0m[31m[1m>[22m[39m[90m 573 |[39m   [36mconst[39m renderEventCard [33m=[39m (event) [33m=>[39m ([0m
+[05:01:24.168] [0m [90m     |[39m                            [31m[1m^[22m[39m[0m
+[05:01:24.168] [0m [90m 574 |[39m     [33m<[39m[33mCard[39m className[33m=[39m[32m"overflow-hidden"[39m key[33m=[39m{event[33m.[39mid}[33m>[39m[0m
+[05:01:24.168] [0m [90m 575 |[39m       [33m<[39m[33mdiv[39m className[33m=[39m[32m"h-48 overflow-hidden relative"[39m[33m>[39m[0m
+[05:01:24.168] [0m [90m 576 |[39m         [33m<[39m[33mimg[39m [0m
+[05:01:24.231] Error: Command "npm run build" exited with 1
+[05:01:25.411] 
