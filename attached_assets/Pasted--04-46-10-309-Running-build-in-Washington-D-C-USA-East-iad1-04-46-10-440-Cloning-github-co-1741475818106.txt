@@ -1,0 +1,39 @@
+[04:46:10.309] Running build in Washington, D.C., USA (East) – iad1
+[04:46:10.440] Cloning github.com/skrnagar/ss-new (Branch: main, Commit: 0c750de)
+[04:46:10.655] Previous build caches not available
+[04:46:11.294] Cloning completed: 853.000ms
+[04:46:11.572] Running "vercel build"
+[04:46:12.009] Vercel CLI 41.2.2
+[04:46:12.325] Installing dependencies...
+[04:46:15.938] npm warn deprecated @supabase/auth-helpers-shared@0.6.3: This package is now deprecated - please use the @supabase/ssr package instead.
+[04:46:16.396] npm warn deprecated @supabase/auth-helpers-nextjs@0.9.0: This package is now deprecated - please use the @supabase/ssr package instead.
+[04:46:23.725] 
+[04:46:23.726] added 269 packages in 11s
+[04:46:23.726] 
+[04:46:23.726] 39 packages are looking for funding
+[04:46:23.727]   run `npm fund` for details
+[04:46:23.773] Detected Next.js version: 14.2.16
+[04:46:23.776] Running "npm run build"
+[04:46:24.643] 
+[04:46:24.644] > my-v0-project@0.1.0 build
+[04:46:24.644] > next build
+[04:46:24.644] 
+[04:46:25.189] Attention: Next.js now collects completely anonymous telemetry regarding usage.
+[04:46:25.190] This information is used to shape Next.js' roadmap and prioritize features.
+[04:46:25.190] You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+[04:46:25.190] https://nextjs.org/telemetry
+[04:46:25.190] 
+[04:46:25.245]   ▲ Next.js 14.2.16
+[04:46:25.245]   - Experiments (use with caution):
+[04:46:25.246]     · instrumentationHook
+[04:46:25.246] 
+[04:46:25.313]    Creating an optimized production build ...
+[04:46:37.728] Failed to compile.
+[04:46:37.729] 
+[04:46:37.729] app/auth/callback/page.tsx
+[04:46:37.730] You cannot have two parallel pages that resolve to the same path. Please check /auth/callback/page and /auth/callback/route. Refer to the route group docs for more information: https://nextjs.org/docs/app/building-your-application/routing/route-groups
+[04:46:37.730] 
+[04:46:37.739] 
+[04:46:37.745] > Build failed because of webpack errors
+[04:46:37.771] Error: Command "npm run build" exited with 1
+[04:46:38.359] 
