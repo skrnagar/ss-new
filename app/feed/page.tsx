@@ -2,7 +2,6 @@
 
 import { useState, useEffect, Suspense } from "react"
 import { unstable_serialize } from 'swr'
-import { ErrorBoundary } from "@/components/error-boundary"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import {
@@ -17,21 +16,21 @@ import {
 import { supabase } from "@/lib/supabase"
 import { useRouter } from "next/navigation"
 import dynamic from "next/dynamic"
-const PostCreator = dynamic(() => 
-  import("@/components/post-creator").then(mod => mod.default), { 
-    ssr: false,
-    loading: () => <div className="p-6 bg-muted/30 rounded-md animate-pulse"></div>
-  }
-)
-const PostItem = dynamic(() => 
-  import("@/components/post-item").then(mod => mod.default), { 
-    ssr: false,
-    loading: () => <div className="p-6 bg-muted/30 rounded-md animate-pulse"></div>
-  }
-)
 import { Skeleton } from "@/components/ui/skeleton"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useAuth } from "@/contexts/auth-context"
+import ErrorBoundary from "@/components/error-boundary"
+
+// Import dynamically to avoid SSR issues
+const PostCreator = dynamic(() => import("@/components/post-creator"), { 
+  ssr: false,
+  loading: () => <div className="p-6 bg-muted/30 rounded-md animate-pulse"></div>
+})
+
+const PostItem = dynamic(() => import("@/components/post-item"), { 
+  ssr: false,
+  loading: () => <div className="p-6 bg-muted/30 rounded-md animate-pulse"></div>
+})
 
 export default function FeedPage() {
   const [posts, setPosts] = useState<any[]>([])
@@ -164,9 +163,9 @@ export default function FeedPage() {
             ))
           ) : posts.length > 0 ? (
             posts.map((post) => (
-              <ErrorBoundary key={post.id}>
-                <PostItem post={post} currentUser={userProfile} />
-              </ErrorBoundary>
+              <div key={post.id}>
+                {post && <PostItem post={post} currentUser={userProfile} />}
+              </div>
             ))
           ) : (
             <Card>
