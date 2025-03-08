@@ -310,9 +310,9 @@ export default function CreateEventPage() {
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="zoom">Zoom</SelectItem>
-                            <SelectItem value="teams">Microsoft Teams</SelectItem>
-                            <SelectItem value="meet">Google Meet</SelectItem>
-                            <SelectItem value="webex">Cisco Webex</SelectItem>
+                            <SelectItem value="google_meet">Google Meet</SelectItem>
+                            <SelectItem value="ms_teams">Microsoft Teams</SelectItem>
+                            <SelectItem value="webex">WebEx</SelectItem>
                             <SelectItem value="other">Other</SelectItem>
                           </SelectContent>
                         </Select>
