@@ -1,10 +1,10 @@
-
 "use client"
 
 import { useState, useRef, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input" // Added import for Input component
 import { supabase } from "@/lib/supabase"
 import { useToast } from "@/hooks/use-toast"
 import { X, Camera, Edit, Trash2, Image } from "lucide-react"
@@ -15,10 +15,12 @@ interface ProfilePhotoModalProps {
   name: string
   isOpen: boolean
   onClose: () => void
+  onAvatarChange?: (url: string) => void; // Added optional callback
 }
 
-export function ProfilePhotoModal({ userId, avatarUrl, name, isOpen, onClose }: ProfilePhotoModalProps) {
+export function ProfilePhotoModal({ userId, avatarUrl, name, isOpen, onClose, onAvatarChange }: ProfilePhotoModalProps) {
   const [loading, setLoading] = useState(false)
+  const [fullName, setName] = useState(name); // Added state for full name
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { toast } = useToast()
   const router = useRouter()
@@ -75,76 +77,78 @@ export function ProfilePhotoModal({ userId, avatarUrl, name, isOpen, onClose }: 
     try {
       setLoading(true)
       const file = event.target.files?.[0]
-      
+
       if (!file) {
         throw new Error('No file selected')
       }
-      
+
       // Validate file type
       if (!file.type.startsWith('image/')) {
         throw new Error('Invalid file selected')
       }
-      
+
       // Create a unique file name
       const fileExt = file.name.split('.').pop()
       const fileName = `${userId}/${Date.now()}-${file.name}`
-      
+
       console.log(`Attempting to upload to avatars bucket: ${fileName}`)
       console.log(`Attempting to upload file to avatars/${fileName}`)
-      
+
       const { data, error } = await supabase.storage
         .from('avatars')
         .upload(fileName, file, {
           cacheControl: '3600',
           upsert: true
         })
-      
+
       if (error) {
         console.error('Upload error:', error)
         throw error
       }
-      
+
       console.log('Upload successful:', data)
-      
+
       // Get public URL for the uploaded file
-      const { data: publicUrlData } = supabase
+      const { data: urlData } = supabase
         .storage
         .from('avatars')
         .getPublicUrl(data.path)
-      
-      const publicUrl = publicUrlData.publicUrl
+
+      const publicUrl = urlData.publicUrl
       console.log('Generated public URL:', publicUrl)
-      
-      // Update user profile with new avatar URL
-      console.log(`Updating profile ${userId} with new avatar URL: ${publicUrl}`)
+
+      // Update user profile with new avatar URL and full name
       const { error: updateError } = await supabase
         .from('profiles')
-        .update({ avatar_url: publicUrl })
+        .update({ 
+          avatar_url: publicUrl,
+          full_name: fullName 
+        })
         .eq('id', userId)
-      
+
       if (updateError) {
         console.error('Profile update error:', updateError)
         throw updateError
       }
-      
+
       console.log('Profile updated successfully')
-      
+
       // Call the onAvatarChange callback if provided
       if (onAvatarChange) {
         onAvatarChange(publicUrl)
       }
-      
+
       toast({
         title: "Avatar updated",
         description: "Your profile picture has been updated successfully",
       })
-      
+
       // Close modal
       onClose()
-      
+
       // Refresh the page to show the updated avatar
       router.refresh()
-      
+
     } catch (error: any) {
       toast({
         title: "Error updating avatar",
@@ -220,7 +224,18 @@ export function ProfilePhotoModal({ userId, avatarUrl, name, isOpen, onClose }: 
             accept="image/*"
             onChange={handleFileChange}
           />
-          
+
+          <div className="mb-4">
+            <label htmlFor="fullName" className="block text-sm font-medium">Full Name</label>
+            <Input 
+              id="fullName"
+              placeholder="Enter your full name"
+              defaultValue={name}
+              className="w-full mt-1"
+              onChange={(e) => setName(e.target.value)}
+            />
+          </div> {/* Added full name input field */}
+
           <div className="mb-6">
             <Avatar className="h-40 w-40">
               <AvatarImage src={avatarUrl || "/placeholder-user.jpg"} alt={name} />
@@ -238,7 +253,7 @@ export function ProfilePhotoModal({ userId, avatarUrl, name, isOpen, onClose }: 
                 <Edit className="h-5 w-5 mb-1" />
                 <span>Edit</span>
               </Button>
-              
+
               <Button 
                 variant="outline" 
                 className="flex flex-col items-center py-6 h-auto"
@@ -247,7 +262,7 @@ export function ProfilePhotoModal({ userId, avatarUrl, name, isOpen, onClose }: 
                 <Camera className="h-5 w-5 mb-1" />
                 <span>Add photo</span>
               </Button>
-              
+
               <Button 
                 variant="outline" 
                 className="flex flex-col items-center py-6 h-auto"
@@ -258,7 +273,7 @@ export function ProfilePhotoModal({ userId, avatarUrl, name, isOpen, onClose }: 
                 <span>Delete</span>
               </Button>
             </div>
-            
+
             <div className="text-center mt-2 text-sm text-muted-foreground">
               {loading ? "Uploading..." : "Photo helps people recognize you"}
             </div>
