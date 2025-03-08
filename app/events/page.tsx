@@ -35,7 +35,7 @@ import Link from "next/link"
 const safetyEventsData = [
   {
     id: 1,
-    title: "National Safety Day",
+    title: "National Safety Day Conference", //Updated Title
     description: "Annual celebration focused on renewing commitment to workplace safety.",
     date: "March 4, 2025",
     time: "9:00 AM - 5:00 PM",
@@ -61,7 +61,7 @@ const safetyEventsData = [
   },
   {
     id: 3,
-    title: "World Environment Day",
+    title: "World Environment Day Observance", //Updated Title
     description: "Global event to raise awareness and action for the protection of our environment.",
     date: "June 5, 2025",
     time: "All Day",
@@ -87,7 +87,7 @@ const safetyEventsData = [
   },
   {
     id: 5,
-    title: "Mental Health Awareness Month Kickoff",
+    title: "Mental Health Awareness Month Kickoff Webinar", //Updated Title
     description: "Opening session for mental health awareness initiatives in the workplace.",
     date: "May 1, 2025",
     time: "11:00 AM - 1:00 PM",
@@ -130,7 +130,7 @@ const userEventsData = [
   },
   {
     id: 102,
-    title: "ESG Metrics Working Group",
+    title: "ESG Metrics Working Group Session", //Updated Title
     description: "Collaborative session on standardizing ESG metrics for the manufacturing sector.",
     date: "March 15, 2025",
     time: "1:00 PM - 3:00 PM",
