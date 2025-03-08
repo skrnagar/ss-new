@@ -107,7 +107,7 @@ export default function FeedPage() {
           {/* Post creation card */}
           {userProfile ? (
             <PostCreator userProfile={userProfile} />
-          ) : currentUserId ? (
+          ) : user?.id ? (
             <Card>
               <CardContent className="py-6 text-center">
                 <p className="text-muted-foreground mb-2">Complete your profile to start posting</p>
