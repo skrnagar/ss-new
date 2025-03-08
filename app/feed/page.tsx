@@ -1,4 +1,3 @@
-
 'use client'
 
 import { useState, useEffect } from 'react'
@@ -9,7 +8,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import PostItem from '@/components/post-item'
 import PostCreator from '@/components/post-creator'
 import { Skeleton } from '@/components/ui/skeleton'
-import { createClient } from '@/lib/supabase'
+import { supabase } from '@/lib/supabase'
+import { createClient } from '@/lib/supabase-server'
 import { useAuth } from '@/contexts/auth-context'
 import Link from 'next/link'
 
@@ -125,14 +125,14 @@ export default function FeedPage() {
     <div className="container py-8">
       <div className="max-w-3xl mx-auto">
         <h1 className="text-3xl font-bold mb-8">Your Feed</h1>
-        
+
         <Tabs defaultValue="all">
           <TabsList className="grid w-full grid-cols-3 mb-8">
             <TabsTrigger value="all">All Posts</TabsTrigger>
             <TabsTrigger value="following">Following</TabsTrigger>
             <TabsTrigger value="popular">Popular</TabsTrigger>
           </TabsList>
-          
+
           <TabsContent value="all" className="space-y-6">
             {/* Post creator section */}
             {userProfile ? (
@@ -167,7 +167,7 @@ export default function FeedPage() {
               </Card>
             )}
           </TabsContent>
-          
+
           <TabsContent value="following">
             <Card>
               <CardContent className="py-6 text-center">
@@ -175,7 +175,7 @@ export default function FeedPage() {
               </CardContent>
             </Card>
           </TabsContent>
-          
+
           <TabsContent value="popular">
             <Card>
               <CardContent className="py-6 text-center">
