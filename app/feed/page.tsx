@@ -198,26 +198,7 @@ export default function FeedPage() {
                   <h4 className="font-medium">{userProfile.full_name}</h4>
                   <p className="text-sm text-muted-foreground">{userProfile.headline || "No headline"}</p>
 
-                  <div className="w-full mt-4">
-                    {userProfile.position && (
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
-                        <Briefcase className="h-3 w-3" />
-                        <span>{userProfile.position}</span>
-                      </div>
-                    )}
-                    {userProfile.company && (
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
-                        <Briefcase className="h-3 w-3" />
-                        <span>{userProfile.company}</span>
-                      </div>
-                    )}
-                    {userProfile.location && (
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
-                        <MapPin className="h-3 w-3" />
-                        <span>{userProfile.location}</span>
-                      </div>
-                    )}
-                  </div>
+               
 
                   <Button 
                     className="w-full mt-3" 

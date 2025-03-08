@@ -88,9 +88,9 @@ export function Navbar() {
         <div className="flex items-center gap-4">
           <Link href="/" className="flex items-center">
             <Image 
-              src="/safety-shaper-logo.svg" 
+              src="/slogos.png" 
               alt="Safety Shaper Logo" 
-              width={55}
+              width={65}
               height={55}
               className="mr-2 h-9 w-9 transition-transform hover:scale-105"
               style={{ width: 'auto', height: 'auto' }}

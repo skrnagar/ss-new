@@ -1,0 +1,906 @@
+[04:38:40.389] Running build in Washington, D.C., USA (East) – iad1
+[04:38:40.497] Cloning github.com/skrnagar/ss-new (Branch: main, Commit: d4abf84)
+[04:38:41.161] Previous build caches not available
+[04:38:41.798] Cloning completed: 1.301s
+[04:38:42.093] Running "vercel build"
+[04:38:42.470] Vercel CLI 41.2.2
+[04:38:44.458] Installing dependencies...
+[04:38:47.795] npm warn deprecated @supabase/auth-helpers-shared@0.6.3: This package is now deprecated - please use the @supabase/ssr package instead.
+[04:38:48.474] npm warn deprecated @supabase/auth-helpers-nextjs@0.9.0: This package is now deprecated - please use the @supabase/ssr package instead.
+[04:38:56.101] 
+[04:38:56.114] added 267 packages in 11s
+[04:38:56.114] 
+[04:38:56.115] 39 packages are looking for funding
+[04:38:56.115]   run `npm fund` for details
+[04:38:56.189] Detected Next.js version: 14.2.16
+[04:38:56.193] Running "npm run build"
+[04:38:56.314] 
+[04:38:56.314] > my-v0-project@0.1.0 build
+[04:38:56.315] > next build
+[04:38:56.315] 
+[04:38:58.277] Attention: Next.js now collects completely anonymous telemetry regarding usage.
+[04:38:58.278] This information is used to shape Next.js' roadmap and prioritize features.
+[04:38:58.278] You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+[04:38:58.279] https://nextjs.org/telemetry
+[04:38:58.279] 
+[04:38:58.331]   ▲ Next.js 14.2.16
+[04:38:58.332]   - Experiments (use with caution):
+[04:38:58.332]     · instrumentationHook
+[04:38:58.332] 
+[04:38:58.402]    Creating an optimized production build ...
+[04:39:10.501] Failed to compile.
+[04:39:10.502] 
+[04:39:10.502] app/auth/callback/page.tsx
+[04:39:10.502] You cannot have two parallel pages that resolve to the same path. Please check /auth/callback/page and /auth/callback/route. Refer to the route group docs for more information: https://nextjs.org/docs/app/building-your-application/routing/route-groups
+[04:39:10.503] 
+[04:39:10.503] ./components/ui/checkbox.tsx
+[04:39:10.503] Error: 
+[04:39:10.503]   [31mx[0m the name `Check` is defined multiple times
+[04:39:10.503]     ,-[[36;1;4m/vercel/path0/components/ui/checkbox.tsx[0m:2:1]
+[04:39:10.503]  [2m 2[0m | 
+[04:39:10.504]  [2m 3[0m | import * as React from "react"
+[04:39:10.504]  [2m 4[0m | import * as CheckboxPrimitive from "@radix-ui/react-checkbox"
+[04:39:10.504]  [2m 5[0m | import { Check } from "lucide-react"
+[04:39:10.504]     : [31;1m         ^^|^^[0m
+[04:39:10.504]     :            [31;1m`-- [31;1mprevious definition of `Check` here[0m[0m
+[04:39:10.504]  [2m 6[0m | 
+[04:39:10.504]  [2m 7[0m | import { cn } from "@/lib/utils"
+[04:39:10.504]  [2m 8[0m | 
+[04:39:10.504]  [2m 9[0m | const Checkbox = React.forwardRef<
+[04:39:10.505]  [2m10[0m |   React.ElementRef<typeof CheckboxPrimitive.Root>,
+[04:39:10.505]  [2m11[0m |   React.ComponentPropsWithoutRef<typeof CheckboxPrimitive.Root>
+[04:39:10.505]  [2m12[0m | >(({ className, ...props }, ref) => (
+[04:39:10.505]  [2m13[0m |   <CheckboxPrimitive.Root
+[04:39:10.505]  [2m14[0m |     ref={ref}
+[04:39:10.505]  [2m15[0m |     className={cn(
+[04:39:10.505]  [2m16[0m |       "peer h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground",
+[04:39:10.505]  [2m17[0m |       className
+[04:39:10.505]  [2m18[0m |     )}
+[04:39:10.505]  [2m19[0m |     {...props}
+[04:39:10.506]  [2m20[0m |   >
+[04:39:10.506]  [2m21[0m |     <CheckboxPrimitive.Indicator
+[04:39:10.506]  [2m22[0m |       className={cn("flex items-center justify-center text-current")}
+[04:39:10.506]  [2m23[0m |     >
+[04:39:10.506]  [2m24[0m |       <Check className="h-4 w-4" />
+[04:39:10.506]  [2m25[0m |     </CheckboxPrimitive.Indicator>
+[04:39:10.506]  [2m26[0m |   </CheckboxPrimitive.Root>
+[04:39:10.506]  [2m27[0m | ))
+[04:39:10.506]  [2m28[0m | Checkbox.displayName = CheckboxPrimitive.Root.displayName
+[04:39:10.507]  [2m29[0m | 
+[04:39:10.507]  [2m30[0m | export { Checkbox }
+[04:39:10.507]  [2m31[0m | "use client"
+[04:39:10.507]  [2m32[0m | 
+[04:39:10.507]  [2m33[0m | import * as React from "react"
+[04:39:10.507]  [2m34[0m | import * as CheckboxPrimitive from "@radix-ui/react-checkbox"
+[04:39:10.507]  [2m35[0m | import { Check } from "lucide-react"
+[04:39:10.507]     : [33;1m         ^^|^^[0m
+[04:39:10.507]     :            [33;1m`-- [33;1m`Check` redefined here[0m[0m
+[04:39:10.508]  [2m36[0m | 
+[04:39:10.508]  [2m37[0m | import { cn } from "@/lib/utils"
+[04:39:10.508]     `----
+[04:39:10.508] 
+[04:39:10.508]   [31mx[0m the name `cn` is defined multiple times
+[04:39:10.508]     ,-[[36;1;4m/vercel/path0/components/ui/checkbox.tsx[0m:4:1]
+[04:39:10.508]  [2m 4[0m | import * as CheckboxPrimitive from "@radix-ui/react-checkbox"
+[04:39:10.508]  [2m 5[0m | import { Check } from "lucide-react"
+[04:39:10.508]  [2m 6[0m | 
+[04:39:10.509]  [2m 7[0m | import { cn } from "@/lib/utils"
+[04:39:10.509]     : [31;1m         ^|[0m
+[04:39:10.509]     :           [31;1m`-- [31;1mprevious definition of `cn` here[0m[0m
+[04:39:10.509]  [2m 8[0m | 
+[04:39:10.509]  [2m 9[0m | const Checkbox = React.forwardRef<
+[04:39:10.509]  [2m10[0m |   React.ElementRef<typeof CheckboxPrimitive.Root>,
+[04:39:10.509]  [2m11[0m |   React.ComponentPropsWithoutRef<typeof CheckboxPrimitive.Root>
+[04:39:10.509]  [2m12[0m | >(({ className, ...props }, ref) => (
+[04:39:10.510]  [2m13[0m |   <CheckboxPrimitive.Root
+[04:39:10.510]  [2m14[0m |     ref={ref}
+[04:39:10.510]  [2m15[0m |     className={cn(
+[04:39:10.510]  [2m16[0m |       "peer h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground",
+[04:39:10.510]  [2m17[0m |       className
+[04:39:10.510]  [2m18[0m |     )}
+[04:39:10.510]  [2m19[0m |     {...props}
+[04:39:10.510]  [2m20[0m |   >
+[04:39:10.510]  [2m21[0m |     <CheckboxPrimitive.Indicator
+[04:39:10.511]  [2m22[0m |       className={cn("flex items-center justify-center text-current")}
+[04:39:10.511]  [2m23[0m |     >
+[04:39:10.511]  [2m24[0m |       <Check className="h-4 w-4" />
+[04:39:10.511]  [2m25[0m |     </CheckboxPrimitive.Indicator>
+[04:39:10.511]  [2m26[0m |   </CheckboxPrimitive.Root>
+[04:39:10.511]  [2m27[0m | ))
+[04:39:10.511]  [2m28[0m | Checkbox.displayName = CheckboxPrimitive.Root.displayName
+[04:39:10.511]  [2m29[0m | 
+[04:39:10.511]  [2m30[0m | export { Checkbox }
+[04:39:10.512]  [2m31[0m | "use client"
+[04:39:10.512]  [2m32[0m | 
+[04:39:10.512]  [2m33[0m | import * as React from "react"
+[04:39:10.512]  [2m34[0m | import * as CheckboxPrimitive from "@radix-ui/react-checkbox"
+[04:39:10.512]  [2m35[0m | import { Check } from "lucide-react"
+[04:39:10.512]  [2m36[0m | 
+[04:39:10.512]  [2m37[0m | import { cn } from "@/lib/utils"
+[04:39:10.512]     : [33;1m         ^|[0m
+[04:39:10.512]     :           [33;1m`-- [33;1m`cn` redefined here[0m[0m
+[04:39:10.512]  [2m38[0m | 
+[04:39:10.513]  [2m39[0m | const Checkbox = React.forwardRef<
+[04:39:10.513]  [2m40[0m |   React.ElementRef<typeof CheckboxPrimitive.Root>,
+[04:39:10.513]     `----
+[04:39:10.513] 
+[04:39:10.513]   [31mx[0m the name `Checkbox` is defined multiple times
+[04:39:10.513]     ,-[[36;1;4m/vercel/path0/components/ui/checkbox.tsx[0m:6:1]
+[04:39:10.513]  [2m 6[0m | 
+[04:39:10.513]  [2m 7[0m | import { cn } from "@/lib/utils"
+[04:39:10.513]  [2m 8[0m | 
+[04:39:10.513]  [2m 9[0m | const Checkbox = React.forwardRef<
+[04:39:10.514]     : [31;1m      ^^^^|^^^[0m
+[04:39:10.514]     :           [31;1m`-- [31;1mprevious definition of `Checkbox` here[0m[0m
+[04:39:10.514]  [2m10[0m |   React.ElementRef<typeof CheckboxPrimitive.Root>,
+[04:39:10.514]  [2m11[0m |   React.ComponentPropsWithoutRef<typeof CheckboxPrimitive.Root>
+[04:39:10.514]  [2m12[0m | >(({ className, ...props }, ref) => (
+[04:39:10.514]  [2m13[0m |   <CheckboxPrimitive.Root
+[04:39:10.514]  [2m14[0m |     ref={ref}
+[04:39:10.514]  [2m15[0m |     className={cn(
+[04:39:10.514]  [2m16[0m |       "peer h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground",
+[04:39:10.515]  [2m17[0m |       className
+[04:39:10.515]  [2m18[0m |     )}
+[04:39:10.515]  [2m19[0m |     {...props}
+[04:39:10.515]  [2m20[0m |   >
+[04:39:10.515]  [2m21[0m |     <CheckboxPrimitive.Indicator
+[04:39:10.515]  [2m22[0m |       className={cn("flex items-center justify-center text-current")}
+[04:39:10.515]  [2m23[0m |     >
+[04:39:10.515]  [2m24[0m |       <Check className="h-4 w-4" />
+[04:39:10.515]  [2m25[0m |     </CheckboxPrimitive.Indicator>
+[04:39:10.515]  [2m26[0m |   </CheckboxPrimitive.Root>
+[04:39:10.515]  [2m27[0m | ))
+[04:39:10.516]  [2m28[0m | Checkbox.displayName = CheckboxPrimitive.Root.displayName
+[04:39:10.516]  [2m29[0m | 
+[04:39:10.516]  [2m30[0m | export { Checkbox }
+[04:39:10.516]  [2m31[0m | "use client"
+[04:39:10.516]  [2m32[0m | 
+[04:39:10.516]  [2m33[0m | import * as React from "react"
+[04:39:10.516]  [2m34[0m | import * as CheckboxPrimitive from "@radix-ui/react-checkbox"
+[04:39:10.516]  [2m35[0m | import { Check } from "lucide-react"
+[04:39:10.516]  [2m36[0m | 
+[04:39:10.516]  [2m37[0m | import { cn } from "@/lib/utils"
+[04:39:10.517]  [2m38[0m | 
+[04:39:10.517]  [2m39[0m | const Checkbox = React.forwardRef<
+[04:39:10.517]     : [33;1m      ^^^^|^^^[0m
+[04:39:10.519]     :           [33;1m`-- [33;1m`Checkbox` redefined here[0m[0m
+[04:39:10.519]  [2m40[0m |   React.ElementRef<typeof CheckboxPrimitive.Root>,
+[04:39:10.519]  [2m41[0m |   React.ComponentPropsWithoutRef<typeof CheckboxPrimitive.Root>
+[04:39:10.520]  [2m42[0m | >(({ className, ...props }, ref) => (
+[04:39:10.520]     `----
+[04:39:10.520] 
+[04:39:10.520]   [31mx[0m the name `Checkbox` is exported multiple times
+[04:39:10.520]     ,-[[36;1;4m/vercel/path0/components/ui/checkbox.tsx[0m:27:1]
+[04:39:10.520]  [2m27[0m | ))
+[04:39:10.520]  [2m28[0m | Checkbox.displayName = CheckboxPrimitive.Root.displayName
+[04:39:10.520]  [2m29[0m | 
+[04:39:10.520]  [2m30[0m | export { Checkbox }
+[04:39:10.521]     : [31;1m         ^^^^|^^^[0m
+[04:39:10.521]     :              [31;1m`-- [31;1mprevious exported here[0m[0m
+[04:39:10.521]  [2m31[0m | "use client"
+[04:39:10.521]  [2m32[0m | 
+[04:39:10.521]  [2m33[0m | import * as React from "react"
+[04:39:10.521]  [2m34[0m | import * as CheckboxPrimitive from "@radix-ui/react-checkbox"
+[04:39:10.521]  [2m35[0m | import { Check } from "lucide-react"
+[04:39:10.521]  [2m36[0m | 
+[04:39:10.521]  [2m37[0m | import { cn } from "@/lib/utils"
+[04:39:10.521]  [2m38[0m | 
+[04:39:10.521]  [2m39[0m | const Checkbox = React.forwardRef<
+[04:39:10.522]  [2m40[0m |   React.ElementRef<typeof CheckboxPrimitive.Root>,
+[04:39:10.522]  [2m41[0m |   React.ComponentPropsWithoutRef<typeof CheckboxPrimitive.Root>
+[04:39:10.522]  [2m42[0m | >(({ className, ...props }, ref) => (
+[04:39:10.522]  [2m43[0m |   <CheckboxPrimitive.Root
+[04:39:10.522]  [2m44[0m |     ref={ref}
+[04:39:10.522]  [2m45[0m |     className={cn(
+[04:39:10.522]  [2m46[0m |       "peer h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground",
+[04:39:10.522]  [2m47[0m |       className
+[04:39:10.522]  [2m48[0m |     )}
+[04:39:10.523]  [2m49[0m |     {...props}
+[04:39:10.523]  [2m50[0m |   >
+[04:39:10.523]  [2m51[0m |     <CheckboxPrimitive.Indicator
+[04:39:10.523]  [2m52[0m |       className={cn("flex items-center justify-center text-current")}
+[04:39:10.523]  [2m53[0m |     >
+[04:39:10.523]  [2m54[0m |       <Check className="h-3.5 w-3.5" />
+[04:39:10.523]  [2m55[0m |     </CheckboxPrimitive.Indicator>
+[04:39:10.523]  [2m56[0m |   </CheckboxPrimitive.Root>
+[04:39:10.523]  [2m57[0m | ))
+[04:39:10.523]  [2m58[0m | Checkbox.displayName = CheckboxPrimitive.Root.displayName
+[04:39:10.524]  [2m59[0m | 
+[04:39:10.524]  [2m60[0m | export { Checkbox }
+[04:39:10.524]     : [33;1m         ^^^^|^^^[0m
+[04:39:10.524]     :              [33;1m`-- [33;1mexported more than once[0m[0m
+[04:39:10.524]     `----
+[04:39:10.524] 
+[04:39:10.524] Error: 
+[04:39:10.524]   [36m>[0m Exported identifiers must be unique
+[04:39:10.524] 
+[04:39:10.524]   [31mx[0m The "use client" directive must be placed before other expressions. Move it to the top of the file to resolve this issue.
+[04:39:10.525]     ,-[[36;1;4m/vercel/path0/components/ui/checkbox.tsx[0m:28:1]
+[04:39:10.525]  [2m28[0m | Checkbox.displayName = CheckboxPrimitive.Root.displayName
+[04:39:10.525]  [2m29[0m | 
+[04:39:10.525]  [2m30[0m | export { Checkbox }
+[04:39:10.525]  [2m31[0m | "use client"
+[04:39:10.525]     : [31;1m^^^^^^^^^^^^[0m
+[04:39:10.530]  [2m32[0m | 
+[04:39:10.530]  [2m33[0m | import * as React from "react"
+[04:39:10.531]  [2m34[0m | import * as CheckboxPrimitive from "@radix-ui/react-checkbox"
+[04:39:10.531]     `----
+[04:39:10.531] 
+[04:39:10.531] Import trace for requested module:
+[04:39:10.531] ./components/ui/checkbox.tsx
+[04:39:10.531] ./app/events/create/page.tsx
+[04:39:10.531] 
+[04:39:10.531] ./components/ui/radio-group.tsx
+[04:39:10.531] Error: 
+[04:39:10.531]   [31mx[0m the name `cn` is defined multiple times
+[04:39:10.531]     ,-[[36;1;4m/vercel/path0/components/ui/radio-group.tsx[0m:4:1]
+[04:39:10.531]  [2m 4[0m | import * as RadioGroupPrimitive from "@radix-ui/react-radio-group"
+[04:39:10.531]  [2m 5[0m | import { Circle } from "lucide-react"
+[04:39:10.531]  [2m 6[0m | 
+[04:39:10.532]  [2m 7[0m | import { cn } from "@/lib/utils"
+[04:39:10.532]     : [31;1m         ^|[0m
+[04:39:10.532]     :           [31;1m`-- [31;1mprevious definition of `cn` here[0m[0m
+[04:39:10.532]  [2m 8[0m | 
+[04:39:10.532]  [2m 9[0m | const RadioGroup = React.forwardRef<
+[04:39:10.532]  [2m10[0m |   React.ElementRef<typeof RadioGroupPrimitive.Root>,
+[04:39:10.532]  [2m11[0m |   React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Root>
+[04:39:10.532]  [2m12[0m | >(({ className, ...props }, ref) => {
+[04:39:10.532]  [2m13[0m |   return (
+[04:39:10.532]  [2m14[0m |     <RadioGroupPrimitive.Root
+[04:39:10.533]  [2m15[0m |       className={cn("grid gap-2", className)}
+[04:39:10.533]  [2m16[0m |       {...props}
+[04:39:10.533]  [2m17[0m |       ref={ref}
+[04:39:10.533]  [2m18[0m |     />
+[04:39:10.533]  [2m19[0m |   )
+[04:39:10.533]  [2m20[0m | })
+[04:39:10.533]  [2m21[0m | RadioGroup.displayName = RadioGroupPrimitive.Root.displayName
+[04:39:10.533]  [2m22[0m | 
+[04:39:10.533]  [2m23[0m | const RadioGroupItem = React.forwardRef<
+[04:39:10.533]  [2m24[0m |   React.ElementRef<typeof RadioGroupPrimitive.Item>,
+[04:39:10.533]  [2m25[0m |   React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Item>
+[04:39:10.533]  [2m26[0m | >(({ className, ...props }, ref) => {
+[04:39:10.533]  [2m27[0m |   return (
+[04:39:10.533]  [2m28[0m |     <RadioGroupPrimitive.Item
+[04:39:10.534]  [2m29[0m |       ref={ref}
+[04:39:10.534]  [2m30[0m |       className={cn(
+[04:39:10.534]  [2m31[0m |         "aspect-square h-4 w-4 rounded-full border border-primary text-primary ring-offset-background focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+[04:39:10.534]  [2m32[0m |         className
+[04:39:10.534]  [2m33[0m |       )}
+[04:39:10.534]  [2m34[0m |       {...props}
+[04:39:10.534]  [2m35[0m |     >
+[04:39:10.534]  [2m36[0m |       <RadioGroupPrimitive.Indicator className="flex items-center justify-center">
+[04:39:10.534]  [2m37[0m |         <Circle className="h-2.5 w-2.5 fill-current text-current" />
+[04:39:10.534]  [2m38[0m |       </RadioGroupPrimitive.Indicator>
+[04:39:10.534]  [2m39[0m |     </RadioGroupPrimitive.Item>
+[04:39:10.534]  [2m40[0m |   )
+[04:39:10.535]  [2m41[0m | })
+[04:39:10.535]  [2m42[0m | RadioGroupItem.displayName = RadioGroupPrimitive.Item.displayName
+[04:39:10.535]  [2m43[0m | 
+[04:39:10.535]  [2m44[0m | export { RadioGroup, RadioGroupItem }
+[04:39:10.535]  [2m45[0m | "use client"
+[04:39:10.535]  [2m46[0m | 
+[04:39:10.535]  [2m47[0m | import * as React from "react"
+[04:39:10.535]  [2m48[0m | import * as RadioGroupPrimitive from "@radix-ui/react-radio-group"
+[04:39:10.535]  [2m49[0m | 
+[04:39:10.535]  [2m50[0m | import { cn } from "@/lib/utils"
+[04:39:10.535]     : [33;1m         ^|[0m
+[04:39:10.535]     :           [33;1m`-- [33;1m`cn` redefined here[0m[0m
+[04:39:10.535]  [2m51[0m | 
+[04:39:10.536]  [2m52[0m | const RadioGroup = React.forwardRef<
+[04:39:10.536]  [2m53[0m |   React.ElementRef<typeof RadioGroupPrimitive.Root>,
+[04:39:10.536]     `----
+[04:39:10.536] 
+[04:39:10.536]   [31mx[0m the name `RadioGroup` is defined multiple times
+[04:39:10.536]     ,-[[36;1;4m/vercel/path0/components/ui/radio-group.tsx[0m:6:1]
+[04:39:10.536]  [2m 6[0m | 
+[04:39:10.536]  [2m 7[0m | import { cn } from "@/lib/utils"
+[04:39:10.536]  [2m 8[0m | 
+[04:39:10.536]  [2m 9[0m | const RadioGroup = React.forwardRef<
+[04:39:10.536]     : [31;1m      ^^^^^|^^^^[0m
+[04:39:10.536]     :            [31;1m`-- [31;1mprevious definition of `RadioGroup` here[0m[0m
+[04:39:10.536]  [2m10[0m |   React.ElementRef<typeof RadioGroupPrimitive.Root>,
+[04:39:10.537]  [2m11[0m |   React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Root>
+[04:39:10.537]  [2m12[0m | >(({ className, ...props }, ref) => {
+[04:39:10.537]  [2m13[0m |   return (
+[04:39:10.537]  [2m14[0m |     <RadioGroupPrimitive.Root
+[04:39:10.537]  [2m15[0m |       className={cn("grid gap-2", className)}
+[04:39:10.537]  [2m16[0m |       {...props}
+[04:39:10.537]  [2m17[0m |       ref={ref}
+[04:39:10.537]  [2m18[0m |     />
+[04:39:10.537]  [2m19[0m |   )
+[04:39:10.537]  [2m20[0m | })
+[04:39:10.537]  [2m21[0m | RadioGroup.displayName = RadioGroupPrimitive.Root.displayName
+[04:39:10.538]  [2m22[0m | 
+[04:39:10.538]  [2m23[0m | const RadioGroupItem = React.forwardRef<
+[04:39:10.538]  [2m24[0m |   React.ElementRef<typeof RadioGroupPrimitive.Item>,
+[04:39:10.538]  [2m25[0m |   React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Item>
+[04:39:10.538]  [2m26[0m | >(({ className, ...props }, ref) => {
+[04:39:10.538]  [2m27[0m |   return (
+[04:39:10.538]  [2m28[0m |     <RadioGroupPrimitive.Item
+[04:39:10.538]  [2m29[0m |       ref={ref}
+[04:39:10.538]  [2m30[0m |       className={cn(
+[04:39:10.538]  [2m31[0m |         "aspect-square h-4 w-4 rounded-full border border-primary text-primary ring-offset-background focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+[04:39:10.538]  [2m32[0m |         className
+[04:39:10.538]  [2m33[0m |       )}
+[04:39:10.539]  [2m34[0m |       {...props}
+[04:39:10.539]  [2m35[0m |     >
+[04:39:10.539]  [2m36[0m |       <RadioGroupPrimitive.Indicator className="flex items-center justify-center">
+[04:39:10.539]  [2m37[0m |         <Circle className="h-2.5 w-2.5 fill-current text-current" />
+[04:39:10.539]  [2m38[0m |       </RadioGroupPrimitive.Indicator>
+[04:39:10.539]  [2m39[0m |     </RadioGroupPrimitive.Item>
+[04:39:10.539]  [2m40[0m |   )
+[04:39:10.539]  [2m41[0m | })
+[04:39:10.539]  [2m42[0m | RadioGroupItem.displayName = RadioGroupPrimitive.Item.displayName
+[04:39:10.539]  [2m43[0m | 
+[04:39:10.539]  [2m44[0m | export { RadioGroup, RadioGroupItem }
+[04:39:10.539]  [2m45[0m | "use client"
+[04:39:10.539]  [2m46[0m | 
+[04:39:10.539]  [2m47[0m | import * as React from "react"
+[04:39:10.539]  [2m48[0m | import * as RadioGroupPrimitive from "@radix-ui/react-radio-group"
+[04:39:10.540]  [2m49[0m | 
+[04:39:10.540]  [2m50[0m | import { cn } from "@/lib/utils"
+[04:39:10.540]  [2m51[0m | 
+[04:39:10.540]  [2m52[0m | const RadioGroup = React.forwardRef<
+[04:39:10.540]     : [33;1m      ^^^^^|^^^^[0m
+[04:39:10.541]     :            [33;1m`-- [33;1m`RadioGroup` redefined here[0m[0m
+[04:39:10.541]  [2m53[0m |   React.ElementRef<typeof RadioGroupPrimitive.Root>,
+[04:39:10.541]  [2m54[0m |   React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Root>
+[04:39:10.541]  [2m55[0m | >(({ className, ...props }, ref) => {
+[04:39:10.541]     `----
+[04:39:10.541] 
+[04:39:10.541]   [31mx[0m the name `RadioGroupItem` is defined multiple times
+[04:39:10.541]     ,-[[36;1;4m/vercel/path0/components/ui/radio-group.tsx[0m:20:1]
+[04:39:10.541]  [2m20[0m | })
+[04:39:10.542]  [2m21[0m | RadioGroup.displayName = RadioGroupPrimitive.Root.displayName
+[04:39:10.542]  [2m22[0m | 
+[04:39:10.542]  [2m23[0m | const RadioGroupItem = React.forwardRef<
+[04:39:10.542]     : [31;1m      ^^^^^^^|^^^^^^[0m
+[04:39:10.542]     :              [31;1m`-- [31;1mprevious definition of `RadioGroupItem` here[0m[0m
+[04:39:10.542]  [2m24[0m |   React.ElementRef<typeof RadioGroupPrimitive.Item>,
+[04:39:10.542]  [2m25[0m |   React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Item>
+[04:39:10.542]  [2m26[0m | >(({ className, ...props }, ref) => {
+[04:39:10.542]  [2m27[0m |   return (
+[04:39:10.542]  [2m28[0m |     <RadioGroupPrimitive.Item
+[04:39:10.542]  [2m29[0m |       ref={ref}
+[04:39:10.542]  [2m30[0m |       className={cn(
+[04:39:10.542]  [2m31[0m |         "aspect-square h-4 w-4 rounded-full border border-primary text-primary ring-offset-background focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+[04:39:10.542]  [2m32[0m |         className
+[04:39:10.542]  [2m33[0m |       )}
+[04:39:10.543]  [2m34[0m |       {...props}
+[04:39:10.543]  [2m35[0m |     >
+[04:39:10.543]  [2m36[0m |       <RadioGroupPrimitive.Indicator className="flex items-center justify-center">
+[04:39:10.543]  [2m37[0m |         <Circle className="h-2.5 w-2.5 fill-current text-current" />
+[04:39:10.543]  [2m38[0m |       </RadioGroupPrimitive.Indicator>
+[04:39:10.543]  [2m39[0m |     </RadioGroupPrimitive.Item>
+[04:39:10.543]  [2m40[0m |   )
+[04:39:10.543]  [2m41[0m | })
+[04:39:10.543]  [2m42[0m | RadioGroupItem.displayName = RadioGroupPrimitive.Item.displayName
+[04:39:10.543]  [2m43[0m | 
+[04:39:10.543]  [2m44[0m | export { RadioGroup, RadioGroupItem }
+[04:39:10.543]  [2m45[0m | "use client"
+[04:39:10.543]  [2m46[0m | 
+[04:39:10.543]  [2m47[0m | import * as React from "react"
+[04:39:10.543]  [2m48[0m | import * as RadioGroupPrimitive from "@radix-ui/react-radio-group"
+[04:39:10.543]  [2m49[0m | 
+[04:39:10.544]  [2m50[0m | import { cn } from "@/lib/utils"
+[04:39:10.544]  [2m51[0m | 
+[04:39:10.544]  [2m52[0m | const RadioGroup = React.forwardRef<
+[04:39:10.544]  [2m53[0m |   React.ElementRef<typeof RadioGroupPrimitive.Root>,
+[04:39:10.544]  [2m54[0m |   React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Root>
+[04:39:10.544]  [2m55[0m | >(({ className, ...props }, ref) => {
+[04:39:10.544]  [2m56[0m |   return (
+[04:39:10.544]  [2m57[0m |     <RadioGroupPrimitive.Root
+[04:39:10.544]  [2m58[0m |       className={cn("grid gap-2", className)}
+[04:39:10.544]  [2m59[0m |       {...props}
+[04:39:10.544]  [2m60[0m |       ref={ref}
+[04:39:10.544]  [2m61[0m |     />
+[04:39:10.544]  [2m62[0m |   )
+[04:39:10.544]  [2m63[0m | })
+[04:39:10.544]  [2m64[0m | RadioGroup.displayName = RadioGroupPrimitive.Root.displayName
+[04:39:10.544]  [2m65[0m | 
+[04:39:10.544]  [2m66[0m | const RadioGroupItem = React.forwardRef<
+[04:39:10.544]     : [33;1m      ^^^^^^^|^^^^^^[0m
+[04:39:10.544]     :              [33;1m`-- [33;1m`RadioGroupItem` redefined here[0m[0m
+[04:39:10.545]  [2m67[0m |   React.ElementRef<typeof RadioGroupPrimitive.Item>,
+[04:39:10.545]  [2m68[0m |   React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Item>
+[04:39:10.545]  [2m69[0m | >(({ className, ...props }, ref) => {
+[04:39:10.545]     `----
+[04:39:10.545] 
+[04:39:10.545]   [31mx[0m the name `RadioGroup` is exported multiple times
+[04:39:10.545]     ,-[[36;1;4m/vercel/path0/components/ui/radio-group.tsx[0m:41:1]
+[04:39:10.545]  [2m41[0m | })
+[04:39:10.545]  [2m42[0m | RadioGroupItem.displayName = RadioGroupPrimitive.Item.displayName
+[04:39:10.545]  [2m43[0m | 
+[04:39:10.545]  [2m44[0m | export { RadioGroup, RadioGroupItem }
+[04:39:10.545]     : [31;1m         ^^^^^|^^^^[0m
+[04:39:10.545]     :               [31;1m`-- [31;1mprevious exported here[0m[0m
+[04:39:10.545]  [2m45[0m | "use client"
+[04:39:10.546]  [2m46[0m | 
+[04:39:10.546]  [2m47[0m | import * as React from "react"
+[04:39:10.546]  [2m48[0m | import * as RadioGroupPrimitive from "@radix-ui/react-radio-group"
+[04:39:10.546]  [2m49[0m | 
+[04:39:10.546]  [2m50[0m | import { cn } from "@/lib/utils"
+[04:39:10.546]  [2m51[0m | 
+[04:39:10.546]  [2m52[0m | const RadioGroup = React.forwardRef<
+[04:39:10.546]  [2m53[0m |   React.ElementRef<typeof RadioGroupPrimitive.Root>,
+[04:39:10.546]  [2m54[0m |   React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Root>
+[04:39:10.546]  [2m55[0m | >(({ className, ...props }, ref) => {
+[04:39:10.546]  [2m56[0m |   return (
+[04:39:10.546]  [2m57[0m |     <RadioGroupPrimitive.Root
+[04:39:10.546]  [2m58[0m |       className={cn("grid gap-2", className)}
+[04:39:10.546]  [2m59[0m |       {...props}
+[04:39:10.546]  [2m60[0m |       ref={ref}
+[04:39:10.547]  [2m61[0m |     />
+[04:39:10.547]  [2m62[0m |   )
+[04:39:10.547]  [2m63[0m | })
+[04:39:10.547]  [2m64[0m | RadioGroup.displayName = RadioGroupPrimitive.Root.displayName
+[04:39:10.547]  [2m65[0m | 
+[04:39:10.547]  [2m66[0m | const RadioGroupItem = React.forwardRef<
+[04:39:10.547]  [2m67[0m |   React.ElementRef<typeof RadioGroupPrimitive.Item>,
+[04:39:10.547]  [2m68[0m |   React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Item>
+[04:39:10.547]  [2m69[0m | >(({ className, ...props }, ref) => {
+[04:39:10.547]  [2m70[0m |   return (
+[04:39:10.547]  [2m71[0m |     <RadioGroupPrimitive.Item
+[04:39:10.547]  [2m72[0m |       ref={ref}
+[04:39:10.547]  [2m73[0m |       className={cn(
+[04:39:10.547]  [2m74[0m |         "aspect-square h-4 w-4 rounded-full border border-primary text-primary ring-offset-background focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+[04:39:10.547]  [2m75[0m |         className
+[04:39:10.547]  [2m76[0m |       )}
+[04:39:10.547]  [2m77[0m |       {...props}
+[04:39:10.547]  [2m78[0m |     >
+[04:39:10.547]  [2m79[0m |       <RadioGroupPrimitive.Indicator className="flex items-center justify-center">
+[04:39:10.547]  [2m80[0m |         <div className="h-2 w-2 rounded-full bg-current" />
+[04:39:10.547]  [2m81[0m |       </RadioGroupPrimitive.Indicator>
+[04:39:10.547]  [2m82[0m |     </RadioGroupPrimitive.Item>
+[04:39:10.547]  [2m83[0m |   )
+[04:39:10.547]  [2m84[0m | })
+[04:39:10.547]  [2m85[0m | RadioGroupItem.displayName = RadioGroupPrimitive.Item.displayName
+[04:39:10.547]  [2m86[0m | 
+[04:39:10.547]  [2m87[0m | export { RadioGroup, RadioGroupItem }
+[04:39:10.547]     : [33;1m         ^^^^^|^^^^[0m
+[04:39:10.547]     :               [33;1m`-- [33;1mexported more than once[0m[0m
+[04:39:10.547]     `----
+[04:39:10.547] 
+[04:39:10.547] Error: 
+[04:39:10.547]   [36m>[0m Exported identifiers must be unique
+[04:39:10.547] 
+[04:39:10.547]   [31mx[0m the name `RadioGroupItem` is exported multiple times
+[04:39:10.547]     ,-[[36;1;4m/vercel/path0/components/ui/radio-group.tsx[0m:41:1]
+[04:39:10.547]  [2m41[0m | })
+[04:39:10.547]  [2m42[0m | RadioGroupItem.displayName = RadioGroupPrimitive.Item.displayName
+[04:39:10.547]  [2m43[0m | 
+[04:39:10.547]  [2m44[0m | export { RadioGroup, RadioGroupItem }
+[04:39:10.547]     : [31;1m                     ^^^^^^^|^^^^^^[0m
+[04:39:10.547]     :                             [31;1m`-- [31;1mprevious exported here[0m[0m
+[04:39:10.547]  [2m45[0m | "use client"
+[04:39:10.547]  [2m46[0m | 
+[04:39:10.548]  [2m47[0m | import * as React from "react"
+[04:39:10.548]  [2m48[0m | import * as RadioGroupPrimitive from "@radix-ui/react-radio-group"
+[04:39:10.548]  [2m49[0m | 
+[04:39:10.548]  [2m50[0m | import { cn } from "@/lib/utils"
+[04:39:10.548]  [2m51[0m | 
+[04:39:10.548]  [2m52[0m | const RadioGroup = React.forwardRef<
+[04:39:10.548]  [2m53[0m |   React.ElementRef<typeof RadioGroupPrimitive.Root>,
+[04:39:10.548]  [2m54[0m |   React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Root>
+[04:39:10.548]  [2m55[0m | >(({ className, ...props }, ref) => {
+[04:39:10.548]  [2m56[0m |   return (
+[04:39:10.548]  [2m57[0m |     <RadioGroupPrimitive.Root
+[04:39:10.548]  [2m58[0m |       className={cn("grid gap-2", className)}
+[04:39:10.548]  [2m59[0m |       {...props}
+[04:39:10.548]  [2m60[0m |       ref={ref}
+[04:39:10.548]  [2m61[0m |     />
+[04:39:10.548]  [2m62[0m |   )
+[04:39:10.548]  [2m63[0m | })
+[04:39:10.548]  [2m64[0m | RadioGroup.displayName = RadioGroupPrimitive.Root.displayName
+[04:39:10.548]  [2m65[0m | 
+[04:39:10.548]  [2m66[0m | const RadioGroupItem = React.forwardRef<
+[04:39:10.548]  [2m67[0m |   React.ElementRef<typeof RadioGroupPrimitive.Item>,
+[04:39:10.548]  [2m68[0m |   React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Item>
+[04:39:10.548]  [2m69[0m | >(({ className, ...props }, ref) => {
+[04:39:10.549]  [2m70[0m |   return (
+[04:39:10.549]  [2m71[0m |     <RadioGroupPrimitive.Item
+[04:39:10.549]  [2m72[0m |       ref={ref}
+[04:39:10.549]  [2m73[0m |       className={cn(
+[04:39:10.549]  [2m74[0m |         "aspect-square h-4 w-4 rounded-full border border-primary text-primary ring-offset-background focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+[04:39:10.549]  [2m75[0m |         className
+[04:39:10.549]  [2m76[0m |       )}
+[04:39:10.549]  [2m77[0m |       {...props}
+[04:39:10.549]  [2m78[0m |     >
+[04:39:10.549]  [2m79[0m |       <RadioGroupPrimitive.Indicator className="flex items-center justify-center">
+[04:39:10.549]  [2m80[0m |         <div className="h-2 w-2 rounded-full bg-current" />
+[04:39:10.549]  [2m81[0m |       </RadioGroupPrimitive.Indicator>
+[04:39:10.549]  [2m82[0m |     </RadioGroupPrimitive.Item>
+[04:39:10.549]  [2m83[0m |   )
+[04:39:10.549]  [2m84[0m | })
+[04:39:10.549]  [2m85[0m | RadioGroupItem.displayName = RadioGroupPrimitive.Item.displayName
+[04:39:10.549]  [2m86[0m | 
+[04:39:10.549]  [2m87[0m | export { RadioGroup, RadioGroupItem }
+[04:39:10.549]     : [33;1m                     ^^^^^^^|^^^^^^[0m
+[04:39:10.549]     :                             [33;1m`-- [33;1mexported more than once[0m[0m
+[04:39:10.549]     `----
+[04:39:10.549] 
+[04:39:10.549] Error: 
+[04:39:10.549]   [36m>[0m Exported identifiers must be unique
+[04:39:10.549] 
+[04:39:10.549]   [31mx[0m The "use client" directive must be placed before other expressions. Move it to the top of the file to resolve this issue.
+[04:39:10.549]     ,-[[36;1;4m/vercel/path0/components/ui/radio-group.tsx[0m:42:1]
+[04:39:10.549]  [2m42[0m | RadioGroupItem.displayName = RadioGroupPrimitive.Item.displayName
+[04:39:10.549]  [2m43[0m | 
+[04:39:10.550]  [2m44[0m | export { RadioGroup, RadioGroupItem }
+[04:39:10.550]  [2m45[0m | "use client"
+[04:39:10.550]     : [31;1m^^^^^^^^^^^^[0m
+[04:39:10.550]  [2m46[0m | 
+[04:39:10.550]  [2m47[0m | import * as React from "react"
+[04:39:10.550]  [2m48[0m | import * as RadioGroupPrimitive from "@radix-ui/react-radio-group"
+[04:39:10.552]     `----
+[04:39:10.552] 
+[04:39:10.552] Import trace for requested module:
+[04:39:10.552] ./components/ui/radio-group.tsx
+[04:39:10.552] ./app/auth/register/page.tsx
+[04:39:10.553] 
+[04:39:10.553] ./components/ui/tooltip.tsx
+[04:39:10.553] Error: 
+[04:39:10.553]   [31mx[0m the name `cn` is defined multiple times
+[04:39:10.553]     ,-[[36;1;4m/vercel/path0/components/ui/tooltip.tsx[0m:3:1]
+[04:39:10.553]  [2m 3[0m | import * as React from "react"
+[04:39:10.553]  [2m 4[0m | import * as TooltipPrimitive from "@radix-ui/react-tooltip"
+[04:39:10.553]  [2m 5[0m | 
+[04:39:10.553]  [2m 6[0m | import { cn } from "@/lib/utils"
+[04:39:10.554]     : [31;1m         ^|[0m
+[04:39:10.554]     :           [31;1m`-- [31;1mprevious definition of `cn` here[0m[0m
+[04:39:10.554]  [2m 7[0m | 
+[04:39:10.554]  [2m 8[0m | const TooltipProvider = TooltipPrimitive.Provider
+[04:39:10.554]  [2m 9[0m | 
+[04:39:10.554]  [2m10[0m | const Tooltip = TooltipPrimitive.Root
+[04:39:10.554]  [2m11[0m | 
+[04:39:10.554]  [2m12[0m | const TooltipTrigger = TooltipPrimitive.Trigger
+[04:39:10.555]  [2m13[0m | 
+[04:39:10.555]  [2m14[0m | const TooltipContent = React.forwardRef<
+[04:39:10.555]  [2m15[0m |   React.ElementRef<typeof TooltipPrimitive.Content>,
+[04:39:10.555]  [2m16[0m |   React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Content>
+[04:39:10.555]  [2m17[0m | >(({ className, sideOffset = 4, ...props }, ref) => (
+[04:39:10.555]  [2m18[0m |   <TooltipPrimitive.Content
+[04:39:10.555]  [2m19[0m |     ref={ref}
+[04:39:10.555]  [2m20[0m |     sideOffset={sideOffset}
+[04:39:10.555]  [2m21[0m |     className={cn(
+[04:39:10.555]  [2m22[0m |       "z-50 overflow-hidden rounded-md border bg-popover px-3 py-1.5 text-sm text-popover-foreground shadow-md animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
+[04:39:10.555]  [2m23[0m |       className
+[04:39:10.562]  [2m24[0m |     )}
+[04:39:10.562]  [2m25[0m |     {...props}
+[04:39:10.562]  [2m26[0m |   />
+[04:39:10.562]  [2m27[0m | ))
+[04:39:10.562]  [2m28[0m | TooltipContent.displayName = TooltipPrimitive.Content.displayName
+[04:39:10.562]  [2m29[0m | 
+[04:39:10.562]  [2m30[0m | export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider }
+[04:39:10.562]  [2m31[0m | "use client"
+[04:39:10.562]  [2m32[0m | 
+[04:39:10.562]  [2m33[0m | import * as React from "react"
+[04:39:10.562]  [2m34[0m | import * as TooltipPrimitive from "@radix-ui/react-tooltip"
+[04:39:10.562]  [2m35[0m | 
+[04:39:10.562]  [2m36[0m | import { cn } from "@/lib/utils"
+[04:39:10.562]     : [33;1m         ^|[0m
+[04:39:10.562]     :           [33;1m`-- [33;1m`cn` redefined here[0m[0m
+[04:39:10.562]  [2m37[0m | 
+[04:39:10.562]  [2m38[0m | const TooltipProvider = TooltipPrimitive.Provider
+[04:39:10.562]     `----
+[04:39:10.562] 
+[04:39:10.562]   [31mx[0m the name `TooltipProvider` is defined multiple times
+[04:39:10.562]     ,-[[36;1;4m/vercel/path0/components/ui/tooltip.tsx[0m:5:1]
+[04:39:10.562]  [2m 5[0m | 
+[04:39:10.562]  [2m 6[0m | import { cn } from "@/lib/utils"
+[04:39:10.562]  [2m 7[0m | 
+[04:39:10.562]  [2m 8[0m | const TooltipProvider = TooltipPrimitive.Provider
+[04:39:10.562]     : [31;1m      ^^^^^^^|^^^^^^^[0m
+[04:39:10.562]     :              [31;1m`-- [31;1mprevious definition of `TooltipProvider` here[0m[0m
+[04:39:10.562]  [2m 9[0m | 
+[04:39:10.562]  [2m10[0m | const Tooltip = TooltipPrimitive.Root
+[04:39:10.562]  [2m11[0m | 
+[04:39:10.562]  [2m12[0m | const TooltipTrigger = TooltipPrimitive.Trigger
+[04:39:10.562]  [2m13[0m | 
+[04:39:10.563]  [2m14[0m | const TooltipContent = React.forwardRef<
+[04:39:10.563]  [2m15[0m |   React.ElementRef<typeof TooltipPrimitive.Content>,
+[04:39:10.563]  [2m16[0m |   React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Content>
+[04:39:10.563]  [2m17[0m | >(({ className, sideOffset = 4, ...props }, ref) => (
+[04:39:10.563]  [2m18[0m |   <TooltipPrimitive.Content
+[04:39:10.563]  [2m19[0m |     ref={ref}
+[04:39:10.563]  [2m20[0m |     sideOffset={sideOffset}
+[04:39:10.563]  [2m21[0m |     className={cn(
+[04:39:10.563]  [2m22[0m |       "z-50 overflow-hidden rounded-md border bg-popover px-3 py-1.5 text-sm text-popover-foreground shadow-md animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
+[04:39:10.563]  [2m23[0m |       className
+[04:39:10.563]  [2m24[0m |     )}
+[04:39:10.563]  [2m25[0m |     {...props}
+[04:39:10.563]  [2m26[0m |   />
+[04:39:10.563]  [2m27[0m | ))
+[04:39:10.563]  [2m28[0m | TooltipContent.displayName = TooltipPrimitive.Content.displayName
+[04:39:10.563]  [2m29[0m | 
+[04:39:10.563]  [2m30[0m | export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider }
+[04:39:10.563]  [2m31[0m | "use client"
+[04:39:10.563]  [2m32[0m | 
+[04:39:10.563]  [2m33[0m | import * as React from "react"
+[04:39:10.563]  [2m34[0m | import * as TooltipPrimitive from "@radix-ui/react-tooltip"
+[04:39:10.563]  [2m35[0m | 
+[04:39:10.563]  [2m36[0m | import { cn } from "@/lib/utils"
+[04:39:10.563]  [2m37[0m | 
+[04:39:10.563]  [2m38[0m | const TooltipProvider = TooltipPrimitive.Provider
+[04:39:10.563]     : [33;1m      ^^^^^^^|^^^^^^^[0m
+[04:39:10.563]     :              [33;1m`-- [33;1m`TooltipProvider` redefined here[0m[0m
+[04:39:10.563]  [2m39[0m | 
+[04:39:10.563]  [2m40[0m | const Tooltip = TooltipPrimitive.Root
+[04:39:10.563]     `----
+[04:39:10.563] 
+[04:39:10.563]   [31mx[0m the name `Tooltip` is defined multiple times
+[04:39:10.563]     ,-[[36;1;4m/vercel/path0/components/ui/tooltip.tsx[0m:7:1]
+[04:39:10.563]  [2m 7[0m | 
+[04:39:10.563]  [2m 8[0m | const TooltipProvider = TooltipPrimitive.Provider
+[04:39:10.563]  [2m 9[0m | 
+[04:39:10.563]  [2m10[0m | const Tooltip = TooltipPrimitive.Root
+[04:39:10.563]     : [31;1m      ^^^|^^^[0m
+[04:39:10.563]     :          [31;1m`-- [31;1mprevious definition of `Tooltip` here[0m[0m
+[04:39:10.563]  [2m11[0m | 
+[04:39:10.563]  [2m12[0m | const TooltipTrigger = TooltipPrimitive.Trigger
+[04:39:10.563]  [2m13[0m | 
+[04:39:10.564]  [2m14[0m | const TooltipContent = React.forwardRef<
+[04:39:10.564]  [2m15[0m |   React.ElementRef<typeof TooltipPrimitive.Content>,
+[04:39:10.564]  [2m16[0m |   React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Content>
+[04:39:10.564]  [2m17[0m | >(({ className, sideOffset = 4, ...props }, ref) => (
+[04:39:10.564]  [2m18[0m |   <TooltipPrimitive.Content
+[04:39:10.564]  [2m19[0m |     ref={ref}
+[04:39:10.564]  [2m20[0m |     sideOffset={sideOffset}
+[04:39:10.564]  [2m21[0m |     className={cn(
+[04:39:10.564]  [2m22[0m |       "z-50 overflow-hidden rounded-md border bg-popover px-3 py-1.5 text-sm text-popover-foreground shadow-md animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
+[04:39:10.564]  [2m23[0m |       className
+[04:39:10.564]  [2m24[0m |     )}
+[04:39:10.564]  [2m25[0m |     {...props}
+[04:39:10.564]  [2m26[0m |   />
+[04:39:10.564]  [2m27[0m | ))
+[04:39:10.564]  [2m28[0m | TooltipContent.displayName = TooltipPrimitive.Content.displayName
+[04:39:10.564]  [2m29[0m | 
+[04:39:10.564]  [2m30[0m | export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider }
+[04:39:10.564]  [2m31[0m | "use client"
+[04:39:10.564]  [2m32[0m | 
+[04:39:10.564]  [2m33[0m | import * as React from "react"
+[04:39:10.564]  [2m34[0m | import * as TooltipPrimitive from "@radix-ui/react-tooltip"
+[04:39:10.564]  [2m35[0m | 
+[04:39:10.564]  [2m36[0m | import { cn } from "@/lib/utils"
+[04:39:10.564]  [2m37[0m | 
+[04:39:10.564]  [2m38[0m | const TooltipProvider = TooltipPrimitive.Provider
+[04:39:10.564]  [2m39[0m | 
+[04:39:10.565]  [2m40[0m | const Tooltip = TooltipPrimitive.Root
+[04:39:10.565]     : [33;1m      ^^^|^^^[0m
+[04:39:10.565]     :          [33;1m`-- [33;1m`Tooltip` redefined here[0m[0m
+[04:39:10.565]  [2m41[0m | 
+[04:39:10.565]  [2m42[0m | const TooltipTrigger = TooltipPrimitive.Trigger
+[04:39:10.565]     `----
+[04:39:10.565] 
+[04:39:10.565]   [31mx[0m the name `TooltipTrigger` is defined multiple times
+[04:39:10.565]     ,-[[36;1;4m/vercel/path0/components/ui/tooltip.tsx[0m:9:1]
+[04:39:10.565]  [2m 9[0m | 
+[04:39:10.565]  [2m10[0m | const Tooltip = TooltipPrimitive.Root
+[04:39:10.565]  [2m11[0m | 
+[04:39:10.565]  [2m12[0m | const TooltipTrigger = TooltipPrimitive.Trigger
+[04:39:10.565]     : [31;1m      ^^^^^^^|^^^^^^[0m
+[04:39:10.565]     :              [31;1m`-- [31;1mprevious definition of `TooltipTrigger` here[0m[0m
+[04:39:10.565]  [2m13[0m | 
+[04:39:10.565]  [2m14[0m | const TooltipContent = React.forwardRef<
+[04:39:10.565]  [2m15[0m |   React.ElementRef<typeof TooltipPrimitive.Content>,
+[04:39:10.565]  [2m16[0m |   React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Content>
+[04:39:10.565]  [2m17[0m | >(({ className, sideOffset = 4, ...props }, ref) => (
+[04:39:10.566]  [2m18[0m |   <TooltipPrimitive.Content
+[04:39:10.566]  [2m19[0m |     ref={ref}
+[04:39:10.566]  [2m20[0m |     sideOffset={sideOffset}
+[04:39:10.566]  [2m21[0m |     className={cn(
+[04:39:10.566]  [2m22[0m |       "z-50 overflow-hidden rounded-md border bg-popover px-3 py-1.5 text-sm text-popover-foreground shadow-md animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
+[04:39:10.566]  [2m23[0m |       className
+[04:39:10.566]  [2m24[0m |     )}
+[04:39:10.566]  [2m25[0m |     {...props}
+[04:39:10.566]  [2m26[0m |   />
+[04:39:10.566]  [2m27[0m | ))
+[04:39:10.566]  [2m28[0m | TooltipContent.displayName = TooltipPrimitive.Content.displayName
+[04:39:10.566]  [2m29[0m | 
+[04:39:10.566]  [2m30[0m | export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider }
+[04:39:10.566]  [2m31[0m | "use client"
+[04:39:10.566]  [2m32[0m | 
+[04:39:10.566]  [2m33[0m | import * as React from "react"
+[04:39:10.566]  [2m34[0m | import * as TooltipPrimitive from "@radix-ui/react-tooltip"
+[04:39:10.566]  [2m35[0m | 
+[04:39:10.566]  [2m36[0m | import { cn } from "@/lib/utils"
+[04:39:10.566]  [2m37[0m | 
+[04:39:10.566]  [2m38[0m | const TooltipProvider = TooltipPrimitive.Provider
+[04:39:10.566]  [2m39[0m | 
+[04:39:10.566]  [2m40[0m | const Tooltip = TooltipPrimitive.Root
+[04:39:10.566]  [2m41[0m | 
+[04:39:10.566]  [2m42[0m | const TooltipTrigger = TooltipPrimitive.Trigger
+[04:39:10.566]     : [33;1m      ^^^^^^^|^^^^^^[0m
+[04:39:10.566]     :              [33;1m`-- [33;1m`TooltipTrigger` redefined here[0m[0m
+[04:39:10.566]  [2m43[0m | 
+[04:39:10.566]  [2m44[0m | const TooltipContent = React.forwardRef<
+[04:39:10.566]  [2m45[0m |   React.ElementRef<typeof TooltipPrimitive.Content>,
+[04:39:10.566]     `----
+[04:39:10.566] 
+[04:39:10.574]   [31mx[0m the name `TooltipContent` is defined multiple times
+[04:39:10.574]     ,-[[36;1;4m/vercel/path0/components/ui/tooltip.tsx[0m:11:1]
+[04:39:10.574]  [2m11[0m | 
+[04:39:10.574]  [2m12[0m | const TooltipTrigger = TooltipPrimitive.Trigger
+[04:39:10.575]  [2m13[0m | 
+[04:39:10.575]  [2m14[0m | const TooltipContent = React.forwardRef<
+[04:39:10.575]     : [31;1m      ^^^^^^^|^^^^^^[0m
+[04:39:10.575]     :              [31;1m`-- [31;1mprevious definition of `TooltipContent` here[0m[0m
+[04:39:10.575]  [2m15[0m |   React.ElementRef<typeof TooltipPrimitive.Content>,
+[04:39:10.575]  [2m16[0m |   React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Content>
+[04:39:10.575]  [2m17[0m | >(({ className, sideOffset = 4, ...props }, ref) => (
+[04:39:10.575]  [2m18[0m |   <TooltipPrimitive.Content
+[04:39:10.575]  [2m19[0m |     ref={ref}
+[04:39:10.575]  [2m20[0m |     sideOffset={sideOffset}
+[04:39:10.575]  [2m21[0m |     className={cn(
+[04:39:10.575]  [2m22[0m |       "z-50 overflow-hidden rounded-md border bg-popover px-3 py-1.5 text-sm text-popover-foreground shadow-md animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
+[04:39:10.575]  [2m23[0m |       className
+[04:39:10.575]  [2m24[0m |     )}
+[04:39:10.575]  [2m25[0m |     {...props}
+[04:39:10.575]  [2m26[0m |   />
+[04:39:10.575]  [2m27[0m | ))
+[04:39:10.575]  [2m28[0m | TooltipContent.displayName = TooltipPrimitive.Content.displayName
+[04:39:10.575]  [2m29[0m | 
+[04:39:10.575]  [2m30[0m | export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider }
+[04:39:10.575]  [2m31[0m | "use client"
+[04:39:10.575]  [2m32[0m | 
+[04:39:10.575]  [2m33[0m | import * as React from "react"
+[04:39:10.575]  [2m34[0m | import * as TooltipPrimitive from "@radix-ui/react-tooltip"
+[04:39:10.575]  [2m35[0m | 
+[04:39:10.575]  [2m36[0m | import { cn } from "@/lib/utils"
+[04:39:10.575]  [2m37[0m | 
+[04:39:10.575]  [2m38[0m | const TooltipProvider = TooltipPrimitive.Provider
+[04:39:10.575]  [2m39[0m | 
+[04:39:10.575]  [2m40[0m | const Tooltip = TooltipPrimitive.Root
+[04:39:10.575]  [2m41[0m | 
+[04:39:10.575]  [2m42[0m | const TooltipTrigger = TooltipPrimitive.Trigger
+[04:39:10.575]  [2m43[0m | 
+[04:39:10.575]  [2m44[0m | const TooltipContent = React.forwardRef<
+[04:39:10.575]     : [33;1m      ^^^^^^^|^^^^^^[0m
+[04:39:10.575]     :              [33;1m`-- [33;1m`TooltipContent` redefined here[0m[0m
+[04:39:10.575]  [2m45[0m |   React.ElementRef<typeof TooltipPrimitive.Content>,
+[04:39:10.575]  [2m46[0m |   React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Content>
+[04:39:10.575]  [2m47[0m | >(({ className, sideOffset = 4, ...props }, ref) => (
+[04:39:10.575]     `----
+[04:39:10.575] 
+[04:39:10.575]   [31mx[0m the name `Tooltip` is exported multiple times
+[04:39:10.575]     ,-[[36;1;4m/vercel/path0/components/ui/tooltip.tsx[0m:27:1]
+[04:39:10.575]  [2m27[0m | ))
+[04:39:10.577]  [2m28[0m | TooltipContent.displayName = TooltipPrimitive.Content.displayName
+[04:39:10.577]  [2m29[0m | 
+[04:39:10.577]  [2m30[0m | export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider }
+[04:39:10.577]     : [31;1m         ^^^|^^^[0m
+[04:39:10.577]     :             [31;1m`-- [31;1mprevious exported here[0m[0m
+[04:39:10.577]  [2m31[0m | "use client"
+[04:39:10.577]  [2m32[0m | 
+[04:39:10.577]  [2m33[0m | import * as React from "react"
+[04:39:10.577]  [2m34[0m | import * as TooltipPrimitive from "@radix-ui/react-tooltip"
+[04:39:10.577]  [2m35[0m | 
+[04:39:10.577]  [2m36[0m | import { cn } from "@/lib/utils"
+[04:39:10.577]  [2m37[0m | 
+[04:39:10.577]  [2m38[0m | const TooltipProvider = TooltipPrimitive.Provider
+[04:39:10.577]  [2m39[0m | 
+[04:39:10.577]  [2m40[0m | const Tooltip = TooltipPrimitive.Root
+[04:39:10.577]  [2m41[0m | 
+[04:39:10.577]  [2m42[0m | const TooltipTrigger = TooltipPrimitive.Trigger
+[04:39:10.577]  [2m43[0m | 
+[04:39:10.577]  [2m44[0m | const TooltipContent = React.forwardRef<
+[04:39:10.577]  [2m45[0m |   React.ElementRef<typeof TooltipPrimitive.Content>,
+[04:39:10.577]  [2m46[0m |   React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Content>
+[04:39:10.577]  [2m47[0m | >(({ className, sideOffset = 4, ...props }, ref) => (
+[04:39:10.577]  [2m48[0m |   <TooltipPrimitive.Content
+[04:39:10.577]  [2m49[0m |     ref={ref}
+[04:39:10.577]  [2m50[0m |     sideOffset={sideOffset}
+[04:39:10.577]  [2m51[0m |     className={cn(
+[04:39:10.577]  [2m52[0m |       "z-50 overflow-hidden rounded-md border bg-popover px-3 py-1.5 text-sm text-popover-foreground shadow-md animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
+[04:39:10.577]  [2m53[0m |       className
+[04:39:10.577]  [2m54[0m |     )}
+[04:39:10.577]  [2m55[0m |     {...props}
+[04:39:10.577]  [2m56[0m |   />
+[04:39:10.577]  [2m57[0m | ))
+[04:39:10.577]  [2m58[0m | TooltipContent.displayName = TooltipPrimitive.Content.displayName
+[04:39:10.577]  [2m59[0m | 
+[04:39:10.577]  [2m60[0m | export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider }
+[04:39:10.577]     : [33;1m         ^^^|^^^[0m
+[04:39:10.577]     :             [33;1m`-- [33;1mexported more than once[0m[0m
+[04:39:10.577]     `----
+[04:39:10.577] 
+[04:39:10.577] Error: 
+[04:39:10.577]   [36m>[0m Exported identifiers must be unique
+[04:39:10.577] 
+[04:39:10.577]   [31mx[0m the name `TooltipTrigger` is exported multiple times
+[04:39:10.577]     ,-[[36;1;4m/vercel/path0/components/ui/tooltip.tsx[0m:27:1]
+[04:39:10.577]  [2m27[0m | ))
+[04:39:10.577]  [2m28[0m | TooltipContent.displayName = TooltipPrimitive.Content.displayName
+[04:39:10.578]  [2m29[0m | 
+[04:39:10.578]  [2m30[0m | export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider }
+[04:39:10.578]     : [31;1m                  ^^^^^^^|^^^^^^[0m
+[04:39:10.578]     :                          [31;1m`-- [31;1mprevious exported here[0m[0m
+[04:39:10.578]  [2m31[0m | "use client"
+[04:39:10.578]  [2m32[0m | 
+[04:39:10.578]  [2m33[0m | import * as React from "react"
+[04:39:10.578]  [2m34[0m | import * as TooltipPrimitive from "@radix-ui/react-tooltip"
+[04:39:10.578]  [2m35[0m | 
+[04:39:10.578]  [2m36[0m | import { cn } from "@/lib/utils"
+[04:39:10.578]  [2m37[0m | 
+[04:39:10.578]  [2m38[0m | const TooltipProvider = TooltipPrimitive.Provider
+[04:39:10.578]  [2m39[0m | 
+[04:39:10.578]  [2m40[0m | const Tooltip = TooltipPrimitive.Root
+[04:39:10.578]  [2m41[0m | 
+[04:39:10.578]  [2m42[0m | const TooltipTrigger = TooltipPrimitive.Trigger
+[04:39:10.578]  [2m43[0m | 
+[04:39:10.578]  [2m44[0m | const TooltipContent = React.forwardRef<
+[04:39:10.578]  [2m45[0m |   React.ElementRef<typeof TooltipPrimitive.Content>,
+[04:39:10.578]  [2m46[0m |   React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Content>
+[04:39:10.578]  [2m47[0m | >(({ className, sideOffset = 4, ...props }, ref) => (
+[04:39:10.578]  [2m48[0m |   <TooltipPrimitive.Content
+[04:39:10.578]  [2m49[0m |     ref={ref}
+[04:39:10.578]  [2m50[0m |     sideOffset={sideOffset}
+[04:39:10.578]  [2m51[0m |     className={cn(
+[04:39:10.578]  [2m52[0m |       "z-50 overflow-hidden rounded-md border bg-popover px-3 py-1.5 text-sm text-popover-foreground shadow-md animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
+[04:39:10.578]  [2m53[0m |       className
+[04:39:10.578]  [2m54[0m |     )}
+[04:39:10.578]  [2m55[0m |     {...props}
+[04:39:10.578]  [2m56[0m |   />
+[04:39:10.611]  [2m27[0m | ))
+[04:39:10.611]  [2m28[0m | TooltipContent.displayName = TooltipPrimitive.Content.displayName
+[04:39:10.611]  [2m29[0m | 
+[04:39:10.613]  [2m30[0m | export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider }
+[04:39:10.613]     : [31;1m                                                  ^^^^^^^|^^^^^^^[0m
+[04:39:10.613]     :                                                          [31;1m`-- [31;1mprevious exported here[0m[0m
+[04:39:10.613]  [2m31[0m | "use client"
+[04:39:10.613]  [2m32[0m | 
+[04:39:10.613]  [2m33[0m | import * as React from "react"
+[04:39:10.613]  [2m34[0m | import * as TooltipPrimitive from "@radix-ui/react-tooltip"
+[04:39:10.613]  [2m35[0m | 
+[04:39:10.613]  [2m36[0m | import { cn } from "@/lib/utils"
+[04:39:10.613]  [2m37[0m | 
+[04:39:10.613]  [2m38[0m | const TooltipProvider = TooltipPrimitive.Provider
+[04:39:10.613]  [2m39[0m | 
+[04:39:10.613]  [2m40[0m | const Tooltip = TooltipPrimitive.Root
+[04:39:10.613]  [2m41[0m | 
+[04:39:10.613]  [2m42[0m | const TooltipTrigger = TooltipPrimitive.Trigger
+[04:39:10.613]  [2m43[0m | 
+[04:39:10.613]  [2m44[0m | const TooltipContent = React.forwardRef<
+[04:39:10.613]  [2m45[0m |   React.ElementRef<typeof TooltipPrimitive.Content>,
+[04:39:10.613]  [2m46[0m |   React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Content>
+[04:39:10.613]  [2m47[0m | >(({ className, sideOffset = 4, ...props }, ref) => (
+[04:39:10.613]  [2m48[0m |   <TooltipPrimitive.Content
+[04:39:10.613]  [2m49[0m |     ref={ref}
+[04:39:10.613]  [2m50[0m |     sideOffset={sideOffset}
+[04:39:10.613]  [2m51[0m |     className={cn(
+[04:39:10.613]  [2m52[0m |       "z-50 overflow-hidden rounded-md border bg-popover px-3 py-1.5 text-sm text-popover-foreground shadow-md animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
+[04:39:10.613]  [2m53[0m |       className
+[04:39:10.613]  [2m54[0m |     )}
+[04:39:10.613]  [2m55[0m |     {...props}
+[04:39:10.613]  [2m56[0m |   />
+[04:39:10.613]  [2m57[0m | ))
+[04:39:10.613]  [2m58[0m | TooltipContent.displayName = TooltipPrimitive.Content.displayName
+[04:39:10.613]  [2m59[0m | 
+[04:39:10.613]  [2m60[0m | export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider }
+[04:39:10.613]     : [33;1m                                                  ^^^^^^^|^^^^^^^[0m
+[04:39:10.613]     :                                                          [33;1m`-- [33;1mexported more than once[0m[0m
+[04:39:10.613]     `----
+[04:39:10.613] 
+[04:39:10.613] Error: 
+[04:39:10.613]   [36m>[0m Exported identifiers must be unique
+[04:39:10.613] 
+[04:39:10.613]   [31mx[0m The "use client" directive must be placed before other expressions. Move it to the top of the file to resolve this issue.
+[04:39:10.613]     ,-[[36;1;4m/vercel/path0/components/ui/tooltip.tsx[0m:28:1]
+[04:39:10.613]  [2m28[0m | TooltipContent.displayName = TooltipPrimitive.Content.displayName
+[04:39:10.613]  [2m29[0m | 
+[04:39:10.613]  [2m30[0m | export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider }
+[04:39:10.614]  [2m31[0m | "use client"
+[04:39:10.614]     : [31;1m^^^^^^^^^^^^[0m
+[04:39:10.614]  [2m32[0m | 
+[04:39:10.614]  [2m33[0m | import * as React from "react"
+[04:39:10.614]  [2m34[0m | import * as TooltipPrimitive from "@radix-ui/react-tooltip"
+[04:39:10.614]     `----
+[04:39:10.614] 
+[04:39:10.614] Import trace for requested module:
+[04:39:10.614] ./components/ui/tooltip.tsx
+[04:39:10.614] ./app/events/create/page.tsx
+[04:39:10.614] 
+[04:39:10.652] 
+[04:39:10.652] > Build failed because of webpack errors
+[04:39:10.652] Error: Command "npm run build" exited with 1
+[04:39:11.736] 
