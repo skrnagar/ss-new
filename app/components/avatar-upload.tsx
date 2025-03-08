@@ -56,16 +56,51 @@ export function AvatarUpload({ userId, avatarUrl, name, isOwnProfile, onAvatarCh
     try {
       setLoading(true)
       
+      // Check if the avatars bucket exists
+      const { error: bucketError } = await supabase.storage.getBucket('avatars')
+      if (bucketError) {
+        console.error('Bucket error:', bucketError)
+        toast({
+          title: "Storage error",
+          description: "Avatar storage is not configured correctly. Please contact support.",
+          variant: "destructive",
+        })
+        return
+      }
+      
       // Upload to Supabase Storage
       const fileName = `avatar-${userId}-${Date.now()}`
-      const { data, error } = await supabase.storage
-        .from('avatars')
-        .upload(fileName, file, {
-          cacheControl: '3600',
-          upsert: true
-        })
+      console.log(`Attempting to upload to avatars bucket: ${fileName}`)
       
-      if (error) throw error
+      // Check if file is valid
+      if (!file || file.size === 0) {
+        throw new Error('Invalid file selected')
+      }
+      
+      try {
+        const { data, error } = await supabase.storage
+          .from('avatars')
+          .upload(fileName, file, {
+            cacheControl: '3600',
+            upsert: true,
+            contentType: file.type // Explicitly set content type
+          })
+        
+        if (error) {
+          console.error('Storage upload error:', error)
+          throw error
+        }
+        
+        console.log('Upload successful:', data)
+      } catch (uploadError: any) {
+        console.error('Upload exception:', uploadError)
+        toast({
+          title: "Upload failed",
+          description: uploadError.message || "Could not upload image to storage",
+          variant: "destructive",
+        })
+        throw uploadError
+      }
       
       // Get public URL
       const { data: { publicUrl } } = supabase.storage
@@ -73,12 +108,18 @@ export function AvatarUpload({ userId, avatarUrl, name, isOwnProfile, onAvatarCh
         .getPublicUrl(fileName)
       
       // Update user profile with new avatar URL
+      console.log(`Updating profile ${userId} with new avatar URL: ${publicUrl}`)
       const { error: updateError } = await supabase
         .from('profiles')
         .update({ avatar_url: publicUrl })
         .eq('id', userId)
       
-      if (updateError) throw updateError
+      if (updateError) {
+        console.error('Profile update error:', updateError)
+        throw updateError
+      }
+      
+      console.log('Profile updated successfully')
       
       // Call the callback to update UI
       if (onAvatarChange) {
