@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { createClient } from "@/lib/supabase"
+import { supabase } from "@/lib/supabase"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Camera } from "lucide-react"
@@ -20,7 +20,7 @@ export function AvatarUpload({ userId, avatarUrl, name, isOwnProfile, onAvatarUp
   const [uploading, setUploading] = useState(false)
   const [avatarSrc, setAvatarSrc] = useState<string | null>(avatarUrl)
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const supabase = createClient()
+  // Using the existing client instance
   const { toast } = useToast()
 
   useEffect(() => {
