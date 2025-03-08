@@ -95,6 +95,23 @@ export function ProfilePhotoModal({
     setLoading(true)
 
     try {
+      // Check if the avatars bucket exists
+      const { data: buckets, error: bucketError } = await supabase
+        .storage
+        .listBuckets()
+
+      if (bucketError) {
+        console.error('Error checking buckets:', bucketError.message)
+        throw new Error('Unable to access storage buckets')
+      }
+
+      const avatarsBucketExists = buckets.some(bucket => bucket.name === 'avatars')
+
+      if (!avatarsBucketExists) {
+        throw new Error('Avatars bucket does not exist')
+      }
+
+
       // Upload file to Supabase Storage
       const fileExt = selectedFile.name.split('.').pop()
       const fileName = `${userId}-${Date.now()}.${fileExt}`
@@ -102,13 +119,14 @@ export function ProfilePhotoModal({
       const { error: uploadError, data: uploadData } = await supabase.storage
         .from('avatars')
         .upload(fileName, selectedFile, {
+          contentType: 'image/jpeg', // Added content type for better handling.
           upsert: true,
         })
 
       if (uploadError) throw uploadError
 
       // Get public URL
-      const { data: urlData } = supabase.storage
+      const { data: urlData } = await supabase.storage
         .from('avatars')
         .getPublicUrl(fileName)
 
