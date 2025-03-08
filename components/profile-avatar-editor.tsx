@@ -50,18 +50,29 @@ export function ProfileAvatarEditor({
   return (
     <>
       <div className="relative inline-block">
-        <div onClick={handleAvatarClick} className={`${editable ? 'cursor-pointer' : ''}`}>
+        <div 
+          onClick={handleAvatarClick} 
+          className={`${editable ? 'cursor-pointer group/avatar relative' : ''}`}
+        >
           <Avatar 
-            className={`${sizeClasses[size]}`}
+            className={`${sizeClasses[size]} ${editable ? 'transition-opacity group-hover/avatar:opacity-80' : ''}`}
           >
             <AvatarImage src={avatarUrl || "/placeholder-user.jpg"} alt={userName} />
             <AvatarFallback>{getInitials(userName)}</AvatarFallback>
           </Avatar>
+          
+          {editable && (
+            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/avatar:opacity-100 transition-opacity">
+              <div className="bg-black/40 rounded-full p-2">
+                <Camera className="h-6 w-6 text-white" />
+              </div>
+            </div>
+          )}
         </div>
         
         {editable && (
           <div 
-            className="absolute bottom-0 right-0 bg-primary text-white rounded-full p-1.5 cursor-pointer shadow-md"
+            className="absolute bottom-0 right-0 bg-primary text-white rounded-full p-1.5 cursor-pointer shadow-md z-10"
             onClick={handleAvatarClick}
           >
             <Camera size={16} />
