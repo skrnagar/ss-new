@@ -9,7 +9,7 @@ import PostItem from '@/components/post-item'
 import PostCreator from '@/components/post-creator'
 import { Skeleton } from '@/components/ui/skeleton'
 import { supabase } from '@/lib/supabase'
-import { createClient } from '@/lib/supabase-server'
+import { createClient } from '@/lib/supabase-app-server'
 import { useAuth } from '@/contexts/auth-context'
 import Link from 'next/link'
 
