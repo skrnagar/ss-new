@@ -1,14 +1,12 @@
 
+import { cookies } from 'next/headers'
 import { createServerClient } from '@supabase/ssr'
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
 import { Database } from '@/types/supabase'
 
-// For pages directory - does not use next/headers
-export function createClient(context: any = null) {
-  if (!context || !context.req) {
-    // Running in an environment without context (app directory or other)
-    throw new Error('When using in pages directory, context with req and res must be provided')
-  }
+// This creates a Supabase client for server-side operations using @supabase/ssr
+export function createClient() {
+  const cookieStore = cookies()
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -23,32 +21,22 @@ export function createClient(context: any = null) {
     {
       cookies: {
         get(name) {
-          return context.req.cookies[name]
+          return cookieStore.get(name)?.value
         },
         set(name, value, options) {
-          if (context.res) {
-            context.res.setHeader('Set-Cookie', `${name}=${value}; Path=/; ${options.maxAge ? `Max-Age=${options.maxAge};` : ''}`)
-          }
+          cookieStore.set({ name, value, ...options })
         },
         remove(name, options) {
-          if (context.res) {
-            context.res.setHeader('Set-Cookie', `${name}=; Path=/; Max-Age=0;`)
-          }
+          cookieStore.set({ name, value: '', ...options })
         },
       },
     }
   )
 }
 
-// Legacy client for pages directory
-export function createLegacyClient(context: any = null) {
-  if (!context) {
-    throw new Error('Context must be provided for pages directory')
-  }
+// Legacy client using auth-helpers-nextjs
+export function createLegacyClient() {
   return createServerComponentClient<Database>({
-    cookies: () => context.req.cookies
+    cookies,
   })
 }
-
-// For app directory (using app router) we need a separate file as this can't be imported in pages/
-// Create a separate file called lib/supabase-app-server.ts for app directory usage
