@@ -149,11 +149,6 @@ export function Navbar() {
                     <NavigationMenuLink className={navigationMenuTriggerStyle()}>Knowledge Hub</NavigationMenuLink>
                   </Link>
                 </NavigationMenuItem>
-                <NavigationMenuItem>
-                  <Link href="/compliance" legacyBehavior passHref>
-                    <NavigationMenuLink className={navigationMenuTriggerStyle()}>Compliance</NavigationMenuLink>
-                  </Link>
-                </NavigationMenuItem>
               </NavigationMenuList>
             </NavigationMenu>
           )}
@@ -267,6 +262,12 @@ export function Navbar() {
                       <Link href="/settings" className="cursor-pointer">
                         <Settings className="mr-2 h-4 w-4" />
                         <span>Settings</span>
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/compliance" className="cursor-pointer">
+                        <Shield className="mr-2 h-4 w-4" />
+                        <span>Compliance</span>
                       </Link>
                     </DropdownMenuItem>
                     {isMobile && (
