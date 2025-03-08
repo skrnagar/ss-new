@@ -75,12 +75,112 @@ export default function EventsPage() {
       try {
         setLoading(true);
         
+        // Check if events table exists by attempting to select a single row
+        const { error: tableCheckError } = await supabase
+          .from('events')
+          .select('id')
+          .limit(1);
+        
+        // If table doesn't exist, use sample data instead
+        if (tableCheckError) {
+          console.log('Events table not found, using sample data');
+          
+          const sampleEvents = [
+            {
+              id: "1",
+              title: "National Safety Day Conference",
+              description: "Annual conference discussing workplace safety best practices and innovations.",
+              start_date: "2025-03-04",
+              location: "Virtual Event",
+              image_url: "/placeholder.jpg",
+              category: "Safety",
+              is_public: true,
+              profile: {
+                id: "sample1",
+                username: "safetyexpert",
+                full_name: "Sarah Johnson",
+                avatar_url: ""
+              }
+            },
+            {
+              id: "2",
+              title: "World Health Day Forum",
+              description: "Global discussion on health priorities and challenges.",
+              start_date: "2025-04-07", 
+              location: "Geneva, Switzerland",
+              image_url: "/placeholder.jpg",
+              category: "Health",
+              is_public: true,
+              profile: {
+                id: "sample2",
+                username: "healthadvocate",
+                full_name: "Michael Chen",
+                avatar_url: ""
+              }
+            },
+            {
+              id: "3",
+              title: "ESG Reporting Framework Summit",
+              description: "Learn about the latest ESG reporting standards and requirements.",
+              start_date: "2025-04-15",
+              location: "London, UK",
+              image_url: "/placeholder.jpg",
+              category: "Environment",
+              is_public: true,
+              profile: {
+                id: "sample3",
+                username: "esgprofessional",
+                full_name: "Emma Williams",
+                avatar_url: ""
+              }
+            },
+            {
+              id: "4",
+              title: "Biodiversity Summit",
+              description: "Global conference on protecting biodiversity and natural habitats.",
+              start_date: "2025-04-22",
+              location: "New York, USA",
+              image_url: "/placeholder.jpg",
+              category: "Environment",
+              is_public: true,
+              profile: {
+                id: "sample4",
+                username: "ecologyadvisor",
+                full_name: "James Peterson",
+                avatar_url: ""
+              }
+            },
+            {
+              id: "5",
+              title: "World Day for Safety and Health at Work",
+              description: "Global awareness day for preventing workplace accidents and diseases.",
+              start_date: "2025-04-28",
+              location: "Multiple Locations",
+              image_url: "/placeholder.jpg",
+              category: "Safety",
+              is_public: true,
+              profile: {
+                id: "sample5",
+                username: "safetyadvocate",
+                full_name: "Anna Martinez",
+                avatar_url: ""
+              }
+            }
+          ];
+          
+          setEventsData(sampleEvents);
+          // For logged-in users, you might want to assign some sample events to them as well
+          setUserEventsData([]);
+          return;
+        }
+        
+        // If table exists, proceed with real data fetching
         // Fetch public events
         const { data: publicEvents, error: publicError } = await supabase
           .from('events')
           .select(`
             *,
-            profile:user_id (
+            profile:profiles!user_id (
               id,
               username,
               full_name,
@@ -100,7 +200,7 @@ export default function EventsPage() {
             .from('events')
             .select(`
               *,
-              profile:user_id (
+              profile:profiles!user_id (
                 id,
                 username,
                 full_name,
