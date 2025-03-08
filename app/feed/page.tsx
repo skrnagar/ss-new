@@ -62,7 +62,7 @@ export default function FeedPage() {
       }
     }
 
-    fetchUserAndPosts()
+    fetchPosts()
 
     // Subscribe to new posts
     const postsSubscription = supabase
