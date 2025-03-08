@@ -203,6 +203,12 @@ export function Navbar() {
                           <span>ESG & EHS Network</span>
                         </Link>
                       </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link href="/groups" className="cursor-pointer">
+                          <Users className="mr-2 h-4 w-4" />
+                          <span>Groups</span>
+                        </Link>
+                      </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                   <Link href="/jobs">
