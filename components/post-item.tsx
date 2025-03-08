@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { useState, useEffect } from "react"
+import { useState, useEffect, memo } from "react"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
@@ -20,7 +20,7 @@ import { supabase } from "@/lib/supabase"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 
-export function PostItem({ post, currentUser }) {
+export const PostItem = memo(function PostItem({ post, currentUser }: PostItemProps) {
   const [isExpanded, setIsExpanded] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
   const [likes, setLikes] = useState([])
@@ -649,4 +649,4 @@ export function PostItem({ post, currentUser }) {
       </CardFooter>
     </Card>
   )
-}
+})

@@ -92,7 +92,7 @@ export function Navbar() {
               alt="Safety Shaper Logo" 
               width={36}
               height={36}
-              className="mr-2 h-9 w-auto transition-transform hover:scale-105"
+              className="mr-2 h-9 w-9 transition-transform hover:scale-105"
               priority
             />
           </Link>

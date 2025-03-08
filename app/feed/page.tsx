@@ -1,6 +1,7 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
+import { unstable_serialize } from 'swr'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import {
@@ -14,8 +15,9 @@ import {
 } from "lucide-react"
 import { supabase } from "@/lib/supabase"
 import { useRouter } from "next/navigation"
-import { PostCreator } from "@/components/post-creator"
-import { PostItem } from "@/components/post-item"
+import dynamic from "next/dynamic"
+const PostCreator = dynamic(() => import("@/components/post-creator"), { ssr: true })
+const PostItem = dynamic(() => import("@/components/post-item"), { ssr: true })
 import { Skeleton } from "@/components/ui/skeleton"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useAuth } from "@/contexts/auth-context"
