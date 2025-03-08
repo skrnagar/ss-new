@@ -2,7 +2,6 @@ import { createLegacyClient } from '@/lib/supabase-server'
 import { notFound, redirect } from 'next/navigation'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
-import { ProfileAvatarEditor } from '@/components/profile-avatar-editor'
 import Link from 'next/link'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
@@ -58,27 +57,12 @@ export default async function ProfilePage({ params }: { params: { username: stri
           <Card>
             <CardContent className="pt-6">
               <div className="flex flex-col items-center">
-                <div className="mb-4">
-                  {isOwnProfile ? (
-                    <ProfileAvatarEditor
-                      avatarUrl={profile.avatar_url}
-                      userId={profile.id}
-                      userName={profile.full_name || username}
-                      onAvatarChange={(url) => {
-                        // Client-side update will happen via the component
-                      }}
-                      size="lg"
-                      editable={true}
-                    />
-                  ) : (
-                    <Avatar className="h-24 w-24">
-                      <AvatarImage src={profile.avatar_url || "/placeholder-user.jpg"} alt={profile.full_name} />
-                      <AvatarFallback>
-                        {profile.full_name?.split(" ").map((n: string) => n[0]).join("") || username[0].toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                  )}
-                </div>
+                <Avatar className="h-24 w-24 mb-4">
+                  <AvatarImage src={profile.avatar_url || "/placeholder-user.jpg"} alt={profile.full_name} />
+                  <AvatarFallback>
+                    {profile.full_name?.split(" ").map((n: string) => n[0]).join("") || username[0].toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
                 <h2 className="text-2xl font-bold">{profile.full_name}</h2>
                 <p className="text-muted-foreground text-center">{profile.headline}</p>
 
