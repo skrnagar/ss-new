@@ -29,6 +29,9 @@ import { Bell, MessageCircle, Search, Settings, Users, Briefcase, BookOpen, Shie
 import { Input } from "@/components/ui/input"
 import { useToast } from "@/hooks/use-toast"
 import { useMobile } from "@/hooks/use-mobile"
+import Image from "next/image"
+import { OptimizedImage } from "./ui/optimized-image"
+
 
 export function Navbar() {
   const [user, setUser] = useState(null)
@@ -132,7 +135,7 @@ export function Navbar() {
       <div className="container flex h-16 items-center justify-between py-4">
         <div className="flex items-center gap-4">
           <Link href="/" className="flex items-center">
-            <img src="https://lephbkawjuyyygguxqio.supabase.co/storage/v1/object/public/post-images//ss%20lgog.webp" alt="Safety Shaper Logo" className="mr-2 h-8 " />
+            <OptimizedImage src="https://lephbkawjuyyygguxqio.supabase.co/storage/v1/object/public/post-images//ss%20lgog.webp" alt="Safety Shaper Logo" width={32} height={32} className="mr-2 h-8 " />
             {/* <span className="hidden text-xl font-bold sm:inline-block">Safety Shaper</span> */}
           </Link>
 

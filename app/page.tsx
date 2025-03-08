@@ -45,9 +45,9 @@ export default async function Home() {
               <div className="flex flex-col w-full ">
                 <div className="mt-4 w-full">
                   <AuthButtons className="w-max px-4 py-3 bg-white rounded-xl hover:bg-gray-100 hover:border-blue-700" />
-                  
+
                 </div>
-                
+
 
                 <div className="mt-6">
                   {/* Import the client component with the auth buttons */}
@@ -56,10 +56,15 @@ export default async function Home() {
               </div>
             </div>
             <div className="hidden md:block">
-              <img
-                src="/medium-shot-people-working-together.jpg?height=400&width=500"
+              <Image
+                src="/medium-shot-people-working-together.jpg"
                 alt="Safety Shaper Platform"
+                width={500}
+                height={400}
                 className="rounded-lg shadow-2xl"
+                priority={true}
+                placeholder="blur"
+                blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII="
               />
             </div>
             </div>
@@ -90,7 +95,7 @@ export default async function Home() {
                 </div>
               </div>
           </div>
-    
+
       </section>
 
       {/* Features Section */}

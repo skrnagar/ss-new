@@ -38,6 +38,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={poppins.variable}>
+      <head>
+        <link rel="preconnect" href="https://lephbkawjuyyygguxqio.supabase.co" />
+        <link rel="dns-prefetch" href="https://lephbkawjuyyygguxqio.supabase.co" />
+      </head>
       <body className={`${poppins.className} ${manrope.className}`}>
         <div className="flex flex-col min-h-screen">
           <Navbar />

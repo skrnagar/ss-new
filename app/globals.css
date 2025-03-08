@@ -2,6 +2,33 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Layout shift prevention */
+@layer utilities {
+  .aspect-stable {
+    contain: layout size;
+  }
+  
+  .content-visibility-auto {
+    content-visibility: auto;
+  }
+  
+  .image-rendering-crisp {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+  }
+}
+
+/* Ensure images maintain aspect ratio */
+img {
+  aspect-ratio: attr(width) / attr(height);
+}
+
+/* Prevent layout shifts for dynamically loaded content */
+.prevent-shift {
+  min-height: 1px;
+  contain: layout style;
+}
+
 :root {
   --background: 0 0% 100%;
   --foreground: 222.2 84% 4.9%;
