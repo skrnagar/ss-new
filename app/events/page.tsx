@@ -126,7 +126,7 @@ const userEventsData = [
     attendees: 32,
     type: "safety",
     category: "networking",
-    image: `https://placehold.co/800x400/1f2937/f8fafc?text=Event+${101}`,
+    image: `https://placehold.co/800x400/1f2937/f8fafc?text=${encodeURIComponent("Safety Leadership Roundtable")}`,
   },
   {
     id: 102,
@@ -139,7 +139,7 @@ const userEventsData = [
     attendees: 18,
     type: "esg",
     category: "workshop",
-    image: `https://placehold.co/800x400/1f2937/f8fafc?text=Event+${102}`,
+    image: `https://placehold.co/800x400/1f2937/f8fafc?text=${encodeURIComponent("ESG Metrics Working Group Session")}`,
   },
 ];
 
