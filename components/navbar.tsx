@@ -145,42 +145,9 @@ export function Navbar() {
                   </Link>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
-                  <NavigationMenuTrigger>Network</NavigationMenuTrigger>
-                  <NavigationMenuContent>
-                    <ul className="grid gap-3 p-4 w-[400px] md:w-[500px] lg:w-[600px] grid-cols-2">
-                      <li>
-                        <Link href="/network" legacyBehavior passHref>
-                          <NavigationMenuLink
-                            className={cn(
-                              "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
-                            )}
-                          >
-                            <div className="flex items-center gap-2">
-                              <Users className="h-4 w-4" />
-                              <div className="text-sm font-medium leading-none">Connections</div>
-                            </div>
-                            <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                              Manage your network connections
-                            </p>
-                          </NavigationMenuLink>
-                        </Link>
-                      </li>
-                      <li>
-                        <Link href="/network/professionals" legacyBehavior passHref>
-                          <NavigationMenuLink
-                            className={cn(
-                              "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
-                            )}
-                          >
-                            <div className="mb-2 mt-4 text-lg font-medium">ESG & EHS Network</div>
-                            <p className="text-sm leading-tight text-muted-foreground">
-                              Connect with professionals in Environmental, Social, Governance, and Health & Safety
-                            </p>
-                          </NavigationMenuLink>
-                        </Link>
-                      </li>
-                    </ul>
-                  </NavigationMenuContent>
+                  <Link href="/network" legacyBehavior passHref>
+                    <NavigationMenuLink className={navigationMenuTriggerStyle()}>Network</NavigationMenuLink>
+                  </Link>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
                   <Link href="/groups" legacyBehavior passHref>
@@ -218,6 +185,26 @@ export function Navbar() {
             <div className="flex items-center gap-4">
               {!isMobile && (
                 <>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" aria-label="Network">
+                        <Users className="h-5 w-5" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem asChild>
+                        <Link href="/network" className="cursor-pointer">
+                          <Users className="mr-2 h-4 w-4" />
+                          <span>Connections</span>
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link href="/network/professionals" className="cursor-pointer">
+                          <span>ESG & EHS Network</span>
+                        </Link>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                   <Link href="/jobs">
                     <Button variant="ghost" size="icon" aria-label="Jobs">
                       <Briefcase className="h-5 w-5" />
