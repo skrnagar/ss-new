@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Slider } from "@/components/ui/slider"
 import { X, Upload, Eye, RotateCcw, RotateCw } from "lucide-react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { createClient } from "@/lib/supabase"
+//import { createClient } from "@/lib/supabase" //Removed this line
 
 interface ProfilePhotoModalProps {
   isOpen: boolean
@@ -39,7 +39,7 @@ export function ProfilePhotoModal({
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { toast } = useToast()
   const router = useRouter()
-  const supabase = createClient()
+  //const supabase = createClient() //Removed this line
 
   // Get initials for avatar fallback
   const getInitials = (name: string) => {
