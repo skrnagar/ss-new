@@ -254,6 +254,7 @@ export default function EventsPage() {
         <TabsList>
           <TabsTrigger value="all">All Events</TabsTrigger>
           <TabsTrigger value="my-events">My Events</TabsTrigger>
+          <TabsTrigger value="calendar">Calendar</TabsTrigger>
         </TabsList>
         
         <TabsContent value="all">
@@ -442,6 +443,123 @@ export default function EventsPage() {
               </CardContent>
             </Card>
           )}
+        </TabsContent>
+        
+        <TabsContent value="calendar">
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h2 className="text-xl font-semibold">Event Calendar</h2>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm">Today</Button>
+                <Button variant="outline" size="sm">Month</Button>
+                <Button variant="outline" size="sm">Week</Button>
+                <Button variant="outline" size="sm">Day</Button>
+              </div>
+            </div>
+            
+            <Card>
+              <CardContent className="p-4">
+                <div className="grid grid-cols-7 gap-1">
+                  {/* Calendar header - Days of the week */}
+                  {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
+                    <div key={day} className="text-center py-2 font-medium text-sm">
+                      {day}
+                    </div>
+                  ))}
+                  
+                  {/* Calendar grid - example for a month */}
+                  {Array.from({ length: 35 }).map((_, i) => {
+                    const day = i - 2; // Adjust to start from correct day (example)
+                    return (
+                      <div 
+                        key={i} 
+                        className={`min-h-24 border rounded-md p-1 ${day < 1 || day > 30 ? 'bg-muted/30' : ''}`}
+                      >
+                        {day > 0 && day <= 30 && (
+                          <>
+                            <div className="text-right text-sm mb-1">{day}</div>
+                            {/* Example events - dynamically this would come from the real data */}
+                            {day === 4 && (
+                              <div className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100 text-xs p-1 rounded mb-1 truncate">
+                                National Safety Day
+                              </div>
+                            )}
+                            {day === 7 && (
+                              <div className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100 text-xs p-1 rounded mb-1 truncate">
+                                World Health Day
+                              </div>
+                            )}
+                            {day === 15 && (
+                              <div className="bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-100 text-xs p-1 rounded mb-1 truncate">
+                                ESG Reporting Summit
+                              </div>
+                            )}
+                            {day === 22 && (
+                              <div className="bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100 text-xs p-1 rounded mb-1 truncate">
+                                Biodiversity Summit
+                              </div>
+                            )}
+                            {day === 28 && (
+                              <div className="bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-100 text-xs p-1 rounded mb-1 truncate">
+                                Safety & Health at Work
+                              </div>
+                            )}
+                          </>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg">Upcoming Events</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {/* Example upcoming events */}
+                {[
+                  {
+                    title: "National Safety Day Conference",
+                    date: "March 4, 2025",
+                    type: "safety"
+                  },
+                  {
+                    title: "World Health Day",
+                    date: "April 7, 2025",
+                    type: "health"
+                  },
+                  {
+                    title: "ESG Reporting Framework Summit",
+                    date: "April 15, 2025",
+                    type: "esg"
+                  },
+                  {
+                    title: "World Day for Safety and Health at Work",
+                    date: "April 28, 2025",
+                    type: "safety"
+                  },
+                  {
+                    title: "Mental Health Awareness Month",
+                    date: "May 1-31, 2025",
+                    type: "health"
+                  }
+                ].map((event, index) => (
+                  <div key={index} className="flex items-start gap-3">
+                    <div className={`w-3 h-3 mt-1 rounded-full flex-shrink-0 ${
+                      event.type === 'safety' ? 'bg-red-500' : 
+                      event.type === 'esg' ? 'bg-green-500' : 'bg-blue-500'
+                    }`} />
+                    <div>
+                      <p className="font-medium">{event.title}</p>
+                      <p className="text-sm text-muted-foreground">{event.date}</p>
+                    </div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
       </Tabs>
     </div>
