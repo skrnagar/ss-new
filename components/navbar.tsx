@@ -90,10 +90,10 @@ export function Navbar() {
             <Image 
               src="/sslogo.webp" 
               alt="Safety Shaper Logo" 
-              width={36}
-              height={36}
+              width={55}
+              height={55}
               className="mr-2 h-9 w-9 transition-transform hover:scale-105"
-              style={{ width: 'auto', height: 'auto' }}
+              style={{ width: 'auto'}}
               priority
             />
           </Link>
