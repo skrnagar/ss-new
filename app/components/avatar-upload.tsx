@@ -1,11 +1,9 @@
+
 "use client"
 
-import { useState, useRef } from "react"
+import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
-import { supabase } from "@/lib/supabase"
-import { useToast } from "@/hooks/use-toast"
 import { ProfilePhotoModal } from "./profile-photo-modal"
 
 interface AvatarUploadProps {
@@ -18,7 +16,6 @@ interface AvatarUploadProps {
 
 export function AvatarUpload({ userId, avatarUrl, name, isOwnProfile, onAvatarChange }: AvatarUploadProps) {
   const [modalOpen, setModalOpen] = useState(false)
-  const { toast } = useToast()
   const router = useRouter()
 
   // Get initials for avatar fallback
@@ -47,7 +44,7 @@ export function AvatarUpload({ userId, avatarUrl, name, isOwnProfile, onAvatarCh
         <AvatarImage src={avatarUrl || "/placeholder-user.jpg"} alt={name} />
         <AvatarFallback>{getInitials(name)}</AvatarFallback>
       </Avatar>
-
+      
       {/* Profile Photo Modal */}
       <ProfilePhotoModal
         userId={userId}
