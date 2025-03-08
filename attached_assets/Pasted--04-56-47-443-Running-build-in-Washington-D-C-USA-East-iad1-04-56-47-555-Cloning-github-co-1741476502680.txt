@@ -1,0 +1,46 @@
+[04:56:47.443] Running build in Washington, D.C., USA (East) – iad1
+[04:56:47.555] Cloning github.com/skrnagar/ss-new (Branch: main, Commit: 1852f16)
+[04:56:48.112] Previous build caches not available
+[04:56:48.720] Cloning completed: 1.164s
+[04:56:49.153] Running "vercel build"
+[04:56:49.526] Vercel CLI 41.2.2
+[04:56:49.826] Installing dependencies...
+[04:56:52.677] npm warn deprecated @supabase/auth-helpers-shared@0.6.3: This package is now deprecated - please use the @supabase/ssr package instead.
+[04:56:53.327] npm warn deprecated @supabase/auth-helpers-nextjs@0.9.0: This package is now deprecated - please use the @supabase/ssr package instead.
+[04:57:00.398] 
+[04:57:00.398] added 269 packages in 10s
+[04:57:00.399] 
+[04:57:00.399] 39 packages are looking for funding
+[04:57:00.399]   run `npm fund` for details
+[04:57:00.456] Detected Next.js version: 14.2.16
+[04:57:00.459] Running "npm run build"
+[04:57:00.570] 
+[04:57:00.570] > my-v0-project@0.1.0 build
+[04:57:00.570] > next build
+[04:57:00.570] 
+[04:57:01.105] Attention: Next.js now collects completely anonymous telemetry regarding usage.
+[04:57:01.106] This information is used to shape Next.js' roadmap and prioritize features.
+[04:57:01.106] You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+[04:57:01.107] https://nextjs.org/telemetry
+[04:57:01.107] 
+[04:57:01.159]   ▲ Next.js 14.2.16
+[04:57:01.159]   - Experiments (use with caution):
+[04:57:01.160]     · instrumentationHook
+[04:57:01.160] 
+[04:57:01.224]    Creating an optimized production build ...
+[04:57:26.494]  ✓ Compiled successfully
+[04:57:26.495]    Linting and checking validity of types ...
+[04:57:36.688] Failed to compile.
+[04:57:36.688] 
+[04:57:36.689] ./app/events/page.tsx:545:30
+[04:57:36.689] Type error: Parameter 'events' implicitly has an 'any' type.
+[04:57:36.689] 
+[04:57:36.691] [0m [90m 543 |[39m[0m
+[04:57:36.691] [0m [90m 544 |[39m   [90m// Filtered events based on search and filters[39m[0m
+[04:57:36.691] [0m[31m[1m>[22m[39m[90m 545 |[39m   [36mconst[39m getFilteredEvents [33m=[39m (events) [33m=>[39m {[0m
+[04:57:36.691] [0m [90m     |[39m                              [31m[1m^[22m[39m[0m
+[04:57:36.691] [0m [90m 546 |[39m     [36mreturn[39m events[33m.[39mfilter(event [33m=>[39m {[0m
+[04:57:36.692] [0m [90m 547 |[39m       [90m// Search filter[39m[0m
+[04:57:36.692] [0m [90m 548 |[39m       [36mconst[39m matchesSearch [33m=[39m searchQuery [33m===[39m [32m""[39m [33m||[39m [0m
+[04:57:36.747] Error: Command "npm run build" exited with 1
+[04:57:37.017] 
