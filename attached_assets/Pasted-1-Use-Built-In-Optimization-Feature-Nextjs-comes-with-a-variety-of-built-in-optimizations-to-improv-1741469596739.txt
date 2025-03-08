@@ -1,0 +1,69 @@
+1. Use Built-In Optimization Feature
+Nextjs comes with a variety of built-in optimizations to improve your application’s speed. There are many kinds of optimization available, I think these features are the most common and easy to apply to your application.
+
+Imgae : Nextjs extends the traditional <img> element in HTML, which leads to optimizing the image. You can use <Image /> component
+font : next/font optimizes any font file and removes external network requests to improve performance. It automatically self-hosts any Google Font , so no requests are sent to Google by the browser.
+2. Remove unused packages
+Sometimes we forget to remove packages that are defined in package.json but no longer needed. You can check those items by running npx depcheck .
+
+
+3. Check the current bundle size
+Run yarn build and check each page’s First Load JS size. You can find which page requires a bunch of modules and potentially runs slow. If you see the text colour red, you could investigate this file deeper.
+
+
+@next/bundle-analyzer enables you to visually analyze the bundle size. The bigger the cell is, the larger the size of the modules. The installation guide is available in the document.
+
+@next/bundle-analyzer
+Use `webpack-bundle-analyzer` in your Next.js project. Latest version: 13.5.4, last published: 12 days ago. Start using…
+www.npmjs.com
+
+
+As the image above shows, the pdf.js module takes up a lot of space, which is actually causing a huge first load js bundle size in /document page.
+
+4. Lighthouse
+If you are using Google Chrome, you can use Lighthouse, an open-source tool that can help you improve your website’s speed, performance, and overall experience.
+
+Lighthouse
+Lighthouse is an open-source, automated tool for improving the performance, quality, and correctness of your web apps.
+chrome.google.com
+
+I’m not going to write about the detailed usage of the lighthouse, but you can run the diagnoses and see the report on your application. It will give us some metrics and diagnostics, and you can check which element or aspect is the touchstone and have room for improvement.
+
+
+In the example above, I’ve got a warning that says “Largest Cotentfull Paint image was lazily loaded”. LCP measures the time it takes for the largest content element(such as text, images, videos, etc) to appear on the screen. If the largest content element of your page is not optimized, this index scores lower. You can improve this by adding priority tag in <Image /> component.
+
+// for the largest image element
+ <Image
+   src='/cat.jpg'
+   alt='cute-cat'
+   priority
+   ....
+ />
+In the <Image /> component, the default setting of priority is false , meaning it applies lazy loading. When you add priority={true}(or just 'priority') , the image will be considered high priority and preloaded, which will shorten the LCP time.
+
+5. Dynamic Import
+We can use next/dynamic for the modules or components that are rendered for the first time on the client side to improve the performance.
+
+Lazy Loading
+Lazy load imported libraries and React Components to improve your application's loading performance.
+nextjs.org
+
+In my example, I made a PDFRenderer component, which will show the PDF images in the modal when the user clicks ‘open modal’ button on the page.
+
+
+
+In this modal component, I imported some modules for rendering PDF, but this module is needed only when the user clicks the button and opens the modal. In other words, some modules that are not required to show the initial page view could be excluded from the first load js of the page. This is when next/dynamic comes in handy. I’ve changed the import statements to something like this.
+
+// /document page
+// Inside the PDFModal, I imported bunch of node modules...
+
+// Before
+import PDFModal from '@/components/optimization/PDFModal';
+
+// After
+import dynamic from 'next/dynamic';
+const PDFModal = dynamic(() => import('@/components/optimization/PDFModal'), {ssr: false});
+By doing this, when the browser runs the javascript for /document page, it applies lazy loading for the PDFModal component, and only include them when they are needed.
+
+
+At first, /document page has 187 kb first bundle js, and now it’s compressed to over half of the size!

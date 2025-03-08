@@ -88,14 +88,13 @@ export function Navbar() {
         <div className="flex items-center gap-4">
           <Link href="/" className="flex items-center">
             <Image 
-              src="/placeholder-logo.svg" 
+              src="/sslogo.webp" 
               alt="Safety Shaper Logo" 
               width={36}
               height={36}
               className="mr-2 h-9 w-auto transition-transform hover:scale-105"
               priority
             />
-            <span className="hidden text-xl font-bold sm:inline-block bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Safety Shaper</span>
           </Link>
 
           {user && !isMobile && (

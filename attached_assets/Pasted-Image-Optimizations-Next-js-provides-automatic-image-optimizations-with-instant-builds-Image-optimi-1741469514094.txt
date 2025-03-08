@@ -1,0 +1,32 @@
+Image Optimizations
+Next.js provides automatic image optimizations with instant builds. Image optimization is a powerful feature prebuilt into Next.js because managing and optimizing images requires many configurations, and manually optimizing images can take a toll on your productive time.
+
+Internationalization
+Creating an enterprise application can be easily translated into different languages worldwide. Internationalization takes less configuration to get set up, making Next.js internationally recognized.
+
+Next.js Analytics
+Next.js provides an analytical dashboard that can be configured to show accurate visitor data and page insights out of the box. Quickly build an analytical dashboard and gain valuable insights into your visitors and page insights without extra coding or configuration.
+
+Zero Config
+Next.js compiles and builds automatically with hot refresh without any extra configuration. It automatically scales and optimizes your production application with hot refresh right out of the box.
+
+Prebuilt SSR, SSG, and CSR Support
+With Next.js, you support server-side rendering, static generation, and client-side rendering in one application. Decide the type of application you want to build and how you intend to compile your application to best suit your use case.
+
+Code-Splitting and Bundling
+NextJS has the potential to render pages with the needed libraries as per the project requirements. It concentrates on creating multiple resources rather than a large solo JavaScript file. Whenever a page loads, you can view the required JavaScript page.
+
+Incremental Static Regeneration(ISR)
+Develop or modify your static pages with this framework. It enables your NextJS developers to use static generation page-by-page with Incremental Static Regeneration and avoid the complexities of rebuilding the site. Achieve high scalability while retaining the advantages of being static.
+
+TypeScript Support
+The NextJS framework offers automatic TypeScript configuration and compilation for APIs, Pages, and more. This built-in support feature gives an integrated TypeScript experience to start a new project from scratch or change an existing one.
+
+Simplify Setup & Catch Issues Faster
+Alerty is a cloud monitoring service tailored for developers and early-stage startups. It provides application performance monitoring, database monitoring, and incident management. Key features include:
+
+Support for Next.js, React, Vue, and Node.js, helping developers identify and resolve issues.
+Monitoring of databases such as Supabase, PostgreSQL, and RDS, tracking key metrics like CPU usage and memory consumption.
+Quick incident management and Real User Monitoring (RUM) to optimize user experience.
+Universal service monitoring for dependencies like the Stripe API, OpenAI, and Vercel.
+Alerty leverages AI to streamline the setup process, offering a more affordable solution than its competitors. It's user-friendly, allows quick and easy setup, and seamlessly integrates with tools like Sentry. This makes it perfect for developers and small teams seeking efficient, cost-effective monitoring.

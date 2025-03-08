@@ -169,7 +169,7 @@ export default function FeedPage() {
         <div className="hidden md:block space-y-6">
           <Card>
             <CardContent className="pt-6">
-              <h3 className="font-semibold mb-3">Your Profile</h3>
+              
               {userProfile ? (
                 <div className="flex flex-col items-center text-center mb-4">
                   <Avatar className="h-16 w-16 mb-3">
