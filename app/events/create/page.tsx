@@ -305,7 +305,7 @@ export default function CreateEventPage() {
                             </Tooltip>
                           </TooltipProvider>
                         </Label>
-                        <Select>
+                        <Select required>
                           <SelectTrigger>
                             <SelectValue placeholder="Select platform" />
                           </SelectTrigger>
