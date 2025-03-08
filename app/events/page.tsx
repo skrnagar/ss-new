@@ -323,7 +323,7 @@ export default function EventsPage() {
                         <SelectValue placeholder="All Types" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">All Types</SelectItem>
+                        <SelectItem value="all">All Types</SelectItem>
                         <SelectItem value="safety">Safety</SelectItem>
                         <SelectItem value="esg">ESG</SelectItem>
                         <SelectItem value="health">Health</SelectItem>
@@ -337,7 +337,7 @@ export default function EventsPage() {
                         <SelectValue placeholder="All Categories" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">All Categories</SelectItem>
+                        <SelectItem value="all">All Categories</SelectItem>
                         <SelectItem value="observance">Observance Day</SelectItem>
                         <SelectItem value="conference">Conference</SelectItem>
                         <SelectItem value="workshop">Workshop</SelectItem>
