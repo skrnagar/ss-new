@@ -44,7 +44,7 @@ const safetyEventsData = [
     attendees: 456,
     type: "safety",
     category: "observance",
-    image: `https://placehold.co/800x400/1f2937/f8fafc?text=Event+${1}`,
+    image: `https://placehold.co/800x400/1f2937/f8fafc?text=${encodeURIComponent("National Safety Day Conference")}`,
   },
   {
     id: 2,
@@ -57,7 +57,7 @@ const safetyEventsData = [
     attendees: 325,
     type: "esg",
     category: "conference",
-    image: `https://placehold.co/800x400/1f2937/f8fafc?text=Event+${2}`,
+    image: `https://placehold.co/800x400/1f2937/f8fafc?text=${encodeURIComponent("Workplace Safety Workshop")}`,
   },
   {
     id: 3,
@@ -70,7 +70,7 @@ const safetyEventsData = [
     attendees: 1289,
     type: "esg",
     category: "observance",
-    image: `https://placehold.co/800x400/1f2937/f8fafc?text=Event+${3}`,
+    image: `https://placehold.co/800x400/1f2937/f8fafc?text=${encodeURIComponent("World Environment Day Observance")}`,
   },
   {
     id: 4,
@@ -83,7 +83,7 @@ const safetyEventsData = [
     attendees: 178,
     type: "safety",
     category: "workshop",
-    image: `https://placehold.co/800x400/1f2937/f8fafc?text=Event+${4}`,
+    image: `https://placehold.co/800x400/1f2937/f8fafc?text=${encodeURIComponent("Construction Safety Standards Forum")}`,
   },
   {
     id: 5,
@@ -96,7 +96,7 @@ const safetyEventsData = [
     attendees: 234,
     type: "health",
     category: "webinar",
-    image: `https://placehold.co/800x400/1f2937/f8fafc?text=Event+${5}`,
+    image: `https://placehold.co/800x400/1f2937/f8fafc?text=${encodeURIComponent("Mental Health Awareness Month Kickoff Webinar")}`,
   },
   {
     id: 6,
@@ -109,7 +109,7 @@ const safetyEventsData = [
     attendees: 415,
     type: "esg",
     category: "conference",
-    image: `https://placehold.co/800x400/1f2937/f8fafc?text=Event+${6}`,
+    image: `https://placehold.co/800x400/1f2937/f8fafc?text=${encodeURIComponent("Sustainable Supply Chain Conference")}`,
   },
 ];
 
