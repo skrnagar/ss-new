@@ -325,3 +325,133 @@ export function ProfilePhotoModal({ userId, avatarUrl, name, isOpen, onClose }: 
     </div>
   )
 }
+"use client"
+
+import React, { useState } from "react"
+import { X } from "lucide-react"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Button } from "@/components/ui/button"
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
+import { Slider } from "@/components/ui/slider"
+import { createClient } from "@/lib/supabase"
+
+interface ProfilePhotoModalProps {
+  isOpen: boolean
+  onClose: () => void
+  userId: string
+  avatarUrl: string | null
+  name: string
+  onAvatarUpdate: (url: string) => void
+}
+
+export function ProfilePhotoModal({
+  isOpen,
+  onClose,
+  userId,
+  avatarUrl,
+  name,
+  onAvatarUpdate
+}: ProfilePhotoModalProps) {
+  const [zoom, setZoom] = useState([1])
+  const supabase = createClient()
+  
+  // Get initials for avatar fallback
+  const getInitials = (name: string) => {
+    if (!name) return 'U'
+    return name
+      .split(' ')
+      .map(part => part?.[0] || '')
+      .join('')
+      .toUpperCase()
+      .substring(0, 2)
+  }
+
+  return (
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Profile photo</DialogTitle>
+          <Button 
+            variant="ghost" 
+            size="icon"
+            className="absolute right-4 top-4"
+            onClick={onClose}
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        </DialogHeader>
+        
+        <div className="flex flex-col items-center justify-center space-y-6 py-4">
+          <div className="relative h-40 w-40 rounded-full overflow-hidden bg-muted">
+            <Avatar className="h-full w-full" style={{ transform: `scale(${zoom[0]})` }}>
+              <AvatarImage src={avatarUrl || ''} alt={name} />
+              <AvatarFallback>{getInitials(name)}</AvatarFallback>
+            </Avatar>
+          </div>
+          
+          <div className="w-full px-4">
+            <Slider 
+              value={zoom} 
+              min={0.5} 
+              max={2} 
+              step={0.1} 
+              onValueChange={setZoom} 
+            />
+          </div>
+          
+          <div className="flex gap-4 w-full justify-center">
+            <Button variant="outline" onClick={onClose}>
+              Cancel
+            </Button>
+            <Button variant="default">
+              Save
+            </Button>
+          </div>
+          
+          <div className="border-t w-full pt-4 flex justify-around">
+            <Button variant="ghost" className="flex flex-col items-center">
+              <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center mb-1">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 20h9" /><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+                </svg>
+              </div>
+              <span className="text-xs">Edit</span>
+            </Button>
+            
+            <Button variant="ghost" className="flex flex-col items-center">
+              <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center mb-1">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                  <circle cx="8.5" cy="8.5" r="1.5" />
+                  <polyline points="21 15 16 10 5 21" />
+                </svg>
+              </div>
+              <span className="text-xs">Add photo</span>
+            </Button>
+            
+            <Button variant="ghost" className="flex flex-col items-center">
+              <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center mb-1">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                  <line x1="3" y1="9" x2="21" y2="9" />
+                  <line x1="9" y1="21" x2="9" y2="9" />
+                </svg>
+              </div>
+              <span className="text-xs">Frames</span>
+            </Button>
+            
+            <Button variant="ghost" className="flex flex-col items-center">
+              <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center mb-1">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="3 6 5 6 21 6" />
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                </svg>
+              </div>
+              <span className="text-xs">Delete</span>
+            </Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  )
+}
