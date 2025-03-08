@@ -180,7 +180,7 @@ export default function EventsPage() {
           .from('events')
           .select(`
             *,
-            profile:profiles!user_id (
+            profile:profiles (
               id,
               username,
               full_name,
@@ -200,7 +200,7 @@ export default function EventsPage() {
             .from('events')
             .select(`
               *,
-              profile:profiles!user_id (
+              profile:profiles (
                 id,
                 username,
                 full_name,
