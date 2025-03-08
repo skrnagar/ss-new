@@ -161,7 +161,7 @@ export default function FeedPage() {
           ) : posts.length > 0 ? (
             posts.map((post) => (
               <ErrorBoundary key={post.id}>
-                <PostItem key={post.id} post={post} currentUser={userProfile} />
+                <PostItem post={post} currentUser={userProfile} />
               </ErrorBoundary>
             ))
           ) : (
@@ -180,7 +180,7 @@ export default function FeedPage() {
         <div className="hidden md:block space-y-6">
           <Card>
             <CardContent className="pt-6">
-              
+
               {userProfile ? (
                 <div className="flex flex-col items-center text-center mb-4">
                   <Avatar className="h-16 w-16 mb-3">
