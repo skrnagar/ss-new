@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useRef } from "react"
@@ -38,51 +39,42 @@ export function AvatarUpload({ userId, avatarUrl, name, isOwnProfile, onAvatarCh
     }
   }
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
     if (!file) return
+
+    // Check file size (max 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      toast({
+        title: "File too large",
+        description: "Please select an image under 2MB",
+        variant: "destructive",
+      })
+      return
+    }
 
     try {
       setLoading(true)
-
-      // Check if the avatars bucket exists
-      const { error: bucketError } = await supabase.storage.getBucket('avatars')
-      if (bucketError) {
-        console.log('Avatars bucket not found, attempting to create it...')
-
-        // Create bucket if it doesn't exist
-        const { error: createBucketError } = await supabase.storage.createBucket('avatars', {
-          public: true,
-          fileSizeLimit: 5242880, // 5MB limit for avatars
-          allowedMimeTypes: ['image/png', 'image/jpeg', 'image/gif', 'image/webp']
-        })
-
-        if (createBucketError) {
-          console.error('Error creating avatars bucket:', createBucketError)
-          toast({
-            title: "Storage error",
-            description: "Could not create avatar storage. Please try again later or contact support.",
-            variant: "destructive",
-          })
-          setLoading(false)
-          return
-        }
-
-        // Set the bucket to public
-        await supabase.storage.updateBucket('avatars', { public: true })
-        console.log('Created avatars bucket successfully')
-      }
-
-      // Upload to Supabase Storage
-      const fileName = `avatar-${userId}-${Date.now()}`
+      
+      // Upload to Supabase Storage directly
+      // Use a more specific path format including user ID for better organization
+      const timestamp = Date.now()
+      const fileName = `${userId}/${timestamp}-${file.name}`
       console.log(`Attempting to upload to avatars bucket: ${fileName}`)
-
+      
       // Check if file is valid
       if (!file || file.size === 0) {
         throw new Error('Invalid file selected')
       }
-
+      
+      console.log(`Attempting to upload file to avatars/${fileName}`)
+      
       try {
+        // Check if file is valid
+        if (!file || file.size === 0) {
+          throw new Error('Invalid file selected')
+        }
+        
         const { data, error } = await supabase.storage
           .from('avatars')
           .upload(fileName, file, {
@@ -90,12 +82,27 @@ export function AvatarUpload({ userId, avatarUrl, name, isOwnProfile, onAvatarCh
             upsert: true,
             contentType: file.type // Explicitly set content type
           })
-
+        
         if (error) {
           console.error('Storage upload error:', error)
-          throw error
+          
+          // If the error contains "Bucket not found", provide specific guidance
+          if (error.message && error.message.includes("not found")) {
+            toast({
+              title: "Storage configuration issue",
+              description: "The avatars storage is not properly configured. Please check Supabase setup.",
+              variant: "destructive",
+            })
+          } else {
+            toast({
+              title: "Upload failed",
+              description: error.message || "Could not upload avatar to storage",
+              variant: "destructive",
+            })
+          }
+          return
         }
-
+        
         console.log('Upload successful:', data)
       } catch (uploadError: any) {
         console.error('Upload exception:', uploadError)
@@ -104,28 +111,31 @@ export function AvatarUpload({ userId, avatarUrl, name, isOwnProfile, onAvatarCh
           description: uploadError.message || "Could not upload image to storage",
           variant: "destructive",
         })
-        throw uploadError
+        return
       }
-
+      
       // Get public URL
-      const { data: { publicUrl } } = supabase.storage
+      const { data: urlData } = supabase.storage
         .from('avatars')
         .getPublicUrl(fileName)
-
+      
+      const publicUrl = urlData.publicUrl
+      console.log('Generated public URL:', publicUrl)
+      
       // Update user profile with new avatar URL
       console.log(`Updating profile ${userId} with new avatar URL: ${publicUrl}`)
       const { error: updateError } = await supabase
         .from('profiles')
         .update({ avatar_url: publicUrl })
         .eq('id', userId)
-
+      
       if (updateError) {
         console.error('Profile update error:', updateError)
         throw updateError
       }
-
+      
       console.log('Profile updated successfully')
-
+      
       // Call the callback to update UI
       if (onAvatarChange) {
         onAvatarChange(publicUrl)
@@ -135,10 +145,10 @@ export function AvatarUpload({ userId, avatarUrl, name, isOwnProfile, onAvatarCh
         title: "Avatar updated",
         description: "Your profile picture has been updated successfully",
       })
-
+      
       // Refresh the page to show the updated avatar
       router.refresh()
-
+      
     } catch (error: any) {
       toast({
         title: "Error updating avatar",
@@ -159,7 +169,7 @@ export function AvatarUpload({ userId, avatarUrl, name, isOwnProfile, onAvatarCh
         accept="image/*"
         onChange={handleFileChange}
       />
-
+      
       <Avatar 
         className={`h-24 w-24 mb-4 ${isOwnProfile ? 'cursor-pointer hover:opacity-80' : ''}`} 
         onClick={handleAvatarClick}
@@ -167,7 +177,7 @@ export function AvatarUpload({ userId, avatarUrl, name, isOwnProfile, onAvatarCh
         <AvatarImage src={avatarUrl || "/placeholder-user.jpg"} alt={name} />
         <AvatarFallback>{getInitials(name)}</AvatarFallback>
       </Avatar>
-
+      
       {isOwnProfile && loading && (
         <p className="text-sm text-muted-foreground">Uploading...</p>
       )}
