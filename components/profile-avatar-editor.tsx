@@ -50,13 +50,14 @@ export function ProfileAvatarEditor({
   return (
     <>
       <div className="relative inline-block">
-        <Avatar 
-          className={`${sizeClasses[size]} ${editable ? 'cursor-pointer' : ''}`} 
-          onClick={handleAvatarClick}
-        >
-          <AvatarImage src={avatarUrl || "/placeholder-user.jpg"} alt={userName} />
-          <AvatarFallback>{getInitials(userName)}</AvatarFallback>
-        </Avatar>
+        <div onClick={handleAvatarClick} className={`${editable ? 'cursor-pointer' : ''}`}>
+          <Avatar 
+            className={`${sizeClasses[size]}`}
+          >
+            <AvatarImage src={avatarUrl || "/placeholder-user.jpg"} alt={userName} />
+            <AvatarFallback>{getInitials(userName)}</AvatarFallback>
+          </Avatar>
+        </div>
         
         {editable && (
           <div 

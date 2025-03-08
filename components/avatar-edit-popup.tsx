@@ -1,7 +1,7 @@
 
 "use client"
 
-import React, { useState, useRef } from "react"
+import React, { useState, useRef, useEffect } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
@@ -31,6 +31,14 @@ export function AvatarEditPopup({
   const [tempImageFile, setTempImageFile] = useState<File | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { toast } = useToast()
+  
+  // Reset selected image when popup is opened
+  useEffect(() => {
+    if (isOpen) {
+      setSelectedImage(null)
+      setTempImageFile(null)
+    }
+  }, [isOpen])
 
   const getInitials = (name: string) => {
     if (!name) return 'U'
