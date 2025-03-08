@@ -14,7 +14,6 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { useToast } from "@/hooks/use-toast"
 import { supabase } from "@/lib/supabase"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { ProfileAvatarEditor } from "@/components/profile-avatar-editor"
 
 const profileEditSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -178,9 +177,44 @@ export default function ProfileEditPage() {
     }
   }
   
-  const handleAvatarChange = (url: string) => {
-    setAvatarUrl(url)
+  const handleAvatarClick = () => {
+    fileInputRef.current?.click()
   }
+  
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+    
+    // Check file size (max 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      toast({
+        title: "File too large",
+        description: "Please select an image under 2MB",
+        variant: "destructive",
+      })
+      return
+    }
+    
+    try {
+      setLoading(true)
+      
+      // Upload to Supabase Storage
+      const fileName = `avatar-${user.id}-${Date.now()}`
+      const { data, error } = await supabase.storage
+        .from('avatars')
+        .upload(fileName, file, {
+          cacheControl: '3600',
+          upsert: true
+        })
+      
+      if (error) throw error
+      
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(fileName)
+      
+      setAvatarUrl(publicUrl)
       
       toast({
         title: "Avatar uploaded",
@@ -215,13 +249,20 @@ export default function ProfileEditPage() {
         </CardHeader>
         <CardContent>
           <div className="flex flex-col items-center mb-6">
-            <ProfileAvatarEditor
-              avatarUrl={avatarUrl}
-              userId={user?.id}
-              userName={user?.user_metadata?.name || 'User'}
-              onAvatarChange={handleAvatarChange}
-              size="lg"
+            <input
+              type="file"
+              ref={fileInputRef}
+              className="hidden"
+              accept="image/*"
+              onChange={handleFileChange}
             />
+            <Avatar className="h-24 w-24 mb-4 cursor-pointer" onClick={handleAvatarClick}>
+              <AvatarImage src={avatarUrl || "/placeholder-user.jpg"} alt="Profile" />
+              <AvatarFallback>{getInitials(user?.user_metadata?.name)}</AvatarFallback>
+            </Avatar>
+            <Button variant="outline" size="sm" onClick={handleAvatarClick}>
+              Change Photo
+            </Button>
           </div>
           
           <Form {...form}>

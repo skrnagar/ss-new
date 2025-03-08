@@ -42,9 +42,9 @@ export default async function Home() {
               <div className="flex flex-col w-full ">
                 <div className="mt-4 w-full">
                   <AuthButtons className="w-max px-4 py-3 bg-white rounded-xl hover:bg-gray-100 hover:border-blue-700" />
-
+                  
                 </div>
-
+                
 
                 <div className="mt-6">
                   {/* Import the client component with the auth buttons */}
@@ -65,29 +65,29 @@ export default async function Home() {
               </div>
               <div className='mt-10 flex items-center gap-20'>
                 <div>
-                  <Image src="/acc.webp" alt="" width={80} height={80} className='w-20 grayscale backdrop-opacity-10 transform hover:scale-110 transition-transform duration-300' />
+                  <Image src="/acc.webp" alt="" width={80} height={80} className='w-20 grayscale	backdrop-opacity-10' />
                 </div>
                 <div>
-                  <Image src="/adiyalogo.webp" alt="" width={80} height={80} className='w-16 grayscale backdrop-opacity-10 transform hover:scale-110 transition-transform duration-300' />
+                  <Image src="/adiyalogo.webp" alt="" width={80} height={80} className='w-16 grayscale	backdrop-opacity-10' />
                 </div>
                 <div>
-                  <Image src="/lt.webp" alt="" width={80} height={80} className='w-10 grayscale backdrop-opacity-10 transform hover:scale-110 transition-transform duration-300' />
+                  <Image src="/lt.webp" alt="" width={80} height={80} className='w-10 grayscale	backdrop-opacity-10' />
                 </div>
                 <div>
-                  <Image src="/tatas.svg" alt="" width={80} height={80} className='w-16 grayscale backdrop-opacity-10 transform hover:scale-110 transition-transform duration-300' />
+                  <Image src="/tatas.svg" alt="" width={80} height={80} className='w-16 grayscale	backdrop-opacity-10' />
                 </div>
                 <div>
-                  <Image src="/Siemens-logo.webp" alt="" width={80} height={80} className='w-20 grayscale backdrop-opacity-10 transform hover:scale-110 transition-transform duration-300' />
+                  <Image src="/Siemens-logo.webp" alt="" width={80} height={80} className='w-20 grayscale	backdrop-opacity-10' />
                 </div>
                 <div>
-                  <Image src="/kpmg.svg" alt="" width={80} height={80} className='w-20 transform hover:scale-110 transition-transform duration-300' />
+                  <Image src="/kpmg.svg" alt="" width={80} height={80} className='w-20' />
                 </div>
                 <div>
-                  <Image src="/sap.svg" alt="" width={80} height={80} className='w-20 transform hover:scale-110 transition-transform duration-300' />
+                  <Image src="/sap.svg" alt="" width={80} height={80} className='w-20' />
                 </div>
               </div>
           </div>
-
+    
       </section>
 
       {/* Features Section */}
