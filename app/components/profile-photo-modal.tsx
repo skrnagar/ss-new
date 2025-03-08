@@ -1,13 +1,13 @@
 
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
-import { Edit, Camera, Trash2, X, Frame } from "lucide-react"
 import { supabase } from "@/lib/supabase"
 import { useToast } from "@/hooks/use-toast"
-import { useRouter } from "next/navigation"
+import { X, Camera, Edit, Trash2, Image } from "lucide-react"
 
 interface ProfilePhotoModalProps {
   userId: string
@@ -72,90 +72,51 @@ export function ProfilePhotoModal({ userId, avatarUrl, name, isOpen, onClose }: 
 
   // Handle file change
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    if (!file) return
-
-    // Check file size (max 2MB)
-    if (file.size > 2 * 1024 * 1024) {
-      toast({
-        title: "File too large",
-        description: "Please select an image under 2MB",
-        variant: "destructive",
-      })
-      return
-    }
-
     try {
       setLoading(true)
+      const file = event.target.files?.[0]
       
-      // Upload to Supabase Storage directly
-      // Use a more specific path format including user ID for better organization
-      const timestamp = Date.now()
-      const fileName = `${userId}/${timestamp}-${file.name}`
-      console.log(`Attempting to upload to avatars bucket: ${fileName}`)
+      if (!file) {
+        throw new Error('No file selected')
+      }
       
-      // Check if file is valid
-      if (!file || file.size === 0) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
         throw new Error('Invalid file selected')
       }
       
+      // Create a unique file name
+      const fileExt = file.name.split('.').pop()
+      const fileName = `${userId}/${Date.now()}-${file.name}`
+      
+      console.log(`Attempting to upload to avatars bucket: ${fileName}`)
       console.log(`Attempting to upload file to avatars/${fileName}`)
       
-      try {
-        // Check if file is valid
-        if (!file || file.size === 0) {
-          throw new Error('Invalid file selected')
-        }
-        
-        const { data, error } = await supabase.storage
-          .from('avatars')
-          .upload(fileName, file, {
-            cacheControl: '3600',
-            upsert: false
-          })
-        
-        if (error) {
-          console.error('Storage upload error:', error)
-          
-          // If the error contains "Bucket not found", provide specific guidance
-          if (error.message && error.message.includes("not found")) {
-            toast({
-              title: "Storage configuration issue",
-              description: "The avatars storage is not properly configured. Please check Supabase setup.",
-              variant: "destructive",
-            })
-          } else {
-            toast({
-              title: "Upload failed",
-              description: error.message || "Could not upload avatar to storage",
-              variant: "destructive",
-            })
-          }
-          return
-        }
-        
-        console.log('Upload successful:', data)
-      } catch (uploadError: any) {
-        console.error('Error during file upload:', uploadError)
-        toast({
-          title: "Upload error",
-          description: uploadError.message || "Could not upload image to storage",
-          variant: "destructive",
+      const { data, error } = await supabase.storage
+        .from('avatars')
+        .upload(fileName, file, {
+          cacheControl: '3600',
+          upsert: true
         })
-        return
+      
+      if (error) {
+        console.error('Upload error:', error)
+        throw error
       }
       
-      // Get public URL
-      const { data: urlData } = supabase.storage
-        .from('avatars')
-        .getPublicUrl(fileName)
+      console.log('Upload successful:', data)
       
-      const publicUrl = urlData.publicUrl
+      // Get public URL for the uploaded file
+      const { data: publicUrlData } = supabase
+        .storage
+        .from('avatars')
+        .getPublicUrl(data.path)
+      
+      const publicUrl = publicUrlData.publicUrl
       console.log('Generated public URL:', publicUrl)
       
       // Update user profile with new avatar URL
       console.log(`Updating profile ${userId} with new avatar URL: ${publicUrl}`)
-      
       const { error: updateError } = await supabase
         .from('profiles')
         .update({ avatar_url: publicUrl })
@@ -167,6 +128,11 @@ export function ProfilePhotoModal({ userId, avatarUrl, name, isOpen, onClose }: 
       }
       
       console.log('Profile updated successfully')
+      
+      // Call the onAvatarChange callback if provided
+      if (onAvatarChange) {
+        onAvatarChange(publicUrl)
+      }
       
       toast({
         title: "Avatar updated",
@@ -247,6 +213,14 @@ export function ProfilePhotoModal({ userId, avatarUrl, name, isOpen, onClose }: 
 
         {/* Modal Content */}
         <div className="p-6 flex flex-col items-center">
+          <input
+            type="file"
+            ref={fileInputRef}
+            className="hidden"
+            accept="image/*"
+            onChange={handleFileChange}
+          />
+          
           <div className="mb-6">
             <Avatar className="h-40 w-40">
               <AvatarImage src={avatarUrl || "/placeholder-user.jpg"} alt={name} />
@@ -284,25 +258,20 @@ export function ProfilePhotoModal({ userId, avatarUrl, name, isOpen, onClose }: 
                 <span>Delete</span>
               </Button>
             </div>
-
-            <div className="text-center text-sm text-muted-foreground">
-              {loading ? "Processing..." : "Click Edit or Add photo to upload a new image"}
+            
+            <div className="text-center mt-2 text-sm text-muted-foreground">
+              {loading ? "Uploading..." : "Photo helps people recognize you"}
             </div>
-          </div>
 
-          <input
-            type="file"
-            ref={fileInputRef}
-            className="hidden"
-            accept="image/*"
-            onChange={handleFileChange}
-          />
-        </div>
-
-        {/* Visual privacy indicator */}
-        <div className="p-4 bg-muted flex items-center justify-center">
-          <div className="flex items-center space-x-2 text-sm">
-            <span className="text-center font-medium">Anyone</span>
+            <div className="mt-4 flex justify-end">
+              <Button 
+                variant="ghost" 
+                onClick={onClose}
+                disabled={loading}
+              >
+                Cancel
+              </Button>
+            </div>
           </div>
         </div>
       </div>
