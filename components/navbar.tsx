@@ -207,6 +207,15 @@ export function Navbar() {
                                   <p className="text-xs text-muted-foreground">Join specialized professional groups</p>
                                 </div>
                               </Link>
+                              <Link href="/events" className="flex items-center gap-2 p-2 rounded-md hover:bg-muted transition-colors">
+                                <div className="relative">
+                                  <Calendar className="h-4 w-4 text-primary" />
+                                </div>
+                                <div>
+                                  <div className="font-medium">Events</div>
+                                  <p className="text-xs text-muted-foreground">Discover industry events and conferences</p>
+                                </div>
+                              </Link>
                             </div>
                           </div>
                         </NavigationMenuContent>
