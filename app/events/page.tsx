@@ -542,7 +542,7 @@ export default function EventsPage() {
   const [dateFilter, setDateFilter] = useState("")
 
   // Filtered events based on search and filters
-  const getFilteredEvents = (events) => {
+  const getFilteredEvents = (events: any[]) => {
     return events.filter(event => {
       // Search filter
       const matchesSearch = searchQuery === "" || 
