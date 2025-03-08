@@ -117,12 +117,11 @@ export function ProfilePhotoModal({ userId, avatarUrl, name, isOpen, onClose, on
       const publicUrl = urlData.publicUrl
       console.log('Generated public URL:', publicUrl)
 
-      // Update user profile with new avatar URL and full name
+      // Update user profile with new avatar URL only
       const { error: updateError } = await supabase
         .from('profiles')
         .update({ 
-          avatar_url: publicUrl,
-          full_name: fullName 
+          avatar_url: publicUrl
         })
         .eq('id', userId)
 
@@ -225,16 +224,7 @@ export function ProfilePhotoModal({ userId, avatarUrl, name, isOpen, onClose, on
             onChange={handleFileChange}
           />
 
-          <div className="mb-4">
-            <label htmlFor="fullName" className="block text-sm font-medium">Full Name</label>
-            <Input 
-              id="fullName"
-              placeholder="Enter your full name"
-              defaultValue={name}
-              className="w-full mt-1"
-              onChange={(e) => setName(e.target.value)}
-            />
-          </div> {/* Added full name input field */}
+          {/* Full name input field has been removed */}
 
           <div className="mb-6">
             <Avatar className="h-40 w-40">
