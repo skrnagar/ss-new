@@ -2,6 +2,7 @@
 
 import { useState, useEffect, Suspense } from "react"
 import { unstable_serialize } from 'swr'
+import ErrorBoundary from "@/components/error-boundary"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import {
@@ -16,8 +17,14 @@ import {
 import { supabase } from "@/lib/supabase"
 import { useRouter } from "next/navigation"
 import dynamic from "next/dynamic"
-const PostCreator = dynamic(() => import("@/components/post-creator"), { ssr: true })
-const PostItem = dynamic(() => import("@/components/post-item"), { ssr: true })
+const PostCreator = dynamic(() => import("@/components/post-creator").then(mod => mod.default || mod), { 
+  ssr: false,
+  loading: () => <div className="p-6 bg-muted/30 rounded-md animate-pulse"></div>
+})
+const PostItem = dynamic(() => import("@/components/post-item").then(mod => mod.default || mod), { 
+  ssr: false,
+  loading: () => <div className="p-6 bg-muted/30 rounded-md animate-pulse"></div>
+})
 import { Skeleton } from "@/components/ui/skeleton"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useAuth } from "@/contexts/auth-context"
@@ -153,7 +160,9 @@ export default function FeedPage() {
             ))
           ) : posts.length > 0 ? (
             posts.map((post) => (
-              <PostItem key={post.id} post={post} currentUser={userProfile} />
+              <ErrorBoundary key={post.id}>
+                <PostItem key={post.id} post={post} currentUser={userProfile} />
+              </ErrorBoundary>
             ))
           ) : (
             <Card>
