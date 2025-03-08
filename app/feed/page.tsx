@@ -2,7 +2,7 @@
 
 import { useState, useEffect, Suspense } from "react"
 import { unstable_serialize } from 'swr'
-import ErrorBoundary from "@/components/error-boundary"
+import { ErrorBoundary } from "@/components/error-boundary"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import {
