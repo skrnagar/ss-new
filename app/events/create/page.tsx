@@ -279,6 +279,7 @@ export default function CreateEventPage() {
                               <SelectItem value="ca">Canada</SelectItem>
                               <SelectItem value="uk">United Kingdom</SelectItem>
                               <SelectItem value="in">India</SelectItem>
+                              {/* Add more countries as needed */}
                               <SelectItem value="au">Australia</SelectItem>
                               <SelectItem value="other">Other</SelectItem>
                             </SelectContent>
