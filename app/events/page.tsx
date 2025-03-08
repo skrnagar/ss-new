@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState } from "react"
@@ -45,7 +44,7 @@ const safetyEventsData = [
     attendees: 456,
     type: "safety",
     category: "observance",
-    image: "/placeholder.jpg",
+    image: `https://placehold.co/800x400/1f2937/f8fafc?text=Event+${1}`,
   },
   {
     id: 2,
@@ -58,7 +57,7 @@ const safetyEventsData = [
     attendees: 325,
     type: "esg",
     category: "conference",
-    image: "/placeholder.jpg",
+    image: `https://placehold.co/800x400/1f2937/f8fafc?text=Event+${2}`,
   },
   {
     id: 3,
@@ -71,7 +70,7 @@ const safetyEventsData = [
     attendees: 1289,
     type: "esg",
     category: "observance",
-    image: "/placeholder.jpg",
+    image: `https://placehold.co/800x400/1f2937/f8fafc?text=Event+${3}`,
   },
   {
     id: 4,
@@ -84,7 +83,7 @@ const safetyEventsData = [
     attendees: 178,
     type: "safety",
     category: "workshop",
-    image: "/placeholder.jpg",
+    image: `https://placehold.co/800x400/1f2937/f8fafc?text=Event+${4}`,
   },
   {
     id: 5,
@@ -97,7 +96,7 @@ const safetyEventsData = [
     attendees: 234,
     type: "health",
     category: "webinar",
-    image: "/placeholder.jpg",
+    image: `https://placehold.co/800x400/1f2937/f8fafc?text=Event+${5}`,
   },
   {
     id: 6,
@@ -110,7 +109,7 @@ const safetyEventsData = [
     attendees: 415,
     type: "esg",
     category: "conference",
-    image: "/placeholder.jpg",
+    image: `https://placehold.co/800x400/1f2937/f8fafc?text=Event+${6}`,
   },
 ];
 
@@ -127,7 +126,7 @@ const userEventsData = [
     attendees: 32,
     type: "safety",
     category: "networking",
-    image: "/placeholder.jpg",
+    image: `https://placehold.co/800x400/1f2937/f8fafc?text=Event+${101}`,
   },
   {
     id: 102,
@@ -140,7 +139,7 @@ const userEventsData = [
     attendees: 18,
     type: "esg",
     category: "workshop",
-    image: "/placeholder.jpg",
+    image: `https://placehold.co/800x400/1f2937/f8fafc?text=Event+${102}`,
   },
 ];
 
@@ -159,20 +158,20 @@ export default function EventsPage() {
       const matchesSearch = searchQuery === "" || 
         event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         event.description.toLowerCase().includes(searchQuery.toLowerCase());
-      
+
       // Category filter
       const matchesCategory = categoryFilter === "" || event.category === categoryFilter;
-      
+
       // Type filter
       const matchesType = typeFilter === "" || event.type === typeFilter;
-      
+
       // Location filter
       const matchesLocation = locationFilter === "" || 
         event.location.toLowerCase().includes(locationFilter.toLowerCase());
-      
+
       // Date filter (simplified for demo)
       const matchesDate = dateFilter === "" || event.date.includes(dateFilter);
-      
+
       return matchesSearch && matchesCategory && matchesType && matchesLocation && matchesDate;
     });
   };
@@ -287,7 +286,7 @@ export default function EventsPage() {
           <TabsTrigger value="calendar">Calendar Events</TabsTrigger>
           <TabsTrigger value="user">User-Created Events</TabsTrigger>
         </TabsList>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
           <div className="md:col-span-3">
             <div className="relative">
@@ -307,7 +306,7 @@ export default function EventsPage() {
             </Button>
           </div>
         </div>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <div className="md:col-span-1">
             <div className="space-y-6">
@@ -367,7 +366,7 @@ export default function EventsPage() {
                   </Button>
                 </CardContent>
               </Card>
-              
+
               <Card>
                 <CardHeader className="pb-2">
                   <CardTitle className="text-lg">Featured Topics</CardTitle>
@@ -384,7 +383,7 @@ export default function EventsPage() {
                   </div>
                 </CardContent>
               </Card>
-              
+
               <Card>
                 <CardHeader className="pb-2">
                   <CardTitle className="text-lg">Event Format</CardTitle>
@@ -413,7 +412,7 @@ export default function EventsPage() {
             <TabsContent value="calendar" className="mt-0">
               <h2 className="text-xl font-semibold mb-4">Calendar Events</h2>
               <p className="text-muted-foreground mb-6">Official safety and ESG events from organizations worldwide</p>
-              
+
               {viewMode === "grid" ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {filteredSafetyEvents.map(event => renderEventCard(event))}
@@ -424,11 +423,11 @@ export default function EventsPage() {
                 </div>
               )}
             </TabsContent>
-            
+
             <TabsContent value="user" className="mt-0">
               <h2 className="text-xl font-semibold mb-4">User-Created Events</h2>
               <p className="text-muted-foreground mb-6">Events created by professionals in your network</p>
-              
+
               {viewMode === "grid" ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {filteredUserEvents.map(event => renderEventCard(event))}
@@ -438,7 +437,7 @@ export default function EventsPage() {
                   {filteredUserEvents.map(event => renderEventListItem(event))}
                 </div>
               )}
-              
+
               <div className="mt-8 text-center">
                 <Card className="border-dashed">
                   <CardContent className="py-8">

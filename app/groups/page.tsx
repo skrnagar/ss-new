@@ -28,7 +28,7 @@ export default function GroupsPage() {
       members: 1245,
       posts: 87,
       lastActive: "2 hours ago",
-      image: "/placeholder.svg?height=200&width=400",
+      image: `https://placehold.co/400x200/1f2937/60a5fa?text=Group+1`,
     },
     {
       id: 2,
@@ -37,7 +37,7 @@ export default function GroupsPage() {
       members: 987,
       posts: 56,
       lastActive: "5 hours ago",
-      image: "/placeholder.svg?height=200&width=400",
+      image: `https://placehold.co/400x200/1f2937/60a5fa?text=Group+2`,
     },
     {
       id: 3,
@@ -46,7 +46,7 @@ export default function GroupsPage() {
       members: 1532,
       posts: 112,
       lastActive: "1 day ago",
-      image: "/placeholder.svg?height=200&width=400",
+      image: `https://placehold.co/400x200/1f2937/60a5fa?text=Group+3`,
     },
     {
       id: 4,
@@ -55,7 +55,7 @@ export default function GroupsPage() {
       members: 876,
       posts: 43,
       lastActive: "3 days ago",
-      image: "/placeholder.svg?height=200&width=400",
+      image: `https://placehold.co/400x200/1f2937/60a5fa?text=Group+4`,
     },
     {
       id: 5,
@@ -64,7 +64,7 @@ export default function GroupsPage() {
       members: 1245,
       posts: 76,
       lastActive: "12 hours ago",
-      image: "/placeholder.svg?height=200&width=400",
+      image: `https://placehold.co/400x200/1f2937/60a5fa?text=Group+5`,
     },
     {
       id: 6,
@@ -73,7 +73,7 @@ export default function GroupsPage() {
       members: 1329,
       posts: 91,
       lastActive: "1 day ago",
-      image: "/placeholder.svg?height=200&width=400",
+      image: `https://placehold.co/400x200/1f2937/60a5fa?text=Group+6`,
     }
   ]
 

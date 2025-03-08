@@ -77,7 +77,7 @@ export function PostItem({ post, currentUser }) {
         .select('id')
         .eq('post_id', post.id)
         .eq('user_id', currentUser.id)
-        
+
       // Check if any likes were found
       if (data && data.length > 0) {
         setIsLiked(true)
@@ -603,7 +603,7 @@ export function PostItem({ post, currentUser }) {
                     {comments.map((comment) => (
                       <div key={comment.id || `temp-comment-${Date.now()}-${Math.random()}`} className="flex items-start gap-2">
                         <Avatar className="h-8 w-8 mt-1">
-                          <AvatarImage src={comment.profiles?.avatar_url} alt={comment.profiles?.full_name} />
+                          <AvatarImage src={comment.profiles?.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(comment.profiles?.full_name || 'User')}&size=40&background=random`} alt={comment.profiles?.full_name} />
                           <AvatarFallback>{getInitials(comment.profiles?.full_name || "User")}</AvatarFallback>
                         </Avatar>
                         <div className="flex-1">
