@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Separator } from "@/components/ui/separator"
 import { Briefcase, MapPin, Calendar, Edit, MessageSquare, UserPlus, User } from "lucide-react"
 import { UserActivity } from '@/components/user-activity'
+import { AvatarUpload } from '@/app/components/avatar-upload'
 
 export const revalidate = 3600 // Revalidate the data at most every hour
 
@@ -57,12 +58,17 @@ export default async function ProfilePage({ params }: { params: { username: stri
           <Card>
             <CardContent className="pt-6">
               <div className="flex flex-col items-center">
-                <Avatar className="h-24 w-24 mb-4">
-                  <AvatarImage src={profile.avatar_url || "/placeholder-user.jpg"} alt={profile.full_name} />
-                  <AvatarFallback>
-                    {profile.full_name?.split(" ").map((n: string) => n[0]).join("") || username[0].toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
+                {/* @ts-ignore client component */}
+                <div suppressHydrationWarning>
+                  <div className="client-only-component">
+                    <AvatarUpload 
+                      userId={profile.id}
+                      avatarUrl={profile.avatar_url}
+                      name={profile.full_name || username}
+                      isOwnProfile={isOwnProfile}
+                    />
+                  </div>
+                </div>
                 <h2 className="text-2xl font-bold">{profile.full_name}</h2>
                 <p className="text-muted-foreground text-center">{profile.headline}</p>
 
