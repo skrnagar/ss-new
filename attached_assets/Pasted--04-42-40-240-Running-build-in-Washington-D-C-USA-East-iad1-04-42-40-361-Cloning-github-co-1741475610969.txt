@@ -1,0 +1,55 @@
+[04:42:40.240] Running build in Washington, D.C., USA (East) – iad1
+[04:42:40.361] Cloning github.com/skrnagar/ss-new (Branch: main, Commit: 817a356)
+[04:42:40.490] Previous build caches not available
+[04:42:41.108] Cloning completed: 745.000ms
+[04:42:41.414] Running "vercel build"
+[04:42:41.783] Vercel CLI 41.2.2
+[04:42:42.076] Installing dependencies...
+[04:42:44.890] npm warn deprecated @supabase/auth-helpers-shared@0.6.3: This package is now deprecated - please use the @supabase/ssr package instead.
+[04:42:45.253] npm warn deprecated @supabase/auth-helpers-nextjs@0.9.0: This package is now deprecated - please use the @supabase/ssr package instead.
+[04:42:52.935] 
+[04:42:52.936] added 267 packages in 11s
+[04:42:52.936] 
+[04:42:52.936] 39 packages are looking for funding
+[04:42:52.937]   run `npm fund` for details
+[04:42:52.989] Detected Next.js version: 14.2.16
+[04:42:52.993] Running "npm run build"
+[04:42:54.075] 
+[04:42:54.076] > my-v0-project@0.1.0 build
+[04:42:54.076] > next build
+[04:42:54.076] 
+[04:42:55.784] Attention: Next.js now collects completely anonymous telemetry regarding usage.
+[04:42:55.786] This information is used to shape Next.js' roadmap and prioritize features.
+[04:42:55.786] You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+[04:42:55.786] https://nextjs.org/telemetry
+[04:42:55.787] 
+[04:42:55.839]   ▲ Next.js 14.2.16
+[04:42:55.840]   - Experiments (use with caution):
+[04:42:55.840]     · instrumentationHook
+[04:42:55.840] 
+[04:42:55.907]    Creating an optimized production build ...
+[04:43:07.829] Failed to compile.
+[04:43:07.829] 
+[04:43:07.830] app/auth/callback/page.tsx
+[04:43:07.830] You cannot have two parallel pages that resolve to the same path. Please check /auth/callback/page and /auth/callback/route. Refer to the route group docs for more information: https://nextjs.org/docs/app/building-your-application/routing/route-groups
+[04:43:07.830] 
+[04:43:07.830] ./components/ui/radio-group.tsx
+[04:43:07.835] Module not found: Can't resolve '@radix-ui/react-radio-group'
+[04:43:07.836] 
+[04:43:07.836] https://nextjs.org/docs/messages/module-not-found
+[04:43:07.836] 
+[04:43:07.836] Import trace for requested module:
+[04:43:07.836] ./app/auth/register/page.tsx
+[04:43:07.836] 
+[04:43:07.837] ./components/ui/tooltip.tsx
+[04:43:07.837] Module not found: Can't resolve '@radix-ui/react-tooltip'
+[04:43:07.837] 
+[04:43:07.837] https://nextjs.org/docs/messages/module-not-found
+[04:43:07.837] 
+[04:43:07.837] Import trace for requested module:
+[04:43:07.837] ./app/events/create/page.tsx
+[04:43:07.837] 
+[04:43:07.843] 
+[04:43:07.844] > Build failed because of webpack errors
+[04:43:07.869] Error: Command "npm run build" exited with 1
+[04:43:08.291] 
