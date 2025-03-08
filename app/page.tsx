@@ -21,12 +21,15 @@ export default async function Home() {
       {/* Hero Section */}
       <section className="relative py-20 md:py-32 overflow-hidden">
         <div className="absolute inset-0 w-full h-full overflow-hidden">
+          <div className="absolute inset-0 bg-gray-100" /> {/* Placeholder before video loads */}
           <video 
             className="absolute inset-0 w-full h-full object-cover opacity-20" 
             autoPlay 
             loop 
             muted 
             playsInline
+            preload="none"
+            fetchPriority="low"
           >
             <source src="/ssbg.mp4" type="video/mp4" />
           </video>
@@ -63,27 +66,27 @@ export default async function Home() {
               <div>
                 <p className='mt-20'>Trusted by the world’s leading organizations professional</p>
               </div>
-              <div className='mt-10 flex items-center gap-20'>
+              <div className='mt-10 flex flex-wrap items-center justify-center sm:justify-between gap-8 md:gap-12 lg:gap-16'>
                 <div>
-                  <Image src="/acc.webp" alt="" width={80} height={80} className='w-20 grayscale	backdrop-opacity-10' />
+                  <Image src="/acc.webp" alt="ACC Logo" width={80} height={40} className='w-20 grayscale backdrop-opacity-10' priority={false} loading="lazy" />
                 </div>
                 <div>
-                  <Image src="/adiyalogo.webp" alt="" width={80} height={80} className='w-16 grayscale	backdrop-opacity-10' />
+                  <Image src="/adiyalogo.webp" alt="Adiya Logo" width={64} height={32} className='w-16 grayscale backdrop-opacity-10' priority={false} loading="lazy" />
                 </div>
                 <div>
-                  <Image src="/lt.webp" alt="" width={80} height={80} className='w-10 grayscale	backdrop-opacity-10' />
+                  <Image src="/lt.webp" alt="LT Logo" width={40} height={40} className='w-10 grayscale backdrop-opacity-10' priority={false} loading="lazy" />
                 </div>
                 <div>
-                  <Image src="/tatas.svg" alt="" width={80} height={80} className='w-16 grayscale	backdrop-opacity-10' />
+                  <Image src="/tatas.svg" alt="Tata Logo" width={64} height={32} className='w-16 grayscale backdrop-opacity-10' priority={false} loading="lazy" />
                 </div>
                 <div>
-                  <Image src="/Siemens-logo.webp" alt="" width={80} height={80} className='w-20 grayscale	backdrop-opacity-10' />
+                  <Image src="/Siemens-logo.webp" alt="Siemens Logo" width={80} height={40} className='w-20 grayscale backdrop-opacity-10' priority={false} loading="lazy" />
                 </div>
                 <div>
-                  <Image src="/kpmg.svg" alt="" width={80} height={80} className='w-20' />
+                  <Image src="/kpmg.svg" alt="KPMG Logo" width={80} height={40} className='w-20' priority={false} loading="lazy" />
                 </div>
                 <div>
-                  <Image src="/sap.svg" alt="" width={80} height={80} className='w-20' />
+                  <Image src="/sap.svg" alt="SAP Logo" width={80} height={40} className='w-20' priority={false} loading="lazy" />
                 </div>
               </div>
           </div>

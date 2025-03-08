@@ -10,10 +10,22 @@ if (!supabaseUrl || !supabaseAnonKey) {
 }
 
 // Create a singleton Supabase client for client-side usage
-export const supabase = createClientComponentClient<Database>()
+let supabaseInstance: ReturnType<typeof createClientComponentClient<Database>> | null = null;
+
+const getSupabase = () => {
+  if (!supabaseInstance) {
+    supabaseInstance = createClientComponentClient<Database>();
+  }
+  return supabaseInstance;
+};
+
+const supabase = getSupabase();
+
 
 // Export a function that provides a fresh client instance when needed
-export const getSupabase = () => createClientComponentClient<Database>()
+
+export const getSupabaseClient = () => createClientComponentClient<Database>()
+
 
 // Utility function to check database health
 export const checkDatabaseHealth = async () => {

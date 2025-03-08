@@ -11,6 +11,8 @@ const poppins = Poppins({
   weight: ["300", "400", "500", "600", "700"],
   display: "swap",
   variable: "--font-poppins",
+  preload: true,
+  fallback: ['system-ui', 'sans-serif'],
 })
 
 // Configure the Manrope font
@@ -19,6 +21,8 @@ const manrope = Manrope({
   weight: ["300", "400", "500", "600", "700"],
   display: "swap",
   variable: "--font-manrope",
+  preload: true,
+  fallback: ['system-ui', 'sans-serif'],
 })
 
 export const metadata: Metadata = {
