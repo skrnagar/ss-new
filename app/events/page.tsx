@@ -278,7 +278,7 @@ export default function EventsPage() {
                   </div>
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Categories</SelectItem>
+                  <SelectItem value="all">All Categories</SelectItem>
                   <SelectItem value="Environment">Environment</SelectItem>
                   <SelectItem value="Safety">Safety</SelectItem>
                   <SelectItem value="Health">Health</SelectItem>
