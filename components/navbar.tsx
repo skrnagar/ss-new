@@ -276,7 +276,7 @@ export function Navbar() {
             </div>
           ) : (
             <div>
-              {!loading && (
+              {!isLoading && (
                 <div className="flex items-center gap-2">
                   <Button asChild variant="outline">
                     <Link href="/auth/login">Sign In</Link>
