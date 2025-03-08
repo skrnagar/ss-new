@@ -6,11 +6,11 @@ import { Shield, Users, BookOpen, Briefcase, Award, ClipboardCheck, Leaf, BarCha
 import { AuthButtons } from "./components/auth-buttons"
 import { HeroAuthButtons } from "./components/hero-auth-buttons"
 import { redirect } from "next/navigation"
-import { createLegacyClient } from "@/lib/supabase-server"
+import { createAppRouterClient } from "@/lib/supabase-app-router"
 
 export default async function Home() {
   // Check if user is authenticated and redirect to feed
-  const supabase = createLegacyClient()
+  const supabase = createAppRouterClient()
   const { data: { session } } = await supabase.auth.getSession()
 
   if (session) {
