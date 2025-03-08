@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button"
 import { supabase } from "@/lib/supabase"
 import { useToast } from "@/hooks/use-toast"
 
+import { ProfilePhotoModal } from "./profile-photo-modal"
+
 interface AvatarUploadProps {
   userId: string
   avatarUrl: string | null
@@ -17,8 +19,7 @@ interface AvatarUploadProps {
 }
 
 export function AvatarUpload({ userId, avatarUrl, name, isOwnProfile, onAvatarChange }: AvatarUploadProps) {
-  const [loading, setLoading] = useState(false)
-  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [modalOpen, setModalOpen] = useState(false)
   const { toast } = useToast()
   const router = useRouter()
 
@@ -35,23 +36,9 @@ export function AvatarUpload({ userId, avatarUrl, name, isOwnProfile, onAvatarCh
 
   const handleAvatarClick = () => {
     if (isOwnProfile) {
-      fileInputRef.current?.click()
+      setModalOpen(true)
     }
   }
-
-  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    if (!file) return
-
-    // Check file size (max 2MB)
-    if (file.size > 2 * 1024 * 1024) {
-      toast({
-        title: "File too large",
-        description: "Please select an image under 2MB",
-        variant: "destructive",
-      })
-      return
-    }
 
     try {
       setLoading(true)
@@ -162,14 +149,6 @@ export function AvatarUpload({ userId, avatarUrl, name, isOwnProfile, onAvatarCh
 
   return (
     <>
-      <input
-        type="file"
-        ref={fileInputRef}
-        className="hidden"
-        accept="image/*"
-        onChange={handleFileChange}
-      />
-      
       <Avatar 
         className={`h-24 w-24 mb-4 ${isOwnProfile ? 'cursor-pointer hover:opacity-80' : ''}`} 
         onClick={handleAvatarClick}
@@ -178,9 +157,14 @@ export function AvatarUpload({ userId, avatarUrl, name, isOwnProfile, onAvatarCh
         <AvatarFallback>{getInitials(name)}</AvatarFallback>
       </Avatar>
       
-      {isOwnProfile && loading && (
-        <p className="text-sm text-muted-foreground">Uploading...</p>
-      )}
+      {/* Profile Photo Modal */}
+      <ProfilePhotoModal
+        userId={userId}
+        avatarUrl={avatarUrl}
+        name={name}
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+      />
     </>
   )
 }
