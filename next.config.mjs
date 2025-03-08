@@ -1,3 +1,4 @@
+
 let userConfig = undefined
 try {
   userConfig = await import('./v0-user-next.config')
@@ -20,6 +21,16 @@ const nextConfig = {
         port: '',
         pathname: '/storage/v1/object/public/**',
       },
+      {
+        protocol: 'https',
+        hostname: '*.googleusercontent.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'avatars.githubusercontent.com',
+        pathname: '/**',
+      }
     ],
   },
 }
