@@ -1,69 +1,23 @@
 
 "use client"
 
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Session } from '@supabase/supabase-js'
-import { supabase } from '@/lib/supabase'
+import { useAuth } from '@/contexts/auth-context'
 
 type ProtectedRouteProps = {
   children: React.ReactNode
 }
 
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const [isLoading, setIsLoading] = useState(true)
-  const [session, setSession] = useState<Session | null>(null)
+  const { user, isLoading } = useAuth()
   const router = useRouter()
 
   useEffect(() => {
-    let mounted = true
-    
-    // Check for session only once when component mounts
-    async function checkSession() {
-      try {
-        const { data: { session } } = await supabase.auth.getSession()
-        
-        if (mounted) {
-          setSession(session)
-          
-          if (!session) {
-            router.push('/auth/login')
-          } else {
-            setIsLoading(false)
-          }
-        }
-      } catch (error) {
-        console.error('Auth check failed:', error)
-        if (mounted) {
-          router.push('/auth/login')
-        }
-      } finally {
-        if (mounted) {
-          setIsLoading(false)
-        }
-      }
+    if (!isLoading && !user) {
+      router.push('/auth/login')
     }
-
-    checkSession()
-    
-    // Set up auth state change listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        if (mounted) {
-          setSession(session)
-          
-          if (event === 'SIGNED_OUT' || !session) {
-            router.push('/auth/login')
-          }
-        }
-      }
-    )
-
-    return () => {
-      mounted = false
-      subscription?.unsubscribe()
-    }
-  }, [router])
+  }, [isLoading, user, router])
 
   // Show loading indicator
   if (isLoading) {
@@ -74,6 +28,6 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
     )
   }
 
-  // If there's a session and not loading, render children
-  return session ? <>{children}</> : null
+  // If there's a user and not loading, render children
+  return user ? <>{children}</> : null
 }

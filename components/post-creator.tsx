@@ -1,4 +1,3 @@
-
 "use client"
 
 import * as React from "react"
@@ -11,8 +10,11 @@ import { Image, FileText, Video, Paperclip, Loader2, X } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { supabase } from "@/lib/supabase"
 import { useRouter } from "next/navigation"
+import { useAuth } from "@/contexts/auth-context"
 
-export function PostCreator({ userProfile }) {
+export function PostCreator({ userProfile = null }) {
+  const { user, profile: authProfile } = useAuth()
+  const activeProfile = userProfile || authProfile
   const [content, setContent] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [attachmentType, setAttachmentType] = useState<"image" | "video" | "document" | null>(null)
@@ -34,12 +36,12 @@ export function PostCreator({ userProfile }) {
 
   const handleAttachmentSelect = (type: "image" | "video" | "document") => {
     setAttachmentType(type)
-    
+
     // Reset file input before clicking to ensure the change event fires even if selecting the same file
     if (fileInputRef.current) {
       fileInputRef.current.value = ""
     }
-    
+
     setTimeout(() => {
       fileInputRef.current?.click()
     }, 100)
@@ -109,7 +111,7 @@ export function PostCreator({ userProfile }) {
       // Upload attachment if any
       if (attachmentFile) {
         const fileExt = attachmentFile.name.split('.').pop()
-        const fileName = `${userProfile.id}-${Date.now()}.${fileExt}`
+        const fileName = `${activeProfile.id}-${Date.now()}.${fileExt}`
         let bucket = ""
 
         if (attachmentType === "image") {
@@ -121,11 +123,11 @@ export function PostCreator({ userProfile }) {
         }
 
         console.log(`Uploading to ${bucket} bucket with file name: ${fileName}`)
-        
+
         // Check if bucket exists first
         const { data: buckets } = await supabase.storage.listBuckets()
         const bucketExists = buckets?.some(b => b.name === bucket)
-        
+
         if (!bucketExists) {
           console.log(`Bucket ${bucket} doesn't exist, creating it...`)
           await supabase.storage.createBucket(bucket, {
@@ -163,7 +165,7 @@ export function PostCreator({ userProfile }) {
       const { data: post, error: postError } = await supabase
         .from('posts')
         .insert({
-          user_id: userProfile.id,
+          user_id: activeProfile.id,
           content: content.trim(),
           image_url: imageUrl,
           video_url: videoUrl,
@@ -184,7 +186,7 @@ export function PostCreator({ userProfile }) {
       // Reset form
       setContent("")
       clearAttachment()
-      
+
       // Refresh feed to show new post
       router.refresh()
     } catch (error) {
@@ -204,17 +206,17 @@ export function PostCreator({ userProfile }) {
       <CardContent className="pt-6">
         <div className="flex items-start gap-4">
           <Avatar className="h-10 w-10">
-            <AvatarImage src={userProfile.avatar_url} alt={userProfile.full_name} />
-            <AvatarFallback>{getInitials(userProfile.full_name)}</AvatarFallback>
+            <AvatarImage src={activeProfile.avatar_url} alt={activeProfile.full_name} />
+            <AvatarFallback>{getInitials(activeProfile.full_name)}</AvatarFallback>
           </Avatar>
           <div className="flex-1 space-y-4">
             <Textarea
-              placeholder={`What's on your mind, ${userProfile.full_name?.split(' ')[0]}?`}
+              placeholder={`What's on your mind, ${activeProfile.full_name?.split(' ')[0]}?`}
               value={content}
               onChange={(e) => setContent(e.target.value)}
               className="min-h-[120px] resize-none"
             />
-            
+
             {attachmentPreview && (
               <div className="relative rounded-md border p-3 bg-muted/20">
                 <Button 
@@ -225,7 +227,7 @@ export function PostCreator({ userProfile }) {
                 >
                   <X className="h-4 w-4" />
                 </Button>
-                
+
                 {attachmentType === "image" ? (
                   <div className="relative aspect-video max-h-[300px] overflow-hidden rounded-md">
                     <img 
@@ -247,7 +249,7 @@ export function PostCreator({ userProfile }) {
                 )}
               </div>
             )}
-            
+
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Button 
@@ -259,7 +261,7 @@ export function PostCreator({ userProfile }) {
                   <Image className="h-4 w-4 mr-2" />
                   Photo
                 </Button>
-                
+
                 <Button 
                   variant="ghost" 
                   size="sm" 
@@ -269,7 +271,7 @@ export function PostCreator({ userProfile }) {
                   <Video className="h-4 w-4 mr-2" />
                   Video
                 </Button>
-                
+
                 <Button 
                   variant="ghost" 
                   size="sm" 
@@ -279,7 +281,7 @@ export function PostCreator({ userProfile }) {
                   <FileText className="h-4 w-4 mr-2" />
                   Document
                 </Button>
-                
+
                 <input
                   type="file"
                   ref={fileInputRef}
@@ -294,7 +296,7 @@ export function PostCreator({ userProfile }) {
                   }
                 />
               </div>
-              
+
               <Button 
                 size="sm" 
                 onClick={handleSubmit}

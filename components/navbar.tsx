@@ -1,7 +1,8 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabase"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -29,59 +30,13 @@ import { Bell, MessageCircle, Search, Settings, Users, Briefcase, BookOpen, Shie
 import { Input } from "@/components/ui/input"
 import { useToast } from "@/hooks/use-toast"
 import { useMobile } from "@/hooks/use-mobile"
+import { useAuth } from "@/contexts/auth-context"
 
 export function Navbar() {
-  const [user, setUser] = useState(null)
-  const [profile, setProfile] = useState(null)
-  const [loading, setLoading] = useState(true)
+  const { user, profile, isLoading } = useAuth()
   const router = useRouter()
   const { toast } = useToast()
   const isMobile = useMobile()
-
-  useEffect(() => {
-    // Initialize with current session
-    const initializeAuth = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession()
-        setUser(session?.user || null)
-        setLoading(false)
-      } catch (error) {
-        console.error('Error getting session:', error)
-        setLoading(false)
-      }
-    }
-
-    initializeAuth()
-
-    // Subscribe to auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        console.log('Auth state changed in navbar:', event, session?.user)
-        setUser(session?.user || null)
-        if (session?.user) {
-          try {
-            // Fetch user profile after sign in
-            const { data } = supabase
-              .from('profiles')
-              .select('*')
-              .eq('id', session.user.id)
-              .single()
-
-            setProfile(data)
-          } catch (profileError) {
-            console.error('Error fetching profile after sign in:', profileError)
-          }
-        } else {
-          setProfile(null);
-        }
-      }
-    )
-
-    // Cleanup subscription
-    return () => {
-      subscription?.unsubscribe()
-    }
-  }, [])
 
   const handleSignOut = async () => {
     try {
@@ -132,7 +87,14 @@ export function Navbar() {
       <div className="container flex h-16 items-center justify-between py-4">
         <div className="flex items-center gap-4">
           <Link href="/" className="flex items-center">
-            <img src="https://lephbkawjuyyygguxqio.supabase.co/storage/v1/object/public/post-images//ss%20lgog.webp" alt="Safety Shaper Logo" className="mr-2 h-8 " />
+            <Image 
+              src="https://lephbkawjuyyygguxqio.supabase.co/storage/v1/object/public/post-images//ss%20lgog.webp" 
+              alt="Safety Shaper Logo" 
+              width={32}
+              height={32}
+              className="mr-2 h-8 w-auto"
+              priority
+            />
             {/* <span className="hidden text-xl font-bold sm:inline-block">Safety Shaper</span> */}
           </Link>
 

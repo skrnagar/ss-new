@@ -17,35 +17,19 @@ import { useRouter } from "next/navigation"
 import { PostCreator } from "@/components/post-creator"
 import { PostItem } from "@/components/post-item"
 import { Skeleton } from "@/components/ui/skeleton"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar" // Added import
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { useAuth } from "@/contexts/auth-context"
 
 export default function FeedPage() {
   const [posts, setPosts] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
-  const [userProfile, setUserProfile] = useState<any>(null)
-  const [currentUserId, setCurrentUserId] = useState<string | null>(null)
+  const { user, profile: userProfile, isLoading: authLoading } = useAuth()
   const router = useRouter()
 
   useEffect(() => {
-    async function fetchUserAndPosts() {
+    async function fetchPosts() {
       try {
         setLoading(true)
-
-        // Get current user
-        const { data: { user } } = await supabase.auth.getUser()
-
-        if (user) {
-          setCurrentUserId(user.id)
-
-          // Get user profile
-          const { data: profileData } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', user.id)
-            .single()
-
-          setUserProfile(profileData)
-        }
 
         // Fetch posts with user information
         const { data, error } = await supabase

@@ -4,6 +4,7 @@ import type { Metadata } from "next"
 import { Poppins, Manrope } from "next/font/google"
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
+import { AuthProvider } from "@/contexts/auth-context"
 
 // Configure the Poppins font
 const poppins = Poppins({
@@ -28,7 +29,7 @@ const manrope = Manrope({
 export const metadata: Metadata = {
   title: "Safety Shaper - ESG & EHS Professional Network",
   description: "Connect with ESG and EHS professionals, share knowledge, find jobs, and manage compliance.",
-    generator: 'v0.dev'
+  generator: 'v0.dev'
 }
 
 export default function RootLayout({
@@ -39,11 +40,13 @@ export default function RootLayout({
   return (
     <html lang="en" className={poppins.variable}>
       <body className={`${poppins.className} ${manrope.className}`}>
-        <div className="flex flex-col min-h-screen">
-          <Navbar />
-          <main className="flex-grow">{children}</main>
-          <Footer />
-        </div>
+        <AuthProvider>
+          <div className="flex flex-col min-h-screen">
+            <Navbar />
+            <main className="flex-grow">{children}</main>
+            <Footer />
+          </div>
+        </AuthProvider>
       </body>
     </html>
   )
