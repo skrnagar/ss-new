@@ -2,7 +2,7 @@ import Link from "next/link"
 
 export function Footer() {
   return (
-    <footer className="w-full border-t bg-white py-6">
+    <footer className="w-full border-t bg-gradient-to-b from-background to-muted/30 py-8">
       <div className="container">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
           <div>
@@ -16,7 +16,7 @@ export function Footer() {
             <h3 className="text-sm font-semibold mb-4">Platform</h3>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link href="/about" className="text-muted-foreground hover:text-primary">
+                <Link href="/about" className="text-muted-foreground hover:text-primary transition-colors duration-200">
                   About Us
                 </Link>
               </li>

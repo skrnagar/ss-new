@@ -88,14 +88,14 @@ export function Navbar() {
         <div className="flex items-center gap-4">
           <Link href="/" className="flex items-center">
             <Image 
-              src="https://lephbkawjuyyygguxqio.supabase.co/storage/v1/object/public/post-images//ss%20lgog.webp" 
+              src="/placeholder-logo.svg" 
               alt="Safety Shaper Logo" 
-              width={32}
-              height={32}
-              className="mr-2 h-8 w-auto"
+              width={36}
+              height={36}
+              className="mr-2 h-9 w-auto transition-transform hover:scale-105"
               priority
             />
-            {/* <span className="hidden text-xl font-bold sm:inline-block">Safety Shaper</span> */}
+            <span className="hidden text-xl font-bold sm:inline-block bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Safety Shaper</span>
           </Link>
 
           {user && !isMobile && (
@@ -123,7 +123,7 @@ export function Navbar() {
               <Input
                 type="search"
                 placeholder="Search..."
-                className="w-[200px] md:w-[300px] pl-8 bg-muted focus-visible:ring-primary"
+                className="w-[200px] md:w-[300px] pl-8 rounded-full bg-muted/70 focus-visible:ring-primary transition-all focus-visible:bg-muted"
               />
             </div>
           )}

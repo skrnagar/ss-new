@@ -7,22 +7,20 @@ try {
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-  typescript: {
-    ignoreBuildErrors: true,
+  reactStrictMode: true,
+  experimental: {
+    instrumentationHook: true,
   },
   images: {
-    domains: ['lh3.googleusercontent.com', 'lephbkawjuyyygguxqio.supabase.co'],
-    formats: ['image/avif', 'image/webp'],
-    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
-    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
-  },
-  experimental: {
-    webpackBuildWorker: true,
-    parallelServerBuildTraces: true,
-    parallelServerCompiles: true,
+    domains: ['lephbkawjuyyygguxqio.supabase.co'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'lephbkawjuyyygguxqio.supabase.co',
+        port: '',
+        pathname: '/storage/v1/object/public/**',
+      },
+    ],
   },
 }
 
