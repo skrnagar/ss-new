@@ -15,6 +15,7 @@ import { supabase } from "@/lib/supabase"
 import { useState } from "react"
 
 const profileSetupSchema = z.object({
+  full_name: z.string().min(2, "Full name must be at least 2 characters"), // Added full_name validation
   headline: z.string().min(10, "Headline must be at least 10 characters"),
   bio: z.string().min(30, "Bio should be at least 30 characters"),
   company: z.string().min(2, "Company name must be at least 2 characters"),
@@ -32,6 +33,7 @@ export default function ProfileSetupPage() {
   const form = useForm<z.infer<typeof profileSetupSchema>>({
     resolver: zodResolver(profileSetupSchema),
     defaultValues: {
+      full_name: "", // Added default value for full_name
       headline: "",
       bio: "",
       company: "",
@@ -59,6 +61,7 @@ export default function ProfileSetupPage() {
           if (profile) {
             // Pre-fill form with existing data if available
             form.reset({
+              full_name: profile.full_name || "", // Added full_name to pre-fill
               headline: profile.headline || "",
               bio: profile.bio || "",
               company: profile.company || "",
@@ -114,16 +117,17 @@ export default function ProfileSetupPage() {
       // Update the user's profile
       const { error: updateError } = await supabase
         .from('profiles')
-        .upsert({
-          id: user.id,
-          username: values.username,
+        .update({
+          full_name: values.full_name,
           headline: values.headline,
           bio: values.bio,
           company: values.company,
           position: values.position,
           location: values.location,
+          username: values.username,
           updated_at: new Date().toISOString(),
-        }, { onConflict: 'id' })
+        })
+        .eq('id', user.id)
 
       if (updateError) {
         throw updateError
@@ -157,6 +161,20 @@ export default function ProfileSetupPage() {
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <FormField
+                control={form.control}
+                name="full_name" // Added full_name field
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Full Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Your full name" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
               <FormField
                 control={form.control}
                 name="username"
@@ -198,10 +216,10 @@ export default function ProfileSetupPage() {
                   <FormItem>
                     <FormLabel>Bio</FormLabel>
                     <FormControl>
-                      <Textarea 
-                        placeholder="Tell us about your experience, expertise, and interests in safety..." 
+                      <Textarea
+                        placeholder="Tell us about your experience, expertise, and interests in safety..."
                         className="min-h-32"
-                        {...field} 
+                        {...field}
                       />
                     </FormControl>
                     <FormMessage />
