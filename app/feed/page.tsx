@@ -19,18 +19,21 @@ import dynamic from "next/dynamic"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useAuth } from "@/contexts/auth-context"
-import ErrorBoundary from "@/components/error-boundary"
 
-// Import dynamically to avoid SSR issues
-const PostCreator = dynamic(() => import("@/components/post-creator"), { 
-  ssr: false,
-  loading: () => <div className="p-6 bg-muted/30 rounded-md animate-pulse"></div>
-})
+// Import dynamically to avoid SSR issues - properly resolving to component functions
+const PostCreator = dynamic(() => 
+  import("@/components/post-creator").then(mod => mod.PostCreator), {
+    ssr: false,
+    loading: () => <div className="p-6 bg-muted/30 rounded-md animate-pulse"></div>
+  }
+)
 
-const PostItem = dynamic(() => import("@/components/post-item"), { 
-  ssr: false,
-  loading: () => <div className="p-6 bg-muted/30 rounded-md animate-pulse"></div>
-})
+const PostItem = dynamic(() => 
+  import("@/components/post-item").then(mod => mod.default), {
+    ssr: false,
+    loading: () => <div className="p-6 bg-muted/30 rounded-md animate-pulse"></div>
+  }
+)
 
 export default function FeedPage() {
   const [posts, setPosts] = useState<any[]>([])
