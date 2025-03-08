@@ -1,15 +1,13 @@
-
 "use client"
 
-import { useState, useRef, useEffect, ChangeEvent } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
-import { Camera, Edit, Trash2, X, RotateCcw, RotateCw, Eye } from "lucide-react"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
 import { supabase } from "@/lib/supabase"
 import { useToast } from "@/hooks/use-toast"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Button } from "@/components/ui/button"
 import { Slider } from "@/components/ui/slider"
+import { X, Upload, Eye, RotateCcw, RotateCw } from "lucide-react"
 
 interface ProfilePhotoModalProps {
   userId: string
@@ -28,7 +26,7 @@ export function ProfilePhotoModal({ userId, avatarUrl, name, isOpen, onClose }: 
   const [straighten, setStraighten] = useState(50)
   const [brightness, setBrightness] = useState(50)
   const [contrast, setContrast] = useState(50)
-  
+
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { toast } = useToast()
   const router = useRouter()
@@ -58,7 +56,7 @@ export function ProfilePhotoModal({ userId, avatarUrl, name, isOpen, onClose }: 
     }
   }, [isOpen])
 
-  // Handle click outside to close modal
+  // Set up click outside to close
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
@@ -75,145 +73,77 @@ export function ProfilePhotoModal({ userId, avatarUrl, name, isOpen, onClose }: 
     }
   }, [isOpen, onClose])
 
-  // Prevent scrolling when modal is open
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden'
-    } else {
-      document.body.style.overflow = 'auto'
-    }
-
-    return () => {
-      document.body.style.overflow = 'auto'
-    }
-  }, [isOpen])
-
-  // Create preview when file is selected
-  useEffect(() => {
-    if (selectedFile) {
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        setPreviewUrl(reader.result as string)
-      }
-      reader.readAsDataURL(selectedFile)
-    }
-  }, [selectedFile])
-
   // Handle file selection
   const handleFileSelect = () => {
     fileInputRef.current?.click()
   }
 
-  // Handle file change
-  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
-    if (!file) return
+    if (file) {
+      setSelectedFile(file)
+      const objectUrl = URL.createObjectURL(file)
+      setPreviewUrl(objectUrl)
+    }
+  }
 
-    setSelectedFile(file)
-    setActiveTab("crop")
+  // Apply CSS filters based on slider values
+  const getImageStyles = () => {
+    return {
+      transform: `rotate(${(straighten - 50) * 0.06}deg) scale(${zoom / 50})`,
+      filter: `brightness(${brightness / 50}) contrast(${contrast / 50})`,
+      transition: 'transform 0.2s, filter 0.2s',
+    }
   }
 
   // Handle save photo
   const handleSavePhoto = async () => {
     if (!selectedFile) return
 
+    setLoading(true)
+
     try {
-      setLoading(true)
-
-      // Create unique file name
+      // Upload file to Supabase Storage
       const fileExt = selectedFile.name.split('.').pop()
-      const fileName = `${userId}/${Date.now()}-${selectedFile.name}`
-      const file = selectedFile
+      const fileName = `${userId}-${Date.now()}.${fileExt}`
 
-      console.log(`Attempting to upload file to avatars/${fileName}`)
-
-      // Upload file to avatars bucket
-      const { data, error } = await supabase.storage
+      const { error: uploadError, data: uploadData } = await supabase.storage
         .from('avatars')
-        .upload(fileName, file, {
-          cacheControl: '3600',
-          upsert: true
+        .upload(fileName, selectedFile, {
+          upsert: true,
         })
 
-      if (error) {
-        console.error('Upload error:', error)
-        throw error
-      }
+      if (uploadError) throw uploadError
 
-      console.log('Upload successful:', data)
-
-      // Generate public URL
-      const publicUrl = `${supabase.storage.from('avatars').getPublicUrl(data.path).data.publicUrl}`
-      
-      console.log('Generated public URL:', publicUrl)
+      // Get public URL
+      const { data: urlData } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(fileName)
 
       // Update user profile with new avatar URL
-      console.log(`Updating profile ${userId} with new avatar URL: ${publicUrl}`)
       const { error: updateError } = await supabase
         .from('profiles')
-        .update({ avatar_url: publicUrl })
+        .update({ 
+          avatar_url: urlData.publicUrl,
+          updated_at: new Date().toISOString()
+        })
         .eq('id', userId)
 
-      if (updateError) {
-        console.error('Profile update error:', updateError)
-        throw updateError
-      }
-
-      console.log('Profile updated successfully')
+      if (updateError) throw updateError
 
       toast({
         title: "Profile photo updated",
-        description: "Your avatar has been updated successfully",
+        description: "Your profile photo has been updated successfully",
       })
 
-      // Close modal
+      // Close modal and refresh
       onClose()
-
-      // Refresh the page
       router.refresh()
+
     } catch (error: any) {
       toast({
-        title: "Error updating avatar",
-        description: error.message || "Failed to update avatar",
-        variant: "destructive",
-      })
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  // Handle avatar deletion
-  const handleDeleteAvatar = async () => {
-    if (!avatarUrl) return
-
-    try {
-      setLoading(true)
-
-      // Update user profile to remove avatar URL
-      const { error: updateError } = await supabase
-        .from('profiles')
-        .update({ avatar_url: null })
-        .eq('id', userId)
-
-      if (updateError) {
-        console.error('Profile update error:', updateError)
-        throw updateError
-      }
-
-      toast({
-        title: "Avatar removed",
-        description: "Your profile picture has been removed",
-      })
-
-      // Close modal
-      onClose()
-
-      // Refresh the page
-      router.refresh()
-    } catch (error: any) {
-      toast({
-        title: "Error removing avatar",
-        description: error.message || "Failed to remove avatar",
+        title: "Error updating photo",
+        description: error.message,
         variant: "destructive",
       })
     } finally {
@@ -238,188 +168,153 @@ export function ProfilePhotoModal({ userId, avatarUrl, name, isOpen, onClose }: 
         </div>
 
         {/* Modal Content */}
-        <div className="p-0 flex flex-col md:flex-row">
-          <input
-            type="file"
-            ref={fileInputRef}
-            className="hidden"
-            accept="image/*"
-            onChange={handleFileChange}
-          />
-          
-          {/* Image Preview Area */}
-          <div className="w-full md:w-2/3 bg-gray-100 flex flex-col justify-center items-center p-6">
-            <div className="relative w-full h-[300px] md:h-[400px] flex items-center justify-center">
-              {previewUrl ? (
-                <div className="rounded-full overflow-hidden w-56 h-56 border-2 border-white">
-                  <img 
-                    src={previewUrl} 
-                    alt="Preview" 
-                    className="w-full h-full object-cover"
-                    style={{
-                      transform: `scale(${zoom/50}) rotate(${straighten - 50}deg)`,
-                      filter: `brightness(${brightness/50}) contrast(${contrast/50})`
-                    }}
+        <div className="flex flex-col md:flex-row h-[calc(100vh-200px)] max-h-[600px]">
+          {/* Preview Area */}
+          <div className="flex-1 bg-muted flex items-center justify-center p-4 overflow-hidden">
+            {previewUrl ? (
+              <div className="relative w-full h-full flex items-center justify-center overflow-hidden">
+                {/* Photo Preview with applied styles */}
+                <div className="relative w-80 h-80 overflow-hidden rounded-full border-2 border-white/20">
+                  <img
+                    src={previewUrl}
+                    alt="Preview"
+                    className="absolute inset-0 w-full h-full object-cover"
+                    style={getImageStyles()}
                   />
-                </div>
-              ) : (
-                <Avatar className="h-56 w-56 border-2 border-white">
-                  <AvatarImage src={avatarUrl || "/placeholder-user.jpg"} alt={name} />
-                  <AvatarFallback>{getInitials(name)}</AvatarFallback>
-                </Avatar>
-              )}
-            </div>
-          </div>
-
-          {/* Controls */}
-          <div className="w-full md:w-1/3 border-l">
-            {!previewUrl ? (
-              <div className="p-6">
-                <div className="w-full">
-                  <div className="grid grid-cols-3 gap-4 mb-4">
-                    <Button 
-                      variant="outline" 
-                      className="flex flex-col items-center py-6 h-auto"
-                      onClick={() => handleFileSelect()}
-                    >
-                      <Edit className="h-5 w-5 mb-1" />
-                      <span>Edit</span>
-                    </Button>
-                    
-                    <Button 
-                      variant="outline" 
-                      className="flex flex-col items-center py-6 h-auto"
-                      onClick={() => handleFileSelect()}
-                    >
-                      <Camera className="h-5 w-5 mb-1" />
-                      <span>Add photo</span>
-                    </Button>
-                    
-                    <Button 
-                      variant="outline" 
-                      className="flex flex-col items-center py-6 h-auto"
-                      onClick={handleDeleteAvatar}
-                      disabled={!avatarUrl || loading}
-                    >
-                      <Trash2 className="h-5 w-5 mb-1" />
-                      <span>Delete</span>
-                    </Button>
-                  </div>
-                  
-                  <div className="text-center mt-2 text-sm text-muted-foreground">
-                    {loading ? "Uploading..." : "Photo helps people recognize you"}
-                  </div>
                 </div>
               </div>
             ) : (
+              <div className="flex flex-col items-center justify-center h-full">
+                <Avatar className="h-24 w-24 mb-4">
+                  <AvatarImage src={avatarUrl || "/placeholder-user.jpg"} alt={name} />
+                  <AvatarFallback>{getInitials(name)}</AvatarFallback>
+                </Avatar>
+
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  className="hidden"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                />
+
+                <Button onClick={handleFileSelect} className="mt-4">
+                  <Upload className="h-4 w-4 mr-2" />
+                  Upload Photo
+                </Button>
+              </div>
+            )}
+          </div>
+
+          {/* Controls Area */}
+          <div className="w-full md:w-80 border-t md:border-t-0 md:border-l">
+            {previewUrl && (
               <div className="p-4">
-                <Tabs defaultValue="crop" value={activeTab} onValueChange={setActiveTab}>
-                  <TabsList className="grid grid-cols-3 mb-4">
-                    <TabsTrigger value="crop">Crop</TabsTrigger>
-                    <TabsTrigger value="filter">Filter</TabsTrigger>
-                    <TabsTrigger value="adjust">Adjust</TabsTrigger>
-                  </TabsList>
-                  
-                  <TabsContent value="crop" className="space-y-4">
-                    <div className="flex justify-center gap-4 mb-4">
-                      <Button variant="outline" size="icon">
-                        <RotateCcw className="h-4 w-4" />
-                      </Button>
-                      <Button variant="outline" size="icon">
-                        <RotateCw className="h-4 w-4" />
-                      </Button>
-                    </div>
-                    
-                    <div className="space-y-6">
-                      <div className="space-y-2">
-                        <div className="flex justify-between text-sm">
-                          <span>Zoom</span>
-                        </div>
-                        <Slider 
-                          value={[zoom]} 
-                          onValueChange={(value) => setZoom(value[0])}
-                          min={20} 
-                          max={100} 
-                          step={1}
-                          className="w-full"
-                        />
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <div className="flex justify-between text-sm">
-                          <span>Straighten</span>
-                        </div>
-                        <Slider 
-                          value={[straighten]} 
-                          onValueChange={(value) => setStraighten(value[0])}
-                          min={0} 
-                          max={100} 
-                          step={1}
-                          className="w-full"
-                        />
-                      </div>
-                    </div>
-                  </TabsContent>
-                  
-                  <TabsContent value="filter" className="space-y-4">
-                    <div className="grid grid-cols-3 gap-2">
-                      <div className="aspect-square bg-gray-200 rounded-md flex items-center justify-center">
-                        <span className="text-xs">Original</span>
-                      </div>
-                      <div className="aspect-square bg-gray-200 rounded-md flex items-center justify-center">
-                        <span className="text-xs">B&W</span>
-                      </div>
-                      <div className="aspect-square bg-gray-200 rounded-md flex items-center justify-center">
-                        <span className="text-xs">Vintage</span>
-                      </div>
-                    </div>
-                  </TabsContent>
-                  
-                  <TabsContent value="adjust" className="space-y-4">
-                    <div className="space-y-6">
-                      <div className="space-y-2">
-                        <div className="flex justify-between text-sm">
-                          <span>Brightness</span>
-                        </div>
+                {/* Tabs */}
+                <div className="flex border-b mb-4">
+                  <button
+                    className={`px-4 py-2 ${activeTab === 'crop' ? 'border-b-2 border-primary font-medium' : 'text-muted-foreground'}`}
+                    onClick={() => setActiveTab('crop')}
+                  >
+                    Crop
+                  </button>
+                  <button
+                    className={`px-4 py-2 ${activeTab === 'filter' ? 'border-b-2 border-primary font-medium' : 'text-muted-foreground'}`}
+                    onClick={() => setActiveTab('filter')}
+                  >
+                    Filter
+                  </button>
+                  <button
+                    className={`px-4 py-2 ${activeTab === 'adjust' ? 'border-b-2 border-primary font-medium' : 'text-muted-foreground'}`}
+                    onClick={() => setActiveTab('adjust')}
+                  >
+                    Adjust
+                  </button>
+                </div>
+
+                {/* Tab Content */}
+                <div className="space-y-6">
+                  {/* Rotation Controls */}
+                  <div className="flex justify-center gap-4 mb-6">
+                    <button 
+                      className="p-2 rounded-full hover:bg-muted"
+                      onClick={() => setStraighten(Math.max(0, straighten - 5))}
+                    >
+                      <RotateCcw className="h-5 w-5" />
+                    </button>
+                    <button 
+                      className="p-2 rounded-full hover:bg-muted"
+                      onClick={() => setStraighten(Math.min(100, straighten + 5))}
+                    >
+                      <RotateCw className="h-5 w-5" />
+                    </button>
+                  </div>
+
+                  {/* Zoom Control */}
+                  <div>
+                    <p className="text-sm font-medium mb-2">Zoom</p>
+                    <Slider 
+                      value={[zoom]} 
+                      onValueChange={(values) => setZoom(values[0])} 
+                      min={25} 
+                      max={150} 
+                      step={1}
+                    />
+                  </div>
+
+                  {/* Straighten Control */}
+                  <div>
+                    <p className="text-sm font-medium mb-2">Straighten</p>
+                    <Slider 
+                      value={[straighten]} 
+                      onValueChange={(values) => setStraighten(values[0])} 
+                      min={0} 
+                      max={100} 
+                      step={1}
+                    />
+                  </div>
+
+                  {activeTab === 'adjust' && (
+                    <>
+                      {/* Brightness Control */}
+                      <div>
+                        <p className="text-sm font-medium mb-2">Brightness</p>
                         <Slider 
                           value={[brightness]} 
-                          onValueChange={(value) => setBrightness(value[0])}
+                          onValueChange={(values) => setBrightness(values[0])} 
                           min={0} 
                           max={100} 
                           step={1}
-                          className="w-full"
                         />
                       </div>
-                      
-                      <div className="space-y-2">
-                        <div className="flex justify-between text-sm">
-                          <span>Contrast</span>
-                        </div>
+
+                      {/* Contrast Control */}
+                      <div>
+                        <p className="text-sm font-medium mb-2">Contrast</p>
                         <Slider 
                           value={[contrast]} 
-                          onValueChange={(value) => setContrast(value[0])}
+                          onValueChange={(values) => setContrast(values[0])} 
                           min={0} 
                           max={100} 
                           step={1}
-                          className="w-full"
                         />
                       </div>
+                    </>
+                  )}
+
+                  <div className="flex justify-between mt-6">
+                    <Button variant="outline" onClick={onClose}>
+                      Cancel
+                    </Button>
+                    <div className="flex items-center gap-2">
+                      <Button variant="outline" onClick={() => setPreviewUrl(null)}>
+                        <Eye className="h-4 w-4 mr-2" />
+                        Anyone
+                      </Button>
+                      <Button onClick={handleSavePhoto} disabled={loading}>
+                        {loading ? "Saving..." : "Save photo"}
+                      </Button>
                     </div>
-                  </TabsContent>
-                </Tabs>
-                
-                <div className="flex justify-between mt-6">
-                  <Button variant="outline" onClick={onClose}>
-                    Cancel
-                  </Button>
-                  <div className="flex items-center gap-2">
-                    <Button variant="outline" onClick={() => setPreviewUrl(null)}>
-                      <Eye className="h-4 w-4 mr-2" />
-                      Anyone
-                    </Button>
-                    <Button onClick={handleSavePhoto} disabled={loading}>
-                      {loading ? "Saving..." : "Save photo"}
-                    </Button>
                   </div>
                 </div>
               </div>

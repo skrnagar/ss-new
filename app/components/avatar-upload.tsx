@@ -1,7 +1,7 @@
 
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { ProfilePhotoModal } from "./profile-photo-modal"
@@ -16,7 +16,13 @@ interface AvatarUploadProps {
 
 export function AvatarUpload({ userId, avatarUrl, name, isOwnProfile, onAvatarChange }: AvatarUploadProps) {
   const [modalOpen, setModalOpen] = useState(false)
+  const [currentAvatarUrl, setCurrentAvatarUrl] = useState<string | null>(avatarUrl)
   const router = useRouter()
+
+  // Update currentAvatarUrl when avatarUrl prop changes
+  useEffect(() => {
+    setCurrentAvatarUrl(avatarUrl)
+  }, [avatarUrl])
 
   // Get initials for avatar fallback
   const getInitials = (name: string) => {
@@ -29,10 +35,16 @@ export function AvatarUpload({ userId, avatarUrl, name, isOwnProfile, onAvatarCh
       .substring(0, 2)
   }
 
+  // Handle avatar click to open modal
   const handleAvatarClick = () => {
     if (isOwnProfile) {
       setModalOpen(true)
     }
+  }
+
+  // Handle modal close
+  const handleModalClose = () => {
+    setModalOpen(false)
   }
 
   return (
@@ -41,17 +53,17 @@ export function AvatarUpload({ userId, avatarUrl, name, isOwnProfile, onAvatarCh
         className={`h-24 w-24 mb-4 ${isOwnProfile ? 'cursor-pointer hover:opacity-80' : ''}`} 
         onClick={handleAvatarClick}
       >
-        <AvatarImage src={avatarUrl || "/placeholder-user.jpg"} alt={name} />
+        <AvatarImage src={currentAvatarUrl || "/placeholder-user.jpg"} alt={name} />
         <AvatarFallback>{getInitials(name)}</AvatarFallback>
       </Avatar>
       
       {/* Profile Photo Modal */}
       <ProfilePhotoModal
         userId={userId}
-        avatarUrl={avatarUrl}
+        avatarUrl={currentAvatarUrl}
         name={name}
         isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
+        onClose={handleModalClose}
       />
     </>
   )
