@@ -50,9 +50,11 @@ export function ProfileAvatarEditor({
   return (
     <>
       <div className="relative inline-block">
-        <div 
+        <button 
+          type="button"
           onClick={handleAvatarClick} 
-          className={`${editable ? 'cursor-pointer group/avatar relative' : ''}`}
+          className={`${editable ? 'cursor-pointer group/avatar relative' : ''} bg-transparent border-0 p-0`}
+          aria-label="Edit profile avatar"
         >
           <Avatar 
             className={`${sizeClasses[size]} ${editable ? 'transition-opacity group-hover/avatar:opacity-80' : ''}`}
@@ -68,15 +70,17 @@ export function ProfileAvatarEditor({
               </div>
             </div>
           )}
-        </div>
+        </button>
         
         {editable && (
-          <div 
-            className="absolute bottom-0 right-0 bg-primary text-white rounded-full p-1.5 cursor-pointer shadow-md z-10"
+          <button 
+            type="button"
+            className="absolute bottom-0 right-0 bg-primary text-white rounded-full p-1.5 cursor-pointer shadow-md z-10 border-0"
             onClick={handleAvatarClick}
+            aria-label="Edit profile avatar"
           >
             <Camera size={16} />
-          </div>
+          </button>
         )}
       </div>
       
