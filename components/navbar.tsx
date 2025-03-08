@@ -145,16 +145,6 @@ export function Navbar() {
                   </Link>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
-                  <Link href="/network" legacyBehavior passHref>
-                    <NavigationMenuLink className={navigationMenuTriggerStyle()}>Network</NavigationMenuLink>
-                  </Link>
-                </NavigationMenuItem>
-                <NavigationMenuItem>
-                  <Link href="/groups" legacyBehavior passHref>
-                    <NavigationMenuLink className={navigationMenuTriggerStyle()}>Groups</NavigationMenuLink>
-                  </Link>
-                </NavigationMenuItem>
-                <NavigationMenuItem>
                   <Link href="/knowledge" legacyBehavior passHref>
                     <NavigationMenuLink className={navigationMenuTriggerStyle()}>Knowledge Hub</NavigationMenuLink>
                   </Link>
@@ -185,32 +175,49 @@ export function Navbar() {
             <div className="flex items-center gap-4">
               {!isMobile && (
                 <>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" aria-label="Network">
-                        <Users className="h-5 w-5" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem asChild>
-                        <Link href="/network" className="cursor-pointer">
-                          <Users className="mr-2 h-4 w-4" />
-                          <span>Connections</span>
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link href="/network/professionals" className="cursor-pointer">
-                          <span>ESG & EHS Network</span>
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link href="/groups" className="cursor-pointer">
-                          <Users className="mr-2 h-4 w-4" />
-                          <span>Groups</span>
-                        </Link>
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                  <NavigationMenu>
+                    <NavigationMenuList>
+                      <NavigationMenuItem>
+                        <NavigationMenuTrigger>
+                          <Users className="h-5 w-5 mr-1" />
+                          <span className="sr-only">Networks</span>
+                        </NavigationMenuTrigger>
+                        <NavigationMenuContent>
+                          <div className="w-[300px] p-4">
+                            <div className="mb-3 pb-2 border-b">
+                              <h4 className="font-medium mb-1">Professional Network</h4>
+                              <p className="text-xs text-muted-foreground">Connect with industry professionals</p>
+                            </div>
+                            <div className="grid gap-3">
+                              <Link href="/network" className="flex items-center gap-2 p-2 rounded-md hover:bg-muted transition-colors">
+                                <Users className="h-4 w-4 text-primary" />
+                                <div>
+                                  <div className="font-medium">My Connections</div>
+                                  <p className="text-xs text-muted-foreground">Manage your professional network</p>
+                                </div>
+                              </Link>
+                              <Link href="/network/professionals" className="flex items-center gap-2 p-2 rounded-md hover:bg-muted transition-colors">
+                                <Search className="h-4 w-4 text-primary" />
+                                <div>
+                                  <div className="font-medium">Explore People</div>
+                                  <p className="text-xs text-muted-foreground">Find ESG & EHS professionals</p>
+                                </div>
+                              </Link>
+                              <Link href="/groups" className="flex items-center gap-2 p-2 rounded-md hover:bg-muted transition-colors">
+                                <div className="relative">
+                                  <Users className="h-4 w-4 text-primary" />
+                                </div>
+                                <div>
+                                  <div className="font-medium">Groups</div>
+                                  <p className="text-xs text-muted-foreground">Join specialized professional groups</p>
+                                </div>
+                              </Link>
+                            </div>
+                          </div>
+                        </NavigationMenuContent>
+                      </NavigationMenuItem>
+                    </NavigationMenuList>
+                  </NavigationMenu>
                   <Link href="/jobs">
                     <Button variant="ghost" size="icon" aria-label="Jobs">
                       <Briefcase className="h-5 w-5" />
