@@ -1,0 +1,329 @@
+
+Build Error
+Failed to compile
+
+Next.js (14.2.16) is outdated (learn more)
+./components/error-boundary.tsx
+Error: 
+  × the name `useEffect` is defined multiple times
+    ╭─[/home/runner/workspace/components/error-boundary.tsx:1:1]
+  1 │ 
+  2 │ "use client"
+  3 │ 
+  4 │ import { useEffect, useState } from "react"
+    ·          ────┬────
+    ·              ╰── previous definition of `useEffect` here
+  5 │ import { Button } from "@/components/ui/button"
+  6 │ 
+  7 │ interface ErrorBoundaryProps {
+  8 │   children: React.ReactNode
+  9 │   fallback?: React.ReactNode
+ 10 │ }
+ 11 │ 
+ 12 │ export function ErrorBoundary({ 
+ 13 │   children, 
+ 14 │   fallback = <div className="p-4 bg-red-50 border border-red-200 rounded-md text-red-800">Something went wrong. Please try again.</div> 
+ 15 │ }: ErrorBoundaryProps) {
+ 16 │   const [hasError, setHasError] = useState(false)
+ 17 │ 
+ 18 │   useEffect(() => {
+ 19 │     const errorHandler = (event: ErrorEvent) => {
+ 20 │       console.error("Error caught by boundary:", event.error)
+ 21 │       setHasError(true)
+ 22 │       event.preventDefault()
+ 23 │     }
+ 24 │ 
+ 25 │     window.addEventListener("error", errorHandler)
+ 26 │     return () => window.removeEventListener("error", errorHandler)
+ 27 │   }, [])
+ 28 │ 
+ 29 │   if (hasError) {
+ 30 │     return (
+ 31 │       <div className="p-4 bg-red-50 border border-red-200 rounded-md">
+ 32 │         <h3 className="text-red-800 font-medium mb-2">Something went wrong</h3>
+ 33 │         <p className="text-red-700 mb-3">We encountered an error loading this component.</p>
+ 34 │         <Button 
+ 35 │           variant="outline" 
+ 36 │           onClick={() => setHasError(false)}
+ 37 │           className="text-red-600 border-red-200 hover:bg-red-50"
+ 38 │         >
+ 39 │           Try Again
+ 40 │         </Button>
+ 41 │       </div>
+ 42 │     )
+ 43 │   }
+ 44 │ 
+ 45 │   return <>{children}</>
+ 46 │ }
+ 47 │ 
+ 48 │ export default ErrorBoundary
+ 49 │ "use client"
+ 50 │ 
+ 51 │ import { useEffect, useState } from "react"
+    ·          ────┬────
+    ·              ╰── `useEffect` redefined here
+ 52 │ import { Button } from "@/components/ui/button"
+ 53 │ 
+ 54 │ interface ErrorBoundaryProps {
+    ╰────
+
+  × the name `useState` is defined multiple times
+    ╭─[/home/runner/workspace/components/error-boundary.tsx:1:1]
+  1 │ 
+  2 │ "use client"
+  3 │ 
+  4 │ import { useEffect, useState } from "react"
+    ·                     ────┬───
+    ·                         ╰── previous definition of `useState` here
+  5 │ import { Button } from "@/components/ui/button"
+  6 │ 
+  7 │ interface ErrorBoundaryProps {
+  8 │   children: React.ReactNode
+  9 │   fallback?: React.ReactNode
+ 10 │ }
+ 11 │ 
+ 12 │ export function ErrorBoundary({ 
+ 13 │   children, 
+ 14 │   fallback = <div className="p-4 bg-red-50 border border-red-200 rounded-md text-red-800">Something went wrong. Please try again.</div> 
+ 15 │ }: ErrorBoundaryProps) {
+ 16 │   const [hasError, setHasError] = useState(false)
+ 17 │ 
+ 18 │   useEffect(() => {
+ 19 │     const errorHandler = (event: ErrorEvent) => {
+ 20 │       console.error("Error caught by boundary:", event.error)
+ 21 │       setHasError(true)
+ 22 │       event.preventDefault()
+ 23 │     }
+ 24 │ 
+ 25 │     window.addEventListener("error", errorHandler)
+ 26 │     return () => window.removeEventListener("error", errorHandler)
+ 27 │   }, [])
+ 28 │ 
+ 29 │   if (hasError) {
+ 30 │     return (
+ 31 │       <div className="p-4 bg-red-50 border border-red-200 rounded-md">
+ 32 │         <h3 className="text-red-800 font-medium mb-2">Something went wrong</h3>
+ 33 │         <p className="text-red-700 mb-3">We encountered an error loading this component.</p>
+ 34 │         <Button 
+ 35 │           variant="outline" 
+ 36 │           onClick={() => setHasError(false)}
+ 37 │           className="text-red-600 border-red-200 hover:bg-red-50"
+ 38 │         >
+ 39 │           Try Again
+ 40 │         </Button>
+ 41 │       </div>
+ 42 │     )
+ 43 │   }
+ 44 │ 
+ 45 │   return <>{children}</>
+ 46 │ }
+ 47 │ 
+ 48 │ export default ErrorBoundary
+ 49 │ "use client"
+ 50 │ 
+ 51 │ import { useEffect, useState } from "react"
+    ·                     ────┬───
+    ·                         ╰── `useState` redefined here
+ 52 │ import { Button } from "@/components/ui/button"
+ 53 │ 
+ 54 │ interface ErrorBoundaryProps {
+    ╰────
+
+  × the name `Button` is defined multiple times
+    ╭─[/home/runner/workspace/components/error-boundary.tsx:2:1]
+  2 │ "use client"
+  3 │ 
+  4 │ import { useEffect, useState } from "react"
+  5 │ import { Button } from "@/components/ui/button"
+    ·          ───┬──
+    ·             ╰── previous definition of `Button` here
+  6 │ 
+  7 │ interface ErrorBoundaryProps {
+  8 │   children: React.ReactNode
+  9 │   fallback?: React.ReactNode
+ 10 │ }
+ 11 │ 
+ 12 │ export function ErrorBoundary({ 
+ 13 │   children, 
+ 14 │   fallback = <div className="p-4 bg-red-50 border border-red-200 rounded-md text-red-800">Something went wrong. Please try again.</div> 
+ 15 │ }: ErrorBoundaryProps) {
+ 16 │   const [hasError, setHasError] = useState(false)
+ 17 │ 
+ 18 │   useEffect(() => {
+ 19 │     const errorHandler = (event: ErrorEvent) => {
+ 20 │       console.error("Error caught by boundary:", event.error)
+ 21 │       setHasError(true)
+ 22 │       event.preventDefault()
+ 23 │     }
+ 24 │ 
+ 25 │     window.addEventListener("error", errorHandler)
+ 26 │     return () => window.removeEventListener("error", errorHandler)
+ 27 │   }, [])
+ 28 │ 
+ 29 │   if (hasError) {
+ 30 │     return (
+ 31 │       <div className="p-4 bg-red-50 border border-red-200 rounded-md">
+ 32 │         <h3 className="text-red-800 font-medium mb-2">Something went wrong</h3>
+ 33 │         <p className="text-red-700 mb-3">We encountered an error loading this component.</p>
+ 34 │         <Button 
+ 35 │           variant="outline" 
+ 36 │           onClick={() => setHasError(false)}
+ 37 │           className="text-red-600 border-red-200 hover:bg-red-50"
+ 38 │         >
+ 39 │           Try Again
+ 40 │         </Button>
+ 41 │       </div>
+ 42 │     )
+ 43 │   }
+ 44 │ 
+ 45 │   return <>{children}</>
+ 46 │ }
+ 47 │ 
+ 48 │ export default ErrorBoundary
+ 49 │ "use client"
+ 50 │ 
+ 51 │ import { useEffect, useState } from "react"
+ 52 │ import { Button } from "@/components/ui/button"
+    ·          ───┬──
+    ·             ╰── `Button` redefined here
+ 53 │ 
+ 54 │ interface ErrorBoundaryProps {
+ 55 │   children: React.ReactNode
+    ╰────
+
+  × the name `ErrorBoundary` is defined multiple times
+    ╭─[/home/runner/workspace/components/error-boundary.tsx:9:1]
+  9 │   fallback?: React.ReactNode
+ 10 │ }
+ 11 │ 
+ 12 │ export function ErrorBoundary({ 
+    ·                 ──────┬──────
+    ·                       ╰── previous definition of `ErrorBoundary` here
+ 13 │   children, 
+ 14 │   fallback = <div className="p-4 bg-red-50 border border-red-200 rounded-md text-red-800">Something went wrong. Please try again.</div> 
+ 15 │ }: ErrorBoundaryProps) {
+ 16 │   const [hasError, setHasError] = useState(false)
+ 17 │ 
+ 18 │   useEffect(() => {
+ 19 │     const errorHandler = (event: ErrorEvent) => {
+ 20 │       console.error("Error caught by boundary:", event.error)
+ 21 │       setHasError(true)
+ 22 │       event.preventDefault()
+ 23 │     }
+ 24 │ 
+ 25 │     window.addEventListener("error", errorHandler)
+ 26 │     return () => window.removeEventListener("error", errorHandler)
+ 27 │   }, [])
+ 28 │ 
+ 29 │   if (hasError) {
+ 30 │     return (
+ 31 │       <div className="p-4 bg-red-50 border border-red-200 rounded-md">
+ 32 │         <h3 className="text-red-800 font-medium mb-2">Something went wrong</h3>
+ 33 │         <p className="text-red-700 mb-3">We encountered an error loading this component.</p>
+ 34 │         <Button 
+ 35 │           variant="outline" 
+ 36 │           onClick={() => setHasError(false)}
+ 37 │           className="text-red-600 border-red-200 hover:bg-red-50"
+ 38 │         >
+ 39 │           Try Again
+ 40 │         </Button>
+ 41 │       </div>
+ 42 │     )
+ 43 │   }
+ 44 │ 
+ 45 │   return <>{children}</>
+ 46 │ }
+ 47 │ 
+ 48 │ export default ErrorBoundary
+ 49 │ "use client"
+ 50 │ 
+ 51 │ import { useEffect, useState } from "react"
+ 52 │ import { Button } from "@/components/ui/button"
+ 53 │ 
+ 54 │ interface ErrorBoundaryProps {
+ 55 │   children: React.ReactNode
+ 56 │   fallback?: React.ReactNode
+ 57 │ }
+ 58 │ 
+ 59 │ export function ErrorBoundary({ 
+    ·                 ──────┬──────
+    ·                       ╰── `ErrorBoundary` redefined here
+ 60 │   children, 
+ 61 │   fallback = <div className="p-4 bg-red-50 border border-red-200 rounded-md text-red-800">Something went wrong. Please try again.</div> 
+ 62 │ }: ErrorBoundaryProps) {
+    ╰────
+
+  × the name `default` is exported multiple times
+    ╭─[/home/runner/workspace/components/error-boundary.tsx:45:1]
+ 45 │   return <>{children}</>
+ 46 │ }
+ 47 │ 
+ 48 │ export default ErrorBoundary
+    · ──────────────┬─────────────
+    ·               ╰── previous exported here
+ 49 │ "use client"
+ 50 │ 
+ 51 │ import { useEffect, useState } from "react"
+ 52 │ import { Button } from "@/components/ui/button"
+ 53 │ 
+ 54 │ interface ErrorBoundaryProps {
+ 55 │   children: React.ReactNode
+ 56 │   fallback?: React.ReactNode
+ 57 │ }
+ 58 │ 
+ 59 │ export function ErrorBoundary({ 
+ 60 │   children, 
+ 61 │   fallback = <div className="p-4 bg-red-50 border border-red-200 rounded-md text-red-800">Something went wrong. Please try again.</div> 
+ 62 │ }: ErrorBoundaryProps) {
+ 63 │   const [hasError, setHasError] = useState(false)
+ 64 │ 
+ 65 │   useEffect(() => {
+ 66 │     const errorHandler = (event: ErrorEvent) => {
+ 67 │       console.error("Error caught by boundary:", event.error)
+ 68 │       setHasError(true)
+ 69 │       event.preventDefault()
+ 70 │     }
+ 71 │ 
+ 72 │     window.addEventListener("error", errorHandler)
+ 73 │     return () => window.removeEventListener("error", errorHandler)
+ 74 │   }, [])
+ 75 │ 
+ 76 │   if (hasError) {
+ 77 │     return (
+ 78 │       <div className="p-4 bg-red-50 border border-red-200 rounded-md">
+ 79 │         <h3 className="text-red-800 font-medium mb-2">Something went wrong</h3>
+ 80 │         <p className="text-red-700 mb-3">We encountered an error loading this component.</p>
+ 81 │         <Button 
+ 82 │           variant="outline" 
+ 83 │           onClick={() => setHasError(false)}
+ 84 │           className="text-red-600 border-red-200 hover:bg-red-50"
+ 85 │         >
+ 86 │           Try Again
+ 87 │         </Button>
+ 88 │       </div>
+ 89 │     )
+ 90 │   }
+ 91 │ 
+ 92 │   return <>{children}</>
+ 93 │ }
+ 94 │ 
+ 95 │ export default ErrorBoundary
+    · ──────────────┬─────────────
+    ·               ╰── exported more than once
+    ╰────
+
+Error: 
+  ☞ Exported identifiers must be unique
+
+  × The "use client" directive must be placed before other expressions. Move it to the top of the file to resolve this issue.
+    ╭─[/home/runner/workspace/components/error-boundary.tsx:46:1]
+ 46 │ }
+ 47 │ 
+ 48 │ export default ErrorBoundary
+ 49 │ "use client"
+    · ────────────
+ 50 │ 
+ 51 │ import { useEffect, useState } from "react"
+ 52 │ import { Button } from "@/components/ui/button"
+    ╰────
+This error occurred during the build process and can only be dismissed by fixing the error.
