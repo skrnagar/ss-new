@@ -1,14 +1,6 @@
-/* Critical CSS first */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-/* Defer non-critical animations */
-@layer utilities {
-  .animate-delayed {
-    animation-delay: 200ms;
-  }
-}
 
 :root {
   --background: 0 0% 100%;

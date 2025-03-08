@@ -7,6 +7,9 @@ try {
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  images: {
+    domains: ['lephbkawjuyyygguxqio.supabase.co'],
+  },
   reactStrictMode: true,
   experimental: {
     instrumentationHook: true,

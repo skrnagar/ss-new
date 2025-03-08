@@ -1,43 +1,26 @@
 
+"use client"
+
 import { useState, useEffect } from 'react'
 
-// Debounce function to limit resize calculations
-function debounce<T extends (...args: any[]) => any>(
-  func: T,
-  wait: number
-): (...args: Parameters<T>) => void {
-  let timeout: NodeJS.Timeout | null = null
-  
-  return function(...args: Parameters<T>) {
-    if (timeout) clearTimeout(timeout)
-    timeout = setTimeout(() => func(...args), wait)
-  }
-}
-
-export function useMobile(breakpoint = 768): boolean {
-  // Default to non-mobile for SSR
+export const useMobile = () => {
   const [isMobile, setIsMobile] = useState(false)
-  
+
   useEffect(() => {
-    // Initial check
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < breakpoint)
+    // Handler to call on window resize
+    function handleResize() {
+      setIsMobile(window.innerWidth < 768)
     }
     
-    // Debounced resize handler
-    const debouncedResize = debounce(checkMobile, 100)
+    // Add event listener
+    window.addEventListener('resize', handleResize)
     
-    // Set initial value
-    checkMobile()
+    // Call handler right away so state gets updated with initial window size
+    handleResize()
     
-    // Add resize listener
-    window.addEventListener('resize', debouncedResize)
-    
-    // Clean up
-    return () => {
-      window.removeEventListener('resize', debouncedResize)
-    }
-  }, [breakpoint])
-  
+    // Remove event listener on cleanup
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
   return isMobile
 }

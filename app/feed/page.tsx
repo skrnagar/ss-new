@@ -1,7 +1,6 @@
 "use client"
 
-import { useState, useEffect, Suspense } from "react"
-import { unstable_serialize } from 'swr'
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import {
@@ -15,25 +14,11 @@ import {
 } from "lucide-react"
 import { supabase } from "@/lib/supabase"
 import { useRouter } from "next/navigation"
-import dynamic from "next/dynamic"
+import { PostCreator } from "@/components/post-creator"
+import { PostItem } from "@/components/post-item"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useAuth } from "@/contexts/auth-context"
-
-// Import dynamically to avoid SSR issues - properly resolving to component functions
-const PostCreator = dynamic(() => 
-  import("@/components/post-creator").then(mod => mod.PostCreator), {
-    ssr: false,
-    loading: () => <div className="p-6 bg-muted/30 rounded-md animate-pulse"></div>
-  }
-)
-
-const PostItem = dynamic(() => 
-  import("@/components/post-item").then(mod => mod.default), {
-    ssr: false,
-    loading: () => <div className="p-6 bg-muted/30 rounded-md animate-pulse"></div>
-  }
-)
 
 export default function FeedPage() {
   const [posts, setPosts] = useState<any[]>([])
@@ -166,9 +151,7 @@ export default function FeedPage() {
             ))
           ) : posts.length > 0 ? (
             posts.map((post) => (
-              <div key={post.id}>
-                {post && <PostItem post={post} currentUser={userProfile} />}
-              </div>
+              <PostItem key={post.id} post={post} currentUser={userProfile} />
             ))
           ) : (
             <Card>
@@ -186,7 +169,7 @@ export default function FeedPage() {
         <div className="hidden md:block space-y-6">
           <Card>
             <CardContent className="pt-6">
-
+              <h3 className="font-semibold mb-3">Your Profile</h3>
               {userProfile ? (
                 <div className="flex flex-col items-center text-center mb-4">
                   <Avatar className="h-16 w-16 mb-3">
