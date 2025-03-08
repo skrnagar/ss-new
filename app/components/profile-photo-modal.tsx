@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useRef, useEffect } from "react"
@@ -8,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { supabase } from "@/lib/supabase"
 import { useToast } from "@/hooks/use-toast"
 import { X, Camera, Edit, Trash2, Image } from "lucide-react"
+import { Input } from "@/components/ui/input"
 
 interface ProfilePhotoModalProps {
   userId: string
@@ -15,9 +15,13 @@ interface ProfilePhotoModalProps {
   name: string
   isOpen: boolean
   onClose: () => void
+  onAvatarChange?: (url: string) => void
 }
 
-export function ProfilePhotoModal({ userId, avatarUrl, name, isOpen, onClose }: ProfilePhotoModalProps) {
+export function ProfilePhotoModal({ userId, avatarUrl, name, isOpen, onClose, onAvatarChange }: ProfilePhotoModalProps) {
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [preview, setPreview] = useState<string | null>(null)
+  const [fullName, setFullName] = useState(name || '')
   const [loading, setLoading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { toast } = useToast()
@@ -75,80 +79,68 @@ export function ProfilePhotoModal({ userId, avatarUrl, name, isOpen, onClose }: 
     try {
       setLoading(true)
       const file = event.target.files?.[0]
-      
+
       if (!file) {
         throw new Error('No file selected')
       }
-      
+
       // Validate file type
       if (!file.type.startsWith('image/')) {
         throw new Error('Invalid file selected')
       }
-      
+
       // Create a unique file name
       const fileExt = file.name.split('.').pop()
       const fileName = `${userId}/${Date.now()}-${file.name}`
-      
-      console.log(`Attempting to upload to avatars bucket: ${fileName}`)
-      console.log(`Attempting to upload file to avatars/${fileName}`)
-      
+
       const { data, error } = await supabase.storage
         .from('avatars')
         .upload(fileName, file, {
           cacheControl: '3600',
           upsert: true
         })
-      
+
       if (error) {
         console.error('Upload error:', error)
         throw error
       }
-      
-      console.log('Upload successful:', data)
-      
-      // Get public URL for the uploaded file
-      const { data: publicUrlData } = supabase
+
+      const { data: urlData } = supabase
         .storage
         .from('avatars')
         .getPublicUrl(data.path)
-      
-      const publicUrl = publicUrlData.publicUrl
-      console.log('Generated public URL:', publicUrl)
-      
-      // Update user profile with new avatar URL
-      console.log(`Updating profile ${userId} with new avatar URL: ${publicUrl}`)
-      const { error: updateError } = await supabase
+
+      const url = urlData.publicUrl
+
+      // Update profile with new avatar URL and full name
+      const { error: profileError } = await supabase
         .from('profiles')
-        .update({ avatar_url: publicUrl })
+        .update({
+          avatar_url: url,
+          full_name: fullName,
+          updated_at: new Date().toISOString(),
+        })
         .eq('id', userId)
-      
-      if (updateError) {
-        console.error('Profile update error:', updateError)
-        throw updateError
-      }
-      
-      console.log('Profile updated successfully')
-      
+
+      if (profileError) throw profileError
+
+      toast({
+        title: "Profile updated",
+        description: "Your profile photo and information have been updated successfully",
+      })
+
       // Call the onAvatarChange callback if provided
       if (onAvatarChange) {
-        onAvatarChange(publicUrl)
+        onAvatarChange(url)
       }
-      
-      toast({
-        title: "Avatar updated",
-        description: "Your profile picture has been updated successfully",
-      })
-      
-      // Close modal
+
       onClose()
-      
-      // Refresh the page to show the updated avatar
       router.refresh()
-      
+
     } catch (error: any) {
       toast({
-        title: "Error updating avatar",
-        description: error.message || "Failed to update avatar",
+        title: "Error updating profile",
+        description: error.message || "Failed to update profile",
         variant: "destructive",
       })
     } finally {
@@ -199,13 +191,13 @@ export function ProfilePhotoModal({ userId, avatarUrl, name, isOpen, onClose }: 
 
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-      <div 
-        ref={modalRef} 
+      <div
+        ref={modalRef}
         className="bg-background rounded-lg shadow-lg max-w-md w-full overflow-hidden"
       >
         {/* Modal Header */}
         <div className="flex items-center justify-between p-4 border-b">
-          <h2 className="text-xl font-bold">Profile photo</h2>
+          <h2 className="text-xl font-bold">Update Profile</h2>
           <button onClick={onClose} className="text-muted-foreground hover:text-foreground">
             <X className="h-5 w-5" />
           </button>
@@ -220,56 +212,75 @@ export function ProfilePhotoModal({ userId, avatarUrl, name, isOpen, onClose }: 
             accept="image/*"
             onChange={handleFileChange}
           />
-          
+
           <div className="mb-6">
             <Avatar className="h-40 w-40">
-              <AvatarImage src={avatarUrl || "/placeholder-user.jpg"} alt={name} />
-              <AvatarFallback>{getInitials(name)}</AvatarFallback>
+              <AvatarImage src={avatarUrl || "/placeholder-user.jpg"} alt={fullName} />
+              <AvatarFallback>{getInitials(fullName)}</AvatarFallback>
             </Avatar>
           </div>
 
           <div className="w-full">
-            <div className="grid grid-cols-3 gap-4 mb-4">
-              <Button 
-                variant="outline" 
-                className="flex flex-col items-center py-6 h-auto"
-                onClick={() => handleFileSelect()}
-              >
-                <Edit className="h-5 w-5 mb-1" />
-                <span>Edit</span>
-              </Button>
-              
-              <Button 
-                variant="outline" 
-                className="flex flex-col items-center py-6 h-auto"
-                onClick={() => handleFileSelect()}
-              >
-                <Camera className="h-5 w-5 mb-1" />
-                <span>Add photo</span>
-              </Button>
-              
-              <Button 
-                variant="outline" 
-                className="flex flex-col items-center py-6 h-auto"
-                onClick={handleDeleteAvatar}
-                disabled={!avatarUrl || loading}
-              >
-                <Trash2 className="h-5 w-5 mb-1" />
-                <span>Delete</span>
-              </Button>
+            <div className="grid gap-4 py-4">
+              <div className="flex justify-center">
+                {preview ? (
+                  <Avatar className="h-32 w-32">
+                    <AvatarImage src={preview} alt="Preview" />
+                    <AvatarFallback>{fullName.substring(0, 2).toUpperCase()}</AvatarFallback>
+                  </Avatar>
+                ) : (
+                  <Avatar className="h-32 w-32">
+                    <AvatarImage src={avatarUrl || "/placeholder-user.jpg"} alt={fullName} />
+                    <AvatarFallback>{fullName.substring(0, 2).toUpperCase()}</AvatarFallback>
+                  </Avatar>
+                )}
+              </div>
+              <div>
+                <label htmlFor="fullName" className="block text-sm font-medium leading-6 mb-2">
+                  Full Name
+                </label>
+                <Input
+                  id="fullName"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  placeholder="Your full name"
+                  className="mb-4"
+                />
+              </div>
+              <div>
+                <label htmlFor="photo" className="block text-sm font-medium leading-6 mb-2">
+                  Photo
+                </label>
+                <div className="flex items-center gap-x-3">
+                  <Input
+                    id="photo"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    className="cursor-pointer"
+                  />
+                </div>
+              </div>
             </div>
-            
+
             <div className="text-center mt-2 text-sm text-muted-foreground">
               {loading ? "Uploading..." : "Photo helps people recognize you"}
             </div>
 
             <div className="mt-4 flex justify-end">
-              <Button 
-                variant="ghost" 
+              <Button
+                variant="ghost"
                 onClick={onClose}
                 disabled={loading}
               >
                 Cancel
+              </Button>
+              <Button
+                type="submit"
+                onClick={handleFileChange}
+                disabled={loading}
+              >
+                Save
               </Button>
             </div>
           </div>
