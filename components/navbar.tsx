@@ -145,11 +145,6 @@ export function Navbar() {
                   </Link>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
-                  <Link href="/profile" legacyBehavior passHref>
-                    <NavigationMenuLink className={navigationMenuTriggerStyle()}>Profile</NavigationMenuLink>
-                  </Link>
-                </NavigationMenuItem>
-                <NavigationMenuItem>
                   <NavigationMenuTrigger>Network</NavigationMenuTrigger>
                   <NavigationMenuContent>
                     <ul className="grid gap-3 p-4 w-[400px] md:w-[500px] lg:w-[600px] grid-cols-2">
@@ -162,23 +157,6 @@ export function Navbar() {
                             <div className="mb-2 mt-4 text-lg font-medium">ESG & EHS Network</div>
                             <p className="text-sm leading-tight text-muted-foreground">
                               Connect with professionals in Environmental, Social, Governance, and Health & Safety
-                            </p>
-                          </NavigationMenuLink>
-                        </Link>
-                      </li>
-                      <li>
-                        <Link href="/jobs" legacyBehavior passHref>
-                          <NavigationMenuLink
-                            className={cn(
-                              "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
-                            )}
-                          >
-                            <div className="flex items-center gap-2">
-                              <Briefcase className="h-4 w-4" />
-                              <div className="text-sm font-medium leading-none">Jobs</div>
-                            </div>
-                            <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                              Find career opportunities in the ESG & EHS field
                             </p>
                           </NavigationMenuLink>
                         </Link>
@@ -302,6 +280,12 @@ export function Navbar() {
                       <Link href="/settings" className="cursor-pointer">
                         <Settings className="mr-2 h-4 w-4" />
                         <span>Settings</span>
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/jobs" className="cursor-pointer">
+                        <Briefcase className="mr-2 h-4 w-4" />
+                        <span>Jobs</span>
                       </Link>
                     </DropdownMenuItem>
                     {isMobile && (
