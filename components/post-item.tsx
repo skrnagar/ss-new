@@ -1,7 +1,8 @@
 "use client"
 
 import * as React from "react"
-import { useState, useEffect } from "react"
+import { useState, useEffect, memo } from "react"
+import Image from "next/image"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
@@ -20,7 +21,7 @@ import { supabase } from "@/lib/supabase"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 
-export function PostItem({ post, currentUser }) {
+const PostItem = memo(function PostItem({ post, currentUser }: PostItemProps) {
   const [isExpanded, setIsExpanded] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
   const [likes, setLikes] = useState([])
@@ -474,11 +475,26 @@ export function PostItem({ post, currentUser }) {
           {/* Image attachment */}
           {post.image_url && (
             <div className="mt-3 rounded-md overflow-hidden">
-              <img 
-                src={post.image_url} 
-                alt="Post attachment" 
-                className="w-full object-cover max-h-[500px]" 
-              />
+              {post.image_url.startsWith('https://lephbkawjuyyygguxqio.supabase.co') ? (
+                <div className="relative w-full max-h-[500px]" style={{aspectRatio: '16/9'}}>
+                  <Image 
+                    src={post.image_url} 
+                    alt="Post attachment" 
+                    fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    className="object-cover"
+                    loading="lazy"
+                    quality={80}
+                  />
+                </div>
+              ) : (
+                <img 
+                  src={post.image_url} 
+                  alt="Post attachment" 
+                  className="w-full object-cover max-h-[500px]" 
+                  loading="lazy"
+                />
+              )}
             </div>
           )}
 
@@ -649,4 +665,6 @@ export function PostItem({ post, currentUser }) {
       </CardFooter>
     </Card>
   )
-}
+})
+
+export default PostItem

@@ -33,7 +33,10 @@ export function OptimizedVideo({
           }
         }
       })
-    }, { threshold: 0.1 })
+    }, { 
+      threshold: 0.1,
+      rootMargin: '200px' // Preload when within 200px of viewport
+    })
     
     observer.observe(videoRef.current)
     
