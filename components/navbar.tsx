@@ -93,6 +93,7 @@ export function Navbar() {
               width={36}
               height={36}
               className="mr-2 h-9 w-9 transition-transform hover:scale-105"
+              style={{ width: 'auto', height: 'auto' }}
               priority
             />
           </Link>
