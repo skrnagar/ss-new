@@ -21,7 +21,9 @@ export const Analytics = {
         // Record FID (First Input Delay)
         const fidObserver = new PerformanceObserver((list) => {
           list.getEntries().forEach((entry) => {
-            console.log('FID:', entry.processingStart - entry.startTime, 'ms');
+            // Cast to PerformanceEventTiming which has the processingStart property
+            const fidEntry = entry as PerformanceEventTiming;
+            console.log('FID:', fidEntry.processingStart - fidEntry.startTime, 'ms');
           });
         });
         fidObserver.observe({ type: 'first-input', buffered: true });
