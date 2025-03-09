@@ -142,7 +142,7 @@ export default function LoginPage() {
     if (signInError) {
       toast({
         title: "Login failed",
-        description: error.message,
+        description: signInError.message,
         variant: "destructive",
       })
     }
@@ -159,7 +159,7 @@ export default function LoginPage() {
     if (linkedInError) {
       toast({
         title: "Login failed",
-        description: error.message,
+        description: linkedInError.message,
         variant: "destructive",
       })
     }
