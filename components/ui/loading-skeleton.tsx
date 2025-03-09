@@ -27,32 +27,40 @@ export function PostSkeleton() {
 
 export default PostSkeleton;
 
-"use client"
+import React from "react";
+import { Skeleton } from "@/components/ui/skeleton";
 
-import { Skeleton } from "@/components/ui/skeleton"
+type LoadingSkeletonProps = {
+  count?: number;
+  className?: string;
+  height?: number;
+  width?: string | number;
+  circle?: boolean;
+  inline?: boolean;
+};
 
-export function LoadingSkeleton() {
-  return (
-    <div className="space-y-6">
-      {Array(3).fill(0).map((_, index) => (
-        <div key={index} className="border rounded-md p-6 space-y-4">
-          <div className="flex items-start gap-3 mb-4">
-            <Skeleton className="h-10 w-10 rounded-full" />
-            <div className="space-y-2 flex-1">
-              <Skeleton className="h-4 w-[120px]" />
-              <Skeleton className="h-3 w-[160px]" />
-            </div>
-          </div>
-          <div className="space-y-2 mb-4">
-            <Skeleton className="h-4 w-full" />
-            <Skeleton className="h-4 w-full" />
-            <Skeleton className="h-4 w-3/4" />
-          </div>
-          <Skeleton className="h-[200px] w-full rounded-md" />
-        </div>
-      ))}
-    </div>
-  )
+export function LoadingSkeleton({
+  count = 1,
+  className = "",
+  height = 20,
+  width = "100%",
+  circle = false,
+  inline = false,
+}: LoadingSkeletonProps) {
+  const skeletons = Array.from({ length: count }, (_, index) => (
+    <Skeleton
+      key={index}
+      className={`${className} ${circle ? "rounded-full" : "rounded-md"}`}
+      style={{
+        height: height,
+        width: width,
+        display: inline ? "inline-block" : "block",
+        marginBottom: inline ? 0 : 8,
+      }}
+    />
+  ));
+
+  return <>{skeletons}</>;
 }
 
 export default LoadingSkeleton;

@@ -132,14 +132,14 @@ export default function LoginPage() {
   }
 
   async function signInWithGoogle() {
-    const { error } = await supabase.auth.signInWithOAuth({
+    const { error: signInError } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
         redirectTo: `${window.location.origin}/auth/callback`,
       },
     })
 
-    if (error) {
+    if (signInError) {
       toast({
         title: "Login failed",
         description: error.message,
@@ -149,14 +149,14 @@ export default function LoginPage() {
   }
 
   async function signInWithLinkedIn() {
-    const { error } = await supabase.auth.signInWithOAuth({
+    const { error: linkedInError } = await supabase.auth.signInWithOAuth({
       provider: 'linkedin',
       options: {
         redirectTo: `${window.location.origin}/auth/callback`,
       },
     })
 
-    if (error) {
+    if (linkedInError) {
       toast({
         title: "Login failed",
         description: error.message,

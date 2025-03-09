@@ -1,4 +1,3 @@
-
 "use client"
 
 import * as React from "react"
@@ -14,6 +13,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Mail, Lock, User, ArrowLeft } from "lucide-react"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { useToast } from "@/hooks/use-toast"
+import Image from "next/image"; // Import the Image component
 
 const formSchema = z.object({
   fullName: z.string().min(2, { message: "Name must be at least 2 characters" }),
@@ -29,7 +29,7 @@ export default function RegisterPage() {
   const searchParams = useSearchParams()
   const { toast } = useToast()
   const accountType = searchParams.get("type") || "job-seeker"
-  
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -55,7 +55,7 @@ export default function RegisterPage() {
       <div className="mx-auto flex w-full flex-col space-y-6 sm:w-[350px] md:w-[500px]">
         <div className="flex flex-col space-y-2 text-center">
           <div className="mx-auto mb-4">
-            <img src="https://lephbkawjuyyygguxqio.supabase.co/storage/v1/object/public/post-images//ss%20lgog.webp" alt="Safety Shaper Logo" width={60} height={20} />
+            <Image src="/images/logo.png" alt="Safety Shaper Logo" width={60} height={20} /> {/* Replaced img with Image component */}
           </div>
           <h1 className="text-2xl font-semibold tracking-tight">Create your account</h1>
           <p className="text-sm text-muted-foreground">

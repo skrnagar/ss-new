@@ -55,9 +55,11 @@ export default async function Home() {
               </div>
             </div>
             <div className="hidden md:block">
-              <img
-                src="/medium-shot-people-working-together.jpg?height=400&width=500"
+              <Image
+                src="/medium-shot-people-working-together.jpg"
                 alt="Safety Shaper Platform"
+                width={500}
+                height={400}
                 className="rounded-lg shadow-2xl"
               />
             </div>
