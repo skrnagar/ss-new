@@ -366,7 +366,7 @@ const PostItem = memo(function PostItem({ post, currentUser }: PostItemProps) {
     }
   }
 
-  const handleDeleteComment = async (commentId) => {
+  const handleDeleteComment = async (commentId: string) => {
     try {
       const { error } = await supabase
         .from('comments')
