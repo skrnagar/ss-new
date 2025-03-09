@@ -32,8 +32,10 @@ export const Analytics = {
         let clsValue = 0;
         const clsObserver = new PerformanceObserver((list) => {
           list.getEntries().forEach((entry) => {
-            if (!entry.hadRecentInput) {
-              clsValue += entry.value;
+            // Cast to LayoutShift which has the hadRecentInput and value properties
+            const layoutShift = entry as any;
+            if (layoutShift && !layoutShift.hadRecentInput) {
+              clsValue += layoutShift.value;
               console.log('CLS current value:', clsValue);
             }
           });
