@@ -12,7 +12,7 @@ import { supabase } from "@/lib/supabase"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/contexts/auth-context"
 
-export function PostCreator({ userProfile = null }) {
+export function PostCreator({ userProfile }) {
   const { user, profile: authProfile } = useAuth()
   const activeProfile = userProfile || authProfile
   const [content, setContent] = useState("")
