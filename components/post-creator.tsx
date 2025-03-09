@@ -12,7 +12,16 @@ import { supabase } from "@/lib/supabase"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/contexts/auth-context"
 
-export function PostCreator({ userProfile }) {
+// Define Profile type based on what's in auth context
+type Profile = {
+  id: string;
+  username?: string;
+  full_name?: string;
+  avatar_url?: string;
+  [key: string]: any;
+};
+
+export function PostCreator({ userProfile }: { userProfile?: Profile | null }) {
   const { user, profile: authProfile } = useAuth()
   const activeProfile = userProfile || authProfile
   const [content, setContent] = useState("")
