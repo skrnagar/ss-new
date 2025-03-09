@@ -29,7 +29,7 @@ export const checkDatabaseHealth = async () => {
 
     return {
       healthy: true,
-      count: data?.[0]?.count || 0,
+      count: data && data[0] && 'count' in data[0] ? (data[0].count as number) : 0,
     };
   } catch (err: any) {
     console.error("Database connection error:", err.message);

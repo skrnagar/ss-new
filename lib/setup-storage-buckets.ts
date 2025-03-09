@@ -56,9 +56,9 @@ export async function setupStorageBuckets() {
 
     // Set public bucket policies for each bucket
     for (const bucketName of ["post-images", "post-videos", "post-documents"]) {
-      const { error: policyError } = await supabase.storage.from(bucketName).getPublicUrl("test");
-
-      if (policyError) {
+      try {
+        await supabase.storage.from(bucketName).getPublicUrl("test");
+      } catch (policyError) {
         // If bucket doesn't have public policy, set it
         const { error: updatePolicyError } = await supabase.storage.updateBucket(bucketName, {
           public: true,

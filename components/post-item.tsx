@@ -179,7 +179,7 @@ const PostItem = memo(function PostItem({ post, currentUser }: PostItemProps) {
           console.error("Error fetching profiles:", profilesError);
         } else {
           // Create a map of user_id to profile data
-          const profileMap = (profiles || []).reduce((map, profile) => {
+          const profileMap = (profiles || []).reduce<Record<string, any>>((map, profile) => {
             map[profile.id] = profile;
             return map;
           }, {});
