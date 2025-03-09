@@ -5,20 +5,7 @@ const nextConfig = {
     instrumentationHook: true,
   },
   images: {
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "lephbkawjuyyygguxqio.supabase.co",
-        port: "",
-        pathname: "/storage/v1/object/public/**",
-      },
-      {
-        protocol: "https",
-        hostname: "*.supabase.co",
-        port: "",
-        pathname: "/**",
-      },
-    ],
+    domains: ['lephbkawjuyyygguxqio.supabase.co'],
   },
   // ESLint configuration removed
 };
