@@ -29,7 +29,6 @@ export default async function Home() {
             muted 
             playsInline
             preload="none"
-            fetchPriority="low"
           >
             <source src="/ssbg.mp4" type="video/mp4" />
           </video>
