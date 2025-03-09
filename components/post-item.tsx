@@ -74,9 +74,6 @@ const PostItem = memo(function PostItem({ post, currentUser }: PostItemProps) {
   const MAX_CONTENT_LENGTH = 300;
 
   useEffect(() => {
-    // Debug log to check current user status
-    console.log("Current user in post item:", currentUser ? "Logged in" : "Not logged in");
-
     // Check if current user has liked the post
     if (currentUser && currentUser.id) {
       checkLikeStatus();

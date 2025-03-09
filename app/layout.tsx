@@ -1,37 +1,23 @@
-import type React from "react";
-import "./globals.css";
-import { Footer } from "@/components/footer";
-import { Navbar } from "@/components/navbar";
+
+"use client";
+
+import { ThemeProvider } from "@/components/theme-provider";
+import { ErrorBoundary } from "@/components/error-boundary";
+import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from "@/contexts/auth-context";
-import type { Metadata } from "next";
-import { Manrope, Poppins } from "next/font/google";
+import dynamic from "next/dynamic";
+import "./globals.css";
 
-// Configure the Poppins font
-const poppins = Poppins({
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
-  display: "swap",
-  variable: "--font-poppins",
-  preload: true,
-  fallback: ["system-ui", "sans-serif"],
+// Dynamically import Navbar with loading fallback
+const Navbar = dynamic(() => import("@/components/navbar"), {
+  ssr: true,
+  loading: () => <div className="h-16 border-b bg-background"></div>,
 });
 
-// Configure the Manrope font
-const manrope = Manrope({
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
-  display: "swap",
-  variable: "--font-manrope",
-  preload: true,
-  fallback: ["system-ui", "sans-serif"],
+// Dynamically import Footer to reduce initial load
+const Footer = dynamic(() => import("@/components/footer"), {
+  ssr: false,
 });
-
-export const metadata: Metadata = {
-  title: "Safety Shaper - ESG & EHS Professional Network",
-  description:
-    "Connect with ESG and EHS professionals, share knowledge, find jobs, and manage compliance.",
-  generator: "v0.dev",
-};
 
 export default function RootLayout({
   children,
@@ -39,15 +25,34 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={poppins.variable}>
-      <body className={`${poppins.className} ${manrope.className}`}>
-        <AuthProvider>
-          <div className="flex flex-col min-h-screen">
-            <Navbar />
-            <main className="flex-grow">{children}</main>
-            <Footer />
-          </div>
-        </AuthProvider>
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta
+          name="description"
+          content="Safety Shaper: A professional network for ESG and EHS professionals"
+        />
+        <link rel="icon" href="/sslogo.webp" />
+        <title>Safety Shaper</title>
+      </head>
+      <body className="min-h-screen bg-background">
+        <ErrorBoundary>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="light"
+            enableSystem={false}
+          >
+            <AuthProvider>
+              <div className="flex min-h-screen flex-col">
+                <Navbar />
+                <main className="flex-1">{children}</main>
+                <Footer />
+              </div>
+              <Toaster />
+            </AuthProvider>
+          </ThemeProvider>
+        </ErrorBoundary>
       </body>
     </html>
   );
