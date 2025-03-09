@@ -1,4 +1,3 @@
-
 // Helper function to generate placeholder images from various free sources
 
 /**
@@ -11,20 +10,20 @@
  * @returns URL string for the placeholder image
  */
 export function getPlaceholderImage(
-  width: number = 400, 
-  height: number = 300, 
+  width = 400,
+  height = 300,
   text?: string,
-  bgColor: string = '1f2937',
-  textColor: string = 'ffffff'
+  bgColor = "1f2937",
+  textColor = "ffffff"
 ): string {
   // Use placehold.co service for simple placeholders
   const baseUrl = `https://placehold.co/${width}x${height}/${bgColor}/${textColor}`;
-  
+
   // Add custom text if provided
   if (text) {
     return `${baseUrl}?text=${encodeURIComponent(text)}`;
   }
-  
+
   return baseUrl;
 }
 
@@ -34,14 +33,14 @@ export function getPlaceholderImage(
  * @param name Optional name to generate initials
  * @returns URL string for the avatar placeholder
  */
-export function getPlaceholderAvatar(size: number = 200, name?: string): string {
+export function getPlaceholderAvatar(size = 200, name?: string): string {
   // For avatars, we can use either UI Avatars or DiceBear
-  
+
   // Option 1: UI Avatars for initial-based avatars
   if (name) {
     return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&size=${size}&background=random`;
   }
-  
+
   // Option 2: DiceBear for more stylized avatars
   return `https://api.dicebear.com/7.x/shapes/svg?size=${size}`;
 }
@@ -53,13 +52,13 @@ export function getPlaceholderAvatar(size: number = 200, name?: string): string 
  * @param name Company name for text
  * @returns URL string for the logo placeholder
  */
-export function getPlaceholderLogo(width: number = 300, height: number = 150, name?: string): string {
+export function getPlaceholderLogo(width = 300, height = 150, name?: string): string {
   // For logos, we'll use placehold.co with specific colors
   const baseUrl = `https://placehold.co/${width}x${height}/0f172a/60a5fa`;
-  
+
   if (name) {
     return `${baseUrl}?text=${encodeURIComponent(name)}`;
   }
-  
+
   return `${baseUrl}?text=Company+Logo`;
 }

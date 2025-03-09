@@ -1,54 +1,56 @@
-import { createLegacyClient } from '@/lib/supabase-server'
-import { notFound, redirect } from 'next/navigation'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Button } from '@/components/ui/button'
-import Link from 'next/link'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
-import { Briefcase, MapPin, Calendar, Edit, MessageSquare, UserPlus, User } from "lucide-react"
-import { UserActivity } from '@/components/user-activity'
-import { AvatarUpload } from '@/app/components/avatar-upload'
+import { AvatarUpload } from "@/app/components/avatar-upload";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { UserActivity } from "@/components/user-activity";
+import { createLegacyClient } from "@/lib/supabase-server";
+import { Briefcase, Calendar, Edit, MapPin, MessageSquare, User, UserPlus } from "lucide-react";
+import Link from "next/link";
+import { notFound, redirect } from "next/navigation";
 
-export const revalidate = 3600 // Revalidate the data at most every hour
+export const revalidate = 3600; // Revalidate the data at most every hour
 
 export default async function ProfilePage({ params }: { params: { username: string } }) {
-  const { username } = params
-  const supabase = createLegacyClient()
+  const { username } = params;
+  const supabase = createLegacyClient();
 
   // Get session
-  const { data: { session } } = await supabase.auth.getSession()
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
 
   // Get profile by username
   const { data: profile, error } = await supabase
     .from("profiles")
     .select("*")
     .eq("username", username)
-    .single()
+    .single();
 
   if (error || !profile) {
     // Profile not found
-    return notFound()
+    return notFound();
   }
 
   // Check if viewing own profile
-  const isOwnProfile = session?.user.id === profile.id
+  const isOwnProfile = session?.user.id === profile.id;
 
   // Format date for display
   const joinDate = new Date(profile.created_at).toLocaleDateString("en-US", {
     year: "numeric",
     month: "long",
-  })
+  });
 
   // Helper function to get initials
   const getInitials = (name: string) => {
-    if (!name) return 'U'
+    if (!name) return "U";
     return name
-      .split(' ')
-      .map(part => part?.[0] || '')
-      .join('')
+      .split(" ")
+      .map((part) => part?.[0] || "")
+      .join("")
       .toUpperCase()
-      .substring(0, 2)
-  }
+      .substring(0, 2);
+  };
 
   return (
     <div className="container py-8">
@@ -61,7 +63,7 @@ export default async function ProfilePage({ params }: { params: { username: stri
                 {/* @ts-ignore client component */}
                 <div suppressHydrationWarning>
                   <div className="client-only-component">
-                    <AvatarUpload 
+                    <AvatarUpload
                       userId={profile.id}
                       avatarUrl={profile.avatar_url}
                       name={profile.full_name || username}
@@ -160,5 +162,5 @@ export default async function ProfilePage({ params }: { params: { username: stri
         </div>
       </div>
     </div>
-  )
+  );
 }

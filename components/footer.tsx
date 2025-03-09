@@ -1,4 +1,4 @@
-import Link from "next/link"
+import Link from "next/link";
 
 export function Footer() {
   return (
@@ -8,15 +8,18 @@ export function Footer() {
           <div>
             <h3 className="text-lg font-semibold mb-4">Safety Shaper</h3>
             <p className="text-sm text-muted-foreground mb-4">
-              Connecting ESG and EHS professionals worldwide for knowledge sharing, career growth, and compliance
-              management.
+              Connecting ESG and EHS professionals worldwide for knowledge sharing, career growth,
+              and compliance management.
             </p>
           </div>
           <div>
             <h3 className="text-sm font-semibold mb-4">Platform</h3>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link href="/about" className="text-muted-foreground hover:text-primary transition-colors duration-200">
+                <Link
+                  href="/about"
+                  className="text-muted-foreground hover:text-primary transition-colors duration-200"
+                >
                   About Us
                 </Link>
               </li>
@@ -90,6 +93,5 @@ export function Footer() {
         </div>
       </div>
     </footer>
-  )
+  );
 }
-

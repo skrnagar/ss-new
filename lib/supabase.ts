@@ -1,41 +1,41 @@
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
-import { Database } from '@/types/supabase'
+import type { Database } from "@/types/supabase";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 
 // Create a Supabase client for client-side usage
-export const supabase = createClientComponentClient<Database>()
+export const supabase = createClientComponentClient<Database>();
 
 // Export a function that provides a fresh client instance when needed
-export const getSupabaseClient = () => createClientComponentClient<Database>()
+export const getSupabaseClient = () => createClientComponentClient<Database>();
 
 // Utility function to check database health
 export const checkDatabaseHealth = async () => {
-  const client = createClientComponentClient<Database>()
+  const client = createClientComponentClient<Database>();
 
   try {
     // Try to access the profiles table
     const { data, error } = await client
-      .from('profiles')
-      .select('count(*)', { count: 'exact' })
-      .limit(1)
+      .from("profiles")
+      .select("count(*)", { count: "exact" })
+      .limit(1);
 
     if (error) {
-      console.error('Database health check failed:', error.message)
+      console.error("Database health check failed:", error.message);
       return {
         healthy: false,
         error: error.message,
-        statusCode: error.code
-      }
+        statusCode: error.code,
+      };
     }
 
     return {
       healthy: true,
-      count: data?.[0]?.count || 0
-    }
+      count: data?.[0]?.count || 0,
+    };
   } catch (err: any) {
-    console.error('Database connection error:', err.message)
+    console.error("Database connection error:", err.message);
     return {
       healthy: false,
-      error: err.message
-    }
+      error: err.message,
+    };
   }
-}
+};

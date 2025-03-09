@@ -1,41 +1,54 @@
+"use client";
 
-"use client"
-
-import * as React from "react"
-import { useRouter } from "next/navigation"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import * as z from "zod"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import { useToast } from "@/hooks/use-toast"
-import { supabase } from "@/lib/supabase"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/lib/supabase";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
+import * as React from "react";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
 
 const profileEditSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
-  username: z.string().min(3, "Username must be at least 3 characters").regex(/^[a-z0-9_-]+$/, "Username can only contain lowercase letters, numbers, underscores, and hyphens"),
+  username: z
+    .string()
+    .min(3, "Username must be at least 3 characters")
+    .regex(
+      /^[a-z0-9_-]+$/,
+      "Username can only contain lowercase letters, numbers, underscores, and hyphens"
+    ),
   headline: z.string().min(10, "Headline must be at least 10 characters"),
   bio: z.string().min(30, "Bio should be at least 30 characters"),
   company: z.string().min(2, "Company name must be at least 2 characters"),
   position: z.string().min(2, "Position must be at least 2 characters"),
   location: z.string().min(2, "Location must be at least 2 characters"),
   phone: z.string().optional(),
-  website: z.string().url("Please enter a valid URL").optional().or(z.literal('')),
-})
+  website: z.string().url("Please enter a valid URL").optional().or(z.literal("")),
+});
 
 export default function ProfileEditPage() {
-  const router = useRouter()
-  const { toast } = useToast()
-  const [loading, setLoading] = React.useState(false)
-  const [user, setUser] = React.useState<any>(null)
-  const [profile, setProfile] = React.useState<any>(null)
-  const [avatarUrl, setAvatarUrl] = React.useState<string | null>(null)
-  const fileInputRef = React.useRef<HTMLInputElement>(null)
-  
+  const router = useRouter();
+  const { toast } = useToast();
+  const [loading, setLoading] = React.useState(false);
+  const [user, setUser] = React.useState<any>(null);
+  const [profile, setProfile] = React.useState<any>(null);
+  const [avatarUrl, setAvatarUrl] = React.useState<string | null>(null);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+
   const form = useForm<z.infer<typeof profileEditSchema>>({
     resolver: zodResolver(profileEditSchema),
     defaultValues: {
@@ -49,41 +62,43 @@ export default function ProfileEditPage() {
       phone: "",
       website: "",
     },
-  })
+  });
 
   React.useEffect(() => {
     async function getProfileData() {
-      setLoading(true)
-      
+      setLoading(true);
+
       try {
-        const { data: { user } } = await supabase.auth.getUser()
-        setUser(user)
-        
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+        setUser(user);
+
         if (!user) {
-          router.push('/auth/login')
-          return
+          router.push("/auth/login");
+          return;
         }
-        
+
         // Get profile data
         const { data: profileData, error } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', user.id)
-          .single()
-        
+          .from("profiles")
+          .select("*")
+          .eq("id", user.id)
+          .single();
+
         if (error || !profileData) {
           toast({
             title: "Error loading profile",
             description: "Please try again later",
             variant: "destructive",
-          })
-          router.push('/profile/setup')
-          return
+          });
+          router.push("/profile/setup");
+          return;
         }
-        
-        setProfile(profileData)
-        setAvatarUrl(profileData.avatar_url || user?.user_metadata?.avatar_url || null)
-        
+
+        setProfile(profileData);
+        setAvatarUrl(profileData.avatar_url || user?.user_metadata?.avatar_url || null);
+
         // Set form values
         form.reset({
           name: profileData.name || user?.user_metadata?.name || "",
@@ -95,47 +110,47 @@ export default function ProfileEditPage() {
           location: profileData.location || "",
           phone: profileData.phone || "",
           website: profileData.website || "",
-        })
+        });
       } catch (error) {
-        console.error("Error loading profile:", error)
+        console.error("Error loading profile:", error);
         toast({
           title: "Error loading profile",
           description: "Please try again later",
           variant: "destructive",
-        })
+        });
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
     }
-    
-    getProfileData()
-  }, [router, form, toast])
+
+    getProfileData();
+  }, [router, form, toast]);
 
   async function onSubmit(values: z.infer<typeof profileEditSchema>) {
-    setLoading(true)
-    
+    setLoading(true);
+
     try {
       // Check if username is already taken (if changed)
       if (values.username !== profile.username) {
         const { data: existingUser, error: usernameCheckError } = await supabase
-          .from('profiles')
-          .select('username')
-          .eq('username', values.username)
-          .single()
-        
+          .from("profiles")
+          .select("username")
+          .eq("username", values.username)
+          .single();
+
         if (existingUser) {
-          form.setError('username', { 
-            type: 'manual', 
-            message: 'This username is already taken' 
-          })
-          setLoading(false)
-          return
+          form.setError("username", {
+            type: "manual",
+            message: "This username is already taken",
+          });
+          setLoading(false);
+          return;
         }
       }
-      
+
       // Update user profile
       const { error } = await supabase
-        .from('profiles')
+        .from("profiles")
         .update({
           name: values.name,
           username: values.username,
@@ -149,97 +164,97 @@ export default function ProfileEditPage() {
           avatar_url: avatarUrl,
           updated_at: new Date().toISOString(),
         })
-        .eq('id', user.id)
+        .eq("id", user.id);
 
       if (error) {
         toast({
           title: "Profile update failed",
           description: error.message,
           variant: "destructive",
-        })
-        return
+        });
+        return;
       }
 
       toast({
         title: "Profile updated successfully",
         description: "Redirecting to your profile...",
-      })
-      
-      setTimeout(() => router.push(`/profile/${values.username}`), 1500)
+      });
+
+      setTimeout(() => router.push(`/profile/${values.username}`), 1500);
     } catch (error) {
       toast({
         title: "An error occurred",
         description: "Please try again later",
         variant: "destructive",
-      })
+      });
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   }
-  
+
   const handleAvatarClick = () => {
-    fileInputRef.current?.click()
-  }
-  
+    fileInputRef.current?.click();
+  };
+
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    if (!file) return
-    
+    const file = event.target.files?.[0];
+    if (!file) return;
+
     // Check file size (max 2MB)
     if (file.size > 2 * 1024 * 1024) {
       toast({
         title: "File too large",
         description: "Please select an image under 2MB",
         variant: "destructive",
-      })
-      return
+      });
+      return;
     }
-    
+
     try {
-      setLoading(true)
-      
+      setLoading(true);
+
       // Upload to Supabase Storage
-      const fileName = `avatar-${user.id}-${Date.now()}`
-      const { data, error } = await supabase.storage
-        .from('avatars')
-        .upload(fileName, file, {
-          cacheControl: '3600',
-          upsert: true
-        })
-      
-      if (error) throw error
-      
+      const fileName = `avatar-${user.id}-${Date.now()}`;
+      const { data, error } = await supabase.storage.from("avatars").upload(fileName, file, {
+        cacheControl: "3600",
+        upsert: true,
+      });
+
+      if (error) throw error;
+
       // Get public URL
-      const { data: { publicUrl } } = supabase.storage
-        .from('avatars')
-        .getPublicUrl(fileName)
-      
-      setAvatarUrl(publicUrl)
-      
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from("avatars").getPublicUrl(fileName);
+
+      setAvatarUrl(publicUrl);
+
       toast({
         title: "Avatar uploaded",
         description: "Your profile picture has been updated",
-      })
+      });
     } catch (error) {
-      console.error('Error uploading avatar:', error)
+      console.error("Error uploading avatar:", error);
       toast({
         title: "Upload failed",
         description: "Please try again later",
         variant: "destructive",
-      })
+      });
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
-  
-  const getInitials = (name: string = "") => {
-    return name
-      .split(' ')
-      .map(part => part[0])
-      .join('')
-      .toUpperCase()
-      .substring(0, 2) || 'US'
-  }
+  };
+
+  const getInitials = (name = "") => {
+    return (
+      name
+        .split(" ")
+        .map((part) => part[0])
+        .join("")
+        .toUpperCase()
+        .substring(0, 2) || "US"
+    );
+  };
 
   return (
     <div className="container max-w-3xl py-10">
@@ -264,7 +279,7 @@ export default function ProfileEditPage() {
               Change Photo
             </Button>
           </div>
-          
+
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <FormField
@@ -280,7 +295,7 @@ export default function ProfileEditPage() {
                   </FormItem>
                 )}
               />
-              
+
               <FormField
                 control={form.control}
                 name="username"
@@ -291,13 +306,13 @@ export default function ProfileEditPage() {
                       <Input {...field} />
                     </FormControl>
                     <FormDescription>
-                      Your profile URL: safetyshaper.com/profile/{field.value || 'username'}
+                      Your profile URL: safetyshaper.com/profile/{field.value || "username"}
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              
+
               <FormField
                 control={form.control}
                 name="headline"
@@ -307,14 +322,12 @@ export default function ProfileEditPage() {
                     <FormControl>
                       <Input placeholder="ESG Compliance Manager | Safety Specialist" {...field} />
                     </FormControl>
-                    <FormDescription>
-                      A brief summary of your professional role
-                    </FormDescription>
+                    <FormDescription>A brief summary of your professional role</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              
+
               <FormField
                 control={form.control}
                 name="bio"
@@ -322,9 +335,9 @@ export default function ProfileEditPage() {
                   <FormItem>
                     <FormLabel>Bio</FormLabel>
                     <FormControl>
-                      <Textarea 
-                        placeholder="I'm a safety professional with 5+ years of experience in..." 
-                        className="min-h-32" 
+                      <Textarea
+                        placeholder="I'm a safety professional with 5+ years of experience in..."
+                        className="min-h-32"
                         {...field}
                       />
                     </FormControl>
@@ -335,7 +348,7 @@ export default function ProfileEditPage() {
                   </FormItem>
                 )}
               />
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FormField
                   control={form.control}
@@ -350,7 +363,7 @@ export default function ProfileEditPage() {
                     </FormItem>
                   )}
                 />
-                
+
                 <FormField
                   control={form.control}
                   name="position"
@@ -365,7 +378,7 @@ export default function ProfileEditPage() {
                   )}
                 />
               </div>
-              
+
               <FormField
                 control={form.control}
                 name="location"
@@ -379,7 +392,7 @@ export default function ProfileEditPage() {
                   </FormItem>
                 )}
               />
-              
+
               <FormField
                 control={form.control}
                 name="phone"
@@ -393,7 +406,7 @@ export default function ProfileEditPage() {
                   </FormItem>
                 )}
               />
-              
+
               <FormField
                 control={form.control}
                 name="website"
@@ -407,14 +420,14 @@ export default function ProfileEditPage() {
                   </FormItem>
                 )}
               />
-              
+
               <div className="flex gap-2 pt-4">
                 <Button type="submit" disabled={loading}>
                   {loading ? "Saving Changes..." : "Save Changes"}
                 </Button>
-                <Button 
-                  type="button" 
-                  variant="outline" 
+                <Button
+                  type="button"
+                  variant="outline"
                   onClick={() => router.push(`/profile/${profile?.username}`)}
                 >
                   Cancel
@@ -425,5 +438,5 @@ export default function ProfileEditPage() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

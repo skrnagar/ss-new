@@ -1,21 +1,34 @@
-"use client"
+"use client";
 
-import { Suspense } from "react"
-import { redirect } from "next/navigation"
-import Image from "next/image"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { useRouter, useSearchParams } from "next/navigation"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import * as z from "zod"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import { Mail, Lock, User, ArrowLeft } from "lucide-react"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { useToast } from "@/hooks/use-toast"
-
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { useToast } from "@/hooks/use-toast";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { ArrowLeft, Lock, Mail, User } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense } from "react";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
 
 const formSchema = z.object({
   fullName: z.string().min(2, { message: "Name must be at least 2 characters" }),
@@ -24,13 +37,13 @@ const formSchema = z.object({
   accountType: z.enum(["job-seeker", "recruiter", "audit-specialist"], {
     required_error: "Please select an account type",
   }),
-})
+});
 
 function RegisterFormContent() {
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const { toast } = useToast()
-  const accountType = searchParams.get("type") || "job-seeker"
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const { toast } = useToast();
+  const accountType = searchParams.get("type") || "job-seeker";
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -40,16 +53,16 @@ function RegisterFormContent() {
       password: "",
       accountType: accountType as "job-seeker" | "recruiter" | "audit-specialist",
     },
-  })
+  });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values)
+    console.log(values);
     // Demo functionality - would connect to Supabase auth in production
     toast({
       title: "Registration successful",
       description: "Please check your email to verify your account.",
-    })
-    setTimeout(() => router.push("/auth/login"), 1500)
+    });
+    setTimeout(() => router.push("/auth/login"), 1500);
   }
 
   return (
@@ -60,22 +73,23 @@ function RegisterFormContent() {
             <Image src="/images/logo.png" alt="Safety Shaper Logo" width={60} height={20} />
           </div>
           <h1 className="text-2xl font-semibold tracking-tight">Create your account</h1>
-          <p className="text-sm text-muted-foreground">
-            Join thousands of ESG & EHS professionals
-          </p>
+          <p className="text-sm text-muted-foreground">Join thousands of ESG & EHS professionals</p>
         </div>
 
         <Card>
           <CardHeader>
             <div className="flex items-center">
-              <Button variant="ghost" size="icon" onClick={() => router.push("/auth/login")} className="mr-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => router.push("/auth/login")}
+                className="mr-2"
+              >
                 <ArrowLeft className="h-4 w-4" />
               </Button>
               <div>
                 <CardTitle>Sign up</CardTitle>
-                <CardDescription>
-                  Fill in your details to create an account
-                </CardDescription>
+                <CardDescription>Fill in your details to create an account</CardDescription>
               </div>
             </div>
           </CardHeader>
@@ -123,7 +137,12 @@ function RegisterFormContent() {
                       <FormControl>
                         <div className="relative">
                           <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                          <Input className="pl-10" type="password" placeholder="••••••••" {...field} />
+                          <Input
+                            className="pl-10"
+                            type="password"
+                            placeholder="••••••••"
+                            {...field}
+                          />
                         </div>
                       </FormControl>
                       <FormMessage />
@@ -166,7 +185,9 @@ function RegisterFormContent() {
                     </FormItem>
                   )}
                 />
-                <Button type="submit" className="w-full bg-secondary text-white">Create Account</Button>
+                <Button type="submit" className="w-full bg-secondary text-white">
+                  Create Account
+                </Button>
               </form>
             </Form>
           </CardContent>
@@ -181,21 +202,29 @@ function RegisterFormContent() {
         </Card>
       </div>
     </div>
-  )
+  );
 }
 
 export default function RegisterPage() {
   return (
-    <Suspense fallback={
-      <div className="flex flex-col items-center justify-center min-h-screen">
-        <Image src="/placeholder-logo.svg" alt="Safety Shaper Logo" width={64} height={64} className="h-16 w-16 mb-8" />
-        <h1 className="text-2xl font-semibold mb-2">Loading...</h1>
-        <div className="h-2 w-64 bg-muted overflow-hidden rounded-full">
-          <div className="h-full bg-primary animate-pulse rounded-full"></div>
+    <Suspense
+      fallback={
+        <div className="flex flex-col items-center justify-center min-h-screen">
+          <Image
+            src="/placeholder-logo.svg"
+            alt="Safety Shaper Logo"
+            width={64}
+            height={64}
+            className="h-16 w-16 mb-8"
+          />
+          <h1 className="text-2xl font-semibold mb-2">Loading...</h1>
+          <div className="h-2 w-64 bg-muted overflow-hidden rounded-full">
+            <div className="h-full bg-primary animate-pulse rounded-full"></div>
+          </div>
         </div>
-      </div>
-    }>
+      }
+    >
       <RegisterFormContent />
     </Suspense>
-  )
+  );
 }

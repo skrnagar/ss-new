@@ -1,22 +1,21 @@
+"use client";
 
-"use client"
-
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { 
-  Briefcase, 
-  MapPin, 
-  Clock, 
-  DollarSign, 
-  Building, 
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import {
+  ArrowUpDown,
+  Briefcase,
+  Building,
+  Calendar,
+  Clock,
+  DollarSign,
+  Filter,
+  MapPin,
   Search,
-  Filter, 
-  ArrowUpDown, 
-  Calendar 
-} from "lucide-react"
+} from "lucide-react";
+import { useState } from "react";
 
 export default function JobsPage() {
   const [jobs] = useState([
@@ -28,7 +27,8 @@ export default function JobsPage() {
       type: "Full-time",
       salary: "$90,000 - $120,000",
       posted: "3 days ago",
-      description: "Leading our ESG compliance initiatives and ensuring all regulatory requirements are met.",
+      description:
+        "Leading our ESG compliance initiatives and ensuring all regulatory requirements are met.",
       tags: ["ESG", "Compliance", "Management"],
     },
     {
@@ -39,7 +39,8 @@ export default function JobsPage() {
       type: "Full-time",
       salary: "$75,000 - $95,000",
       posted: "1 week ago",
-      description: "Developing and implementing comprehensive health and safety programs for industrial operations.",
+      description:
+        "Developing and implementing comprehensive health and safety programs for industrial operations.",
       tags: ["EHS", "OSHA", "Risk Assessment"],
     },
     {
@@ -50,7 +51,8 @@ export default function JobsPage() {
       type: "Contract",
       salary: "$65/hr",
       posted: "2 days ago",
-      description: "Conducting environmental impact assessments and providing recommendations for mitigation strategies.",
+      description:
+        "Conducting environmental impact assessments and providing recommendations for mitigation strategies.",
       tags: ["Environmental", "Consulting", "Impact Assessment"],
     },
     {
@@ -61,17 +63,20 @@ export default function JobsPage() {
       type: "Full-time",
       salary: "$110,000 - $140,000",
       posted: "5 days ago",
-      description: "Leading our CSR initiatives and developing strategies to enhance our social impact.",
+      description:
+        "Leading our CSR initiatives and developing strategies to enhance our social impact.",
       tags: ["CSR", "Social Impact", "ESG"],
     },
-  ])
+  ]);
 
   return (
     <div className="container py-6">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
         <div>
           <h1 className="text-3xl font-bold">ESG & EHS Job Board</h1>
-          <p className="text-muted-foreground">Find your next opportunity in Environmental, Social, Governance, and Safety</p>
+          <p className="text-muted-foreground">
+            Find your next opportunity in Environmental, Social, Governance, and Safety
+          </p>
         </div>
         <Button>
           <Briefcase className="mr-2 h-4 w-4" />
@@ -139,7 +144,9 @@ export default function JobsPage() {
                     <p className="mt-4 text-muted-foreground">{job.description}</p>
                     <div className="mt-4 flex flex-wrap gap-2">
                       {job.tags.map((tag) => (
-                        <Badge key={tag} variant="secondary">{tag}</Badge>
+                        <Badge key={tag} variant="secondary">
+                          {tag}
+                        </Badge>
                       ))}
                     </div>
                   </div>
@@ -147,7 +154,9 @@ export default function JobsPage() {
               </div>
               <div className="bg-muted p-6 flex flex-col justify-center md:border-l">
                 <Button className="w-full mb-2">Apply Now</Button>
-                <Button variant="outline" className="w-full">Save Job</Button>
+                <Button variant="outline" className="w-full">
+                  Save Job
+                </Button>
               </div>
             </div>
           </Card>
@@ -160,5 +169,5 @@ export default function JobsPage() {
         </Button>
       </div>
     </div>
-  )
+  );
 }

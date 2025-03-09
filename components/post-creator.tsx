@@ -1,16 +1,16 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { useState, useRef } from "react"
-import { Card, CardContent } from "@/components/ui/card"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
-import { Textarea } from "@/components/ui/textarea"
-import { Image, FileText, Video, Paperclip, Loader2, X } from "lucide-react"
-import { useToast } from "@/hooks/use-toast"
-import { supabase } from "@/lib/supabase"
-import { useRouter } from "next/navigation"
-import { useAuth } from "@/contexts/auth-context"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Textarea } from "@/components/ui/textarea";
+import { useAuth } from "@/contexts/auth-context";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/lib/supabase";
+import { FileText, Image, Loader2, Paperclip, Video, X } from "lucide-react";
+import { useRouter } from "next/navigation";
+import type * as React from "react";
+import { useRef, useState } from "react";
 
 // Define Profile type based on what's in auth context
 type Profile = {
@@ -22,49 +22,49 @@ type Profile = {
 };
 
 export function PostCreator({ userProfile }: { userProfile?: Profile | null }) {
-  const { user, profile: authProfile } = useAuth()
-  const activeProfile = userProfile || authProfile
-  const [content, setContent] = useState("")
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [attachmentType, setAttachmentType] = useState<"image" | "video" | "document" | null>(null)
-  const [attachmentFile, setAttachmentFile] = useState<File | null>(null)
-  const [attachmentPreview, setAttachmentPreview] = useState<string | null>(null)
-  const fileInputRef = useRef<HTMLInputElement>(null)
-  const { toast } = useToast()
-  const router = useRouter()
+  const { user, profile: authProfile } = useAuth();
+  const activeProfile = userProfile || authProfile;
+  const [content, setContent] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [attachmentType, setAttachmentType] = useState<"image" | "video" | "document" | null>(null);
+  const [attachmentFile, setAttachmentFile] = useState<File | null>(null);
+  const [attachmentPreview, setAttachmentPreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
+  const router = useRouter();
 
   const getInitials = (name: string) => {
-    if (!name) return 'U'
+    if (!name) return "U";
     return name
-      .split(' ')
-      .map(part => part?.[0] || '')
-      .join('')
+      .split(" ")
+      .map((part) => part?.[0] || "")
+      .join("")
       .toUpperCase()
-      .substring(0, 2)
-  }
+      .substring(0, 2);
+  };
 
   const handleAttachmentSelect = (type: "image" | "video" | "document") => {
-    setAttachmentType(type)
+    setAttachmentType(type);
 
     // Reset file input before clicking to ensure the change event fires even if selecting the same file
     if (fileInputRef.current) {
-      fileInputRef.current.value = ""
+      fileInputRef.current.value = "";
     }
 
     setTimeout(() => {
-      fileInputRef.current?.click()
-    }, 100)
-  }
+      fileInputRef.current?.click();
+    }, 100);
+  };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    console.log("File input changed:", event.target.files)
-    const file = event.target.files?.[0]
+    console.log("File input changed:", event.target.files);
+    const file = event.target.files?.[0];
     if (!file) {
-      console.log("No file selected")
-      return
+      console.log("No file selected");
+      return;
     }
 
-    console.log("Selected file:", file.name, file.type, file.size)
+    console.log("Selected file:", file.name, file.type, file.size);
 
     // Validate file size (10MB max)
     if (file.size > 10 * 1024 * 1024) {
@@ -72,33 +72,33 @@ export function PostCreator({ userProfile }: { userProfile?: Profile | null }) {
         title: "File too large",
         description: "Please select a file smaller than 10MB",
         variant: "destructive",
-      })
-      return
+      });
+      return;
     }
 
-    setAttachmentFile(file)
+    setAttachmentFile(file);
 
     // Create preview for images
     if (attachmentType === "image") {
-      const reader = new FileReader()
+      const reader = new FileReader();
       reader.onload = (e) => {
-        setAttachmentPreview(e.target?.result as string)
-      }
-      reader.readAsDataURL(file)
+        setAttachmentPreview(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
     } else {
       // For non-images, just show the filename
-      setAttachmentPreview(file.name)
+      setAttachmentPreview(file.name);
     }
-  }
+  };
 
   const clearAttachment = () => {
-    setAttachmentFile(null)
-    setAttachmentPreview(null)
-    setAttachmentType(null)
+    setAttachmentFile(null);
+    setAttachmentPreview(null);
+    setAttachmentType(null);
     if (fileInputRef.current) {
-      fileInputRef.current.value = ""
+      fileInputRef.current.value = "";
     }
-  }
+  };
 
   const handleSubmit = async () => {
     if (!content.trim() && !attachmentFile) {
@@ -106,74 +106,74 @@ export function PostCreator({ userProfile }: { userProfile?: Profile | null }) {
         title: "Empty post",
         description: "Please add some text or an attachment to your post",
         variant: "destructive",
-      })
-      return
+      });
+      return;
     }
 
-    setIsSubmitting(true)
+    setIsSubmitting(true);
 
     try {
-      let imageUrl = null
-      let videoUrl = null
-      let documentUrl = null
+      let imageUrl = null;
+      let videoUrl = null;
+      let documentUrl = null;
 
       // Upload attachment if any
       if (attachmentFile) {
-        const fileExt = attachmentFile.name.split('.').pop()
+        const fileExt = attachmentFile.name.split(".").pop();
         // Ensure activeProfile exists before accessing its id
-        const fileName = `${activeProfile?.id || 'user'}-${Date.now()}.${fileExt}`
-        let bucket = ""
+        const fileName = `${activeProfile?.id || "user"}-${Date.now()}.${fileExt}`;
+        let bucket = "";
 
         if (attachmentType === "image") {
-          bucket = "post-images"
+          bucket = "post-images";
         } else if (attachmentType === "video") {
-          bucket = "post-videos"
+          bucket = "post-videos";
         } else if (attachmentType === "document") {
-          bucket = "post-documents"
+          bucket = "post-documents";
         }
 
-        console.log(`Uploading to ${bucket} bucket with file name: ${fileName}`)
+        console.log(`Uploading to ${bucket} bucket with file name: ${fileName}`);
 
         // Check if bucket exists first
-        const { data: buckets } = await supabase.storage.listBuckets()
-        const bucketExists = buckets?.some(b => b.name === bucket)
+        const { data: buckets } = await supabase.storage.listBuckets();
+        const bucketExists = buckets?.some((b) => b.name === bucket);
 
         if (!bucketExists) {
-          console.log(`Bucket ${bucket} doesn't exist, creating it...`)
+          console.log(`Bucket ${bucket} doesn't exist, creating it...`);
           await supabase.storage.createBucket(bucket, {
-            public: true
-          })
+            public: true,
+          });
         }
 
         const { data: uploadData, error: uploadError } = await supabase.storage
           .from(bucket)
           .upload(fileName, attachmentFile, {
-            cacheControl: '3600',
-            upsert: false
-          })
+            cacheControl: "3600",
+            upsert: false,
+          });
 
         if (uploadError) {
-          console.error("Upload error:", uploadError)
-          throw uploadError
+          console.error("Upload error:", uploadError);
+          throw uploadError;
         }
 
         // Get public URL
-        const { data: { publicUrl } } = supabase.storage
-          .from(bucket)
-          .getPublicUrl(fileName)
+        const {
+          data: { publicUrl },
+        } = supabase.storage.from(bucket).getPublicUrl(fileName);
 
         if (attachmentType === "image") {
-          imageUrl = publicUrl
+          imageUrl = publicUrl;
         } else if (attachmentType === "video") {
-          videoUrl = publicUrl
+          videoUrl = publicUrl;
         } else if (attachmentType === "document") {
-          documentUrl = publicUrl
+          documentUrl = publicUrl;
         }
       }
 
       // Create post in database
       const { data: post, error: postError } = await supabase
-        .from('posts')
+        .from("posts")
         .insert({
           user_id: activeProfile?.id,
           content: content.trim(),
@@ -181,47 +181,50 @@ export function PostCreator({ userProfile }: { userProfile?: Profile | null }) {
           video_url: videoUrl,
           document_url: documentUrl,
         })
-        .select()
+        .select();
 
       if (postError) {
-        throw postError
+        throw postError;
       }
 
       // Success
       toast({
         title: "Post created",
         description: "Your post has been published successfully",
-      })
+      });
 
       // Reset form
-      setContent("")
-      clearAttachment()
+      setContent("");
+      clearAttachment();
 
       // Refresh feed to show new post
-      router.refresh()
+      router.refresh();
     } catch (error) {
-      console.error("Error creating post:", error)
+      console.error("Error creating post:", error);
       toast({
         title: "Post failed",
         description: "An error occurred while creating your post. Please try again.",
         variant: "destructive",
-      })
+      });
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   return (
     <Card>
       <CardContent className="pt-6">
         <div className="flex items-start gap-4">
           <Avatar className="h-10 w-10">
-            <AvatarImage src={activeProfile?.avatar_url || ""} alt={activeProfile?.full_name || "User"} />
+            <AvatarImage
+              src={activeProfile?.avatar_url || ""}
+              alt={activeProfile?.full_name || "User"}
+            />
             <AvatarFallback>{getInitials(activeProfile?.full_name || "")}</AvatarFallback>
           </Avatar>
           <div className="flex-1 space-y-4">
             <Textarea
-              placeholder={`What's on your mind, ${activeProfile?.full_name?.split(' ')[0] || "User"}?`}
+              placeholder={`What's on your mind, ${activeProfile?.full_name?.split(" ")[0] || "User"}?`}
               value={content}
               onChange={(e) => setContent(e.target.value)}
               className="min-h-[120px] resize-none"
@@ -229,9 +232,9 @@ export function PostCreator({ userProfile }: { userProfile?: Profile | null }) {
 
             {attachmentPreview && (
               <div className="relative rounded-md border p-3 bg-muted/20">
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
+                <Button
+                  variant="ghost"
+                  size="icon"
                   className="absolute top-2 right-2 h-6 w-6 rounded-full bg-background/80"
                   onClick={clearAttachment}
                 >
@@ -240,9 +243,9 @@ export function PostCreator({ userProfile }: { userProfile?: Profile | null }) {
 
                 {attachmentType === "image" ? (
                   <div className="relative aspect-video max-h-[300px] overflow-hidden rounded-md">
-                    <img 
-                      src={attachmentPreview} 
-                      alt="Attachment preview" 
+                    <img
+                      src={attachmentPreview}
+                      alt="Attachment preview"
                       className="object-contain w-full h-full"
                     />
                   </div>
@@ -262,9 +265,9 @@ export function PostCreator({ userProfile }: { userProfile?: Profile | null }) {
 
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
+                <Button
+                  variant="ghost"
+                  size="sm"
                   className="text-muted-foreground"
                   onClick={() => handleAttachmentSelect("image")}
                 >
@@ -272,9 +275,9 @@ export function PostCreator({ userProfile }: { userProfile?: Profile | null }) {
                   Photo
                 </Button>
 
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
+                <Button
+                  variant="ghost"
+                  size="sm"
                   className="text-muted-foreground"
                   onClick={() => handleAttachmentSelect("video")}
                 >
@@ -282,9 +285,9 @@ export function PostCreator({ userProfile }: { userProfile?: Profile | null }) {
                   Video
                 </Button>
 
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
+                <Button
+                  variant="ghost"
+                  size="sm"
                   className="text-muted-foreground"
                   onClick={() => handleAttachmentSelect("document")}
                 >
@@ -298,20 +301,16 @@ export function PostCreator({ userProfile }: { userProfile?: Profile | null }) {
                   className="hidden"
                   onChange={handleFileChange}
                   accept={
-                    attachmentType === "image" 
-                      ? ".jpg,.jpeg,.png,.gif,.webp,image/*" 
-                      : attachmentType === "video" 
-                        ? ".mp4,.mov,.avi,video/*" 
+                    attachmentType === "image"
+                      ? ".jpg,.jpeg,.png,.gif,.webp,image/*"
+                      : attachmentType === "video"
+                        ? ".mp4,.mov,.avi,video/*"
                         : ".pdf,.doc,.docx,.txt,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain"
                   }
                 />
               </div>
 
-              <Button 
-                size="sm" 
-                onClick={handleSubmit}
-                disabled={isSubmitting}
-              >
+              <Button size="sm" onClick={handleSubmit} disabled={isSubmitting}>
                 {isSubmitting ? (
                   <>
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -326,5 +325,5 @@ export function PostCreator({ userProfile }: { userProfile?: Profile | null }) {
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }

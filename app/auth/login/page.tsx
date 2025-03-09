@@ -1,38 +1,51 @@
+"use client";
 
-"use client"
-
-import * as React from "react"
-import Link from "next/link"
-import Image from "next/image"
-import { useRouter } from "next/navigation"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import * as z from "zod"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import { Mail, Lock, Linkedin } from "lucide-react"
-import { Separator } from "@/components/ui/separator"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { useToast } from "@/hooks/use-toast"
-import { supabase } from "@/lib/supabase"
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/lib/supabase";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Linkedin, Lock, Mail } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import * as React from "react";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
   password: z.string().min(8, { message: "Password must be at least 8 characters" }),
-})
+});
 
 const registerSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters" }),
   email: z.string().email({ message: "Please enter a valid email address" }),
   password: z.string().min(8, { message: "Password must be at least 8 characters" }),
-})
+});
 
 export default function LoginPage() {
-  const router = useRouter()
-  const { toast } = useToast()
-  const [loading, setLoading] = React.useState(false)
+  const router = useRouter();
+  const { toast } = useToast();
+  const [loading, setLoading] = React.useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -40,7 +53,7 @@ export default function LoginPage() {
       email: "",
       password: "",
     },
-  })
+  });
 
   const registerForm = useForm<z.infer<typeof registerSchema>>({
     resolver: zodResolver(registerSchema),
@@ -49,46 +62,46 @@ export default function LoginPage() {
       email: "",
       password: "",
     },
-  })
+  });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    setLoading(true)
+    setLoading(true);
 
     try {
       const { error } = await supabase.auth.signInWithPassword({
         email: values.email,
         password: values.password,
-      })
+      });
 
       if (error) {
         toast({
           title: "Login failed",
           description: error.message,
           variant: "destructive",
-        })
-        return
+        });
+        return;
       }
 
       toast({
         title: "Login successful",
         description: "Redirecting to your dashboard...",
-      })
+      });
 
       // Redirect to feed page after successful login using router.push instead of window.location
-      router.push("/feed")
+      router.push("/feed");
     } catch (error) {
       toast({
         title: "An error occurred",
         description: "Please try again later",
         variant: "destructive",
-      })
+      });
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   }
 
   async function onRegister(values: z.infer<typeof registerSchema>) {
-    setLoading(true)
+    setLoading(true);
 
     try {
       const { data, error } = await supabase.auth.signUp({
@@ -99,69 +112,69 @@ export default function LoginPage() {
             name: values.name,
           },
         },
-      })
+      });
 
       if (error) {
         toast({
           title: "Registration failed",
           description: error.message,
           variant: "destructive",
-        })
-        return
+        });
+        return;
       }
 
       toast({
         title: "Registration successful",
         description: "Please check your email to verify your account.",
-      })
+      });
 
       // If email verification is not required, redirect to profile setup
-      if (!data.session) return
+      if (!data.session) return;
 
       // Redirect to profile setup immediately using router
-      router.replace("/profile/setup")
+      router.replace("/profile/setup");
     } catch (error) {
       toast({
         title: "An error occurred",
         description: "Please try again later",
         variant: "destructive",
-      })
+      });
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   }
 
   async function signInWithGoogle() {
     const { error: signInError } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
+      provider: "google",
       options: {
         redirectTo: `${window.location.origin}/auth/callback`,
       },
-    })
+    });
 
     if (signInError) {
       toast({
         title: "Login failed",
         description: signInError.message,
         variant: "destructive",
-      })
+      });
     }
   }
 
   async function signInWithLinkedIn() {
     const { error: linkedInError } = await supabase.auth.signInWithOAuth({
-      provider: 'linkedin',
+      provider: "linkedin",
       options: {
         redirectTo: `${window.location.origin}/auth/callback`,
       },
-    })
+    });
 
     if (linkedInError) {
       toast({
         title: "Login failed",
         description: linkedInError.message,
         variant: "destructive",
-      })
+      });
     }
   }
 
@@ -187,7 +200,9 @@ export default function LoginPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Login to your account</CardTitle>
-                <CardDescription>Enter your email and password to access the platform</CardDescription>
+                <CardDescription>
+                  Enter your email and password to access the platform
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <Form {...form}>
@@ -201,7 +216,11 @@ export default function LoginPage() {
                           <FormControl>
                             <div className="relative">
                               <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                              <Input className="pl-10" placeholder="john.doe@example.com" {...field} />
+                              <Input
+                                className="pl-10"
+                                placeholder="john.doe@example.com"
+                                {...field}
+                              />
                             </div>
                           </FormControl>
                           <FormMessage />
@@ -217,7 +236,12 @@ export default function LoginPage() {
                           <FormControl>
                             <div className="relative">
                               <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                              <Input className="pl-10" type="password" placeholder="••••••••" {...field} />
+                              <Input
+                                className="pl-10"
+                                type="password"
+                                placeholder="••••••••"
+                                {...field}
+                              />
                             </div>
                           </FormControl>
                           <FormMessage />
@@ -234,7 +258,9 @@ export default function LoginPage() {
                     <Separator className="w-full" />
                   </div>
                   <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
+                    <span className="bg-background px-2 text-muted-foreground">
+                      Or continue with
+                    </span>
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
@@ -308,7 +334,11 @@ export default function LoginPage() {
                           <FormControl>
                             <div className="relative">
                               <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                              <Input className="pl-10" placeholder="john.doe@example.com" {...field} />
+                              <Input
+                                className="pl-10"
+                                placeholder="john.doe@example.com"
+                                {...field}
+                              />
                             </div>
                           </FormControl>
                           <FormMessage />
@@ -324,7 +354,12 @@ export default function LoginPage() {
                           <FormControl>
                             <div className="relative">
                               <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                              <Input className="pl-10" type="password" placeholder="••••••••" {...field} />
+                              <Input
+                                className="pl-10"
+                                type="password"
+                                placeholder="••••••••"
+                                {...field}
+                              />
                             </div>
                           </FormControl>
                           <FormMessage />
@@ -341,7 +376,9 @@ export default function LoginPage() {
                     <Separator className="w-full" />
                   </div>
                   <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
+                    <span className="bg-background px-2 text-muted-foreground">
+                      Or continue with
+                    </span>
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
@@ -387,5 +424,5 @@ export default function LoginPage() {
         </Tabs>
       </div>
     </div>
-  )
+  );
 }

@@ -1,25 +1,24 @@
+"use client";
 
-"use client"
-
-import { Button } from "@/components/ui/button"
-import { useRouter } from "next/navigation"
+import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 
 export function HeroAuthButtons() {
-  const router = useRouter()
-  
+  const router = useRouter();
+
   const handleGoogleSignIn = () => {
-    window.location.href = '/auth/login?provider=google'
-  }
-  
+    window.location.href = "/auth/login?provider=google";
+  };
+
   const handleLinkedInSignIn = () => {
-    window.location.href = '/auth/login?provider=linkedin'
-  }
-  
+    window.location.href = "/auth/login?provider=linkedin";
+  };
+
   return (
     <div className="flex flex-row space-x-3">
-      <Button 
-        variant="outline" 
-        onClick={handleGoogleSignIn} 
+      <Button
+        variant="outline"
+        onClick={handleGoogleSignIn}
         className="flex-1 flex items-center justify-center bg-white py-3 px-4 rounded-lg w-full hover:bg-gray-100 transition-colors h-auto"
       >
         <svg className="mr-2 h-5 w-5" viewBox="0 0 24 24">
@@ -42,9 +41,9 @@ export function HeroAuthButtons() {
         </svg>
         Continue with Google
       </Button>
-      <Button 
-        variant="outline" 
-        onClick={handleLinkedInSignIn} 
+      <Button
+        variant="outline"
+        onClick={handleLinkedInSignIn}
         className="flex-1 flex items-center justify-center bg-[#0077B5] py-3 px-4 rounded-lg w-full text-white hover:bg-[#0077B5]/90 transition-colors h-auto"
       >
         <svg className="mr-2 h-5 w-5 text-white" fill="currentColor" viewBox="0 0 24 24">
@@ -53,5 +52,5 @@ export function HeroAuthButtons() {
         Continue with LinkedIn
       </Button>
     </div>
-  )
+  );
 }

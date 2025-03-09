@@ -1,17 +1,17 @@
-"use client"
+"use client";
 
-import { Button } from "@/components/ui/button"
-import { useRouter } from "next/navigation"
-import { cn } from "@/lib/utils"
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { useRouter } from "next/navigation";
 
 export function AuthButtons({ className }: { className?: string }) {
-  const router = useRouter()
+  const router = useRouter();
 
   return (
     <div className={cn(className)}>
-      <Button 
-        onClick={() => router.push('/auth/login')} 
-        variant="outline" 
+      <Button
+        onClick={() => router.push("/auth/login")}
+        variant="outline"
         className="bg-white py-6 w-full text-primary hover:bg-white/90"
       >
         Sign in with email
@@ -23,5 +23,5 @@ export function AuthButtons({ className }: { className?: string }) {
         Join Now
       </Button> */}
     </div>
-  )
+  );
 }

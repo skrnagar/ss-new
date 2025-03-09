@@ -1,11 +1,7 @@
+"use client";
 
-"use client"
-
-import Link from "next/link"
-import Image from "next/image"
-import { useRouter } from "next/navigation"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,7 +10,8 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -23,75 +20,88 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
-} from "@/components/ui/navigation-menu"
-import { Bell, MessageCircle, Search, Settings, Users, Briefcase, Shield, User, LogOut, Calendar } from "lucide-react"
-import { Input } from "@/components/ui/input"
-import { useToast } from "@/hooks/use-toast"
-import { useMobile } from "@/hooks/use-mobile"
-import { useAuth } from "@/contexts/auth-context"
+} from "@/components/ui/navigation-menu";
+import { useAuth } from "@/contexts/auth-context";
+import { useMobile } from "@/hooks/use-mobile";
+import { useToast } from "@/hooks/use-toast";
+import {
+  Bell,
+  Briefcase,
+  Calendar,
+  LogOut,
+  MessageCircle,
+  Search,
+  Settings,
+  Shield,
+  User,
+  Users,
+} from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export function Navbar() {
-  const { user, isLoading } = useAuth()
-  const router = useRouter()
-  const { toast } = useToast()
-  const isMobile = useMobile()
+  const { user, isLoading } = useAuth();
+  const router = useRouter();
+  const { toast } = useToast();
+  const isMobile = useMobile();
 
   const handleSignOut = async () => {
     try {
       // Call the server-side signout API
-      const response = await fetch('/api/auth/signout', {
-        method: 'POST',
+      const response = await fetch("/api/auth/signout", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
       });
 
       if (response.ok) {
         toast({
           title: "Signed out successfully",
-        })
+        });
 
         // Use replace to completely reset navigation history
-        router.replace('/')
+        router.replace("/");
       } else {
-        throw new Error('Sign out failed')
+        throw new Error("Sign out failed");
       }
     } catch (error) {
-      console.error('Sign out error:', error)
+      console.error("Sign out error:", error);
       toast({
         title: "Sign out failed",
-        variant: "destructive"
-      })
+        variant: "destructive",
+      });
     }
-  }
+  };
 
   const getInitials = (name: string): string => {
-    if (!name) return 'U'
+    if (!name) return "U";
     return name
-      .split(' ')
-      .map(part => part?.[0] || '')
-      .join('')
+      .split(" ")
+      .map((part) => part?.[0] || "")
+      .join("")
       .toUpperCase()
-      .substring(0, 2)
-  }
+      .substring(0, 2);
+  };
 
   const getUserName = () => {
-    if (!user) return 'User'
-    return user?.user_metadata?.name || user?.email?.split('@')[0] || 'User'
-  }
+    if (!user) return "User";
+    return user?.user_metadata?.name || user?.email?.split("@")[0] || "User";
+  };
 
   return (
     <header className="sticky top-0 z-40 border-b bg-background">
       <div className="container flex h-16 items-center justify-between py-4">
         <div className="flex items-center gap-4">
           <Link href="/" className="flex items-center">
-            <Image 
-              src="/slogos.png" 
-              alt="Safety Shaper Logo" 
+            <Image
+              src="/slogos.png"
+              alt="Safety Shaper Logo"
               width={65}
               height={45}
               className="mr-2 h-9 w-9 transition-transform hover:scale-105"
-              style={{ width: 'auto', height: 'auto' }}
+              style={{ width: "auto", height: "auto" }}
               priority
             />
           </Link>
@@ -101,12 +111,16 @@ export function Navbar() {
               <NavigationMenuList>
                 <NavigationMenuItem>
                   <Link href="/feed" legacyBehavior passHref>
-                    <NavigationMenuLink className={navigationMenuTriggerStyle()}>Home</NavigationMenuLink>
+                    <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                      Home
+                    </NavigationMenuLink>
                   </Link>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
                   <Link href="/knowledge" legacyBehavior passHref>
-                    <NavigationMenuLink className={navigationMenuTriggerStyle()}>Knowledge Hub</NavigationMenuLink>
+                    <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                      Knowledge Hub
+                    </NavigationMenuLink>
                   </Link>
                 </NavigationMenuItem>
               </NavigationMenuList>
@@ -141,39 +155,61 @@ export function Navbar() {
                           <div className="w-[300px] p-4">
                             <div className="mb-3 pb-2 border-b">
                               <h4 className="font-medium mb-1">Professional Network</h4>
-                              <p className="text-xs text-muted-foreground">Connect with industry professionals</p>
+                              <p className="text-xs text-muted-foreground">
+                                Connect with industry professionals
+                              </p>
                             </div>
                             <div className="grid gap-3">
-                              <Link href="/network" className="flex items-center gap-2 p-2 rounded-md hover:bg-muted transition-colors">
+                              <Link
+                                href="/network"
+                                className="flex items-center gap-2 p-2 rounded-md hover:bg-muted transition-colors"
+                              >
                                 <Users className="h-4 w-4 text-primary" />
                                 <div>
                                   <div className="font-medium">My Connections</div>
-                                  <p className="text-xs text-muted-foreground">Manage your professional network</p>
+                                  <p className="text-xs text-muted-foreground">
+                                    Manage your professional network
+                                  </p>
                                 </div>
                               </Link>
-                              <Link href="/network/professionals" className="flex items-center gap-2 p-2 rounded-md hover:bg-muted transition-colors">
+                              <Link
+                                href="/network/professionals"
+                                className="flex items-center gap-2 p-2 rounded-md hover:bg-muted transition-colors"
+                              >
                                 <Search className="h-4 w-4 text-primary" />
                                 <div>
                                   <div className="font-medium">Explore People</div>
-                                  <p className="text-xs text-muted-foreground">Find ESG & EHS professionals</p>
+                                  <p className="text-xs text-muted-foreground">
+                                    Find ESG & EHS professionals
+                                  </p>
                                 </div>
                               </Link>
-                              <Link href="/groups" className="flex items-center gap-2 p-2 rounded-md hover:bg-muted transition-colors">
+                              <Link
+                                href="/groups"
+                                className="flex items-center gap-2 p-2 rounded-md hover:bg-muted transition-colors"
+                              >
                                 <div className="relative">
                                   <Users className="h-4 w-4 text-primary" />
                                 </div>
                                 <div>
                                   <div className="font-medium">Groups</div>
-                                  <p className="text-xs text-muted-foreground">Join specialized professional groups</p>
+                                  <p className="text-xs text-muted-foreground">
+                                    Join specialized professional groups
+                                  </p>
                                 </div>
                               </Link>
-                              <Link href="/events" className="flex items-center gap-2 p-2 rounded-md hover:bg-muted transition-colors">
+                              <Link
+                                href="/events"
+                                className="flex items-center gap-2 p-2 rounded-md hover:bg-muted transition-colors"
+                              >
                                 <div className="relative">
                                   <Calendar className="h-4 w-4 text-primary" />
                                 </div>
                                 <div>
                                   <div className="font-medium">Events</div>
-                                  <p className="text-xs text-muted-foreground">Discover industry events and conferences</p>
+                                  <p className="text-xs text-muted-foreground">
+                                    Discover industry events and conferences
+                                  </p>
                                 </div>
                               </Link>
                             </div>
@@ -204,8 +240,12 @@ export function Navbar() {
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                     <Avatar className="h-8 w-8">
-                      <AvatarImage 
-                        src={user?.user_metadata?.avatar_url || user?.user_metadata?.picture || "/placeholder-user.jpg"} 
+                      <AvatarImage
+                        src={
+                          user?.user_metadata?.avatar_url ||
+                          user?.user_metadata?.picture ||
+                          "/placeholder-user.jpg"
+                        }
                         alt={getUserName()}
                       />
                       <AvatarFallback>{getInitials(getUserName())}</AvatarFallback>
@@ -289,5 +329,5 @@ export function Navbar() {
         </div>
       </div>
     </header>
-  )
+  );
 }

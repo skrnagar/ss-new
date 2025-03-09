@@ -1,5 +1,4 @@
-
-import { Skeleton } from "@/components/ui/skeleton"
+import { Skeleton } from "@/components/ui/skeleton";
 
 export function PostSkeleton() {
   return (
@@ -23,7 +22,7 @@ export function PostSkeleton() {
         <Skeleton className="h-8 w-16" />
       </div>
     </div>
-  )
+  );
 }
 
 export default PostSkeleton;

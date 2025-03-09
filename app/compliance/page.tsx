@@ -1,30 +1,30 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader } from "@/components/ui/card"
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import {
   AlertTriangle,
-  CheckCircle,
-  XCircle,
-  FileText,
-  Calendar,
   Bell,
-  Plus,
+  Calendar,
+  CheckCircle,
   ChevronDown,
   ChevronUp,
-} from "lucide-react"
+  FileText,
+  Plus,
+  XCircle,
+} from "lucide-react";
+import { useState } from "react";
 
 export default function CompliancePage() {
-  const [expandedSection, setExpandedSection] = useState<number | null>(null)
+  const [expandedSection, setExpandedSection] = useState<number | null>(null);
 
   const toggleSection = (index: number) => {
     if (expandedSection === index) {
-      setExpandedSection(null)
+      setExpandedSection(null);
     } else {
-      setExpandedSection(index)
+      setExpandedSection(index);
     }
-  }
+  };
 
   const complianceAreas = [
     {
@@ -76,56 +76,62 @@ export default function CompliancePage() {
         { name: "Anti-Corruption Policy", status: "compliant", dueDate: "15 Dec 2023" },
         { name: "Board Diversity Assessment", status: "compliant", dueDate: "30 Jan 2024" },
         { name: "Executive Compensation Review", status: "non-compliant", dueDate: "01 Oct 2023" },
-        { name: "Whistleblower Protection Program", status: "non-compliant", dueDate: "15 Nov 2023" },
+        {
+          name: "Whistleblower Protection Program",
+          status: "non-compliant",
+          dueDate: "15 Nov 2023",
+        },
       ],
     },
-  ]
+  ];
 
   const getStatusIcon = (status: string) => {
     switch (status) {
       case "compliant":
-        return <CheckCircle className="h-5 w-5 text-green-500" />
+        return <CheckCircle className="h-5 w-5 text-green-500" />;
       case "at-risk":
-        return <AlertTriangle className="h-5 w-5 text-amber-500" />
+        return <AlertTriangle className="h-5 w-5 text-amber-500" />;
       case "non-compliant":
-        return <XCircle className="h-5 w-5 text-red-500" />
+        return <XCircle className="h-5 w-5 text-red-500" />;
       default:
-        return null
+        return null;
     }
-  }
+  };
 
   const getStatusClass = (status: string) => {
     switch (status) {
       case "compliant":
-        return "bg-green-50 text-green-700 border-green-200"
+        return "bg-green-50 text-green-700 border-green-200";
       case "at-risk":
-        return "bg-amber-50 text-amber-700 border-amber-200"
+        return "bg-amber-50 text-amber-700 border-amber-200";
       case "non-compliant":
-        return "bg-red-50 text-red-700 border-red-200"
+        return "bg-red-50 text-red-700 border-red-200";
       default:
-        return ""
+        return "";
     }
-  }
+  };
 
   const getStatusText = (status: string) => {
     switch (status) {
       case "compliant":
-        return "Compliant"
+        return "Compliant";
       case "at-risk":
-        return "At Risk"
+        return "At Risk";
       case "non-compliant":
-        return "Non-Compliant"
+        return "Non-Compliant";
       default:
-        return ""
+        return "";
     }
-  }
+  };
 
   return (
     <div className="container py-8">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
         <div>
           <h1 className="text-3xl font-bold mb-2">Compliance Dashboard</h1>
-          <p className="text-muted-foreground">Monitor and manage your ESG compliance requirements</p>
+          <p className="text-muted-foreground">
+            Monitor and manage your ESG compliance requirements
+          </p>
         </div>
         <div className="flex gap-3">
           <Button variant="outline">
@@ -193,7 +199,10 @@ export default function CompliancePage() {
         {complianceAreas.map((area, index) => (
           <Card key={area.id} className={`border-l-4 ${getStatusClass(area.status)}`}>
             <CardHeader className="p-6 pb-0">
-              <div className="flex justify-between items-center cursor-pointer" onClick={() => toggleSection(index)}>
+              <div
+                className="flex justify-between items-center cursor-pointer"
+                onClick={() => toggleSection(index)}
+              >
                 <div className="flex items-center gap-3">
                   {getStatusIcon(area.status)}
                   <h3 className="font-semibold text-lg">{area.name}</h3>
@@ -269,7 +278,9 @@ export default function CompliancePage() {
                     <tbody className="bg-white divide-y divide-gray-200">
                       {area.items.map((item, itemIndex) => (
                         <tr key={itemIndex}>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">{item.name}</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            {item.name}
+                          </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <span
                               className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusClass(item.status)}`}
@@ -278,7 +289,9 @@ export default function CompliancePage() {
                               <span className="ml-1">{getStatusText(item.status)}</span>
                             </span>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.dueDate}</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {item.dueDate}
+                          </td>
                           <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                             <Button variant="ghost" size="sm">
                               View
@@ -295,6 +308,5 @@ export default function CompliancePage() {
         ))}
       </div>
     </div>
-  )
+  );
 }
-

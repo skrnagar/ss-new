@@ -1,54 +1,52 @@
-"use client"
+"use client";
 
-import { useState, useEffect, Suspense } from "react"
-import { unstable_serialize } from 'swr'
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import {
-  ThumbsUp,
-  MessageSquare,
-  Share2,
-  User,
-  MapPin,
-  Briefcase,
-  Clock,
-} from "lucide-react"
-import { supabase } from "@/lib/supabase"
-import { useRouter } from "next/navigation"
-import dynamic from "next/dynamic"
-import { Skeleton } from "@/components/ui/skeleton"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { useAuth } from "@/contexts/auth-context"
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useAuth } from "@/contexts/auth-context";
+import { supabase } from "@/lib/supabase";
+import { Briefcase, Clock, MapPin, MessageSquare, Share2, ThumbsUp, User } from "lucide-react";
+import dynamic from "next/dynamic";
+import { useRouter } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
+import { unstable_serialize } from "swr";
 
 // Import dynamically to avoid SSR issues - properly resolving to component functions
-const PostCreator = dynamic(() => 
-  import("@/components/post-creator").then(mod => mod.PostCreator), {
+const PostCreator = dynamic(
+  () => import("@/components/post-creator").then((mod) => mod.PostCreator),
+  {
     ssr: false,
-    loading: () => <div className="p-6 bg-muted/30 rounded-md animate-pulse"></div>
+    loading: () => <div className="p-6 bg-muted/30 rounded-md animate-pulse"></div>,
   }
-)
+);
 
-const PostItem = dynamic(() => 
-  import("@/components/post-item").then(mod => mod.default), {
-    ssr: false,
-    loading: () => <div className="p-6 bg-muted/30 rounded-md animate-pulse"></div>
-  }
-)
+const PostItem = dynamic(() => import("@/components/post-item").then((mod) => mod.default), {
+  ssr: false,
+  loading: () => <div className="p-6 bg-muted/30 rounded-md animate-pulse"></div>,
+});
 
 export default function FeedPage() {
-  const [posts, setPosts] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
-  const { user, profile: userProfile, isLoading: authLoading } = useAuth()
-  const router = useRouter()
+  const [posts, setPosts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { user, profile: userProfile, isLoading: authLoading } = useAuth();
+  const router = useRouter();
 
   useEffect(() => {
     async function fetchPosts() {
       try {
-        setLoading(true)
+        setLoading(true);
 
         // Fetch posts with user information
         const { data, error } = await supabase
-          .from('posts')
+          .from("posts")
           .select(`
             *,
             profile:user_id (
@@ -60,37 +58,40 @@ export default function FeedPage() {
               company
             )
           `)
-          .order('created_at', { ascending: false })
-          .limit(20)
+          .order("created_at", { ascending: false })
+          .limit(20);
 
         if (error) {
-          throw error
+          throw error;
         }
 
         if (data) {
-          setPosts(data)
+          setPosts(data);
         }
       } catch (error) {
-        console.error("Error fetching data:", error)
+        console.error("Error fetching data:", error);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
     }
 
-    fetchPosts()
+    fetchPosts();
 
     // Subscribe to new posts
     const postsSubscription = supabase
-      .channel('public:posts')
-      .on('postgres_changes', {
-        event: 'INSERT',
-        schema: 'public',
-        table: 'posts',
-      }, async (payload) => {
-        // When a new post is created, fetch its user data as well
-        const { data: newPostWithUser } = await supabase
-          .from('posts')
-          .select(`
+      .channel("public:posts")
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "posts",
+        },
+        async (payload) => {
+          // When a new post is created, fetch its user data as well
+          const { data: newPostWithUser } = await supabase
+            .from("posts")
+            .select(`
             *,
             profile:user_id (
               id,
@@ -101,19 +102,20 @@ export default function FeedPage() {
               company
             )
           `)
-          .eq('id', payload.new.id)
-          .single()
+            .eq("id", payload.new.id)
+            .single();
 
-        if (newPostWithUser) {
-          setPosts(prevPosts => [newPostWithUser, ...prevPosts])
+          if (newPostWithUser) {
+            setPosts((prevPosts) => [newPostWithUser, ...prevPosts]);
+          }
         }
-      })
-      .subscribe()
+      )
+      .subscribe();
 
     return () => {
-      postsSubscription.unsubscribe()
-    }
-  }, [router])
+      postsSubscription.unsubscribe();
+    };
+  }, [router]);
 
   return (
     <div className="container py-8">
@@ -126,18 +128,16 @@ export default function FeedPage() {
             <Card>
               <CardContent className="py-6 text-center">
                 <p className="text-muted-foreground mb-2">Complete your profile to start posting</p>
-                <Button onClick={() => router.push('/profile/setup')}>
-                  Set Up Profile
-                </Button>
+                <Button onClick={() => router.push("/profile/setup")}>Set Up Profile</Button>
               </CardContent>
             </Card>
           ) : (
             <Card>
               <CardContent className="py-6 text-center">
-                <p className="text-muted-foreground mb-2">Sign in to create posts and interact with the community</p>
-                <Button onClick={() => router.push('/auth/login')}>
-                  Sign In
-                </Button>
+                <p className="text-muted-foreground mb-2">
+                  Sign in to create posts and interact with the community
+                </p>
+                <Button onClick={() => router.push("/auth/login")}>Sign In</Button>
               </CardContent>
             </Card>
           )}
@@ -145,30 +145,30 @@ export default function FeedPage() {
           {/* Posts list */}
           {loading ? (
             // Loading skeletons
-            Array(3).fill(0).map((_, index) => (
-              <Card key={index} className="mb-4">
-                <CardContent className="pt-6">
-                  <div className="flex items-start gap-3 mb-4">
-                    <Skeleton className="h-10 w-10 rounded-full" />
-                    <div className="space-y-2">
-                      <Skeleton className="h-4 w-[120px]" />
-                      <Skeleton className="h-3 w-[160px]" />
+            Array(3)
+              .fill(0)
+              .map((_, index) => (
+                <Card key={index} className="mb-4">
+                  <CardContent className="pt-6">
+                    <div className="flex items-start gap-3 mb-4">
+                      <Skeleton className="h-10 w-10 rounded-full" />
+                      <div className="space-y-2">
+                        <Skeleton className="h-4 w-[120px]" />
+                        <Skeleton className="h-3 w-[160px]" />
+                      </div>
                     </div>
-                  </div>
-                  <div className="space-y-2 mb-4">
-                    <Skeleton className="h-4 w-full" />
-                    <Skeleton className="h-4 w-full" />
-                    <Skeleton className="h-4 w-3/4" />
-                  </div>
-                  <Skeleton className="h-[200px] w-full rounded-md" />
-                </CardContent>
-              </Card>
-            ))
+                    <div className="space-y-2 mb-4">
+                      <Skeleton className="h-4 w-full" />
+                      <Skeleton className="h-4 w-full" />
+                      <Skeleton className="h-4 w-3/4" />
+                    </div>
+                    <Skeleton className="h-[200px] w-full rounded-md" />
+                  </CardContent>
+                </Card>
+              ))
           ) : posts.length > 0 ? (
             posts.map((post) => (
-              <div key={post.id}>
-                {post && <PostItem post={post} currentUser={userProfile} />}
-              </div>
+              <div key={post.id}>{post && <PostItem post={post} currentUser={userProfile} />}</div>
             ))
           ) : (
             <Card>
@@ -186,22 +186,24 @@ export default function FeedPage() {
         <div className="hidden md:block space-y-6">
           <Card>
             <CardContent className="pt-6">
-
               {userProfile ? (
                 <div className="flex flex-col items-center text-center mb-4">
                   <Avatar className="h-16 w-16 mb-3">
-                    <AvatarImage src={userProfile.avatar_url || ""} alt={userProfile.full_name || "User"} />
+                    <AvatarImage
+                      src={userProfile.avatar_url || ""}
+                      alt={userProfile.full_name || "User"}
+                    />
                     <AvatarFallback>
                       <User className="h-8 w-8" />
                     </AvatarFallback>
                   </Avatar>
                   <h4 className="font-medium">{userProfile.full_name}</h4>
-                  <p className="text-sm text-muted-foreground">{userProfile.headline || "No headline"}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {userProfile.headline || "No headline"}
+                  </p>
 
-               
-
-                  <Button 
-                    className="w-full mt-3" 
+                  <Button
+                    className="w-full mt-3"
                     variant="outline"
                     onClick={() => router.push(`/profile/${userProfile.username}`)}
                   >
@@ -213,9 +215,7 @@ export default function FeedPage() {
                   <p className="text-muted-foreground mb-3">
                     Sign in to access your profile and all features
                   </p>
-                  <Button onClick={() => router.push('/auth/login')}>
-                    Sign In
-                  </Button>
+                  <Button onClick={() => router.push("/auth/login")}>Sign In</Button>
                 </div>
               )}
             </CardContent>
@@ -247,7 +247,9 @@ export default function FeedPage() {
                   </p>
                 </div>
 
-                <Button variant="link" className="px-0">See all events</Button>
+                <Button variant="link" className="px-0">
+                  See all events
+                </Button>
               </div>
             </CardContent>
           </Card>
@@ -263,10 +265,14 @@ export default function FeedPage() {
                     </Avatar>
                     <div>
                       <p className="text-sm font-medium">James Peterson</p>
-                      <p className="text-xs text-muted-foreground">Safety Director at Construct Co.</p>
+                      <p className="text-xs text-muted-foreground">
+                        Safety Director at Construct Co.
+                      </p>
                     </div>
                   </div>
-                  <Button variant="outline" size="sm">Connect</Button>
+                  <Button variant="outline" size="sm">
+                    Connect
+                  </Button>
                 </div>
 
                 <div className="flex items-center justify-between">
@@ -279,7 +285,9 @@ export default function FeedPage() {
                       <p className="text-xs text-muted-foreground">ESG Analyst at Green Metrics</p>
                     </div>
                   </div>
-                  <Button variant="outline" size="sm">Connect</Button>
+                  <Button variant="outline" size="sm">
+                    Connect
+                  </Button>
                 </div>
 
                 <div className="flex items-center justify-between">
@@ -289,18 +297,24 @@ export default function FeedPage() {
                     </Avatar>
                     <div>
                       <p className="text-sm font-medium">Robert Lee</p>
-                      <p className="text-xs text-muted-foreground">EHS Manager at Industrial Tech</p>
+                      <p className="text-xs text-muted-foreground">
+                        EHS Manager at Industrial Tech
+                      </p>
                     </div>
                   </div>
-                  <Button variant="outline" size="sm">Connect</Button>
+                  <Button variant="outline" size="sm">
+                    Connect
+                  </Button>
                 </div>
 
-                <Button variant="link" className="px-0">See more suggestions</Button>
+                <Button variant="link" className="px-0">
+                  See more suggestions
+                </Button>
               </div>
             </CardContent>
           </Card>
         </div>
       </div>
     </div>
-  )
+  );
 }

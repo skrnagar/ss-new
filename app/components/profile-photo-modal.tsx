@@ -1,209 +1,210 @@
-"use client"
+"use client";
 
-import { useState, useRef, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input" // Added import for Input component
-import { supabase } from "@/lib/supabase"
-import { useToast } from "@/hooks/use-toast"
-import { X, Camera, Edit, Trash2, Image } from "lucide-react"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input"; // Added import for Input component
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/lib/supabase";
+import { Camera, Edit, Image, Trash2, X } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 
 interface ProfilePhotoModalProps {
-  userId: string
-  avatarUrl: string | null
-  name: string
-  isOpen: boolean
-  onClose: () => void
+  userId: string;
+  avatarUrl: string | null;
+  name: string;
+  isOpen: boolean;
+  onClose: () => void;
   onAvatarChange?: (url: string) => void; // Added optional callback
 }
 
-export function ProfilePhotoModal({ userId, avatarUrl, name, isOpen, onClose, onAvatarChange }: ProfilePhotoModalProps) {
-  const [loading, setLoading] = useState(false)
+export function ProfilePhotoModal({
+  userId,
+  avatarUrl,
+  name,
+  isOpen,
+  onClose,
+  onAvatarChange,
+}: ProfilePhotoModalProps) {
+  const [loading, setLoading] = useState(false);
   const [fullName, setName] = useState(name); // Added state for full name
-  const fileInputRef = useRef<HTMLInputElement>(null)
-  const { toast } = useToast()
-  const router = useRouter()
-  const modalRef = useRef<HTMLDivElement>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
+  const router = useRouter();
+  const modalRef = useRef<HTMLDivElement>(null);
 
   // Get initials for avatar fallback
   const getInitials = (name: string) => {
-    if (!name) return 'U'
+    if (!name) return "U";
     return name
-      .split(' ')
-      .map(part => part?.[0] || '')
-      .join('')
+      .split(" ")
+      .map((part) => part?.[0] || "")
+      .join("")
       .toUpperCase()
-      .substring(0, 2)
-  }
+      .substring(0, 2);
+  };
 
   // Handle click outside to close modal
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
-        onClose()
+        onClose();
       }
-    }
+    };
 
     if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside)
+      document.addEventListener("mousedown", handleClickOutside);
     }
 
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
-  }, [isOpen, onClose])
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isOpen, onClose]);
 
   // Prevent scrolling when modal is open
   useEffect(() => {
     if (isOpen) {
-      document.body.style.overflow = 'hidden'
+      document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = 'auto'
+      document.body.style.overflow = "auto";
     }
 
     return () => {
-      document.body.style.overflow = 'auto'
-    }
-  }, [isOpen])
+      document.body.style.overflow = "auto";
+    };
+  }, [isOpen]);
 
   // Handle file selection
   const handleFileSelect = () => {
-    fileInputRef.current?.click()
-  }
+    fileInputRef.current?.click();
+  };
 
   // Handle file change
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     try {
-      setLoading(true)
-      const file = event.target.files?.[0]
+      setLoading(true);
+      const file = event.target.files?.[0];
 
       if (!file) {
-        throw new Error('No file selected')
+        throw new Error("No file selected");
       }
 
       // Validate file type
-      if (!file.type.startsWith('image/')) {
-        throw new Error('Invalid file selected')
+      if (!file.type.startsWith("image/")) {
+        throw new Error("Invalid file selected");
       }
 
       // Create a unique file name
-      const fileExt = file.name.split('.').pop()
-      const fileName = `${userId}/${Date.now()}-${file.name}`
+      const fileExt = file.name.split(".").pop();
+      const fileName = `${userId}/${Date.now()}-${file.name}`;
 
-      console.log(`Attempting to upload to avatars bucket: ${fileName}`)
-      console.log(`Attempting to upload file to avatars/${fileName}`)
+      console.log(`Attempting to upload to avatars bucket: ${fileName}`);
+      console.log(`Attempting to upload file to avatars/${fileName}`);
 
-      const { data, error } = await supabase.storage
-        .from('avatars')
-        .upload(fileName, file, {
-          cacheControl: '3600',
-          upsert: true
-        })
+      const { data, error } = await supabase.storage.from("avatars").upload(fileName, file, {
+        cacheControl: "3600",
+        upsert: true,
+      });
 
       if (error) {
-        console.error('Upload error:', error)
-        throw error
+        console.error("Upload error:", error);
+        throw error;
       }
 
-      console.log('Upload successful:', data)
+      console.log("Upload successful:", data);
 
       // Get public URL for the uploaded file
-      const { data: urlData } = supabase
-        .storage
-        .from('avatars')
-        .getPublicUrl(data.path)
+      const { data: urlData } = supabase.storage.from("avatars").getPublicUrl(data.path);
 
-      const publicUrl = urlData.publicUrl
-      console.log('Generated public URL:', publicUrl)
+      const publicUrl = urlData.publicUrl;
+      console.log("Generated public URL:", publicUrl);
 
       // Update user profile with new avatar URL only
       const { error: updateError } = await supabase
-        .from('profiles')
-        .update({ 
-          avatar_url: publicUrl
+        .from("profiles")
+        .update({
+          avatar_url: publicUrl,
         })
-        .eq('id', userId)
+        .eq("id", userId);
 
       if (updateError) {
-        console.error('Profile update error:', updateError)
-        throw updateError
+        console.error("Profile update error:", updateError);
+        throw updateError;
       }
 
-      console.log('Profile updated successfully')
+      console.log("Profile updated successfully");
 
       // Call the onAvatarChange callback if provided
       if (onAvatarChange) {
-        onAvatarChange(publicUrl)
+        onAvatarChange(publicUrl);
       }
 
       toast({
         title: "Avatar updated",
         description: "Your profile picture has been updated successfully",
-      })
+      });
 
       // Close modal
-      onClose()
+      onClose();
 
       // Refresh the page to show the updated avatar
-      router.refresh()
-
+      router.refresh();
     } catch (error: any) {
       toast({
         title: "Error updating avatar",
         description: error.message || "Failed to update avatar",
         variant: "destructive",
-      })
+      });
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   // Handle avatar deletion
   const handleDeleteAvatar = async () => {
-    if (!avatarUrl) return
+    if (!avatarUrl) return;
 
     try {
-      setLoading(true)
+      setLoading(true);
 
       // Update user profile to remove avatar URL
       const { error: updateError } = await supabase
-        .from('profiles')
+        .from("profiles")
         .update({ avatar_url: null })
-        .eq('id', userId)
+        .eq("id", userId);
 
       if (updateError) {
-        console.error('Profile update error:', updateError)
-        throw updateError
+        console.error("Profile update error:", updateError);
+        throw updateError;
       }
 
       toast({
         title: "Avatar removed",
         description: "Your profile picture has been removed",
-      })
+      });
 
       // Close modal
-      onClose()
+      onClose();
 
       // Refresh the page
-      router.refresh()
+      router.refresh();
     } catch (error: any) {
       toast({
         title: "Error removing avatar",
         description: error.message || "Failed to remove avatar",
         variant: "destructive",
-      })
+      });
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
-  if (!isOpen) return null
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-      <div 
-        ref={modalRef} 
+      <div
+        ref={modalRef}
         className="bg-background rounded-lg shadow-lg max-w-md w-full overflow-hidden"
       >
         {/* Modal Header */}
@@ -235,8 +236,8 @@ export function ProfilePhotoModal({ userId, avatarUrl, name, isOpen, onClose, on
 
           <div className="w-full">
             <div className="grid grid-cols-3 gap-4 mb-4">
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className="flex flex-col items-center py-6 h-auto"
                 onClick={() => handleFileSelect()}
               >
@@ -244,8 +245,8 @@ export function ProfilePhotoModal({ userId, avatarUrl, name, isOpen, onClose, on
                 <span>Edit</span>
               </Button>
 
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className="flex flex-col items-center py-6 h-auto"
                 onClick={() => handleFileSelect()}
               >
@@ -253,8 +254,8 @@ export function ProfilePhotoModal({ userId, avatarUrl, name, isOpen, onClose, on
                 <span>Add photo</span>
               </Button>
 
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className="flex flex-col items-center py-6 h-auto"
                 onClick={handleDeleteAvatar}
                 disabled={!avatarUrl || loading}
@@ -269,11 +270,7 @@ export function ProfilePhotoModal({ userId, avatarUrl, name, isOpen, onClose, on
             </div>
 
             <div className="mt-4 flex justify-end">
-              <Button 
-                variant="ghost" 
-                onClick={onClose}
-                disabled={loading}
-              >
+              <Button variant="ghost" onClick={onClose} disabled={loading}>
                 Cancel
               </Button>
             </div>
@@ -281,5 +278,5 @@ export function ProfilePhotoModal({ userId, avatarUrl, name, isOpen, onClose, on
         </div>
       </div>
     </div>
-  )
+  );
 }

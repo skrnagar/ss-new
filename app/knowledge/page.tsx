@@ -1,29 +1,29 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Badge } from "@/components/ui/badge"
-import { 
-  FileText, 
-  Search, 
-  Upload, 
-  Filter, 
-  Clock, 
-  Download, 
-  ThumbsUp, 
-  MessageSquare, 
-  Share2, 
-  BookOpen, 
-  CheckSquare, 
-  AlertTriangle, 
-  Shield, 
-  FileSpreadsheet,
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  AlertTriangle,
+  BookOpen,
+  CheckSquare,
+  Clock,
+  Download,
   FileImage,
-  Star
-} from "lucide-react"
+  FileSpreadsheet,
+  FileText,
+  Filter,
+  MessageSquare,
+  Search,
+  Share2,
+  Shield,
+  Star,
+  ThumbsUp,
+  Upload,
+} from "lucide-react";
+import * as React from "react";
 
 export default function KnowledgePage() {
   return (
@@ -85,20 +85,44 @@ export default function KnowledgePage() {
                   <div className="text-sm font-medium mb-2">Industry</div>
                   <div className="space-y-2">
                     <div className="flex items-center">
-                      <input type="checkbox" id="industry-construction" className="h-4 w-4 rounded border-gray-300 mr-2" />
-                      <label htmlFor="industry-construction" className="text-sm">Construction</label>
+                      <input
+                        type="checkbox"
+                        id="industry-construction"
+                        className="h-4 w-4 rounded border-gray-300 mr-2"
+                      />
+                      <label htmlFor="industry-construction" className="text-sm">
+                        Construction
+                      </label>
                     </div>
                     <div className="flex items-center">
-                      <input type="checkbox" id="industry-manufacturing" className="h-4 w-4 rounded border-gray-300 mr-2" />
-                      <label htmlFor="industry-manufacturing" className="text-sm">Manufacturing</label>
+                      <input
+                        type="checkbox"
+                        id="industry-manufacturing"
+                        className="h-4 w-4 rounded border-gray-300 mr-2"
+                      />
+                      <label htmlFor="industry-manufacturing" className="text-sm">
+                        Manufacturing
+                      </label>
                     </div>
                     <div className="flex items-center">
-                      <input type="checkbox" id="industry-energy" className="h-4 w-4 rounded border-gray-300 mr-2" />
-                      <label htmlFor="industry-energy" className="text-sm">Energy</label>
+                      <input
+                        type="checkbox"
+                        id="industry-energy"
+                        className="h-4 w-4 rounded border-gray-300 mr-2"
+                      />
+                      <label htmlFor="industry-energy" className="text-sm">
+                        Energy
+                      </label>
                     </div>
                     <div className="flex items-center">
-                      <input type="checkbox" id="industry-healthcare" className="h-4 w-4 rounded border-gray-300 mr-2" />
-                      <label htmlFor="industry-healthcare" className="text-sm">Healthcare</label>
+                      <input
+                        type="checkbox"
+                        id="industry-healthcare"
+                        className="h-4 w-4 rounded border-gray-300 mr-2"
+                      />
+                      <label htmlFor="industry-healthcare" className="text-sm">
+                        Healthcare
+                      </label>
                     </div>
                   </div>
                 </div>
@@ -107,20 +131,44 @@ export default function KnowledgePage() {
                   <div className="text-sm font-medium mb-2">Document Type</div>
                   <div className="space-y-2">
                     <div className="flex items-center">
-                      <input type="checkbox" id="type-pdf" className="h-4 w-4 rounded border-gray-300 mr-2" />
-                      <label htmlFor="type-pdf" className="text-sm">PDF</label>
+                      <input
+                        type="checkbox"
+                        id="type-pdf"
+                        className="h-4 w-4 rounded border-gray-300 mr-2"
+                      />
+                      <label htmlFor="type-pdf" className="text-sm">
+                        PDF
+                      </label>
                     </div>
                     <div className="flex items-center">
-                      <input type="checkbox" id="type-doc" className="h-4 w-4 rounded border-gray-300 mr-2" />
-                      <label htmlFor="type-doc" className="text-sm">Word Document</label>
+                      <input
+                        type="checkbox"
+                        id="type-doc"
+                        className="h-4 w-4 rounded border-gray-300 mr-2"
+                      />
+                      <label htmlFor="type-doc" className="text-sm">
+                        Word Document
+                      </label>
                     </div>
                     <div className="flex items-center">
-                      <input type="checkbox" id="type-xlsx" className="h-4 w-4 rounded border-gray-300 mr-2" />
-                      <label htmlFor="type-xlsx" className="text-sm">Excel Spreadsheet</label>
+                      <input
+                        type="checkbox"
+                        id="type-xlsx"
+                        className="h-4 w-4 rounded border-gray-300 mr-2"
+                      />
+                      <label htmlFor="type-xlsx" className="text-sm">
+                        Excel Spreadsheet
+                      </label>
                     </div>
                     <div className="flex items-center">
-                      <input type="checkbox" id="type-ppt" className="h-4 w-4 rounded border-gray-300 mr-2" />
-                      <label htmlFor="type-ppt" className="text-sm">PowerPoint</label>
+                      <input
+                        type="checkbox"
+                        id="type-ppt"
+                        className="h-4 w-4 rounded border-gray-300 mr-2"
+                      />
+                      <label htmlFor="type-ppt" className="text-sm">
+                        PowerPoint
+                      </label>
                     </div>
                   </div>
                 </div>
@@ -129,20 +177,49 @@ export default function KnowledgePage() {
                   <div className="text-sm font-medium mb-2">Date Added</div>
                   <div className="space-y-2">
                     <div className="flex items-center">
-                      <input type="radio" id="date-week" name="date-filter" className="h-4 w-4 rounded-full border-gray-300 mr-2" />
-                      <label htmlFor="date-week" className="text-sm">Last 7 Days</label>
+                      <input
+                        type="radio"
+                        id="date-week"
+                        name="date-filter"
+                        className="h-4 w-4 rounded-full border-gray-300 mr-2"
+                      />
+                      <label htmlFor="date-week" className="text-sm">
+                        Last 7 Days
+                      </label>
                     </div>
                     <div className="flex items-center">
-                      <input type="radio" id="date-month" name="date-filter" className="h-4 w-4 rounded-full border-gray-300 mr-2" />
-                      <label htmlFor="date-month" className="text-sm">Last 30 Days</label>
+                      <input
+                        type="radio"
+                        id="date-month"
+                        name="date-filter"
+                        className="h-4 w-4 rounded-full border-gray-300 mr-2"
+                      />
+                      <label htmlFor="date-month" className="text-sm">
+                        Last 30 Days
+                      </label>
                     </div>
                     <div className="flex items-center">
-                      <input type="radio" id="date-quarter" name="date-filter" className="h-4 w-4 rounded-full border-gray-300 mr-2" />
-                      <label htmlFor="date-quarter" className="text-sm">Last 90 Days</label>
+                      <input
+                        type="radio"
+                        id="date-quarter"
+                        name="date-filter"
+                        className="h-4 w-4 rounded-full border-gray-300 mr-2"
+                      />
+                      <label htmlFor="date-quarter" className="text-sm">
+                        Last 90 Days
+                      </label>
                     </div>
                     <div className="flex items-center">
-                      <input type="radio" id="date-all" name="date-filter" className="h-4 w-4 rounded-full border-gray-300 mr-2" defaultChecked />
-                      <label htmlFor="date-all" className="text-sm">All Time</label>
+                      <input
+                        type="radio"
+                        id="date-all"
+                        name="date-filter"
+                        className="h-4 w-4 rounded-full border-gray-300 mr-2"
+                        defaultChecked
+                      />
+                      <label htmlFor="date-all" className="text-sm">
+                        All Time
+                      </label>
                     </div>
                   </div>
                 </div>
@@ -158,18 +235,42 @@ export default function KnowledgePage() {
             </CardHeader>
             <CardContent>
               <div className="flex flex-wrap gap-2">
-                <Badge variant="outline" className="cursor-pointer hover:bg-secondary/10">ISO 45001</Badge>
-                <Badge variant="outline" className="cursor-pointer hover:bg-secondary/10">HIRA</Badge>
-                <Badge variant="outline" className="cursor-pointer hover:bg-secondary/10">JSA</Badge>
-                <Badge variant="outline" className="cursor-pointer hover:bg-secondary/10">Risk Assessment</Badge>
-                <Badge variant="outline" className="cursor-pointer hover:bg-secondary/10">SDS</Badge>
-                <Badge variant="outline" className="cursor-pointer hover:bg-secondary/10">OSHA</Badge>
-                <Badge variant="outline" className="cursor-pointer hover:bg-secondary/10">ESG Reporting</Badge>
-                <Badge variant="outline" className="cursor-pointer hover:bg-secondary/10">Templates</Badge>
-                <Badge variant="outline" className="cursor-pointer hover:bg-secondary/10">Sustainability</Badge>
-                <Badge variant="outline" className="cursor-pointer hover:bg-secondary/10">Carbon Footprint</Badge>
-                <Badge variant="outline" className="cursor-pointer hover:bg-secondary/10">Audit</Badge>
-                <Badge variant="outline" className="cursor-pointer hover:bg-secondary/10">Training</Badge>
+                <Badge variant="outline" className="cursor-pointer hover:bg-secondary/10">
+                  ISO 45001
+                </Badge>
+                <Badge variant="outline" className="cursor-pointer hover:bg-secondary/10">
+                  HIRA
+                </Badge>
+                <Badge variant="outline" className="cursor-pointer hover:bg-secondary/10">
+                  JSA
+                </Badge>
+                <Badge variant="outline" className="cursor-pointer hover:bg-secondary/10">
+                  Risk Assessment
+                </Badge>
+                <Badge variant="outline" className="cursor-pointer hover:bg-secondary/10">
+                  SDS
+                </Badge>
+                <Badge variant="outline" className="cursor-pointer hover:bg-secondary/10">
+                  OSHA
+                </Badge>
+                <Badge variant="outline" className="cursor-pointer hover:bg-secondary/10">
+                  ESG Reporting
+                </Badge>
+                <Badge variant="outline" className="cursor-pointer hover:bg-secondary/10">
+                  Templates
+                </Badge>
+                <Badge variant="outline" className="cursor-pointer hover:bg-secondary/10">
+                  Sustainability
+                </Badge>
+                <Badge variant="outline" className="cursor-pointer hover:bg-secondary/10">
+                  Carbon Footprint
+                </Badge>
+                <Badge variant="outline" className="cursor-pointer hover:bg-secondary/10">
+                  Audit
+                </Badge>
+                <Badge variant="outline" className="cursor-pointer hover:bg-secondary/10">
+                  Training
+                </Badge>
               </div>
             </CardContent>
           </Card>
@@ -227,9 +328,15 @@ export default function KnowledgePage() {
                       <span>Added 3 months ago by John Doe</span>
                     </div>
                     <div className="flex flex-wrap gap-1 mb-3">
-                      <Badge variant="outline" className="text-xs">ISO 45001</Badge>
-                      <Badge variant="outline" className="text-xs">Safety</Badge>
-                      <Badge variant="outline" className="text-xs">Management Systems</Badge>
+                      <Badge variant="outline" className="text-xs">
+                        ISO 45001
+                      </Badge>
+                      <Badge variant="outline" className="text-xs">
+                        Safety
+                      </Badge>
+                      <Badge variant="outline" className="text-xs">
+                        Management Systems
+                      </Badge>
                     </div>
                   </CardContent>
                   <div className="px-6 pb-6">
@@ -264,9 +371,15 @@ export default function KnowledgePage() {
                       <span>Added 5 months ago by Sarah Johnson</span>
                     </div>
                     <div className="flex flex-wrap gap-1 mb-3">
-                      <Badge variant="outline" className="text-xs">Environmental</Badge>
-                      <Badge variant="outline" className="text-xs">Compliance</Badge>
-                      <Badge variant="outline" className="text-xs">Template</Badge>
+                      <Badge variant="outline" className="text-xs">
+                        Environmental
+                      </Badge>
+                      <Badge variant="outline" className="text-xs">
+                        Compliance
+                      </Badge>
+                      <Badge variant="outline" className="text-xs">
+                        Template
+                      </Badge>
                     </div>
                   </CardContent>
                   <div className="px-6 pb-6">
@@ -283,7 +396,9 @@ export default function KnowledgePage() {
                       <FileText className="h-6 w-6 text-primary" />
                     </div>
                     <CardTitle className="text-lg">Safety Audit Templates Bundle</CardTitle>
-                    <CardDescription>Collection of safety audit templates and forms</CardDescription>
+                    <CardDescription>
+                      Collection of safety audit templates and forms
+                    </CardDescription>
                   </CardHeader>
                   <CardContent className="pb-3">
                     <div className="flex items-center justify-between text-sm mb-2">
@@ -301,9 +416,15 @@ export default function KnowledgePage() {
                       <span>Added 8 months ago by Michael Chen</span>
                     </div>
                     <div className="flex flex-wrap gap-1 mb-3">
-                      <Badge variant="outline" className="text-xs">Audit</Badge>
-                      <Badge variant="outline" className="text-xs">Safety</Badge>
-                      <Badge variant="outline" className="text-xs">Templates</Badge>
+                      <Badge variant="outline" className="text-xs">
+                        Audit
+                      </Badge>
+                      <Badge variant="outline" className="text-xs">
+                        Safety
+                      </Badge>
+                      <Badge variant="outline" className="text-xs">
+                        Templates
+                      </Badge>
                     </div>
                   </CardContent>
                   <div className="px-6 pb-6">
@@ -320,7 +441,9 @@ export default function KnowledgePage() {
                       <FileText className="h-6 w-6 text-primary" />
                     </div>
                     <CardTitle className="text-lg">ESG Reporting Framework Guide</CardTitle>
-                    <CardDescription>Comprehensive guide to ESG reporting standards</CardDescription>
+                    <CardDescription>
+                      Comprehensive guide to ESG reporting standards
+                    </CardDescription>
                   </CardHeader>
                   <CardContent className="pb-3">
                     <div className="flex items-center justify-between text-sm mb-2">
@@ -338,9 +461,15 @@ export default function KnowledgePage() {
                       <span>Added 2 months ago by Emily Rodriguez</span>
                     </div>
                     <div className="flex flex-wrap gap-1 mb-3">
-                      <Badge variant="outline" className="text-xs">ESG</Badge>
-                      <Badge variant="outline" className="text-xs">Reporting</Badge>
-                      <Badge variant="outline" className="text-xs">Sustainability</Badge>
+                      <Badge variant="outline" className="text-xs">
+                        ESG
+                      </Badge>
+                      <Badge variant="outline" className="text-xs">
+                        Reporting
+                      </Badge>
+                      <Badge variant="outline" className="text-xs">
+                        Sustainability
+                      </Badge>
                     </div>
                   </CardContent>
                   <div className="px-6 pb-6">
@@ -357,7 +486,9 @@ export default function KnowledgePage() {
                       <FileText className="h-6 w-6 text-primary" />
                     </div>
                     <CardTitle className="text-lg">Job Safety Analysis Templates</CardTitle>
-                    <CardDescription>Collection of JSA templates for various industries</CardDescription>
+                    <CardDescription>
+                      Collection of JSA templates for various industries
+                    </CardDescription>
                   </CardHeader>
                   <CardContent className="pb-3">
                     <div className="flex items-center justify-between text-sm mb-2">
@@ -375,9 +506,15 @@ export default function KnowledgePage() {
                       <span>Added 4 months ago by James Wilson</span>
                     </div>
                     <div className="flex flex-wrap gap-1 mb-3">
-                      <Badge variant="outline" className="text-xs">JSA</Badge>
-                      <Badge variant="outline" className="text-xs">Safety</Badge>
-                      <Badge variant="outline" className="text-xs">Risk Assessment</Badge>
+                      <Badge variant="outline" className="text-xs">
+                        JSA
+                      </Badge>
+                      <Badge variant="outline" className="text-xs">
+                        Safety
+                      </Badge>
+                      <Badge variant="outline" className="text-xs">
+                        Risk Assessment
+                      </Badge>
                     </div>
                   </CardContent>
                   <div className="px-6 pb-6">
@@ -394,7 +531,9 @@ export default function KnowledgePage() {
                       <FileImage className="h-6 w-6 text-primary" />
                     </div>
                     <CardTitle className="text-lg">Carbon Footprint Calculation Guide</CardTitle>
-                    <CardDescription>Step-by-step guide to calculating organizational carbon footprint</CardDescription>
+                    <CardDescription>
+                      Step-by-step guide to calculating organizational carbon footprint
+                    </CardDescription>
                   </CardHeader>
                   <CardContent className="pb-3">
                     <div className="flex items-center justify-between text-sm mb-2">
@@ -412,9 +551,15 @@ export default function KnowledgePage() {
                       <span>Added 6 months ago by Lisa Wong</span>
                     </div>
                     <div className="flex flex-wrap gap-1 mb-3">
-                      <Badge variant="outline" className="text-xs">Carbon</Badge>
-                      <Badge variant="outline" className="text-xs">Environmental</Badge>
-                      <Badge variant="outline" className="text-xs">Sustainability</Badge>
+                      <Badge variant="outline" className="text-xs">
+                        Carbon
+                      </Badge>
+                      <Badge variant="outline" className="text-xs">
+                        Environmental
+                      </Badge>
+                      <Badge variant="outline" className="text-xs">
+                        Sustainability
+                      </Badge>
                     </div>
                   </CardContent>
                   <div className="px-6 pb-6">
@@ -448,5 +593,5 @@ export default function KnowledgePage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

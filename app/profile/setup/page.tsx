@@ -1,18 +1,26 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { useRouter } from "next/navigation"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import * as z from "zod"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import { useToast } from "@/hooks/use-toast"
-import { supabase } from "@/lib/supabase"
-import { useState } from "react"
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/lib/supabase";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
+import * as React from "react";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
 
 const profileSetupSchema = z.object({
   full_name: z.string().min(2, "Full name must be at least 2 characters"), // Added full_name validation
@@ -21,14 +29,20 @@ const profileSetupSchema = z.object({
   company: z.string().min(2, "Company name must be at least 2 characters"),
   position: z.string().min(2, "Position must be at least 2 characters"),
   location: z.string().min(2, "Location must be at least 2 characters"),
-  username: z.string().min(3, "Username must be at least 3 characters").regex(/^[a-z0-9_-]+$/, "Username can only contain lowercase letters, numbers, underscores, and hyphens"),
-})
+  username: z
+    .string()
+    .min(3, "Username must be at least 3 characters")
+    .regex(
+      /^[a-z0-9_-]+$/,
+      "Username can only contain lowercase letters, numbers, underscores, and hyphens"
+    ),
+});
 
 export default function ProfileSetupPage() {
-  const router = useRouter()
-  const { toast } = useToast()
-  const [loading, setLoading] = React.useState(false)
-  const [user, setUser] = React.useState<any>(null)
+  const router = useRouter();
+  const { toast } = useToast();
+  const [loading, setLoading] = React.useState(false);
+  const [user, setUser] = React.useState<any>(null);
 
   const form = useForm<z.infer<typeof profileSetupSchema>>({
     resolver: zodResolver(profileSetupSchema),
@@ -41,22 +55,24 @@ export default function ProfileSetupPage() {
       location: "",
       username: "",
     },
-  })
+  });
 
   // Fetch current user on component mount
   React.useEffect(() => {
     const fetchUser = async () => {
       try {
-        const { data: { user } } = await supabase.auth.getUser()
-        setUser(user)
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+        setUser(user);
 
         if (user) {
           // Try to fetch existing profile data
           const { data: profile } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', user.id)
-            .single()
+            .from("profiles")
+            .select("*")
+            .eq("id", user.id)
+            .single();
 
           if (profile) {
             // Pre-fill form with existing data if available
@@ -68,16 +84,16 @@ export default function ProfileSetupPage() {
               position: profile.position || "",
               location: profile.location || "",
               username: profile.username || "",
-            })
+            });
           }
         }
       } catch (error) {
-        console.error('Error fetching user:', error)
+        console.error("Error fetching user:", error);
       }
-    }
+    };
 
-    fetchUser()
-  }, [form])
+    fetchUser();
+  }, [form]);
 
   async function onSubmit(values: z.infer<typeof profileSetupSchema>) {
     if (!user) {
@@ -85,23 +101,24 @@ export default function ProfileSetupPage() {
         title: "Error",
         description: "You must be logged in to complete your profile",
         variant: "destructive",
-      })
-      return
+      });
+      return;
     }
 
-    setLoading(true)
+    setLoading(true);
 
     try {
       // Check if username is already taken
       const { data: existingUser, error: checkError } = await supabase
-        .from('profiles')
-        .select('username')
-        .eq('username', values.username)
-        .neq('id', user.id) // Exclude current user
-        .single()
+        .from("profiles")
+        .select("username")
+        .eq("username", values.username)
+        .neq("id", user.id) // Exclude current user
+        .single();
 
-      if (checkError && checkError.code !== 'PGRST116') { // PGRST116 is "no rows returned" which is good
-        throw new Error("Error checking username availability")
+      if (checkError && checkError.code !== "PGRST116") {
+        // PGRST116 is "no rows returned" which is good
+        throw new Error("Error checking username availability");
       }
 
       if (existingUser) {
@@ -109,14 +126,14 @@ export default function ProfileSetupPage() {
           title: "Username already taken",
           description: "Please choose a different username",
           variant: "destructive",
-        })
-        setLoading(false)
-        return
+        });
+        setLoading(false);
+        return;
       }
 
       // Update the user's profile
       const { error: updateError } = await supabase
-        .from('profiles')
+        .from("profiles")
         .update({
           full_name: values.full_name,
           headline: values.headline,
@@ -127,28 +144,28 @@ export default function ProfileSetupPage() {
           username: values.username,
           updated_at: new Date().toISOString(),
         })
-        .eq('id', user.id)
+        .eq("id", user.id);
 
       if (updateError) {
-        throw updateError
+        throw updateError;
       }
 
       toast({
         title: "Profile updated",
         description: "Your profile has been successfully updated",
-      })
+      });
 
       // Redirect to the user's profile page
-      router.push(`/profile/${values.username}`)
+      router.push(`/profile/${values.username}`);
     } catch (error: any) {
-      console.error('Error updating profile:', error)
+      console.error("Error updating profile:", error);
       toast({
         title: "Error updating profile",
         description: error.message || "There was an error updating your profile",
         variant: "destructive",
-      })
+      });
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   }
 
@@ -185,7 +202,8 @@ export default function ProfileSetupPage() {
                       <Input placeholder="your-username" {...field} />
                     </FormControl>
                     <FormDescription>
-                      This will be your public profile URL: safetyshaper.com/profile/{field.value || 'username'}
+                      This will be your public profile URL: safetyshaper.com/profile/
+                      {field.value || "username"}
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -279,5 +297,5 @@ export default function ProfileSetupPage() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

@@ -86,11 +86,11 @@
   .animate-in {
     animation: animate-in 0.3s ease-in-out;
   }
-  
+
   .hover-lift {
     @apply transition-transform duration-300 hover:-translate-y-1 hover:shadow-md;
   }
-  
+
   .text-gradient {
     @apply bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent;
   }
@@ -106,4 +106,3 @@
     transform: translateY(0);
   }
 }
-
