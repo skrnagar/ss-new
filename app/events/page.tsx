@@ -175,45 +175,106 @@ export default function EventsPage() {
         }
         
         // If table exists, proceed with real data fetching
-        // Fetch public events
-        const { data: publicEvents, error: publicError } = await supabase
-          .from('events')
-          .select(`
-            *,
-            profile:profiles (
-              id,
-              username,
-              full_name,
-              avatar_url
-            )
-          `)
-          .eq('is_public', true)
-          .order('start_date', { ascending: true });
-        
-        if (publicError) throw publicError;
-        
-        // Fetch user-specific events (if user is logged in)
-        const { data: { session } } = await supabase.auth.getSession();
-        
-        if (session?.user?.id) {
-          const { data: userEvents, error: userError } = await supabase
+        try {
+          // Fetch public events - first try with profile join
+          const { data: publicEvents, error: publicError } = await supabase
             .from('events')
-            .select(`
-              *,
-              profile:profiles (
-                id,
-                username,
-                full_name,
-                avatar_url
-              )
-            `)
-            .eq('user_id', session.user.id)
+            .select('*')
+            .eq('is_public', true)
             .order('start_date', { ascending: true });
           
-          if (userError) throw userError;
+          if (publicError) throw publicError;
           
-          setUserEventsData(userEvents || []);
-        }
+          // For each event, fetch the profile data separately
+          const eventsWithProfiles = await Promise.all(
+            (publicEvents || []).map(async (event) => {
+              try {
+                // Get profile data for this event
+                const { data: profileData } = await supabase
+                  .from('profiles')
+                  .select('id, username, full_name, avatar_url')
+                  .eq('id', event.user_id)
+                  .single();
+                
+                return {
+                  ...event,
+                  profile: profileData || {
+                    id: event.user_id,
+                    username: 'anonymous',
+                    full_name: 'Anonymous User',
+                    avatar_url: ''
+                  }
+                };
+              } catch (err) {
+                console.log(`Error fetching profile for event ${event.id}:`, err);
+                // Return event with default profile
+                return {
+                  ...event,
+                  profile: {
+                    id: event.user_id,
+                    username: 'anonymous',
+                    full_name: 'Anonymous User',
+                    avatar_url: ''
+                  }
+                };
+              }
+            })
+          );
+          
+          setEventsData(eventsWithProfiles);
+          
+          // Fetch user-specific events (if user is logged in)
+          const { data: { session } } = await supabase.auth.getSession();
+          
+          if (session?.user?.id) {
+            const { data: userEvents, error: userError } = await supabase
+              .from('events')
+              .select('*')
+              .eq('user_id', session.user.id)
+              .order('start_date', { ascending: true });
+            
+            if (userError) throw userError;
+            
+            // For each user event, fetch the profile data separately
+            const userEventsWithProfiles = await Promise.all(
+              (userEvents || []).map(async (event) => {
+                try {
+                  // Get profile data for this event
+                  const { data: profileData } = await supabase
+                    .from('profiles')
+                    .select('id, username, full_name, avatar_url')
+                    .eq('id', event.user_id)
+                    .single();
+                  
+                  return {
+                    ...event,
+                    profile: profileData || {
+                      id: event.user_id,
+                      username: 'anonymous',
+                      full_name: 'Anonymous User',
+                      avatar_url: ''
+                    }
+                  };
+                } catch (err) {
+                  console.log(`Error fetching profile for user event ${event.id}:`, err);
+                  // Return event with default profile
+                  return {
+                    ...event,
+                    profile: {
+                      id: event.user_id,
+                      username: session.user.email?.split('@')[0] || 'user',
+                      full_name: 'You',
+                      avatar_url: ''
+                    }
+                  };
+                }
+              })
+            );
+            
+            setUserEventsData(userEventsWithProfiles);
+          }
+        } catch (queryError) {
+          console.error("Error querying events with profiles:", queryError);
         
         setEventsData(publicEvents || []);
       } catch (error) {
