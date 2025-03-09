@@ -3,6 +3,7 @@
 
 import * as React from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
@@ -11,7 +12,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import { Mail, Lock, Github, Linkedin } from "lucide-react"
+import { Mail, Lock, Linkedin } from "lucide-react"
 import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useToast } from "@/hooks/use-toast"
@@ -54,7 +55,7 @@ export default function LoginPage() {
     setLoading(true)
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const { error } = await supabase.auth.signInWithPassword({
         email: values.email,
         password: values.password,
       })
@@ -169,7 +170,7 @@ export default function LoginPage() {
       <div className="mx-auto flex w-full flex-col space-y-6 sm:w-[350px] md:w-[500px]">
         <div className="flex flex-col space-y-2 text-center">
           <div className="mx-auto mb-4">
-            <img src="/slogos.png" alt="Safety Shaper Logo" width={70} height={80} />
+            <Image src="/slogos.png" alt="Safety Shaper Logo" width={70} height={80} />
           </div>
           <h1 className="text-2xl font-semibold tracking-tight">Welcome to Safety Shaper</h1>
           <p className="text-sm text-muted-foreground">

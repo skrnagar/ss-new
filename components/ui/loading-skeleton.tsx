@@ -1,4 +1,3 @@
-
 import { Skeleton } from "@/components/ui/skeleton"
 
 export function PostSkeleton() {
@@ -26,7 +25,8 @@ export function PostSkeleton() {
   )
 }
 
-export default PostSkeleton
+export default PostSkeleton;
+
 "use client"
 
 import { Skeleton } from "@/components/ui/skeleton"
@@ -55,4 +55,4 @@ export function LoadingSkeleton() {
   )
 }
 
-export default LoadingSkeleton
+export default LoadingSkeleton;

@@ -1,10 +1,8 @@
 "use client"
 
-import { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
-import { supabase } from "@/lib/supabase"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import {
@@ -25,15 +23,14 @@ import {
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu"
-import { cn } from "@/lib/utils"
-import { Bell, MessageCircle, Search, Settings, Users, Briefcase, BookOpen, Shield, User, LogOut, Calendar } from "lucide-react"
+import { Bell, MessageCircle, Search, Settings, Users, Briefcase, Shield, User, LogOut, Calendar } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { useToast } from "@/hooks/use-toast"
 import { useMobile } from "@/hooks/use-mobile"
 import { useAuth } from "@/contexts/auth-context"
 
 export function Navbar() {
-  const { user, profile, isLoading } = useAuth()
+  const { user, isLoading } = useAuth()
   const router = useRouter()
   const { toast } = useToast()
   const isMobile = useMobile()
