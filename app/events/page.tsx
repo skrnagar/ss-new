@@ -275,8 +275,8 @@ export default function EventsPage() {
           }
         } catch (queryError) {
           console.error("Error querying events with profiles:", queryError);
-        
-        setEventsData(publicEvents || []);
+          setEventsData([]);
+        }
       } catch (error) {
         console.error('Error fetching events:', error);
       } finally {
