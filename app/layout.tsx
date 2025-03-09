@@ -15,7 +15,7 @@ const Navbar = dynamic(() => import("@/components/navbar").then(mod => mod.Navba
 });
 
 // Dynamically import Footer to reduce initial load
-const Footer = dynamic(() => import("@/components/footer").then(mod => mod.default || mod), {
+const Footer = dynamic(() => import("@/components/footer").then(mod => mod.Footer), {
   ssr: false,
 });
 
