@@ -121,7 +121,7 @@ export default function FeedPage() {
         <div className="md:col-span-2 space-y-6">
           {/* Post creation card */}
           {userProfile ? (
-            <PostCreator userProfile={userProfile} />
+            <PostCreator userProfile={userProfile || null} />
           ) : user?.id ? (
             <Card>
               <CardContent className="py-6 text-center">
