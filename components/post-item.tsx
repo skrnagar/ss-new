@@ -264,7 +264,7 @@ const PostItem = memo(function PostItem({ post, currentUser }: PostItemProps) {
           ))
         }
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error toggling like:", error)
       toast({
         title: "Action failed",
