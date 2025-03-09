@@ -43,7 +43,7 @@ function RegisterFormContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { toast } = useToast();
-  const accountType = searchParams.get("type") || "job-seeker";
+  const accountType = searchParams?.get("type") || "job-seeker";
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
