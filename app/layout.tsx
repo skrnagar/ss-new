@@ -9,7 +9,7 @@ import dynamic from "next/dynamic";
 import "./globals.css";
 
 // Dynamically import Navbar with loading fallback
-const Navbar = dynamic(() => import("@/components/navbar"), {
+const Navbar = dynamic(() => import("@/components/navbar").then(mod => mod.Navbar), {
   ssr: true,
   loading: () => <div className="h-16 border-b bg-background"></div>,
 });
