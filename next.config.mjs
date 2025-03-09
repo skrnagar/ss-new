@@ -1,4 +1,3 @@
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
@@ -7,7 +6,10 @@ const nextConfig = {
   },
   // Added to improve chunk loading performance
   experimental: {
-    optimizeCss: true,
+    optimizeCss: {
+      // This will enable CSS optimization with default settings
+      enabled: true,
+    },
     optimizePackageImports: ['lucide-react'],
   },
   // Improve initial loading speed and reduce JS payloads
