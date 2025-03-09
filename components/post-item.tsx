@@ -258,9 +258,9 @@ const PostItem = memo(function PostItem({ post, currentUser }: PostItemProps) {
         }
 
         // Update the temporary ID with the real one from DB
-        if (data) {
+        if (data && data.length > 0) {
           setLikes(likes.map(like => 
-            like.id === newLike.id ? { ...like, id: data.id } : like
+            like.id === newLike.id ? { ...like, id: data[0].id } : like
           ))
         }
       }
