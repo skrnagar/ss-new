@@ -1,12 +1,13 @@
+
 "use client"
 
-import { useEffect } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
-import Image from 'next/image'; // Import the Image component
+import { useEffect, Suspense } from "react"
+import { useRouter } from "next/navigation"
+import Image from 'next/image'
 
-export default function AuthCallbackPage() {
+function CallbackContent() {
   const router = useRouter()
-  const searchParams = useSearchParams()
+  const searchParams = new URLSearchParams(window.location.search)
 
   useEffect(() => {
     // The actual auth handling is done in the route.ts file
@@ -23,12 +24,28 @@ export default function AuthCallbackPage() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">
-      <Image src="/placeholder-logo.svg" alt="Safety Shaper Logo" width={64} height={64} className="h-16 w-16 mb-8" /> {/* Replaced img with Image component */}
+      <Image src="/placeholder-logo.svg" alt="Safety Shaper Logo" width={64} height={64} className="h-16 w-16 mb-8" />
       <h1 className="text-2xl font-semibold mb-2">Signing you in</h1>
       <p className="text-muted-foreground mb-8">Please wait while we complete the authentication process...</p>
       <div className="h-2 w-64 bg-muted overflow-hidden rounded-full">
         <div className="h-full bg-primary animate-pulse rounded-full"></div>
       </div>
     </div>
+  )
+}
+
+export default function AuthCallbackPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex flex-col items-center justify-center min-h-screen">
+        <Image src="/placeholder-logo.svg" alt="Safety Shaper Logo" width={64} height={64} className="h-16 w-16 mb-8" />
+        <h1 className="text-2xl font-semibold mb-2">Loading...</h1>
+        <div className="h-2 w-64 bg-muted overflow-hidden rounded-full">
+          <div className="h-full bg-primary animate-pulse rounded-full"></div>
+        </div>
+      </div>
+    }>
+      <CallbackContent />
+    </Suspense>
   )
 }

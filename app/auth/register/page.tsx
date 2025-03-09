@@ -1,19 +1,21 @@
 "use client"
 
-import * as React from "react"
+import { Suspense } from "react"
+import { redirect } from "next/navigation"
+import Image from "next/image"
 import Link from "next/link"
+import { Button } from "@/components/ui/button"
 import { useRouter, useSearchParams } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
-import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Mail, Lock, User, ArrowLeft } from "lucide-react"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { useToast } from "@/hooks/use-toast"
-import Image from "next/image"; // Import the Image component
+
 
 const formSchema = z.object({
   fullName: z.string().min(2, { message: "Name must be at least 2 characters" }),
@@ -24,7 +26,7 @@ const formSchema = z.object({
   }),
 })
 
-export default function RegisterPage() {
+function RegisterFormContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { toast } = useToast()
@@ -55,7 +57,7 @@ export default function RegisterPage() {
       <div className="mx-auto flex w-full flex-col space-y-6 sm:w-[350px] md:w-[500px]">
         <div className="flex flex-col space-y-2 text-center">
           <div className="mx-auto mb-4">
-            <Image src="/images/logo.png" alt="Safety Shaper Logo" width={60} height={20} /> {/* Replaced img with Image component */}
+            <Image src="/images/logo.png" alt="Safety Shaper Logo" width={60} height={20} />
           </div>
           <h1 className="text-2xl font-semibold tracking-tight">Create your account</h1>
           <p className="text-sm text-muted-foreground">
@@ -179,5 +181,21 @@ export default function RegisterPage() {
         </Card>
       </div>
     </div>
+  )
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex flex-col items-center justify-center min-h-screen">
+        <Image src="/placeholder-logo.svg" alt="Safety Shaper Logo" width={64} height={64} className="h-16 w-16 mb-8" />
+        <h1 className="text-2xl font-semibold mb-2">Loading...</h1>
+        <div className="h-2 w-64 bg-muted overflow-hidden rounded-full">
+          <div className="h-full bg-primary animate-pulse rounded-full"></div>
+        </div>
+      </div>
+    }>
+      <RegisterFormContent />
+    </Suspense>
   )
 }
