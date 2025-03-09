@@ -274,7 +274,7 @@ const PostItem = memo(function PostItem({ post, currentUser }: PostItemProps) {
     }
   }
 
-  const handleCommentSubmit = async (e) => {
+  const handleCommentSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!commentContent.trim()) {
       toast({
