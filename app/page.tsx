@@ -43,7 +43,7 @@ export default async function Home() {
               </p>
               <div className="flex flex-col w-full ">
                 <div className="mt-4 w-full">
-                  <AuthButtons className="w-max px-4 py-3 bg-white rounded-xl hover:bg-gray-100 hover:border-blue-700" />
+                  <AuthButtons/>
                   
                 </div>
                 
