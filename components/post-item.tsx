@@ -21,6 +21,34 @@ import { supabase } from "@/lib/supabase"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 
+// Define the PostItemProps interface
+interface PostItemProps {
+  post: {
+    id: string;
+    user_id: string;
+    content?: string;
+    image_url?: string;
+    video_url?: string;
+    document_url?: string;
+    created_at: string;
+    profile?: {
+      id: string;
+      username?: string;
+      full_name?: string;
+      avatar_url?: string;
+      headline?: string;
+      position?: string;
+      company?: string;
+    };
+  };
+  currentUser?: {
+    id: string;
+    username?: string;
+    full_name?: string;
+    avatar_url?: string;
+  } | null;
+}
+
 const PostItem = memo(function PostItem({ post, currentUser }: PostItemProps) {
   const [isExpanded, setIsExpanded] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
