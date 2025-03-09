@@ -1,0 +1,96 @@
+
+  ✖ Expected a semicolon or an implicit semicolon after a statement, but found none
+  
+  > 1 │ Need to install the following packages:
+      │      ^^
+    2 │ supabase@2.15.8
+    3 │ Ok to proceed? (y)·
+  
+  ℹ An explicit or implicit semicolon is expected here...
+  
+  > 1 │ Need to install the following packages:
+      │      ^^
+    2 │ supabase@2.15.8
+    3 │ Ok to proceed? (y)·
+  
+  ℹ ...Which is required to end this statement
+  
+  > 1 │ Need to install the following packages:
+      │ ^^^^^^^
+    2 │ supabase@2.15.8
+    3 │ Ok to proceed? (y)·
+  
+
+./types/supabase.ts:1:9 parse ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ✖ Expected a semicolon or an implicit semicolon after a statement, but found none
+  
+  > 1 │ Need to install the following packages:
+      │         ^^^^^^^
+    2 │ supabase@2.15.8
+    3 │ Ok to proceed? (y)·
+  
+  ℹ An explicit or implicit semicolon is expected here...
+  
+  > 1 │ Need to install the following packages:
+      │         ^^^^^^^
+    2 │ supabase@2.15.8
+    3 │ Ok to proceed? (y)·
+  
+  ℹ ...Which is required to end this statement
+  
+  > 1 │ Need to install the following packages:
+      │      ^^^^^^^^^^
+    2 │ supabase@2.15.8
+    3 │ Ok to proceed? (y)·
+  
+
+./types/supabase.ts:1:17 parse ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ✖ Expected a semicolon or an implicit semicolon after a statement, but found none
+  
+  > 1 │ Need to install the following packages:
+      │                 ^^^
+    2 │ supabase@2.15.8
+    3 │ Ok to proceed? (y)·
+  
+  ℹ An explicit or implicit semicolon is expected here...
+  
+  > 1 │ Need to install the following packages:
+      │                 ^^^
+    2 │ supabase@2.15.8
+    3 │ Ok to proceed? (y)·
+  
+  ℹ ...Which is required to end this statement
+  
+  > 1 │ Need to install the following packages:
+      │         ^^^^^^^^^^^
+    2 │ supabase@2.15.8
+    3 │ Ok to proceed? (y)·
+  
+
+./types/supabase.ts:1:21 parse ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ✖ Expected a semicolon or an implicit semicolon after a statement, but found none
+  
+  > 1 │ Need to install the following packages:
+      │                     ^^^^^^^^^
+    2 │ supabase@2.15.8
+    3 │ Ok to proceed? (y)·
+  
+  ℹ An explicit or implicit semicolon is expected here...
+  
+  > 1 │ Need to install the following packages:
+      │                     ^^^^^^^^^
+    2 │ supabase@2.15.8
+    3 │ Ok to proceed? (y)·
+  
+  ℹ ...Which is required to end this statement
+  
+  > 1 │ Need to install the following packages:
+      │                 ^^^^^^^^^^^^^
+    2 │ supabase@2.15.8
+    3 │ Ok to proceed? (y)·
+  
+
+./types/supabase.ts:1:31 parse ━━━━━━━━━━━
