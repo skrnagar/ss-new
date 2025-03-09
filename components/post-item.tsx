@@ -505,26 +505,27 @@ const PostItem = memo(function PostItem({ post, currentUser }: PostItemProps) {
           {/* Image attachment */}
           {post.image_url && (
             <div className="mt-3 rounded-md overflow-hidden">
-              {post.image_url.startsWith("https://lephbkawjuyyygguxqio.supabase.co") ? (
-                <div className="relative w-full max-h-[500px]" style={{ aspectRatio: "16/9" }}>
+              <div className="relative w-full max-h-[500px]" style={{ aspectRatio: "16/9" }}>
+                {post.image_url.startsWith("https://lephbkawjuyyygguxqio.supabase.co") ? (
                   <Image
                     src={post.image_url}
                     alt="Post attachment"
-                    fill
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                    className="object-cover"
+                    width={800}
+                    height={450}
+                    style={{ objectFit: "cover", width: "100%", height: "auto" }}
+                    className="rounded-md"
                     loading="lazy"
                     quality={80}
                   />
-                </div>
-              ) : (
-                <img
-                  src={post.image_url}
-                  alt="Post attachment"
-                  className="w-full object-cover max-h-[500px]"
-                  loading="lazy"
-                />
-              )}
+                ) : (
+                  <img
+                    src={post.image_url}
+                    alt="Post attachment"
+                    className="w-full object-cover max-h-[500px] rounded-md"
+                    loading="lazy"
+                  />
+                )}
+              </div>
             </div>
           )}
 

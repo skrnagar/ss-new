@@ -12,29 +12,34 @@ export default function AuthCallbackPage() {
   useEffect(() => {
     // This code only runs on the client side
     const handleAuthCallback = async () => {
-      const { error } = await supabase.auth.getSession();
-      
-      if (error) {
-        console.error("Error during auth callback:", error);
-        router.push("/auth/login?error=Authentication failed");
-        return;
-      }
-      
-      // Check if user has a profile
-      const { data: profile, error: profileError } = await supabase
-        .from("profiles")
-        .select("*")
-        .single();
-      
-      if (profileError && profileError.code !== "PGRST116") {
-        console.error("Error fetching profile:", profileError);
-      }
-      
-      // Redirect based on profile existence
-      if (profile) {
-        router.push("/feed");
-      } else {
-        router.push("/profile/setup");
+      try {
+        const { error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error("Error during auth callback:", error);
+          router.push("/auth/login?error=Authentication failed");
+          return;
+        }
+        
+        // Check if user has a profile
+        const { data: profile, error: profileError } = await supabase
+          .from("profiles")
+          .select("*")
+          .single();
+        
+        if (profileError && profileError.code !== "PGRST116") {
+          console.error("Error fetching profile:", profileError);
+        }
+        
+        // Redirect based on profile existence
+        if (profile) {
+          router.push("/feed");
+        } else {
+          router.push("/profile/setup");
+        }
+      } catch (err) {
+        console.error("Unexpected error:", err);
+        router.push("/auth/login?error=Unexpected error");
       }
     };
     
