@@ -20,11 +20,7 @@ const nextConfig = {
       },
     ],
   },
-  eslint: {
-    // Set this to false to enable ESLint checking during builds
-    ignoreDuringBuilds: false,
-    dirs: ['app', 'components', 'contexts', 'hooks', 'lib'],
-  },
+  // ESLint configuration removed
 }
 
 export default nextConfig

@@ -1,8 +1,2 @@
 
-node_modules
-.next
-public
-out
-build
-.vercel
-next-env.d.ts
+# ESLint ignore file removed

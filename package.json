@@ -5,8 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
+    "start": "next start"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.3.4",
@@ -40,14 +39,13 @@
     "@supabase/ssr": "^0.1.0",
     "@supabase/supabase-js": "^2.39.8",
     "@types/react": "latest",
-    "@typescript-eslint/eslint-plugin": "^8.26.0",
-    "@typescript-eslint/parser": "^8.26.0",
+    
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
     "cmdk": "^1.0.4",
     "date-fns": "^3.4.0",
     "embla-carousel-react": "8.5.1",
-    "eslint-plugin-react": "^7.37.4",
+    
     "input-otp": "1.4.1",
     "lucide-react": "^0.454.0",
     "next": "14.2.16",
@@ -69,8 +67,7 @@
     "@types/node": "^22",
     "@types/react": "^18",
     "@types/react-dom": "^18",
-    "eslint": "^9.22.0",
-    "eslint-config-next": "15.2.1",
+    
     "postcss": "^8",
     "tailwindcss": "^3.4.17",
     "typescript": "^5"
