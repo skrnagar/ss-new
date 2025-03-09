@@ -52,8 +52,8 @@ interface PostItemProps {
 const PostItem = memo(function PostItem({ post, currentUser }: PostItemProps) {
   const [isExpanded, setIsExpanded] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
-  const [likes, setLikes] = useState([])
-  const [comments, setComments] = useState([])
+  const [likes, setLikes] = useState<any[]>([])
+  const [comments, setComments] = useState<any[]>([])
   const [commentContent, setCommentContent] = useState("")
   const [showComments, setShowComments] = useState(false)
   const [isLiked, setIsLiked] = useState(false)
