@@ -58,7 +58,7 @@ export default function CreateEventPage() {
   }
   
   return (
-    <div className="container py-6 max-w-4xl">
+    <div className="container py-6">
       <div className="mb-6">
         <h1 className="text-3xl font-bold">Create an Event</h1>
         <p className="text-muted-foreground">Share your knowledge and connect with other professionals</p>
