@@ -1,13 +1,31 @@
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: true,
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'lephbkawjuyyygguxqio.supabase.co',
+        port: '',
+        pathname: '/storage/v1/object/public/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'avatars.githubusercontent.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'ui-avatars.com',
+        port: '',
+        pathname: '/**',
+      },
+    ],
+  },
   experimental: {
     instrumentationHook: true,
   },
-  images: {
-    domains: ['lephbkawjuyyygguxqio.supabase.co'],
-  },
-  // ESLint configuration removed
 };
 
 export default nextConfig;
