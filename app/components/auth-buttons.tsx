@@ -1,14 +1,14 @@
 "use client"
 
-import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { cn } from "@/lib/utils"
 
-export function AuthButtons() {
+export function AuthButtons({ className }: { className?: string }) {
   const router = useRouter()
 
   return (
-    <div className="w-full">
+    <div className={cn(className)}>
       <Button 
         onClick={() => router.push('/auth/login')} 
         variant="outline" 
