@@ -35,23 +35,22 @@ export async function setupAvatarsBucket() {
       } else {
         console.log('Created avatars bucket successfully')
         
-        // Set public access policy for the bucket
-        const { error: policyError } = await supabase.storage
+        // Check if bucket needs public policy by attempting to get a URL
+        // (getPublicUrl doesn't return an error, so we need to handle it differently)
+        const { data } = await supabase.storage
           .from('avatars')
           .getPublicUrl('test')
-        
-        if (policyError) {
-          // Update bucket to be public
-          const { error: updateError } = await supabase.storage
-            .updateBucket('avatars', {
-              public: true
-            })
           
-          if (updateError) {
-            console.error('Error setting public policy for avatars bucket:', updateError)
-          } else {
-            console.log('Set public policy for avatars bucket')
-          }
+        // Update bucket to be public (regardless of the result)
+        const { error: updateError } = await supabase.storage
+          .updateBucket('avatars', {
+            public: true
+          })
+        
+        if (updateError) {
+          console.error('Error setting public policy for avatars bucket:', updateError)
+        } else {
+          console.log('Set public policy for avatars bucket')
         }
       }
     } else {
