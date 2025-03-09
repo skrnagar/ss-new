@@ -216,12 +216,12 @@ export function PostCreator({ userProfile }: { userProfile?: Profile | null }) {
       <CardContent className="pt-6">
         <div className="flex items-start gap-4">
           <Avatar className="h-10 w-10">
-            <AvatarImage src={activeProfile.avatar_url} alt={activeProfile.full_name} />
-            <AvatarFallback>{getInitials(activeProfile.full_name)}</AvatarFallback>
+            <AvatarImage src={activeProfile?.avatar_url || ""} alt={activeProfile?.full_name || "User"} />
+            <AvatarFallback>{getInitials(activeProfile?.full_name || "")}</AvatarFallback>
           </Avatar>
           <div className="flex-1 space-y-4">
             <Textarea
-              placeholder={`What's on your mind, ${activeProfile.full_name?.split(' ')[0]}?`}
+              placeholder={`What's on your mind, ${activeProfile?.full_name?.split(' ')[0] || "User"}?`}
               value={content}
               onChange={(e) => setContent(e.target.value)}
               className="min-h-[120px] resize-none"
