@@ -120,7 +120,8 @@ export function PostCreator({ userProfile }: { userProfile?: Profile | null }) {
       // Upload attachment if any
       if (attachmentFile) {
         const fileExt = attachmentFile.name.split('.').pop()
-        const fileName = `${activeProfile.id}-${Date.now()}.${fileExt}`
+        // Ensure activeProfile exists before accessing its id
+        const fileName = `${activeProfile?.id || 'user'}-${Date.now()}.${fileExt}`
         let bucket = ""
 
         if (attachmentType === "image") {
@@ -174,7 +175,7 @@ export function PostCreator({ userProfile }: { userProfile?: Profile | null }) {
       const { data: post, error: postError } = await supabase
         .from('posts')
         .insert({
-          user_id: activeProfile.id,
+          user_id: activeProfile?.id,
           content: content.trim(),
           image_url: imageUrl,
           video_url: videoUrl,
