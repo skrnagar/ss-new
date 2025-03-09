@@ -431,7 +431,7 @@ const PostItem = memo(function PostItem({ post, currentUser }: PostItemProps) {
 
   const shouldTruncate = post.content && post.content.length > MAX_CONTENT_LENGTH
   const displayContent = shouldTruncate && !isExpanded 
-    ? `${post.content.substring(0, MAX_CONTENT_LENGTH)}...` 
+    ? `${post.content?.substring(0, MAX_CONTENT_LENGTH) || ''}...` 
     : post.content
 
   return (
