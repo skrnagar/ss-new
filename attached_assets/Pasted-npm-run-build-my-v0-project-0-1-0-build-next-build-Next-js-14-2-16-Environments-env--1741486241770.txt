@@ -1,0 +1,45 @@
+npm run build
+
+> my-v0-project@0.1.0 build
+> next build
+
+  ▲ Next.js 14.2.16
+  - Environments: .env.local
+  - Experiments (use with caution):
+    · instrumentationHook
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully
+ ✓ Linting and checking validity of types    
+ ✓ Collecting page data    
+   Generating static pages (9/18)  [==  ]ReferenceError: window is not defined
+    at n (/home/runner/workspace/.next/server/app/auth/callback/page.js:1:2298)
+    at nj (/home/runner/workspace/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js:12:46251)
+    at nM (/home/runner/workspace/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js:12:47571)
+    at nN (/home/runner/workspace/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js:12:64546)
+    at nB (/home/runner/workspace/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js:12:67538)
+    at nM (/home/runner/workspace/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js:12:60046)
+    at nN (/home/runner/workspace/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js:12:64546)
+    at nI (/home/runner/workspace/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js:12:47010)
+    at nM (/home/runner/workspace/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js:12:47717)
+    at nN (/home/runner/workspace/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js:12:64546) {
+  digest: '484811411'
+}
+
+Error occurred prerendering page "/auth/callback". Read more: https://nextjs.org/docs/messages/prerender-error
+
+ReferenceError: window is not defined
+    at n (/home/runner/workspace/.next/server/app/auth/callback/page.js:1:2298)
+    at nj (/home/runner/workspace/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js:12:46251)
+    at nM (/home/runner/workspace/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js:12:47571)
+    at nN (/home/runner/workspace/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js:12:64546)
+    at nB (/home/runner/workspace/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js:12:67538)
+    at nM (/home/runner/workspace/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js:12:60046)
+    at nN (/home/runner/workspace/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js:12:64546)
+    at nI (/home/runner/workspace/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js:12:47010)
+    at nM (/home/runner/workspace/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js:12:47717)
+    at nN (/home/runner/workspace/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js:12:64546)
+ ✓ Generating static pages (18/18)
+
+> Export encountered errors on following paths:
+    /auth/callback/page: /auth/callback
