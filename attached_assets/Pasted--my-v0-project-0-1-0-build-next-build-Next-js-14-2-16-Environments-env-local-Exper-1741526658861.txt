@@ -1,0 +1,61 @@
+> my-v0-project@0.1.0 build
+> next build
+
+  ▲ Next.js 14.2.16
+  - Environments: .env.local
+  - Experiments (use with caution):
+    · optimizeCss
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully
+ ✓ Linting and checking validity of types    
+ ✓ Collecting page data    
+   Generating static pages (6/18)  [=== ]
+Error occurred prerendering page "/404". Read more: https://nextjs.org/docs/messages/prerender-error
+
+Error: Cannot find module 'critters'
+Require stack:
+- /home/runner/workspace/node_modules/next/dist/compiled/next-server/pages.runtime.prod.js
+- /home/runner/workspace/.next/server/pages/_document.js
+- /home/runner/workspace/node_modules/next/dist/server/require.js
+- /home/runner/workspace/node_modules/next/dist/server/load-components.js
+- /home/runner/workspace/node_modules/next/dist/build/utils.js
+- /home/runner/workspace/node_modules/next/dist/build/worker.js
+- /home/runner/workspace/node_modules/next/dist/compiled/jest-worker/processChild.js
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1225:15)
+    at /home/runner/workspace/node_modules/next/dist/server/require-hook.js:55:36
+    at Module._load (node:internal/modules/cjs/loader:1051:27)
+    at Module.require (node:internal/modules/cjs/loader:1311:19)
+    at mod.require (/home/runner/workspace/node_modules/next/dist/server/require-hook.js:65:28)
+    at require (node:internal/modules/helpers:179:18)
+    at Object.critters (/home/runner/workspace/node_modules/next/dist/compiled/next-server/pages.runtime.prod.js:14:17952)
+    at r (/home/runner/workspace/node_modules/next/dist/compiled/next-server/pages.runtime.prod.js:14:18476)
+    at /home/runner/workspace/node_modules/next/dist/compiled/next-server/pages.runtime.prod.js:14:13135
+    at u (/home/runner/workspace/node_modules/next/dist/compiled/next-server/pages.runtime.prod.js:14:13382)
+
+Error occurred prerendering page "/500". Read more: https://nextjs.org/docs/messages/prerender-error
+
+Error: Cannot find module 'critters'
+Require stack:
+- /home/runner/workspace/node_modules/next/dist/compiled/next-server/pages.runtime.prod.js
+- /home/runner/workspace/.next/server/pages/_document.js
+- /home/runner/workspace/node_modules/next/dist/server/require.js
+- /home/runner/workspace/node_modules/next/dist/server/load-components.js
+- /home/runner/workspace/node_modules/next/dist/build/utils.js
+- /home/runner/workspace/node_modules/next/dist/build/worker.js
+- /home/runner/workspace/node_modules/next/dist/compiled/jest-worker/processChild.js
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1225:15)
+    at /home/runner/workspace/node_modules/next/dist/server/require-hook.js:55:36
+    at Module._load (node:internal/modules/cjs/loader:1051:27)
+    at Module.require (node:internal/modules/cjs/loader:1311:19)
+    at mod.require (/home/runner/workspace/node_modules/next/dist/server/require-hook.js:65:28)
+    at require (node:internal/modules/helpers:179:18)
+    at Object.critters (/home/runner/workspace/node_modules/next/dist/compiled/next-server/pages.runtime.prod.js:14:17952)
+    at r (/home/runner/workspace/node_modules/next/dist/compiled/next-server/pages.runtime.prod.js:14:18476)
+    at /home/runner/workspace/node_modules/next/dist/compiled/next-server/pages.runtime.prod.js:14:13135
+    at u (/home/runner/workspace/node_modules/next/dist/compiled/next-server/pages.runtime.prod.js:14:13382)
+ ✓ Generating static pages (18/18)
+
+> Export encountered errors on following paths:
+    /_error: /404
+    /_error: /500
