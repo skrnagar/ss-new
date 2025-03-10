@@ -3,6 +3,8 @@
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 
+import React, { useState, useEffect } from "react";
+
 interface ErrorBoundaryProps {
   children: React.ReactNode;
   fallback?: React.ReactNode;
@@ -45,6 +47,38 @@ export function ErrorBoundary({
         event.preventDefault();
       }
     };
+
+    window.addEventListener('error', errorHandler);
+    window.addEventListener('unhandledrejection', handleUnhandledRejection);
+
+    return () => {
+      window.removeEventListener('error', errorHandler);
+      window.removeEventListener('unhandledrejection', handleUnhandledRejection);
+    };
+  }, []);
+
+  if (hasError) {
+    return (
+      <div className="error-boundary">
+        {errorInfo ? (
+          <div className="p-4 bg-red-50 border border-red-200 rounded-md text-red-800">
+            <p className="font-medium">Error: {errorInfo}</p>
+            <button 
+              onClick={() => window.location.reload()} 
+              className="mt-2 px-4 py-2 bg-red-100 text-red-800 rounded-md hover:bg-red-200 transition-colors"
+            >
+              Reload page
+            </button>
+          </div>
+        ) : (
+          fallback
+        )}
+      </div>
+    );
+  }
+
+  return <>{children}</>;
+}
 
     window.addEventListener("error", errorHandler);
     window.addEventListener("unhandledrejection", handleUnhandledRejection);

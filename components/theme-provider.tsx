@@ -1,3 +1,4 @@
+
 "use client";
 
 import { ThemeProvider as NextThemesProvider, type ThemeProviderProps } from "next-themes";
@@ -11,7 +12,7 @@ export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
     setMounted(true);
   }, []);
 
-  // Prevent flash by rendering placeholder before mounting
+  // Prevent flash by rendering children without provider before mounting
   if (!mounted) {
     return <>{children}</>;
   }
