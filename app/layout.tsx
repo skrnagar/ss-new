@@ -3,6 +3,7 @@ import "./globals.css";
 import { Footer } from "@/components/footer";
 import { Navbar } from "@/components/navbar";
 import { AuthProvider } from "@/contexts/auth-context";
+import { ErrorBoundary } from "@/components/error-boundary";
 import type { Metadata } from "next";
 import { Manrope, Poppins } from "next/font/google";
 
@@ -41,13 +42,15 @@ export default function RootLayout({
   return (
     <html lang="en" className={poppins.variable}>
       <body className={`${poppins.className} ${manrope.className}`}>
-        <AuthProvider>
-          <div className="flex flex-col min-h-screen">
-            <Navbar />
-            <main className="flex-grow">{children}</main>
-            <Footer />
-          </div>
-        </AuthProvider>
+        <ErrorBoundary>
+          <AuthProvider>
+            <div className="flex flex-col min-h-screen">
+              <Navbar />
+              <main className="flex-grow">{children}</main>
+              <Footer />
+            </div>
+          </AuthProvider>
+        </ErrorBoundary>
       </body>
     </html>
   );
