@@ -1,9 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { useEffect, useState } from "react";
-
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 
 interface ErrorBoundaryProps {
   children: React.ReactNode;
@@ -24,16 +22,16 @@ export function ErrorBoundary({
   useEffect(() => {
     const errorHandler = (event: ErrorEvent) => {
       console.error("Error caught by boundary:", event.error);
-      
+
       // Check for ChunkLoadError specifically
       const isChunkError = event.error && 
         (event.error.toString().includes('ChunkLoadError') || 
          event.error.toString().includes('Loading chunk'));
-      
+
       if (isChunkError) {
         setErrorInfo("Failed to load a required component. This might be due to network issues.");
       }
-      
+
       setHasError(true);
       event.preventDefault();
     };
@@ -54,38 +52,6 @@ export function ErrorBoundary({
     return () => {
       window.removeEventListener('error', errorHandler);
       window.removeEventListener('unhandledrejection', handleUnhandledRejection);
-    };
-  }, []);
-
-  if (hasError) {
-    return (
-      <div className="error-boundary">
-        {errorInfo ? (
-          <div className="p-4 bg-red-50 border border-red-200 rounded-md text-red-800">
-            <p className="font-medium">Error: {errorInfo}</p>
-            <button 
-              onClick={() => window.location.reload()} 
-              className="mt-2 px-4 py-2 bg-red-100 text-red-800 rounded-md hover:bg-red-200 transition-colors"
-            >
-              Reload page
-            </button>
-          </div>
-        ) : (
-          fallback
-        )}
-      </div>
-    );
-  }
-
-  return <>{children}</>;
-}
-
-    window.addEventListener("error", errorHandler);
-    window.addEventListener("unhandledrejection", handleUnhandledRejection);
-    
-    return () => {
-      window.removeEventListener("error", errorHandler);
-      window.removeEventListener("unhandledrejection", handleUnhandledRejection);
     };
   }, []);
 
