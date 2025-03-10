@@ -73,21 +73,29 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setIsLoading(true);
 
       try {
+        console.log("Initializing auth state...");
         // Get initial session
         const {
           data: { session },
         } = await supabase.auth.getSession();
+        
+        console.log("Session loaded:", !!session);
         setSession(session);
         setUser(session?.user || null);
 
         // Fetch profile if user exists
         if (session?.user) {
+          console.log("User found in session, fetching profile...");
           const profileData = await fetchProfile(session.user.id);
+          console.log("Profile loaded:", !!profileData);
           setProfile(profileData);
+        } else {
+          console.log("No user in session");
         }
       } catch (error) {
         console.error("Error initializing auth:", error);
       } finally {
+        console.log("Auth initialization complete");
         setIsLoading(false);
       }
     };
