@@ -122,15 +122,18 @@ export default function FeedPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div className="md:col-span-2 space-y-6">
           {/* Post creation card */}
-          {userProfile ? (
-            <PostCreator userProfile={userProfile || null} />
-          ) : user?.id ? (
-            <Card>
-              <CardContent className="py-6 text-center">
-                <p className="text-muted-foreground mb-2">Complete your profile to start posting</p>
-                <Button onClick={() => router.push("/profile/setup")}>Set Up Profile</Button>
-              </CardContent>
-            </Card>
+          {/* Use user as primary check, userProfile as secondary */}
+          {user ? (
+            userProfile ? (
+              <PostCreator userProfile={userProfile} />
+            ) : (
+              <Card>
+                <CardContent className="py-6 text-center">
+                  <p className="text-muted-foreground mb-2">Complete your profile to start posting</p>
+                  <Button onClick={() => router.push("/profile/setup")}>Set Up Profile</Button>
+                </CardContent>
+              </Card>
+            )
           ) : (
             <Card>
               <CardContent className="py-6 text-center">

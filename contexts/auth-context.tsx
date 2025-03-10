@@ -37,7 +37,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   // Function to fetch profile data
   const fetchProfile = async (userId: string) => {
     try {
-      const { data } = await supabase.from("profiles").select("*").eq("id", userId).single();
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("id, username, full_name, avatar_url, headline, position, company")
+        .eq("id", userId)
+        .single();
+
+      if (error) {
+        console.error("Error fetching profile:", error);
+        return null;
+      }
 
       return data;
     } catch (error) {
@@ -92,6 +101,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       // Fetch profile if user exists
       if (session?.user) {
         const profileData = await fetchProfile(session.user.id);
+        console.log("Profile data fetched:", profileData ? "found" : "not found");
         setProfile(profileData);
       } else {
         setProfile(null);
