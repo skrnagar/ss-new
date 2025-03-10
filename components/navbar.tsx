@@ -39,60 +39,10 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { memo, useMemo, useCallback } from "react";
+import { memo, useCallback } from "react";
 
 // Memoize the Navbar component to prevent unnecessary re-renders
 export const Navbar = memo(function Navbar() {
-  const { user, isLoading } = useAuth();
-  const router = useRouter();
-  const { toast } = useToast();
-  const isMobile = useMobile();
-
-  const handleSignOut = async () => {
-    try {
-      // Call the server-side signout API
-      const response = await fetch("/api/auth/signout", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (response.ok) {
-        toast({
-          title: "Signed out successfully",
-        });
-
-        // Use replace to completely reset navigation history
-        router.replace("/");
-      } else {
-        throw new Error("Sign out failed");
-      }
-    } catch (error) {
-      console.error("Sign out error:", error);
-      toast({
-        title: "Sign out failed",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const getInitials = (name: string): string => {
-    if (!name) return "U";
-    return name
-      .split(" ")
-      .map((part) => part?.[0] || "")
-      .join("")
-      .toUpperCase()
-      .substring(0, 2);
-  };
-
-  const getUserName = () => {
-    if (!user) return "User";
-    return user?.user_metadata?.name || user?.email?.split("@")[0] || "User";
-  };
-
-  // Memoize expensive parts of the component
   const router = useRouter();
   const { toast } = useToast();
   const isMobile = useMobile();
@@ -157,6 +107,7 @@ export const Navbar = memo(function Navbar() {
               style={{ width: "auto", height: "auto" }}
               priority
             />
+          </Link>
 
           {user && !isMobile && (
             <NavigationMenu>
@@ -382,4 +333,4 @@ export const Navbar = memo(function Navbar() {
       </div>
     </header>
   );
-}));
+});
