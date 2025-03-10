@@ -36,7 +36,7 @@ const PostItem = dynamic(() => import("@/components/post-item").then((mod) => mo
 export default function FeedPage() {
   const [posts, setPosts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const { user, profile: userProfile, isLoading: authLoading } = useAuth();
+  const { user, profile: userProfile, isLoading: authLoading, session } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
