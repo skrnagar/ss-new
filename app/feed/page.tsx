@@ -257,7 +257,14 @@ export default function FeedPage() {
         <div className="hidden md:block space-y-6">
           <Card>
             <CardContent className="pt-6">
-              {userProfile ? (
+              {authLoading ? (
+                <div className="flex flex-col items-center text-center mb-4">
+                  <Skeleton className="h-16 w-16 rounded-full mb-3" />
+                  <Skeleton className="h-5 w-36 mb-2" />
+                  <Skeleton className="h-4 w-48 mb-4" />
+                  <Skeleton className="h-9 w-full rounded-md" />
+                </div>
+              ) : userProfile ? (
                 <div className="flex flex-col items-center text-center mb-4">
                   <Avatar className="h-16 w-16 mb-3">
                     <AvatarImage
@@ -295,93 +302,133 @@ export default function FeedPage() {
           <Card>
             <CardContent className="pt-6">
               <h3 className="font-semibold mb-3">Upcoming Events</h3>
-              <div className="space-y-3">
-                <div className="border rounded-md p-3">
-                  <div className="flex items-center gap-2 mb-1">
-                    <Clock className="h-4 w-4 text-primary" />
-                    <span className="text-sm font-medium">Tomorrow, 3:00 PM</span>
+              {authLoading ? (
+                <div className="space-y-3">
+                  <div className="border rounded-md p-3">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Skeleton className="h-4 w-4 rounded-full" />
+                      <Skeleton className="h-4 w-32" />
+                    </div>
+                    <Skeleton className="h-5 w-3/4 mb-2" />
+                    <Skeleton className="h-4 w-full" />
                   </div>
-                  <h4 className="font-medium">ESG Reporting Best Practices</h4>
-                  <p className="text-sm text-muted-foreground">
-                    Join industry experts for a webinar on ESG reporting standards
-                  </p>
-                </div>
-
-                <div className="border rounded-md p-3">
-                  <div className="flex items-center gap-2 mb-1">
-                    <Clock className="h-4 w-4 text-primary" />
-                    <span className="text-sm font-medium">May 15, 2:00 PM</span>
+                  <div className="border rounded-md p-3">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Skeleton className="h-4 w-4 rounded-full" />
+                      <Skeleton className="h-4 w-32" />
+                    </div>
+                    <Skeleton className="h-5 w-3/4 mb-2" />
+                    <Skeleton className="h-4 w-full" />
                   </div>
-                  <h4 className="font-medium">Workplace Safety Forum</h4>
-                  <p className="text-sm text-muted-foreground">
-                    Virtual panel discussion on improving safety culture
-                  </p>
+                  <Skeleton className="h-4 w-24" />
                 </div>
+              ) : (
+                <div className="space-y-3">
+                  <div className="border rounded-md p-3">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Clock className="h-4 w-4 text-primary" />
+                      <span className="text-sm font-medium">Tomorrow, 3:00 PM</span>
+                    </div>
+                    <h4 className="font-medium">ESG Reporting Best Practices</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Join industry experts for a webinar on ESG reporting standards
+                    </p>
+                  </div>
 
-                <Button variant="link" className="px-0">
-                  See all events
-                </Button>
-              </div>
+                  <div className="border rounded-md p-3">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Clock className="h-4 w-4 text-primary" />
+                      <span className="text-sm font-medium">May 15, 2:00 PM</span>
+                    </div>
+                    <h4 className="font-medium">Workplace Safety Forum</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Virtual panel discussion on improving safety culture
+                    </p>
+                  </div>
+
+                  <Button variant="link" className="px-0">
+                    See all events
+                  </Button>
+                </div>
+              )}
             </CardContent>
           </Card>
 
           <Card>
             <CardContent className="pt-6">
               <h3 className="font-semibold mb-3">Suggested Connections</h3>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Avatar className="h-8 w-8">
-                      <AvatarFallback>JP</AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <p className="text-sm font-medium">James Peterson</p>
-                      <p className="text-xs text-muted-foreground">
-                        Safety Director at Construct Co.
-                      </p>
+              {authLoading ? (
+                <div className="space-y-4">
+                  {[1, 2, 3].map((_, index) => (
+                    <div key={index} className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Skeleton className="h-8 w-8 rounded-full" />
+                        <div>
+                          <Skeleton className="h-4 w-24 mb-1" />
+                          <Skeleton className="h-3 w-36" />
+                        </div>
+                      </div>
+                      <Skeleton className="h-8 w-16 rounded-md" />
                     </div>
+                  ))}
+                  <Skeleton className="h-4 w-32" />
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Avatar className="h-8 w-8">
+                        <AvatarFallback>JP</AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <p className="text-sm font-medium">James Peterson</p>
+                        <p className="text-xs text-muted-foreground">
+                          Safety Director at Construct Co.
+                        </p>
+                      </div>
+                    </div>
+                    <Button variant="outline" size="sm">
+                      Connect
+                    </Button>
                   </div>
-                  <Button variant="outline" size="sm">
-                    Connect
+
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Avatar className="h-8 w-8">
+                        <AvatarFallback>MJ</AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <p className="text-sm font-medium">Maria Johnson</p>
+                        <p className="text-xs text-muted-foreground">ESG Analyst at Green Metrics</p>
+                      </div>
+                    </div>
+                    <Button variant="outline" size="sm">
+                      Connect
+                    </Button>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Avatar className="h-8 w-8">
+                        <AvatarFallback>RL</AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <p className="text-sm font-medium">Robert Lee</p>
+                        <p className="text-xs text-muted-foreground">
+                          EHS Manager at Industrial Tech
+                        </p>
+                      </div>
+                    </div>
+                    <Button variant="outline" size="sm">
+                      Connect
+                    </Button>
+                  </div>
+
+                  <Button variant="link" className="px-0">
+                    See more suggestions
                   </Button>
                 </div>
-
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Avatar className="h-8 w-8">
-                      <AvatarFallback>MJ</AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <p className="text-sm font-medium">Maria Johnson</p>
-                      <p className="text-xs text-muted-foreground">ESG Analyst at Green Metrics</p>
-                    </div>
-                  </div>
-                  <Button variant="outline" size="sm">
-                    Connect
-                  </Button>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Avatar className="h-8 w-8">
-                      <AvatarFallback>RL</AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <p className="text-sm font-medium">Robert Lee</p>
-                      <p className="text-xs text-muted-foreground">
-                        EHS Manager at Industrial Tech
-                      </p>
-                    </div>
-                  </div>
-                  <Button variant="outline" size="sm">
-                    Connect
-                  </Button>
-                </div>
-
-                <Button variant="link" className="px-0">
-                  See more suggestions
-                </Button>
-              </div>
+              )}
             </CardContent>
           </Card>
         </div>
