@@ -138,7 +138,7 @@ export default function FeedPage() {
             ) : (
               <Card className="mb-6">
                 <CardContent className="pt-6">
-                  <div className="text-center py-8 animate-fadeIn"> {/* Added animation */}
+                  <div className="text-center py-8">
                     <h3 className="text-lg font-medium mb-2">Complete your profile</h3>
                     <p className="text-muted-foreground mb-4">
                       Set up your profile to start posting and connecting with others.
@@ -152,7 +152,7 @@ export default function FeedPage() {
             )
           ) : (
             <Card className="mb-6">
-              <CardContent className="p-6 animate-fadeIn"> {/* Added animation */}
+              <CardContent className="p-6">
                 <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
                   <div>
                     <h3 className="text-lg font-medium">Sign in to create posts and interact with the community</h3>
@@ -191,7 +191,7 @@ export default function FeedPage() {
               ))
           ) : posts.length > 0 ? (
             posts.map((post) => (
-              <div key={post.id} className="animate-fadeIn">{post && <PostItem post={post} currentUser={userProfile} />}</div>
+              <div key={post.id}>{post && <PostItem post={post} currentUser={userProfile} />}</div>
             ))
           ) : (
             <Card>
@@ -234,7 +234,7 @@ export default function FeedPage() {
                   </Button>
                 </div>
               ) : (
-                <div className="text-center py-4 animate-fadeIn"> {/* Added animation */}
+                <div className="text-center py-4">
                   <p className="text-muted-foreground mb-3">
                     Sign in to access your profile and all features
                   </p>
@@ -244,11 +244,11 @@ export default function FeedPage() {
             </CardContent>
           </Card>
 
-          <Card className="animate-fadeIn"> {/* Added animation */}
+          <Card>
             <CardContent className="pt-6">
               <h3 className="font-semibold mb-3">Upcoming Events</h3>
               <div className="space-y-3">
-                <div className="border rounded-md p-3 event-item"> {/* Added event-item class */}
+                <div className="border rounded-md p-3">
                   <div className="flex items-center gap-2 mb-1">
                     <Clock className="h-4 w-4 text-primary" />
                     <span className="text-sm font-medium">Tomorrow, 3:00 PM</span>
@@ -259,7 +259,7 @@ export default function FeedPage() {
                   </p>
                 </div>
 
-                <div className="border rounded-md p-3 event-item"> {/* Added event-item class */}
+                <div className="border rounded-md p-3">
                   <div className="flex items-center gap-2 mb-1">
                     <Clock className="h-4 w-4 text-primary" />
                     <span className="text-sm font-medium">May 15, 2:00 PM</span>
