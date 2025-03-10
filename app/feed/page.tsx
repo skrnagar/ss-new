@@ -122,8 +122,8 @@ export default function FeedPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div className="md:col-span-2 space-y-6">
           {/* Post creation card */}
-          {/* Use user as primary check, userProfile as secondary */}
-          {user ? (
+          {/* Only show profile setup if we're sure the user is logged in but has no profile */}
+          {session && user ? (
             userProfile ? (
               <PostCreator userProfile={userProfile} />
             ) : (

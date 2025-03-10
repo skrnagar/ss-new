@@ -37,6 +37,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   // Function to fetch profile data
   const fetchProfile = async (userId: string) => {
     try {
+      console.log("Fetching profile for user ID:", userId);
+      
       const { data, error } = await supabase
         .from("profiles")
         .select("id, username, full_name, avatar_url, headline, position, company")
@@ -45,12 +47,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       if (error) {
         console.error("Error fetching profile:", error);
+        console.error("Error code:", error.code, "Message:", error.message);
         return null;
       }
 
+      console.log("Profile data retrieved:", data ? "success" : "not found");
       return data;
     } catch (error) {
-      console.error("Error fetching profile:", error);
+      console.error("Exception in fetchProfile:", error);
       return null;
     }
   };
