@@ -26,6 +26,10 @@ export function createClient() {
         cookieStore.set({ name, value: "", ...options });
       },
     },
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    }
   });
 }
 

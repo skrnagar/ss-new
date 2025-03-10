@@ -2,10 +2,28 @@ import type { Database } from "@/types/supabase";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 
 // Create a Supabase client for client-side usage
-export const supabase = createClientComponentClient<Database>();
+export const supabase = createClientComponentClient<Database>({
+  options: {
+    global: {
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      }
+    }
+  }
+});
 
 // Export a function that provides a fresh client instance when needed
-export const getSupabaseClient = () => createClientComponentClient<Database>();
+export const getSupabaseClient = () => createClientComponentClient<Database>({
+  options: {
+    global: {
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      }
+    }
+  }
+});
 
 // Utility function to check database health
 export const checkDatabaseHealth = async () => {
