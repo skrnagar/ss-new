@@ -39,8 +39,10 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { memo, useMemo, useCallback } from "react";
 
-export function Navbar() {
+// Memoize the Navbar component to prevent unnecessary re-renders
+export const Navbar = memo(function Navbar() {
   const { user, isLoading } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
@@ -90,11 +92,62 @@ export function Navbar() {
     return user?.user_metadata?.name || user?.email?.split("@")[0] || "User";
   };
 
+  // Memoize expensive parts of the component
+  const router = useRouter();
+  const { toast } = useToast();
+  const isMobile = useMobile();
+  const { user, isLoading } = useAuth();
+
+  // Memoize handler functions to prevent recreation on every render
+  const handleSignOut = useCallback(async () => {
+    try {
+      // Call the server-side signout API
+      const response = await fetch("/api/auth/signout", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response.ok) {
+        toast({
+          title: "Signed out successfully",
+        });
+
+        // Use replace to completely reset navigation history
+        router.replace("/");
+      } else {
+        throw new Error("Sign out failed");
+      }
+    } catch (error) {
+      console.error("Sign out error:", error);
+      toast({
+        title: "Sign out failed",
+        variant: "destructive",
+      });
+    }
+  }, [router, toast]);
+
+  const getInitials = useCallback((name: string): string => {
+    if (!name) return "U";
+    return name
+      .split(" ")
+      .map((part) => part?.[0] || "")
+      .join("")
+      .toUpperCase()
+      .substring(0, 2);
+  }, []);
+
+  const getUserName = useCallback(() => {
+    if (!user) return "User";
+    return user?.user_metadata?.name || user?.email?.split("@")[0] || "User";
+  }, [user]);
+
   return (
     <header className="sticky top-0 z-40 border-b bg-background">
       <div className="container flex h-16 items-center justify-between py-4">
         <div className="flex items-center gap-4">
-          <Link href="/" className="flex items-center">
+          <Link href="/" className="flex items-center" prefetch={true}>
             <Image
               src="/slogos.png"
               alt="Safety Shaper Logo"
@@ -104,20 +157,19 @@ export function Navbar() {
               style={{ width: "auto", height: "auto" }}
               priority
             />
-          </Link>
 
           {user && !isMobile && (
             <NavigationMenu>
               <NavigationMenuList>
                 <NavigationMenuItem>
-                  <Link href="/feed" legacyBehavior passHref>
+                  <Link href="/feed" legacyBehavior passHref prefetch={true}>
                     <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                       Home
                     </NavigationMenuLink>
                   </Link>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
-                  <Link href="/knowledge" legacyBehavior passHref>
+                  <Link href="/knowledge" legacyBehavior passHref prefetch={true}>
                     <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                       Knowledge Hub
                     </NavigationMenuLink>
@@ -330,4 +382,4 @@ export function Navbar() {
       </div>
     </header>
   );
-}
+}));

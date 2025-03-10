@@ -56,3 +56,33 @@ function arePropsEqual(prevProps: AnyProps, nextProps: AnyProps): boolean {
     return prevValue === nextValue;
   });
 }
+"use client";
+
+import { memo, useMemo } from 'react';
+
+/**
+ * A utility function to create a memoized component with dependencies
+ * This is useful for components that should only re-render when specific props change
+ * 
+ * @param Component The component to memoize
+ * @param propsAreEqual Custom function to determine if props are equal (optional)
+ * @returns Memoized component
+ */
+export function createMemoComponent<P extends object>(
+  Component: React.ComponentType<P>,
+  propsAreEqual?: (prevProps: P, nextProps: P) => boolean
+) {
+  return memo(Component, propsAreEqual);
+}
+
+/**
+ * Hook to memoize expensive calculations or component parts
+ * This ensures they don't recalculate on every render
+ * 
+ * @param factory Function that returns the value to memoize
+ * @param dependencies Array of dependencies that should trigger recalculation
+ * @returns Memoized value
+ */
+export function useMemoValue<T>(factory: () => T, dependencies: React.DependencyList): T {
+  return useMemo(factory, dependencies);
+}

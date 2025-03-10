@@ -1,10 +1,28 @@
 import type React from "react";
 import "./globals.css";
 import { Footer } from "@/components/footer";
-import { Navbar } from "@/components/navbar";
 import { AuthProvider } from "@/contexts/auth-context";
 import type { Metadata } from "next";
 import { Manrope, Poppins } from "next/font/google";
+import dynamic from "next/dynamic";
+import { Suspense } from "react";
+
+// Dynamically import Navbar with Suspense
+const Navbar = dynamic(() => import("@/components/navbar").then(mod => ({ default: mod.Navbar })), {
+  ssr: true,
+  loading: () => (
+    <header className="sticky top-0 z-40 border-b bg-background">
+      <div className="container flex h-16 items-center justify-between py-4">
+        <div className="flex items-center gap-4">
+          <div className="mr-2 h-9 w-9 bg-muted rounded-md animate-pulse"></div>
+        </div>
+        <div className="flex items-center gap-4">
+          <div className="w-32 h-8 bg-muted rounded-md animate-pulse"></div>
+        </div>
+      </div>
+    </header>
+  )
+});
 
 // Configure the Poppins font
 const poppins = Poppins({
@@ -43,7 +61,20 @@ export default function RootLayout({
       <body className={`${poppins.className} ${manrope.className}`}>
         <AuthProvider>
           <div className="flex flex-col min-h-screen">
-            <Navbar />
+            <Suspense fallback={
+              <header className="sticky top-0 z-40 border-b bg-background">
+                <div className="container flex h-16 items-center justify-between py-4">
+                  <div className="flex items-center gap-4">
+                    <div className="mr-2 h-9 w-9 bg-muted rounded-md animate-pulse"></div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div className="w-32 h-8 bg-muted rounded-md animate-pulse"></div>
+                  </div>
+                </div>
+              </header>
+            }>
+              <Navbar />
+            </Suspense>
             <main className="flex-grow">{children}</main>
             <Footer />
           </div>
