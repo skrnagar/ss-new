@@ -1,4 +1,7 @@
-import { memo, useEffect, useRef, useState } from "react";
+
+"use client";
+
+import { memo, useEffect, useRef, useState, useMemo } from "react";
 
 // Generic type for props
 type AnyProps = Record<string, any>;
@@ -15,8 +18,34 @@ export function useMemoComponent<P extends AnyProps>(
 ) {
   // Use React.memo with custom comparison if provided
   const MemoizedComponent = useRef(memo(Component, propsAreEqual || arePropsEqual)).current;
-
   return MemoizedComponent;
+}
+
+/**
+ * A utility function to create a memoized component with dependencies
+ * This is useful for components that should only re-render when specific props change
+ * 
+ * @param Component The component to memoize
+ * @param propsAreEqual Custom function to determine if props are equal (optional)
+ * @returns Memoized component
+ */
+export function createMemoComponent<P extends object>(
+  Component: React.ComponentType<P>,
+  propsAreEqual?: (prevProps: P, nextProps: P) => boolean
+) {
+  return memo(Component, propsAreEqual);
+}
+
+/**
+ * Hook to memoize expensive calculations or component parts
+ * This ensures they don't recalculate on every render
+ * 
+ * @param factory Function that returns the value to memoize
+ * @param dependencies Array of dependencies that should trigger recalculation
+ * @returns Memoized value
+ */
+export function useMemoValue<T>(factory: () => T, dependencies: React.DependencyList): T {
+  return useMemo(factory, dependencies);
 }
 
 // Default deep comparison function
@@ -55,34 +84,4 @@ function arePropsEqual(prevProps: AnyProps, nextProps: AnyProps): boolean {
     // For primitive values, do a simple equality check
     return prevValue === nextValue;
   });
-}
-"use client";
-
-import { memo, useMemo } from 'react';
-
-/**
- * A utility function to create a memoized component with dependencies
- * This is useful for components that should only re-render when specific props change
- * 
- * @param Component The component to memoize
- * @param propsAreEqual Custom function to determine if props are equal (optional)
- * @returns Memoized component
- */
-export function createMemoComponent<P extends object>(
-  Component: React.ComponentType<P>,
-  propsAreEqual?: (prevProps: P, nextProps: P) => boolean
-) {
-  return memo(Component, propsAreEqual);
-}
-
-/**
- * Hook to memoize expensive calculations or component parts
- * This ensures they don't recalculate on every render
- * 
- * @param factory Function that returns the value to memoize
- * @param dependencies Array of dependencies that should trigger recalculation
- * @returns Memoized value
- */
-export function useMemoValue<T>(factory: () => T, dependencies: React.DependencyList): T {
-  return useMemo(factory, dependencies);
 }
