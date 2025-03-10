@@ -6,6 +6,28 @@
 /* Defer non-critical animations */
 @layer utilities {
   .animate-delayed {
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+/* Add a staggered loading animation for event items */
+.event-item {
+  opacity: 0;
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+.event-item:nth-child(1) { animation-delay: 0.1s; }
+.event-item:nth-child(2) { animation-delay: 0.2s; }
+.event-item:nth-child(3) { animation-delay: 0.3s; }
+.event-item:nth-child(4) { animation-delay: 0.4s; }
+.event-item:nth-child(5) { animation-delay: 0.5s; }
+
     animation-delay: 200ms;
   }
 }
