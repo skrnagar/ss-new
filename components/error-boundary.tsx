@@ -1,85 +1,21 @@
-
 "use client";
 
 import { Button } from "@/components/ui/button";
-import * as React from "react";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 
 interface ErrorBoundaryProps {
   children: React.ReactNode;
   fallback?: React.ReactNode;
 }
 
-export class ErrorBoundary extends React.Component<
-  ErrorBoundaryProps,
-  { hasError: boolean; error: Error | null }
-> {
-  constructor(props: ErrorBoundaryProps) {
-    super(props);
-    this.state = { hasError: false, error: null };
-  }
-
-  static getDerivedStateFromError(error: Error) {
-    return { hasError: true, error };
-  }
-
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error("Error caught by boundary:", error);
-    console.error("Component stack:", errorInfo.componentStack);
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return this.props.fallback || <ErrorFallback error={this.state.error} />;
-    }
-
-    return this.props.children;
-  }
-}
-
-function ErrorFallback({ error }: { error: Error | null }) {
-  const [isRetrying, setIsRetrying] = useState(false);
-
-  const handleRetry = () => {
-    setIsRetrying(true);
-    // Force reload the page
-    window.location.reload();
-  };
-
-  const isChunkError = error?.message?.includes("ChunkLoadError") || 
-                        error?.message?.includes("Loading chunk");
-
-  return (
-    <div className="min-h-screen flex items-center justify-center p-4">
-      <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-6 border">
-        <h2 className="text-2xl font-bold text-red-600 mb-4">
-          {isChunkError ? "Content Loading Error" : "Something went wrong"}
-        </h2>
-        <p className="text-gray-700 mb-4">
-          {isChunkError
-            ? "We're having trouble loading some resources. This could be due to a network issue or temporary server problem."
-            : error?.message || "An unexpected error occurred."}
-        </p>
-        <div className="flex gap-4">
-          <Button
-            onClick={handleRetry}
-            disabled={isRetrying}
-            className="w-full"
-          >
-            {isRetrying ? "Reloading..." : "Reload Page"}
-          </Button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// Client component to handle runtime errors
-export function ClientErrorBoundary({
+export function ErrorBoundary({
   children,
-}: {
-  children: React.ReactNode;
-}) {
+  fallback = (
+    <div className="p-4 bg-red-50 border border-red-200 rounded-md text-red-800">
+      Something went wrong. Please try again.
+    </div>
+  ),
+}: ErrorBoundaryProps) {
   const [hasError, setHasError] = useState(false);
   const [errorInfo, setErrorInfo] = useState<string | null>(null);
 
@@ -94,8 +30,6 @@ export function ClientErrorBoundary({
       
       if (isChunkError) {
         setErrorInfo("Failed to load a required component. This might be due to network issues.");
-      } else {
-        setErrorInfo(event.error?.message || "An unexpected error occurred");
       }
       
       setHasError(true);
@@ -148,3 +82,5 @@ export function ClientErrorBoundary({
 
   return <>{children}</>;
 }
+
+export default ErrorBoundary;

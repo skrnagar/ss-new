@@ -1,19 +1,37 @@
-"use client";
-
-import { ThemeProvider } from "@/components/theme-provider";
-import { ErrorBoundary } from "@/components/error-boundary";
-import { Toaster } from "@/components/ui/toaster";
-import { AuthProvider } from "@/contexts/auth-context";
-import dynamic from "next/dynamic";
+import type React from "react";
 import "./globals.css";
-
-// Import components normally instead of using dynamic import
+import { Footer } from "@/components/footer";
 import { Navbar } from "@/components/navbar";
+import { AuthProvider } from "@/contexts/auth-context";
+import type { Metadata } from "next";
+import { Manrope, Poppins } from "next/font/google";
 
-// Use a simple function component for footer
-const Footer = dynamic(() => import("@/components/footer"), {
-  ssr: true,
+// Configure the Poppins font
+const poppins = Poppins({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+  display: "swap",
+  variable: "--font-poppins",
+  preload: true,
+  fallback: ["system-ui", "sans-serif"],
 });
+
+// Configure the Manrope font
+const manrope = Manrope({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+  display: "swap",
+  variable: "--font-manrope",
+  preload: true,
+  fallback: ["system-ui", "sans-serif"],
+});
+
+export const metadata: Metadata = {
+  title: "Safety Shaper - ESG & EHS Professional Network",
+  description:
+    "Connect with ESG and EHS professionals, share knowledge, find jobs, and manage compliance.",
+  generator: "v0.dev",
+};
 
 export default function RootLayout({
   children,
@@ -21,25 +39,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className="min-h-screen bg-background">
-        <ErrorBoundary>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
-            <AuthProvider>
-              <div className="min-h-screen flex flex-col">
-                <Navbar />
-                <main className="flex-grow">{children}</main>
-                <Footer />
-              </div>
-              <Toaster />
-            </AuthProvider>
-          </ThemeProvider>
-        </ErrorBoundary>
+    <html lang="en" className={poppins.variable}>
+      <body className={`${poppins.className} ${manrope.className}`}>
+        <AuthProvider>
+          <div className="flex flex-col min-h-screen">
+            <Navbar />
+            <main className="flex-grow">{children}</main>
+            <Footer />
+          </div>
+        </AuthProvider>
       </body>
     </html>
   );
