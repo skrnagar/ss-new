@@ -25,13 +25,50 @@ const PostCreator = dynamic(
   () => import("@/components/post-creator").then((mod) => mod.PostCreator),
   {
     ssr: false,
-    loading: () => <div className="p-6 bg-muted/30 rounded-md animate-pulse"></div>,
+    loading: () => (
+      <Card>
+        <CardContent className="pt-6">
+          <div className="flex items-start gap-4">
+            <Skeleton className="h-10 w-10 rounded-full" />
+            <div className="flex-1 space-y-4">
+              <Skeleton className="h-20 w-full rounded-md" />
+              <div className="flex justify-between">
+                <div className="flex gap-2">
+                  <Skeleton className="h-8 w-20 rounded-md" />
+                  <Skeleton className="h-8 w-20 rounded-md" />
+                  <Skeleton className="h-8 w-20 rounded-md" />
+                </div>
+                <Skeleton className="h-8 w-16 rounded-md" />
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    ),
   }
 );
 
 const PostItem = dynamic(() => import("@/components/post-item").then((mod) => mod.default), {
   ssr: false,
-  loading: () => <div className="p-6 bg-muted/30 rounded-md animate-pulse"></div>,
+  loading: () => (
+    <Card>
+      <CardContent className="pt-6">
+        <div className="flex items-start gap-3 mb-4">
+          <Skeleton className="h-10 w-10 rounded-full" />
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-[120px]" />
+            <Skeleton className="h-3 w-[160px]" />
+          </div>
+        </div>
+        <div className="space-y-2 mb-4">
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-3/4" />
+        </div>
+        <Skeleton className="h-[200px] w-full rounded-md" />
+      </CardContent>
+    </Card>
+  ),
 });
 
 export default function FeedPage() {
@@ -123,12 +160,23 @@ export default function FeedPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div className="md:col-span-2 space-y-6">
           {/* Post creation card */}
-          {/* Show loading state while auth is loading */}
+          {/* Show skeleton state while auth is loading */}
           {authLoading ? (
             <Card className="mb-6">
               <CardContent className="p-6">
-                <div className="flex items-center justify-center py-8">
-                  <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
+                <div className="flex items-start gap-4">
+                  <Skeleton className="h-10 w-10 rounded-full" />
+                  <div className="flex-1 space-y-4">
+                    <Skeleton className="h-20 w-full rounded-md" />
+                    <div className="flex justify-between">
+                      <div className="flex gap-2">
+                        <Skeleton className="h-8 w-20 rounded-md" />
+                        <Skeleton className="h-8 w-20 rounded-md" />
+                        <Skeleton className="h-8 w-20 rounded-md" />
+                      </div>
+                      <Skeleton className="h-8 w-16 rounded-md" />
+                    </div>
+                  </div>
                 </div>
               </CardContent>
             </Card>
