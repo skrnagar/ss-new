@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 interface ErrorBoundaryProps {
   children: React.ReactNode;
@@ -22,16 +22,16 @@ export function ErrorBoundary({
   useEffect(() => {
     const errorHandler = (event: ErrorEvent) => {
       console.error("Error caught by boundary:", event.error);
-
+      
       // Check for ChunkLoadError specifically
       const isChunkError = event.error && 
         (event.error.toString().includes('ChunkLoadError') || 
          event.error.toString().includes('Loading chunk'));
-
+      
       if (isChunkError) {
         setErrorInfo("Failed to load a required component. This might be due to network issues.");
       }
-
+      
       setHasError(true);
       event.preventDefault();
     };
@@ -46,12 +46,12 @@ export function ErrorBoundary({
       }
     };
 
-    window.addEventListener('error', errorHandler);
-    window.addEventListener('unhandledrejection', handleUnhandledRejection);
-
+    window.addEventListener("error", errorHandler);
+    window.addEventListener("unhandledrejection", handleUnhandledRejection);
+    
     return () => {
-      window.removeEventListener('error', errorHandler);
-      window.removeEventListener('unhandledrejection', handleUnhandledRejection);
+      window.removeEventListener("error", errorHandler);
+      window.removeEventListener("unhandledrejection", handleUnhandledRejection);
     };
   }, []);
 
