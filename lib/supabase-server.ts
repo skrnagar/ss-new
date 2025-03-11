@@ -25,10 +25,6 @@ export function createClient() {
       remove(name, options) {
         cookieStore.set({ name, value: "", ...options });
       },
-    },
-    headers: {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json'
     }
   });
 }
