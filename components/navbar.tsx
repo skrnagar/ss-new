@@ -126,6 +126,13 @@ export const Navbar = memo(function Navbar() {
                     </NavigationMenuLink>
                   </Link>
                 </NavigationMenuItem>
+                <NavigationMenuItem>
+                  <Link href="/messages" legacyBehavior passHref prefetch={true}>
+                    <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                      Messages
+                    </NavigationMenuLink>
+                  </Link>
+                </NavigationMenuItem>
               </NavigationMenuList>
             </NavigationMenu>
           )}
