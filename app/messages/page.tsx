@@ -6,6 +6,7 @@ import { useAuth } from "@/contexts/auth-context";
 import { supabase } from "@/lib/supabase";
 import { ChatWindow } from "@/components/chat/chat-window";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 interface Conversation {
   id: string;
@@ -13,7 +14,6 @@ interface Conversation {
     profile_id: string;
     profiles: {
       username: string;
-      avatar_url: string;
     };
   }[];
 }
@@ -22,55 +22,69 @@ export default function MessagesPage() {
   const { user } = useAuth();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
+  const [newChatUsername, setNewChatUsername] = useState("");
 
   useEffect(() => {
-    if (!user) return;
-
-    const fetchConversations = async () => {
-      const { data, error } = await supabase
-        .from("conversations")
-        .select(`
-          id,
-          participants:conversation_participants(
-            profile_id,
-            profiles(
-              username,
-              avatar_url
-            )
-          )
-        `)
-        .contains("participants", [{ profile_id: user.id }]);
-
-      if (data) setConversations(data as Conversation[]);
-    };
-
-    fetchConversations();
+    if (user) {
+      fetchConversations();
+    }
   }, [user]);
 
-  const startNewConversation = async (otherUserId: string) => {
+  const fetchConversations = async () => {
     const { data, error } = await supabase
+      .from("conversation_participants")
+      .select(`
+        conversation_id,
+        conversations!inner(id),
+        profiles!inner(username)
+      `)
+      .eq("profile_id", user?.id);
+
+    if (data) {
+      const formattedConversations = data.map(d => ({
+        id: d.conversation_id,
+        participants: [{ profile_id: user?.id, profiles: { username: d.profiles.username } }]
+      }));
+      setConversations(formattedConversations);
+    }
+  };
+
+  const startNewChat = async () => {
+    if (!newChatUsername.trim()) return;
+
+    // Create new conversation
+    const { data: convData, error: convError } = await supabase
       .from("conversations")
       .insert({})
       .select()
       .single();
 
-    if (data) {
+    if (convData) {
+      // Add participants
       await supabase.from("conversation_participants").insert([
-        { conversation_id: data.id, profile_id: user!.id },
-        { conversation_id: data.id, profile_id: otherUserId },
+        { conversation_id: convData.id, profile_id: user?.id },
+        { conversation_id: convData.id, profile_id: newChatUsername }
       ]);
 
-      setSelectedConversation(data.id);
+      fetchConversations();
+      setNewChatUsername("");
+      setSelectedConversation(convData.id);
     }
   };
-
-  if (!user) return null;
 
   return (
     <div className="container mx-auto py-6">
       <div className="grid grid-cols-12 gap-6">
         <div className="col-span-4 space-y-4">
           <h2 className="text-2xl font-bold">Messages</h2>
+          <div className="flex gap-2">
+            <Input
+              value={newChatUsername}
+              onChange={(e) => setNewChatUsername(e.target.value)}
+              placeholder="Enter username to chat"
+            />
+            <Button onClick={startNewChat}>Start Chat</Button>
+          </div>
           {conversations.map((conversation) => (
             <Button
               key={conversation.id}
@@ -79,7 +93,7 @@ export default function MessagesPage() {
               onClick={() => setSelectedConversation(conversation.id)}
             >
               {conversation.participants
-                .filter((p) => p.profile_id !== user.id)
+                .filter((p) => p.profile_id !== user?.id)
                 .map((p) => p.profiles.username)
                 .join(", ")}
             </Button>
@@ -89,7 +103,7 @@ export default function MessagesPage() {
           {selectedConversation && (
             <ChatWindow
               conversationId={selectedConversation}
-              currentUserId={user.id}
+              currentUserId={user?.id}
             />
           )}
         </div>
