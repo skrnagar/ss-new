@@ -36,21 +36,33 @@ export default function MessagesPage() {
       .select(`
         conversation_id,
         conversations!inner(id),
-        profiles!inner(username)
+        profile:profiles!inner(*)
       `)
       .eq("profile_id", user?.id);
 
     if (data) {
       const formattedConversations = data.map(d => ({
         id: d.conversation_id,
-        participants: [{ profile_id: user?.id, profiles: { username: d.profiles.username } }]
+        participants: [{ profile_id: user?.id, profiles: d.profile }]
       }));
       setConversations(formattedConversations);
     }
   };
 
   const startNewChat = async () => {
-    if (!newChatUsername.trim()) return;
+    if (!newChatUsername.trim() || !user) return;
+
+    // Get profile ID for username
+    const { data: profileData } = await supabase
+      .from("profiles")
+      .select("id")
+      .eq("username", newChatUsername)
+      .single();
+
+    if (!profileData) {
+      alert("User not found");
+      return;
+    }
 
     // Create new conversation
     const { data: convData, error: convError } = await supabase
@@ -62,11 +74,11 @@ export default function MessagesPage() {
     if (convData) {
       // Add participants
       await supabase.from("conversation_participants").insert([
-        { conversation_id: convData.id, profile_id: user?.id },
-        { conversation_id: convData.id, profile_id: newChatUsername }
+        { conversation_id: convData.id, profile_id: user.id },
+        { conversation_id: convData.id, profile_id: profileData.id }
       ]);
 
-      fetchConversations();
+      await fetchConversations();
       setNewChatUsername("");
       setSelectedConversation(convData.id);
     }
@@ -100,10 +112,10 @@ export default function MessagesPage() {
           ))}
         </div>
         <div className="col-span-8">
-          {selectedConversation && (
+          {selectedConversation && user?.id && (
             <ChatWindow
               conversationId={selectedConversation}
-              currentUserId={user?.id}
+              currentUserId={user.id}
             />
           )}
         </div>
