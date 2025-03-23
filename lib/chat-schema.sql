@@ -11,9 +11,10 @@ CREATE TABLE conversations (
 -- Create conversation_participants table
 CREATE TABLE conversation_participants (
   conversation_id UUID REFERENCES conversations(id) ON DELETE CASCADE,
-  profile_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
+  profile_id UUID,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
-  PRIMARY KEY (conversation_id, profile_id)
+  PRIMARY KEY (conversation_id, profile_id),
+  FOREIGN KEY (profile_id) REFERENCES auth.users(id) ON DELETE CASCADE
 );
 
 -- Create messages table
