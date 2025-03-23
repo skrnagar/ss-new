@@ -64,19 +64,34 @@ export default function MessagesPage() {
       return;
     }
 
-    // Create new conversation
+    // Create new conversation and add participants
     const { data: convData, error: convError } = await supabase
+      .from('conversations')
+      .insert({})
+      .select()
+      .single();
+
+    if (convError) {
+      console.error('Error creating conversation:', convError);
+      return;
+    }
       .from("conversations")
       .insert({})
       .select()
       .single();
 
     if (convData) {
-      // Add participants
-      await supabase.from("conversation_participants").insert([
-        { conversation_id: convData.id, profile_id: user.id },
-        { conversation_id: convData.id, profile_id: profileData.id }
-      ]);
+      const { error: participantsError } = await supabase
+        .from("conversation_participants")
+        .insert([
+          { conversation_id: convData.id, profile_id: user.id },
+          { conversation_id: convData.id, profile_id: profileData.id }
+        ]);
+
+      if (participantsError) {
+        console.error('Error adding participants:', participantsError);
+        return;
+      }
 
       await fetchConversations();
       setNewChatUsername("");
