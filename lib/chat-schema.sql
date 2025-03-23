@@ -1,7 +1,10 @@
 
+-- Enable UUID extension if not already enabled
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
 -- Create conversations table
 CREATE TABLE conversations (
-  id UUID DEFAULT extensions.uuid_generate_v4() PRIMARY KEY,
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
 );
 
@@ -15,7 +18,7 @@ CREATE TABLE conversation_participants (
 
 -- Create messages table
 CREATE TABLE messages (
-  id UUID DEFAULT extensions.uuid_generate_v4() PRIMARY KEY,
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
   conversation_id UUID REFERENCES conversations(id) ON DELETE CASCADE,
   sender_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
   content TEXT NOT NULL,
