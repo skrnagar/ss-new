@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -65,8 +64,8 @@ export default function MessagesPage() {
     }
 
     // Create new conversation and add participants
-    const { data: convData, error: convError } = await supabase
-      .from('conversations')
+    const { data: conversation, error: convError } = await supabase
+      .from("conversations")
       .insert({})
       .select()
       .single();
@@ -75,17 +74,14 @@ export default function MessagesPage() {
       console.error('Error creating conversation:', convError);
       return;
     }
-      .from("conversations")
-      .insert({})
-      .select()
-      .single();
 
-    if (convData) {
+    if (conversation) {
+      // Add participants
       const { error: participantsError } = await supabase
         .from("conversation_participants")
         .insert([
-          { conversation_id: convData.id, profile_id: user.id },
-          { conversation_id: convData.id, profile_id: profileData.id }
+          { conversation_id: conversation.id, profile_id: user.id },
+          { conversation_id: conversation.id, profile_id: profileData.id }
         ]);
 
       if (participantsError) {
@@ -95,7 +91,7 @@ export default function MessagesPage() {
 
       await fetchConversations();
       setNewChatUsername("");
-      setSelectedConversation(convData.id);
+      setSelectedConversation(conversation.id);
     }
   };
 
