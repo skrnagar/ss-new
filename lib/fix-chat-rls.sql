@@ -1,4 +1,3 @@
-
 -- Enable RLS
 ALTER TABLE conversations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE conversation_participants ENABLE ROW LEVEL SECURITY;
@@ -12,6 +11,9 @@ DROP POLICY IF EXISTS "Enable insert for participants" ON conversation_participa
 DROP POLICY IF EXISTS "Enable insert for own participants" ON conversation_participants;
 DROP POLICY IF EXISTS "Enable read access for messages" ON messages;
 DROP POLICY IF EXISTS "Enable insert for messages" ON messages;
+DROP POLICY IF EXISTS "Users can view conversations they are part of" ON conversation_participants;
+DROP POLICY IF EXISTS "Users can create conversations they are part of" ON conversation_participants;
+DROP POLICY IF EXISTS "Users can delete their own conversation participants" ON conversation_participants;
 
 -- Grant necessary permissions
 GRANT ALL ON conversations TO authenticated;
@@ -30,13 +32,25 @@ USING (
 );
 
 -- Participant policies (simplified to prevent recursion)
-CREATE POLICY "Enable read access for own participants" ON conversation_participants
-FOR SELECT TO authenticated
-USING (profile_id = auth.uid());
+CREATE POLICY "Users can view conversations they are part of" ON conversation_participants
+FOR SELECT USING (
+  profile_id = auth.uid() OR
+  conversation_id IN (
+    SELECT conversation_id 
+    FROM conversation_participants 
+    WHERE profile_id = auth.uid()
+  )
+);
 
-CREATE POLICY "Enable insert for own participants" ON conversation_participants
-FOR INSERT TO authenticated
-WITH CHECK (profile_id = auth.uid());
+CREATE POLICY "Users can create conversations they are part of" ON conversation_participants
+FOR INSERT WITH CHECK (
+  profile_id = auth.uid()
+);
+
+CREATE POLICY "Users can delete their own conversation participants" ON conversation_participants
+FOR DELETE USING (
+  profile_id = auth.uid()
+);
 
 -- Message policies
 CREATE POLICY "Enable read access for messages" ON messages
