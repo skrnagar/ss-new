@@ -19,9 +19,9 @@ ALTER TABLE messages ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Users can view their conversations"
 ON conversations FOR SELECT
 USING (EXISTS (
-  SELECT 1 FROM conversation_participants
-  WHERE conversation_id = conversations.id 
-  AND profile_id = auth.uid()
+  SELECT 1 FROM conversation_participants cp
+  WHERE cp.conversation_id = conversations.id 
+  AND cp.profile_id = auth.uid()
 ));
 
 CREATE POLICY "Users can create conversations"
@@ -43,21 +43,21 @@ USING (
 CREATE POLICY "Users can add participants"
 ON conversation_participants FOR INSERT 
 WITH CHECK (
-  profile_id = auth.uid() OR
   EXISTS (
     SELECT 1 FROM conversation_participants cp
     WHERE cp.conversation_id = conversation_participants.conversation_id 
     AND cp.profile_id = auth.uid()
-  )
+  ) OR
+  profile_id = auth.uid()
 );
 
 -- Messages policies
 CREATE POLICY "Users can view messages"
 ON messages FOR SELECT
 USING (EXISTS (
-  SELECT 1 FROM conversation_participants
-  WHERE conversation_id = messages.conversation_id
-  AND profile_id = auth.uid()
+  SELECT 1 FROM conversation_participants cp
+  WHERE cp.conversation_id = messages.conversation_id
+  AND cp.profile_id = auth.uid()
 ));
 
 CREATE POLICY "Users can send messages"
@@ -65,8 +65,8 @@ ON messages FOR INSERT
 WITH CHECK (
   sender_id = auth.uid() AND
   EXISTS (
-    SELECT 1 FROM conversation_participants
-    WHERE conversation_id = messages.conversation_id
-    AND profile_id = auth.uid()
+    SELECT 1 FROM conversation_participants cp
+    WHERE cp.conversation_id = messages.conversation_id
+    AND cp.profile_id = auth.uid()
   )
 );
