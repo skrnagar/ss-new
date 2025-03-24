@@ -26,7 +26,7 @@ USING (EXISTS (
 
 CREATE POLICY "Users can create conversations"
 ON conversations FOR INSERT
-WITH CHECK (true);
+WITH CHECK (auth.uid() IS NOT NULL);
 
 CREATE POLICY "Users can update conversations"
 ON conversations FOR UPDATE
