@@ -1,3 +1,4 @@
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
@@ -24,11 +25,10 @@ const nextConfig = {
   },
   experimental: {
     instrumentationHook: true,
+    serverActions: {
+      bodySizeLimit: '2mb',
+    },
   },
-};
-
-/** @type {import('next').NextConfig} */
-const nextConfig = {
   reactStrictMode: true,
   async headers() {
     return [
@@ -43,11 +43,6 @@ const nextConfig = {
       },
     ]
   },
-  experimental: {
-    serverActions: {
-      bodySizeLimit: '2mb',
-    },
-  },
-}
+};
 
 export default nextConfig;
