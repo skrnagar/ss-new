@@ -5,6 +5,7 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 -- Drop existing policies
 DROP POLICY IF EXISTS "Users can view their conversations" ON conversations;
 DROP POLICY IF EXISTS "Users can create conversations" ON conversations;
+DROP POLICY IF EXISTS "Users can update conversations" ON conversations;
 DROP POLICY IF EXISTS "Users can view participants" ON conversation_participants;
 DROP POLICY IF EXISTS "Users can add participants" ON conversation_participants;
 DROP POLICY IF EXISTS "Users can view messages" ON messages;
@@ -37,12 +38,7 @@ USING (EXISTS (
 -- Create simplified policies for participants
 CREATE POLICY "Users can view participants"
 ON conversation_participants FOR SELECT
-USING (profile_id = auth.uid() OR 
-  conversation_id IN (
-    SELECT conversation_id FROM conversation_participants 
-    WHERE profile_id = auth.uid()
-  )
-);
+USING (true);
 
 CREATE POLICY "Users can add participants"
 ON conversation_participants FOR INSERT
