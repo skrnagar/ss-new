@@ -1,0 +1,140 @@
+
+Build Error
+Failed to compile
+
+Next.js (14.2.16) is outdated (learn more)
+./components/chat/chat-list.tsx
+Error: 
+  × the name `ChatList` is defined multiple times
+     ╭─[/home/runner/workspace/components/chat/chat-list.tsx:23:1]
+  23 │   };
+  24 │ }
+  25 │ 
+  26 │ export function ChatList({ onSelectChat }: { onSelectChat: (id: string) => void }) {
+     ·                 ────┬───
+     ·                     ╰── previous definition of `ChatList` here
+  27 │   const { user } = useAuth();
+  28 │   const [chats, setChats] = useState<ChatPreview[]>([]);
+  29 │ 
+  30 │   useEffect(() => {
+  31 │     if (!user) return;
+  32 │ 
+  33 │     const fetchChats = async () => {
+  34 │       // First get all conversations the user is part of
+  35 │       const { data: participations, error: participationError } = await supabase
+  36 │         .from("conversation_participants")
+  37 │         .select("conversation_id")
+  38 │         .eq("profile_id", user.id);
+  39 │ 
+  40 │       if (participationError) {
+  41 │         console.error("Error fetching conversations:", participationError);
+  42 │         return;
+  43 │       }
+  44 │ 
+  45 │       if (!participations?.length) return;
+  46 │ 
+  47 │       const conversationIds = participations.map(p => p.conversation_id);
+  48 │ 
+  49 │       // Then get the other participants and last messages for these conversations
+  50 │       const { data: conversations, error: conversationsError } = await supabase
+  51 │         .from("conversation_participants")
+  52 │         .select(`
+  53 │           conversation_id,
+  54 │           profiles!inner(
+  55 │             username,
+  56 │             avatar_url
+  57 │           ),
+  58 │           conversations!inner(
+  59 │             id,
+  60 │             messages(
+  61 │               content,
+  62 │               created_at,
+  63 │               sender_id
+  64 │             )
+  65 │           )
+  66 │         `)
+  67 │         .in("conversation_id", conversationIds)
+  68 │         .neq("profile_id", user.id);
+  69 │ 
+  70 │       if (conversationsError) {
+  71 │         console.error("Error fetching conversation details:", conversationsError);
+  72 │         return;
+  73 │       }
+  74 │ 
+  75 │       const formattedChats = conversations?.map(chat => ({
+  76 │         id: chat.conversation_id,
+  77 │         participants: [{
+  78 │           profile_id: chat.profiles.id,
+  79 │           profiles: {
+  80 │             username: chat.profiles.username,
+  81 │             avatar_url: chat.profiles.avatar_url
+  82 │           }
+  83 │         }],
+  84 │         last_message: chat.conversations.messages[0]
+  85 │       }));
+  86 │ 
+  87 │       setChats(formattedChats || []);
+  88 │     };
+  89 │ 
+  90 │     fetchChats();
+  91 │   }, [user]);
+  92 │ 
+  93 │   return (
+  94 │     <ScrollArea className="h-[calc(100vh-4rem)]">
+  95 │       <div className="space-y-2 p-4">
+  96 │         {chats.length === 0 ? (
+  97 │           <div className="text-center text-muted-foreground p-4">
+  98 │             No conversations yet
+  99 │           </div>
+ 100 │         ) : (
+ 101 │           chats.map((chat) => {
+ 102 │             const otherParticipant = chat.participants[0];
+ 103 │             return (
+ 104 │               <button
+ 105 │                 key={chat.id}
+ 106 │                 onClick={() => onSelectChat(chat.id)}
+ 107 │                 className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-muted transition-colors"
+ 108 │               >
+ 109 │                 <Avatar>
+ 110 │                   <AvatarImage src={otherParticipant.profiles.avatar_url} />
+ 111 │                   <AvatarFallback>
+ 112 │                     {otherParticipant.profiles.username.substring(0, 2).toUpperCase()}
+ 113 │                   </AvatarFallback>
+ 114 │                 </Avatar>
+ 115 │                 <div className="flex-1 text-left">
+ 116 │                   <p className="font-medium">{otherParticipant.profiles.username}</p>
+ 117 │                   {chat.last_message && (
+ 118 │                     <>
+ 119 │                       <p className="text-sm text-muted-foreground line-clamp-1">
+ 120 │                         {chat.last_message.content}
+ 121 │                       </p>
+ 122 │                       <p className="text-xs text-muted-foreground">
+ 123 │                         {formatDistanceToNow(new Date(chat.last_message.created_at), { addSuffix: true })}
+ 124 │                       </p>
+ 125 │                     </>
+ 126 │                   )}
+ 127 │                 </div>
+ 128 │               </button>
+ 129 │             );
+ 130 │           })
+ 131 │         )}
+ 132 │       </div>
+ 133 │     </ScrollArea>
+ 134 │   );
+ 135 │ }
+ 136 │ import { MessageCircle } from "lucide-react";
+ 137 │ 
+ 138 │ export interface ChatListProps {
+ 139 │   conversations: any[];
+ 140 │   onSelect: (conversation: any) => void;
+ 141 │   selectedId?: string;
+ 142 │ }
+ 143 │ 
+ 144 │ export function ChatList({ conversations, onSelect, selectedId }: ChatListProps) {
+     ·                 ────┬───
+     ·                     ╰── `ChatList` redefined here
+ 145 │   return (
+ 146 │     <div className="flex-1 overflow-auto space-y-2">
+ 147 │       {conversations.map((conversation) => (
+     ╰────
+This error occurred during the build process and can only be dismissed by fixing the error.
