@@ -33,21 +33,21 @@ CREATE POLICY "Users can view participants"
 ON conversation_participants FOR SELECT
 USING (
   profile_id = auth.uid() OR
-  conversation_id IN (
-    SELECT conversation_id FROM conversation_participants 
-    WHERE profile_id = auth.uid()
+  EXISTS (
+    SELECT 1 FROM conversation_participants cp
+    WHERE cp.conversation_id = conversation_participants.conversation_id 
+    AND cp.profile_id = auth.uid()
   )
 );
 
 CREATE POLICY "Users can add participants"
 ON conversation_participants FOR INSERT 
 WITH CHECK (
-  (SELECT COUNT(*) FROM conversation_participants WHERE conversation_id = NEW.conversation_id) = 0 
-  OR 
+  profile_id = auth.uid() OR
   EXISTS (
-    SELECT 1 FROM conversation_participants 
-    WHERE conversation_id = NEW.conversation_id 
-    AND profile_id = auth.uid()
+    SELECT 1 FROM conversation_participants cp
+    WHERE cp.conversation_id = conversation_participants.conversation_id 
+    AND cp.profile_id = auth.uid()
   )
 );
 
