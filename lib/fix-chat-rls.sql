@@ -36,6 +36,9 @@ FOR INSERT TO authenticated
 WITH CHECK (profile_id = auth.uid());
 
 -- Message policies
+DROP POLICY IF EXISTS "Enable read access for messages" ON messages;
+DROP POLICY IF EXISTS "Enable insert for messages" ON messages;
+
 CREATE POLICY "Enable read access for messages" ON messages
 FOR SELECT TO authenticated
 USING (EXISTS (
