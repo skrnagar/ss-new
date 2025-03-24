@@ -1,6 +1,14 @@
 -- Enable UUID extension if not already enabled
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
+-- Drop existing policies first
+DROP POLICY IF EXISTS "Users can view conversations they are part of" ON conversations;
+DROP POLICY IF EXISTS "Users can create conversations" ON conversations;
+DROP POLICY IF EXISTS "Users can view conversation participants" ON conversation_participants;
+DROP POLICY IF EXISTS "Users can add participants" ON conversation_participants;
+DROP POLICY IF EXISTS "Users can view messages in their conversations" ON messages;
+DROP POLICY IF EXISTS "Users can send messages to conversations" ON messages;
+
 -- Create conversations table
 CREATE TABLE IF NOT EXISTS conversations (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
