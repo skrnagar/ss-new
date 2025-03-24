@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from "react";
@@ -18,27 +17,26 @@ interface UserSearchModalProps {
 export function UserSearchModal({ open, onOpenChange, onSelectUser }: UserSearchModalProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [users, setUsers] = useState<any[]>([]);
-  const { user } = useAuth();
+  const { user: currentUser } = useAuth();
 
   useEffect(() => {
-    if (searchQuery.length >= 2) {
-      const searchUsers = async () => {
-        const { data, error } = await supabase
-          .from("profiles")
-          .select("id, username, avatar_url")
-          .ilike("username", `%${searchQuery}%`)
-          .neq("id", user?.id)
-          .limit(5);
+    const searchUsers = async () => {
+      if (!searchQuery.trim() || !currentUser) return;
 
-        if (data) {
-          setUsers(data);
-        }
-      };
-      searchUsers();
-    } else {
-      setUsers([]);
-    }
-  }, [searchQuery, user?.id]);
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id, username, avatar_url')
+        .neq('id', currentUser.id)
+        .ilike('username', `%${searchQuery}%`)
+        .limit(10);
+
+      if (data && !error) {
+        setUsers(data);
+      }
+    };
+
+    searchUsers();
+  }, [searchQuery, currentUser]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
