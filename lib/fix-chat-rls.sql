@@ -1,4 +1,3 @@
-
 -- Enable UUID extension if not already enabled
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
@@ -15,12 +14,12 @@ ALTER TABLE conversations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE conversation_participants ENABLE ROW LEVEL SECURITY;
 ALTER TABLE messages ENABLE ROW LEVEL SECURITY;
 
--- Simplified policy for conversations
+-- Conversations policies
 CREATE POLICY "Users can view their conversations"
 ON conversations FOR SELECT
 USING (EXISTS (
   SELECT 1 FROM conversation_participants
-  WHERE conversation_id = conversations.id
+  WHERE conversation_id = id 
   AND profile_id = auth.uid()
 ));
 
@@ -28,33 +27,23 @@ CREATE POLICY "Users can create conversations"
 ON conversations FOR INSERT
 WITH CHECK (true);
 
--- Simplified policy for participants
+-- Participants policies - simplified to avoid recursion
 CREATE POLICY "Users can view participants"
 ON conversation_participants FOR SELECT
 USING (
   profile_id = auth.uid() OR
-  conversation_id IN (
-    SELECT conversation_id 
-    FROM conversation_participants 
-    WHERE profile_id = auth.uid()
+  EXISTS (
+    SELECT 1 FROM conversation_participants cp
+    WHERE cp.conversation_id = conversation_participants.conversation_id
+    AND cp.profile_id = auth.uid()
   )
 );
 
 CREATE POLICY "Users can add participants"
 ON conversation_participants FOR INSERT
-WITH CHECK (
-  EXISTS (
-    SELECT 1 FROM conversation_participants
-    WHERE conversation_id = conversation_participants.conversation_id
-    AND profile_id = auth.uid()
-  ) OR
-  EXISTS (
-    SELECT 1 FROM conversations
-    WHERE id = conversation_participants.conversation_id
-  )
-);
+WITH CHECK (true);
 
--- Simplified policies for messages
+-- Messages policies
 CREATE POLICY "Users can view messages"
 ON messages FOR SELECT
 USING (EXISTS (
