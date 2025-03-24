@@ -1,54 +1,62 @@
--- Enable RLS
+
 ALTER TABLE conversations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE conversation_participants ENABLE ROW LEVEL SECURITY;
 ALTER TABLE messages ENABLE ROW LEVEL SECURITY;
 
 -- Drop existing policies
-DROP POLICY IF EXISTS "conversation_participants_read" ON conversations;
-DROP POLICY IF EXISTS "participant_read" ON conversation_participants;
-DROP POLICY IF EXISTS "participant_insert" ON conversation_participants;
-DROP POLICY IF EXISTS "message_read" ON messages;
-DROP POLICY IF EXISTS "message_insert" ON messages;
-DROP POLICY IF EXISTS "Enable read access for participants" ON conversations;
-DROP POLICY IF EXISTS "Enable read access for own participants" ON conversation_participants;
-DROP POLICY IF EXISTS "Enable read for participants" ON conversation_participants;
-DROP POLICY IF EXISTS "Enable insert for participants" ON conversation_participants;
-DROP POLICY IF EXISTS "Enable insert for own participants" ON conversation_participants;
-DROP POLICY IF EXISTS "Enable read access for messages" ON messages;
-DROP POLICY IF EXISTS "Enable insert for messages" ON messages;
-DROP POLICY IF EXISTS "Users can view conversations they are part of" ON conversation_participants;
-DROP POLICY IF EXISTS "Users can create conversations they are part of" ON conversation_participants;
-DROP POLICY IF EXISTS "Users can delete their own conversation participants" ON conversation_participants;
+DROP POLICY IF EXISTS "Users can view their conversations" ON conversations;
+DROP POLICY IF EXISTS "Users can create conversations" ON conversations;
+DROP POLICY IF EXISTS "Users can view their participations" ON conversation_participants;
+DROP POLICY IF EXISTS "Users can create participations" ON conversation_participants;
+DROP POLICY IF EXISTS "Users can view messages in their conversations" ON messages;
+DROP POLICY IF EXISTS "Users can send messages" ON messages;
 
-
--- Grant necessary permissions
-GRANT ALL ON conversations TO authenticated;
-GRANT ALL ON conversation_participants TO authenticated;
-GRANT ALL ON messages TO authenticated;
-
--- Conversation policies
-CREATE POLICY "conversation_access" ON conversations
-FOR ALL TO authenticated
+-- Create new policies
+CREATE POLICY "Users can view their conversations"
+ON conversations FOR SELECT
 USING (
   EXISTS (
-    SELECT 1 FROM conversation_participants cp
-    WHERE cp.conversation_id = id 
-    AND cp.profile_id = auth.uid()
+    SELECT 1 FROM conversation_participants
+    WHERE conversation_id = conversations.id
+    AND profile_id = auth.uid()
   )
 );
 
--- Simple participant policies
-CREATE POLICY "participant_access" ON conversation_participants
-FOR ALL TO authenticated
+CREATE POLICY "Users can create conversations"
+ON conversations FOR INSERT
+WITH CHECK (auth.uid() = created_by);
+
+CREATE POLICY "Users can view their participations"
+ON conversation_participants FOR SELECT
 USING (profile_id = auth.uid());
 
--- Message policies
-CREATE POLICY "message_access" ON messages
-FOR ALL TO authenticated
+CREATE POLICY "Users can create participations"
+ON conversation_participants FOR INSERT
+WITH CHECK (
+  profile_id = auth.uid() OR
+  EXISTS (
+    SELECT 1 FROM conversations
+    WHERE id = conversation_participants.conversation_id
+    AND created_by = auth.uid()
+  )
+);
+
+CREATE POLICY "Users can view messages in their conversations"
+ON messages FOR SELECT
 USING (
   EXISTS (
-    SELECT 1 FROM conversation_participants cp
-    WHERE cp.conversation_id = messages.conversation_id
-    AND cp.profile_id = auth.uid()
+    SELECT 1 FROM conversation_participants
+    WHERE conversation_id = messages.conversation_id
+    AND profile_id = auth.uid()
+  )
+);
+
+CREATE POLICY "Users can send messages"
+ON messages FOR INSERT
+WITH CHECK (
+  EXISTS (
+    SELECT 1 FROM conversation_participants
+    WHERE conversation_id = messages.conversation_id
+    AND profile_id = auth.uid()
   )
 );
