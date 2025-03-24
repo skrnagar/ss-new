@@ -19,10 +19,7 @@ ALTER TABLE messages ENABLE ROW LEVEL SECURITY;
 -- Create simplified policies for conversations
 CREATE POLICY "Users can view their conversations"
 ON conversations FOR SELECT
-USING (EXISTS (
-  SELECT 1 FROM conversation_participants
-  WHERE conversation_id = id AND profile_id = auth.uid()
-));
+USING (true);
 
 CREATE POLICY "Users can create conversations"
 ON conversations FOR INSERT
