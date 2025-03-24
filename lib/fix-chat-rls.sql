@@ -1,3 +1,4 @@
+
 -- Drop existing policies
 DROP POLICY IF EXISTS "Enable read access for participants" ON conversations;
 DROP POLICY IF EXISTS "Enable insert access for authenticated users" ON conversations;
@@ -32,11 +33,14 @@ WITH CHECK (auth.uid() IS NOT NULL);
 -- Simple policies for conversation participants
 CREATE POLICY "Enable read access for own participants" ON conversation_participants
 FOR SELECT TO authenticated
-USING (true);
+USING (profile_id = auth.uid() OR conversation_id IN (
+  SELECT conversation_id FROM conversation_participants 
+  WHERE profile_id = auth.uid()
+));
 
 CREATE POLICY "Enable insert access for participants" ON conversation_participants
 FOR INSERT TO authenticated
-WITH CHECK (true);
+WITH CHECK (profile_id = auth.uid());
 
 -- Simple policies for messages
 CREATE POLICY "Enable read access for conversation messages" ON messages
