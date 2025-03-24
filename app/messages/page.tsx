@@ -1,49 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/auth-context";
 import { ChatList } from "@/components/chat/chat-list";
 import { ChatWindow } from "@/components/chat/chat-window";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { MessageCircle, Search, Plus } from "lucide-react";
 
 export default function MessagesPage() {
   const { user } = useAuth();
   const [selectedChat, setSelectedChat] = useState<string | null>(null);
-
-  if (!user) {
-    return (
-      <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
-        <p>Please sign in to access messages</p>
-      </div>
-    );
-  }
-
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-[300px_1fr]">
-      <div className="border-r">
-        <ChatList onSelectChat={setSelectedChat} />
-      </div>
-      <div>
-        {selectedChat ? (
-          <ChatWindow conversationId={selectedChat} />
-        ) : (
-          <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
-            <p className="text-muted-foreground">Select a conversation to start chatting</p>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-"use client";
-
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { MessageCircle, Search, Plus } from "lucide-react";
-import { useEffect, useState } from "react";
-import { useAuth } from "@/contexts/auth-context";
-
-export default function MessagesPage() {
-  const { user } = useAuth();
   const [conversations, setConversations] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -58,6 +25,14 @@ export default function MessagesPage() {
     // TODO: Implement conversation fetching
   };
 
+  if (!user) {
+    return (
+      <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
+        <p>Please sign in to access messages</p>
+      </div>
+    );
+  }
+
   return (
     <div className="container flex h-[calc(100vh-4rem)] gap-6 py-6">
       {/* Sidebar */}
@@ -68,7 +43,7 @@ export default function MessagesPage() {
             <Plus className="h-5 w-5" />
           </Button>
         </div>
-        
+
         <div className="relative mb-4">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
@@ -103,9 +78,13 @@ export default function MessagesPage() {
 
       {/* Main chat area */}
       <div className="flex-1 flex flex-col">
-        <div className="flex-1 flex items-center justify-center text-muted-foreground">
-          Select a conversation or start a new one
-        </div>
+        {selectedChat ? (
+          <ChatWindow conversationId={selectedChat} />
+        ) : (
+          <div className="flex-1 flex items-center justify-center text-muted-foreground">
+            Select a conversation or start a new one
+          </div>
+        )}
       </div>
     </div>
   );
