@@ -1,14 +1,14 @@
+
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/contexts/auth-context";
 import { supabase } from "@/lib/supabase";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Send } from "lucide-react";
-import { formatDistanceToNow } from "date-fns";
 
 interface Message {
   id: string;
@@ -17,11 +17,16 @@ interface Message {
   created_at: string;
   profiles: {
     username: string;
-    avatar_url?: string;
+    avatar_url: string;
   };
 }
 
-export function ChatWindow({ conversationId }: { conversationId: string }) {
+interface ChatWindowProps {
+  conversationId: string;
+  currentUserId: string;
+}
+
+export function ChatWindow({ conversationId }: ChatWindowProps) {
   const { user } = useAuth();
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
@@ -55,7 +60,6 @@ export function ChatWindow({ conversationId }: { conversationId: string }) {
 
     fetchMessages();
 
-    // Subscribe to new messages
     const subscription = supabase
       .channel("messages")
       .on("postgres_changes", {
@@ -78,13 +82,11 @@ export function ChatWindow({ conversationId }: { conversationId: string }) {
     e.preventDefault();
     if (!newMessage.trim() || !user) return;
 
-    const { error } = await supabase
-      .from("messages")
-      .insert({
-        conversation_id: conversationId,
-        sender_id: user.id,
-        content: newMessage.trim(),
-      });
+    const { error } = await supabase.from("messages").insert({
+      content: newMessage,
+      conversation_id: conversationId,
+      sender_id: user.id
+    });
 
     if (!error) {
       setNewMessage("");
@@ -92,7 +94,7 @@ export function ChatWindow({ conversationId }: { conversationId: string }) {
   };
 
   return (
-    <div className="flex flex-col h-[600px] border rounded-lg">
+    <div className="flex flex-col h-[calc(100vh-4rem)] border rounded-lg">
       <ScrollArea className="flex-1 p-4">
         <div className="space-y-4">
           {messages.map((message) => (
