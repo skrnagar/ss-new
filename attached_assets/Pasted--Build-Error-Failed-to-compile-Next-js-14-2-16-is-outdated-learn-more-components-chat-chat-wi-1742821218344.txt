@@ -1,0 +1,1876 @@
+
+Build Error
+Failed to compile
+
+Next.js (14.2.16) is outdated (learn more)
+./components/chat/chat-window.tsx
+Error: 
+  × the name `useEffect` is defined multiple times
+     ╭─[/home/runner/workspace/components/chat/chat-window.tsx:1:1]
+   1 │ 
+   2 │ "use client";
+   3 │ 
+   4 │ import { useEffect, useState, useRef } from "react";
+     ·          ────┬────
+     ·              ╰── previous definition of `useEffect` here
+   5 │ import { supabase } from "@/lib/supabase";
+   6 │ import { Button } from "@/components/ui/button";
+   7 │ import { Input } from "@/components/ui/input";
+   8 │ import { ScrollArea } from "@/components/ui/scroll-area";
+   9 │ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+  10 │ 
+  11 │ interface Message {
+  12 │   id: string;
+  13 │   content: string;
+  14 │   sender_id: string;
+  15 │   created_at: string;
+  16 │   profiles: {
+  17 │     username: string;
+  18 │     avatar_url: string;
+  19 │   };
+  20 │ }
+  21 │ 
+  22 │ interface ChatWindowProps {
+  23 │   conversationId: string;
+  24 │   currentUserId: string;
+  25 │ }
+  26 │ 
+  27 │ export function ChatWindow({ conversationId, currentUserId }: ChatWindowProps) {
+  28 │   const [messages, setMessages] = useState<Message[]>([]);
+  29 │   const [newMessage, setNewMessage] = useState("");
+  30 │   const messagesEndRef = useRef<HTMLDivElement>(null);
+  31 │ 
+  32 │   const scrollToBottom = () => {
+  33 │     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  34 │   };
+  35 │ 
+  36 │   useEffect(() => {
+  37 │     // Fetch existing messages
+  38 │     const fetchMessages = async () => {
+  39 │       const { data, error } = await supabase
+  40 │         .from("messages")
+  41 │         .select(`
+  42 │           *,
+  43 │           profiles:sender_id (
+  44 │             username,
+  45 │             avatar_url
+  46 │           )
+  47 │         `)
+  48 │         .eq("conversation_id", conversationId)
+  49 │         .order("created_at", { ascending: true });
+  50 │ 
+  51 │       if (data) setMessages(data as Message[]);
+  52 │     };
+  53 │ 
+  54 │     fetchMessages();
+  55 │ 
+  56 │     // Subscribe to new messages
+  57 │     const subscription = supabase
+  58 │       .channel(`conversation:${conversationId}`)
+  59 │       .on(
+  60 │         "postgres_changes",
+  61 │         {
+  62 │           event: "INSERT",
+  63 │           schema: "public",
+  64 │           table: "messages",
+  65 │           filter: `conversation_id=eq.${conversationId}`,
+  66 │         },
+  67 │         async (payload) => {
+  68 │           const { data: newMessage, error } = await supabase
+  69 │             .from("messages")
+  70 │             .select(`
+  71 │               *,
+  72 │               profiles:sender_id (
+  73 │                 username,
+  74 │                 avatar_url
+  75 │               )
+  76 │             `)
+  77 │             .eq("id", payload.new.id)
+  78 │             .single();
+  79 │ 
+  80 │           if (newMessage) {
+  81 │             setMessages((prev) => [...prev, newMessage as Message]);
+  82 │             scrollToBottom();
+  83 │           }
+  84 │         }
+  85 │       )
+  86 │       .subscribe();
+  87 │ 
+  88 │     return () => {
+  89 │       subscription.unsubscribe();
+  90 │     };
+  91 │   }, [conversationId]);
+  92 │ 
+  93 │   const sendMessage = async (e: React.FormEvent) => {
+  94 │     e.preventDefault();
+  95 │     if (!newMessage.trim()) return;
+  96 │ 
+  97 │     const { data, error } = await supabase
+  98 │       .from("messages")
+  99 │       .insert({
+ 100 │         conversation_id: conversationId,
+ 101 │         sender_id: currentUserId,
+ 102 │         content: newMessage.trim(),
+ 103 │       })
+ 104 │       .select();
+ 105 │ 
+ 106 │     if (!error) {
+ 107 │       setNewMessage("");
+ 108 │     }
+ 109 │   };
+ 110 │ 
+ 111 │   return (
+ 112 │     <div className="flex flex-col h-[600px] border rounded-lg">
+ 113 │       <ScrollArea className="flex-1 p-4">
+ 114 │         <div className="space-y-4">
+ 115 │           {messages.map((message) => (
+ 116 │             <div
+ 117 │               key={message.id}
+ 118 │               className={`flex items-start gap-2 ${
+ 119 │                 message.sender_id === currentUserId ? "flex-row-reverse" : ""
+ 120 │               }`}
+ 121 │             >
+ 122 │               <Avatar className="h-8 w-8">
+ 123 │                 <AvatarImage src={message.profiles.avatar_url} />
+ 124 │                 <AvatarFallback>
+ 125 │                   {message.profiles.username.slice(0, 2).toUpperCase()}
+ 126 │                 </AvatarFallback>
+ 127 │               </Avatar>
+ 128 │               <div
+ 129 │                 className={`rounded-lg px-3 py-2 max-w-[70%] ${
+ 130 │                   message.sender_id === currentUserId
+ 131 │                     ? "bg-primary text-primary-foreground"
+ 132 │                     : "bg-muted"
+ 133 │                 }`}
+ 134 │               >
+ 135 │                 <p className="text-sm">{message.content}</p>
+ 136 │               </div>
+ 137 │             </div>
+ 138 │           ))}
+ 139 │           <div ref={messagesEndRef} />
+ 140 │         </div>
+ 141 │       </ScrollArea>
+ 142 │       <form onSubmit={sendMessage} className="p-4 border-t">
+ 143 │         <div className="flex gap-2">
+ 144 │           <Input
+ 145 │             value={newMessage}
+ 146 │             onChange={(e) => setNewMessage(e.target.value)}
+ 147 │             placeholder="Type a message..."
+ 148 │             className="flex-1"
+ 149 │           />
+ 150 │           <Button type="submit">Send</Button>
+ 151 │         </div>
+ 152 │       </form>
+ 153 │     </div>
+ 154 │   );
+ 155 │ }
+ 156 │ "use client";
+ 157 │ 
+ 158 │ import { useEffect, useRef, useState } from "react";
+     ·          ────┬────
+     ·              ╰── `useEffect` redefined here
+ 159 │ import { useAuth } from "@/contexts/auth-context";
+ 160 │ import { supabase } from "@/lib/supabase";
+ 161 │ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+     ╰────
+
+  × the name `useRef` is defined multiple times
+     ╭─[/home/runner/workspace/components/chat/chat-window.tsx:1:1]
+   1 │ 
+   2 │ "use client";
+   3 │ 
+   4 │ import { useEffect, useState, useRef } from "react";
+     ·                               ───┬──
+     ·                                  ╰── previous definition of `useRef` here
+   5 │ import { supabase } from "@/lib/supabase";
+   6 │ import { Button } from "@/components/ui/button";
+   7 │ import { Input } from "@/components/ui/input";
+   8 │ import { ScrollArea } from "@/components/ui/scroll-area";
+   9 │ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+  10 │ 
+  11 │ interface Message {
+  12 │   id: string;
+  13 │   content: string;
+  14 │   sender_id: string;
+  15 │   created_at: string;
+  16 │   profiles: {
+  17 │     username: string;
+  18 │     avatar_url: string;
+  19 │   };
+  20 │ }
+  21 │ 
+  22 │ interface ChatWindowProps {
+  23 │   conversationId: string;
+  24 │   currentUserId: string;
+  25 │ }
+  26 │ 
+  27 │ export function ChatWindow({ conversationId, currentUserId }: ChatWindowProps) {
+  28 │   const [messages, setMessages] = useState<Message[]>([]);
+  29 │   const [newMessage, setNewMessage] = useState("");
+  30 │   const messagesEndRef = useRef<HTMLDivElement>(null);
+  31 │ 
+  32 │   const scrollToBottom = () => {
+  33 │     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  34 │   };
+  35 │ 
+  36 │   useEffect(() => {
+  37 │     // Fetch existing messages
+  38 │     const fetchMessages = async () => {
+  39 │       const { data, error } = await supabase
+  40 │         .from("messages")
+  41 │         .select(`
+  42 │           *,
+  43 │           profiles:sender_id (
+  44 │             username,
+  45 │             avatar_url
+  46 │           )
+  47 │         `)
+  48 │         .eq("conversation_id", conversationId)
+  49 │         .order("created_at", { ascending: true });
+  50 │ 
+  51 │       if (data) setMessages(data as Message[]);
+  52 │     };
+  53 │ 
+  54 │     fetchMessages();
+  55 │ 
+  56 │     // Subscribe to new messages
+  57 │     const subscription = supabase
+  58 │       .channel(`conversation:${conversationId}`)
+  59 │       .on(
+  60 │         "postgres_changes",
+  61 │         {
+  62 │           event: "INSERT",
+  63 │           schema: "public",
+  64 │           table: "messages",
+  65 │           filter: `conversation_id=eq.${conversationId}`,
+  66 │         },
+  67 │         async (payload) => {
+  68 │           const { data: newMessage, error } = await supabase
+  69 │             .from("messages")
+  70 │             .select(`
+  71 │               *,
+  72 │               profiles:sender_id (
+  73 │                 username,
+  74 │                 avatar_url
+  75 │               )
+  76 │             `)
+  77 │             .eq("id", payload.new.id)
+  78 │             .single();
+  79 │ 
+  80 │           if (newMessage) {
+  81 │             setMessages((prev) => [...prev, newMessage as Message]);
+  82 │             scrollToBottom();
+  83 │           }
+  84 │         }
+  85 │       )
+  86 │       .subscribe();
+  87 │ 
+  88 │     return () => {
+  89 │       subscription.unsubscribe();
+  90 │     };
+  91 │   }, [conversationId]);
+  92 │ 
+  93 │   const sendMessage = async (e: React.FormEvent) => {
+  94 │     e.preventDefault();
+  95 │     if (!newMessage.trim()) return;
+  96 │ 
+  97 │     const { data, error } = await supabase
+  98 │       .from("messages")
+  99 │       .insert({
+ 100 │         conversation_id: conversationId,
+ 101 │         sender_id: currentUserId,
+ 102 │         content: newMessage.trim(),
+ 103 │       })
+ 104 │       .select();
+ 105 │ 
+ 106 │     if (!error) {
+ 107 │       setNewMessage("");
+ 108 │     }
+ 109 │   };
+ 110 │ 
+ 111 │   return (
+ 112 │     <div className="flex flex-col h-[600px] border rounded-lg">
+ 113 │       <ScrollArea className="flex-1 p-4">
+ 114 │         <div className="space-y-4">
+ 115 │           {messages.map((message) => (
+ 116 │             <div
+ 117 │               key={message.id}
+ 118 │               className={`flex items-start gap-2 ${
+ 119 │                 message.sender_id === currentUserId ? "flex-row-reverse" : ""
+ 120 │               }`}
+ 121 │             >
+ 122 │               <Avatar className="h-8 w-8">
+ 123 │                 <AvatarImage src={message.profiles.avatar_url} />
+ 124 │                 <AvatarFallback>
+ 125 │                   {message.profiles.username.slice(0, 2).toUpperCase()}
+ 126 │                 </AvatarFallback>
+ 127 │               </Avatar>
+ 128 │               <div
+ 129 │                 className={`rounded-lg px-3 py-2 max-w-[70%] ${
+ 130 │                   message.sender_id === currentUserId
+ 131 │                     ? "bg-primary text-primary-foreground"
+ 132 │                     : "bg-muted"
+ 133 │                 }`}
+ 134 │               >
+ 135 │                 <p className="text-sm">{message.content}</p>
+ 136 │               </div>
+ 137 │             </div>
+ 138 │           ))}
+ 139 │           <div ref={messagesEndRef} />
+ 140 │         </div>
+ 141 │       </ScrollArea>
+ 142 │       <form onSubmit={sendMessage} className="p-4 border-t">
+ 143 │         <div className="flex gap-2">
+ 144 │           <Input
+ 145 │             value={newMessage}
+ 146 │             onChange={(e) => setNewMessage(e.target.value)}
+ 147 │             placeholder="Type a message..."
+ 148 │             className="flex-1"
+ 149 │           />
+ 150 │           <Button type="submit">Send</Button>
+ 151 │         </div>
+ 152 │       </form>
+ 153 │     </div>
+ 154 │   );
+ 155 │ }
+ 156 │ "use client";
+ 157 │ 
+ 158 │ import { useEffect, useRef, useState } from "react";
+     ·                     ───┬──
+     ·                        ╰── `useRef` redefined here
+ 159 │ import { useAuth } from "@/contexts/auth-context";
+ 160 │ import { supabase } from "@/lib/supabase";
+ 161 │ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+     ╰────
+
+  × the name `useState` is defined multiple times
+     ╭─[/home/runner/workspace/components/chat/chat-window.tsx:1:1]
+   1 │ 
+   2 │ "use client";
+   3 │ 
+   4 │ import { useEffect, useState, useRef } from "react";
+     ·                     ────┬───
+     ·                         ╰── previous definition of `useState` here
+   5 │ import { supabase } from "@/lib/supabase";
+   6 │ import { Button } from "@/components/ui/button";
+   7 │ import { Input } from "@/components/ui/input";
+   8 │ import { ScrollArea } from "@/components/ui/scroll-area";
+   9 │ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+  10 │ 
+  11 │ interface Message {
+  12 │   id: string;
+  13 │   content: string;
+  14 │   sender_id: string;
+  15 │   created_at: string;
+  16 │   profiles: {
+  17 │     username: string;
+  18 │     avatar_url: string;
+  19 │   };
+  20 │ }
+  21 │ 
+  22 │ interface ChatWindowProps {
+  23 │   conversationId: string;
+  24 │   currentUserId: string;
+  25 │ }
+  26 │ 
+  27 │ export function ChatWindow({ conversationId, currentUserId }: ChatWindowProps) {
+  28 │   const [messages, setMessages] = useState<Message[]>([]);
+  29 │   const [newMessage, setNewMessage] = useState("");
+  30 │   const messagesEndRef = useRef<HTMLDivElement>(null);
+  31 │ 
+  32 │   const scrollToBottom = () => {
+  33 │     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  34 │   };
+  35 │ 
+  36 │   useEffect(() => {
+  37 │     // Fetch existing messages
+  38 │     const fetchMessages = async () => {
+  39 │       const { data, error } = await supabase
+  40 │         .from("messages")
+  41 │         .select(`
+  42 │           *,
+  43 │           profiles:sender_id (
+  44 │             username,
+  45 │             avatar_url
+  46 │           )
+  47 │         `)
+  48 │         .eq("conversation_id", conversationId)
+  49 │         .order("created_at", { ascending: true });
+  50 │ 
+  51 │       if (data) setMessages(data as Message[]);
+  52 │     };
+  53 │ 
+  54 │     fetchMessages();
+  55 │ 
+  56 │     // Subscribe to new messages
+  57 │     const subscription = supabase
+  58 │       .channel(`conversation:${conversationId}`)
+  59 │       .on(
+  60 │         "postgres_changes",
+  61 │         {
+  62 │           event: "INSERT",
+  63 │           schema: "public",
+  64 │           table: "messages",
+  65 │           filter: `conversation_id=eq.${conversationId}`,
+  66 │         },
+  67 │         async (payload) => {
+  68 │           const { data: newMessage, error } = await supabase
+  69 │             .from("messages")
+  70 │             .select(`
+  71 │               *,
+  72 │               profiles:sender_id (
+  73 │                 username,
+  74 │                 avatar_url
+  75 │               )
+  76 │             `)
+  77 │             .eq("id", payload.new.id)
+  78 │             .single();
+  79 │ 
+  80 │           if (newMessage) {
+  81 │             setMessages((prev) => [...prev, newMessage as Message]);
+  82 │             scrollToBottom();
+  83 │           }
+  84 │         }
+  85 │       )
+  86 │       .subscribe();
+  87 │ 
+  88 │     return () => {
+  89 │       subscription.unsubscribe();
+  90 │     };
+  91 │   }, [conversationId]);
+  92 │ 
+  93 │   const sendMessage = async (e: React.FormEvent) => {
+  94 │     e.preventDefault();
+  95 │     if (!newMessage.trim()) return;
+  96 │ 
+  97 │     const { data, error } = await supabase
+  98 │       .from("messages")
+  99 │       .insert({
+ 100 │         conversation_id: conversationId,
+ 101 │         sender_id: currentUserId,
+ 102 │         content: newMessage.trim(),
+ 103 │       })
+ 104 │       .select();
+ 105 │ 
+ 106 │     if (!error) {
+ 107 │       setNewMessage("");
+ 108 │     }
+ 109 │   };
+ 110 │ 
+ 111 │   return (
+ 112 │     <div className="flex flex-col h-[600px] border rounded-lg">
+ 113 │       <ScrollArea className="flex-1 p-4">
+ 114 │         <div className="space-y-4">
+ 115 │           {messages.map((message) => (
+ 116 │             <div
+ 117 │               key={message.id}
+ 118 │               className={`flex items-start gap-2 ${
+ 119 │                 message.sender_id === currentUserId ? "flex-row-reverse" : ""
+ 120 │               }`}
+ 121 │             >
+ 122 │               <Avatar className="h-8 w-8">
+ 123 │                 <AvatarImage src={message.profiles.avatar_url} />
+ 124 │                 <AvatarFallback>
+ 125 │                   {message.profiles.username.slice(0, 2).toUpperCase()}
+ 126 │                 </AvatarFallback>
+ 127 │               </Avatar>
+ 128 │               <div
+ 129 │                 className={`rounded-lg px-3 py-2 max-w-[70%] ${
+ 130 │                   message.sender_id === currentUserId
+ 131 │                     ? "bg-primary text-primary-foreground"
+ 132 │                     : "bg-muted"
+ 133 │                 }`}
+ 134 │               >
+ 135 │                 <p className="text-sm">{message.content}</p>
+ 136 │               </div>
+ 137 │             </div>
+ 138 │           ))}
+ 139 │           <div ref={messagesEndRef} />
+ 140 │         </div>
+ 141 │       </ScrollArea>
+ 142 │       <form onSubmit={sendMessage} className="p-4 border-t">
+ 143 │         <div className="flex gap-2">
+ 144 │           <Input
+ 145 │             value={newMessage}
+ 146 │             onChange={(e) => setNewMessage(e.target.value)}
+ 147 │             placeholder="Type a message..."
+ 148 │             className="flex-1"
+ 149 │           />
+ 150 │           <Button type="submit">Send</Button>
+ 151 │         </div>
+ 152 │       </form>
+ 153 │     </div>
+ 154 │   );
+ 155 │ }
+ 156 │ "use client";
+ 157 │ 
+ 158 │ import { useEffect, useRef, useState } from "react";
+     ·                             ────┬───
+     ·                                 ╰── `useState` redefined here
+ 159 │ import { useAuth } from "@/contexts/auth-context";
+ 160 │ import { supabase } from "@/lib/supabase";
+ 161 │ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+     ╰────
+
+  × the name `supabase` is defined multiple times
+     ╭─[/home/runner/workspace/components/chat/chat-window.tsx:2:1]
+   2 │ "use client";
+   3 │ 
+   4 │ import { useEffect, useState, useRef } from "react";
+   5 │ import { supabase } from "@/lib/supabase";
+     ·          ────┬───
+     ·              ╰── previous definition of `supabase` here
+   6 │ import { Button } from "@/components/ui/button";
+   7 │ import { Input } from "@/components/ui/input";
+   8 │ import { ScrollArea } from "@/components/ui/scroll-area";
+   9 │ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+  10 │ 
+  11 │ interface Message {
+  12 │   id: string;
+  13 │   content: string;
+  14 │   sender_id: string;
+  15 │   created_at: string;
+  16 │   profiles: {
+  17 │     username: string;
+  18 │     avatar_url: string;
+  19 │   };
+  20 │ }
+  21 │ 
+  22 │ interface ChatWindowProps {
+  23 │   conversationId: string;
+  24 │   currentUserId: string;
+  25 │ }
+  26 │ 
+  27 │ export function ChatWindow({ conversationId, currentUserId }: ChatWindowProps) {
+  28 │   const [messages, setMessages] = useState<Message[]>([]);
+  29 │   const [newMessage, setNewMessage] = useState("");
+  30 │   const messagesEndRef = useRef<HTMLDivElement>(null);
+  31 │ 
+  32 │   const scrollToBottom = () => {
+  33 │     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  34 │   };
+  35 │ 
+  36 │   useEffect(() => {
+  37 │     // Fetch existing messages
+  38 │     const fetchMessages = async () => {
+  39 │       const { data, error } = await supabase
+  40 │         .from("messages")
+  41 │         .select(`
+  42 │           *,
+  43 │           profiles:sender_id (
+  44 │             username,
+  45 │             avatar_url
+  46 │           )
+  47 │         `)
+  48 │         .eq("conversation_id", conversationId)
+  49 │         .order("created_at", { ascending: true });
+  50 │ 
+  51 │       if (data) setMessages(data as Message[]);
+  52 │     };
+  53 │ 
+  54 │     fetchMessages();
+  55 │ 
+  56 │     // Subscribe to new messages
+  57 │     const subscription = supabase
+  58 │       .channel(`conversation:${conversationId}`)
+  59 │       .on(
+  60 │         "postgres_changes",
+  61 │         {
+  62 │           event: "INSERT",
+  63 │           schema: "public",
+  64 │           table: "messages",
+  65 │           filter: `conversation_id=eq.${conversationId}`,
+  66 │         },
+  67 │         async (payload) => {
+  68 │           const { data: newMessage, error } = await supabase
+  69 │             .from("messages")
+  70 │             .select(`
+  71 │               *,
+  72 │               profiles:sender_id (
+  73 │                 username,
+  74 │                 avatar_url
+  75 │               )
+  76 │             `)
+  77 │             .eq("id", payload.new.id)
+  78 │             .single();
+  79 │ 
+  80 │           if (newMessage) {
+  81 │             setMessages((prev) => [...prev, newMessage as Message]);
+  82 │             scrollToBottom();
+  83 │           }
+  84 │         }
+  85 │       )
+  86 │       .subscribe();
+  87 │ 
+  88 │     return () => {
+  89 │       subscription.unsubscribe();
+  90 │     };
+  91 │   }, [conversationId]);
+  92 │ 
+  93 │   const sendMessage = async (e: React.FormEvent) => {
+  94 │     e.preventDefault();
+  95 │     if (!newMessage.trim()) return;
+  96 │ 
+  97 │     const { data, error } = await supabase
+  98 │       .from("messages")
+  99 │       .insert({
+ 100 │         conversation_id: conversationId,
+ 101 │         sender_id: currentUserId,
+ 102 │         content: newMessage.trim(),
+ 103 │       })
+ 104 │       .select();
+ 105 │ 
+ 106 │     if (!error) {
+ 107 │       setNewMessage("");
+ 108 │     }
+ 109 │   };
+ 110 │ 
+ 111 │   return (
+ 112 │     <div className="flex flex-col h-[600px] border rounded-lg">
+ 113 │       <ScrollArea className="flex-1 p-4">
+ 114 │         <div className="space-y-4">
+ 115 │           {messages.map((message) => (
+ 116 │             <div
+ 117 │               key={message.id}
+ 118 │               className={`flex items-start gap-2 ${
+ 119 │                 message.sender_id === currentUserId ? "flex-row-reverse" : ""
+ 120 │               }`}
+ 121 │             >
+ 122 │               <Avatar className="h-8 w-8">
+ 123 │                 <AvatarImage src={message.profiles.avatar_url} />
+ 124 │                 <AvatarFallback>
+ 125 │                   {message.profiles.username.slice(0, 2).toUpperCase()}
+ 126 │                 </AvatarFallback>
+ 127 │               </Avatar>
+ 128 │               <div
+ 129 │                 className={`rounded-lg px-3 py-2 max-w-[70%] ${
+ 130 │                   message.sender_id === currentUserId
+ 131 │                     ? "bg-primary text-primary-foreground"
+ 132 │                     : "bg-muted"
+ 133 │                 }`}
+ 134 │               >
+ 135 │                 <p className="text-sm">{message.content}</p>
+ 136 │               </div>
+ 137 │             </div>
+ 138 │           ))}
+ 139 │           <div ref={messagesEndRef} />
+ 140 │         </div>
+ 141 │       </ScrollArea>
+ 142 │       <form onSubmit={sendMessage} className="p-4 border-t">
+ 143 │         <div className="flex gap-2">
+ 144 │           <Input
+ 145 │             value={newMessage}
+ 146 │             onChange={(e) => setNewMessage(e.target.value)}
+ 147 │             placeholder="Type a message..."
+ 148 │             className="flex-1"
+ 149 │           />
+ 150 │           <Button type="submit">Send</Button>
+ 151 │         </div>
+ 152 │       </form>
+ 153 │     </div>
+ 154 │   );
+ 155 │ }
+ 156 │ "use client";
+ 157 │ 
+ 158 │ import { useEffect, useRef, useState } from "react";
+ 159 │ import { useAuth } from "@/contexts/auth-context";
+ 160 │ import { supabase } from "@/lib/supabase";
+     ·          ────┬───
+     ·              ╰── `supabase` redefined here
+ 161 │ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+ 162 │ import { Button } from "@/components/ui/button";
+ 163 │ import { Input } from "@/components/ui/input";
+     ╰────
+
+  × the name `Avatar` is defined multiple times
+     ╭─[/home/runner/workspace/components/chat/chat-window.tsx:6:1]
+   6 │ import { Button } from "@/components/ui/button";
+   7 │ import { Input } from "@/components/ui/input";
+   8 │ import { ScrollArea } from "@/components/ui/scroll-area";
+   9 │ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+     ·          ───┬──
+     ·             ╰── previous definition of `Avatar` here
+  10 │ 
+  11 │ interface Message {
+  12 │   id: string;
+  13 │   content: string;
+  14 │   sender_id: string;
+  15 │   created_at: string;
+  16 │   profiles: {
+  17 │     username: string;
+  18 │     avatar_url: string;
+  19 │   };
+  20 │ }
+  21 │ 
+  22 │ interface ChatWindowProps {
+  23 │   conversationId: string;
+  24 │   currentUserId: string;
+  25 │ }
+  26 │ 
+  27 │ export function ChatWindow({ conversationId, currentUserId }: ChatWindowProps) {
+  28 │   const [messages, setMessages] = useState<Message[]>([]);
+  29 │   const [newMessage, setNewMessage] = useState("");
+  30 │   const messagesEndRef = useRef<HTMLDivElement>(null);
+  31 │ 
+  32 │   const scrollToBottom = () => {
+  33 │     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  34 │   };
+  35 │ 
+  36 │   useEffect(() => {
+  37 │     // Fetch existing messages
+  38 │     const fetchMessages = async () => {
+  39 │       const { data, error } = await supabase
+  40 │         .from("messages")
+  41 │         .select(`
+  42 │           *,
+  43 │           profiles:sender_id (
+  44 │             username,
+  45 │             avatar_url
+  46 │           )
+  47 │         `)
+  48 │         .eq("conversation_id", conversationId)
+  49 │         .order("created_at", { ascending: true });
+  50 │ 
+  51 │       if (data) setMessages(data as Message[]);
+  52 │     };
+  53 │ 
+  54 │     fetchMessages();
+  55 │ 
+  56 │     // Subscribe to new messages
+  57 │     const subscription = supabase
+  58 │       .channel(`conversation:${conversationId}`)
+  59 │       .on(
+  60 │         "postgres_changes",
+  61 │         {
+  62 │           event: "INSERT",
+  63 │           schema: "public",
+  64 │           table: "messages",
+  65 │           filter: `conversation_id=eq.${conversationId}`,
+  66 │         },
+  67 │         async (payload) => {
+  68 │           const { data: newMessage, error } = await supabase
+  69 │             .from("messages")
+  70 │             .select(`
+  71 │               *,
+  72 │               profiles:sender_id (
+  73 │                 username,
+  74 │                 avatar_url
+  75 │               )
+  76 │             `)
+  77 │             .eq("id", payload.new.id)
+  78 │             .single();
+  79 │ 
+  80 │           if (newMessage) {
+  81 │             setMessages((prev) => [...prev, newMessage as Message]);
+  82 │             scrollToBottom();
+  83 │           }
+  84 │         }
+  85 │       )
+  86 │       .subscribe();
+  87 │ 
+  88 │     return () => {
+  89 │       subscription.unsubscribe();
+  90 │     };
+  91 │   }, [conversationId]);
+  92 │ 
+  93 │   const sendMessage = async (e: React.FormEvent) => {
+  94 │     e.preventDefault();
+  95 │     if (!newMessage.trim()) return;
+  96 │ 
+  97 │     const { data, error } = await supabase
+  98 │       .from("messages")
+  99 │       .insert({
+ 100 │         conversation_id: conversationId,
+ 101 │         sender_id: currentUserId,
+ 102 │         content: newMessage.trim(),
+ 103 │       })
+ 104 │       .select();
+ 105 │ 
+ 106 │     if (!error) {
+ 107 │       setNewMessage("");
+ 108 │     }
+ 109 │   };
+ 110 │ 
+ 111 │   return (
+ 112 │     <div className="flex flex-col h-[600px] border rounded-lg">
+ 113 │       <ScrollArea className="flex-1 p-4">
+ 114 │         <div className="space-y-4">
+ 115 │           {messages.map((message) => (
+ 116 │             <div
+ 117 │               key={message.id}
+ 118 │               className={`flex items-start gap-2 ${
+ 119 │                 message.sender_id === currentUserId ? "flex-row-reverse" : ""
+ 120 │               }`}
+ 121 │             >
+ 122 │               <Avatar className="h-8 w-8">
+ 123 │                 <AvatarImage src={message.profiles.avatar_url} />
+ 124 │                 <AvatarFallback>
+ 125 │                   {message.profiles.username.slice(0, 2).toUpperCase()}
+ 126 │                 </AvatarFallback>
+ 127 │               </Avatar>
+ 128 │               <div
+ 129 │                 className={`rounded-lg px-3 py-2 max-w-[70%] ${
+ 130 │                   message.sender_id === currentUserId
+ 131 │                     ? "bg-primary text-primary-foreground"
+ 132 │                     : "bg-muted"
+ 133 │                 }`}
+ 134 │               >
+ 135 │                 <p className="text-sm">{message.content}</p>
+ 136 │               </div>
+ 137 │             </div>
+ 138 │           ))}
+ 139 │           <div ref={messagesEndRef} />
+ 140 │         </div>
+ 141 │       </ScrollArea>
+ 142 │       <form onSubmit={sendMessage} className="p-4 border-t">
+ 143 │         <div className="flex gap-2">
+ 144 │           <Input
+ 145 │             value={newMessage}
+ 146 │             onChange={(e) => setNewMessage(e.target.value)}
+ 147 │             placeholder="Type a message..."
+ 148 │             className="flex-1"
+ 149 │           />
+ 150 │           <Button type="submit">Send</Button>
+ 151 │         </div>
+ 152 │       </form>
+ 153 │     </div>
+ 154 │   );
+ 155 │ }
+ 156 │ "use client";
+ 157 │ 
+ 158 │ import { useEffect, useRef, useState } from "react";
+ 159 │ import { useAuth } from "@/contexts/auth-context";
+ 160 │ import { supabase } from "@/lib/supabase";
+ 161 │ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+     ·          ───┬──
+     ·             ╰── `Avatar` redefined here
+ 162 │ import { Button } from "@/components/ui/button";
+ 163 │ import { Input } from "@/components/ui/input";
+ 164 │ import { ScrollArea } from "@/components/ui/scroll-area";
+     ╰────
+
+  × the name `AvatarFallback` is defined multiple times
+     ╭─[/home/runner/workspace/components/chat/chat-window.tsx:6:1]
+   6 │ import { Button } from "@/components/ui/button";
+   7 │ import { Input } from "@/components/ui/input";
+   8 │ import { ScrollArea } from "@/components/ui/scroll-area";
+   9 │ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+     ·                  ───────┬──────
+     ·                         ╰── previous definition of `AvatarFallback` here
+  10 │ 
+  11 │ interface Message {
+  12 │   id: string;
+  13 │   content: string;
+  14 │   sender_id: string;
+  15 │   created_at: string;
+  16 │   profiles: {
+  17 │     username: string;
+  18 │     avatar_url: string;
+  19 │   };
+  20 │ }
+  21 │ 
+  22 │ interface ChatWindowProps {
+  23 │   conversationId: string;
+  24 │   currentUserId: string;
+  25 │ }
+  26 │ 
+  27 │ export function ChatWindow({ conversationId, currentUserId }: ChatWindowProps) {
+  28 │   const [messages, setMessages] = useState<Message[]>([]);
+  29 │   const [newMessage, setNewMessage] = useState("");
+  30 │   const messagesEndRef = useRef<HTMLDivElement>(null);
+  31 │ 
+  32 │   const scrollToBottom = () => {
+  33 │     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  34 │   };
+  35 │ 
+  36 │   useEffect(() => {
+  37 │     // Fetch existing messages
+  38 │     const fetchMessages = async () => {
+  39 │       const { data, error } = await supabase
+  40 │         .from("messages")
+  41 │         .select(`
+  42 │           *,
+  43 │           profiles:sender_id (
+  44 │             username,
+  45 │             avatar_url
+  46 │           )
+  47 │         `)
+  48 │         .eq("conversation_id", conversationId)
+  49 │         .order("created_at", { ascending: true });
+  50 │ 
+  51 │       if (data) setMessages(data as Message[]);
+  52 │     };
+  53 │ 
+  54 │     fetchMessages();
+  55 │ 
+  56 │     // Subscribe to new messages
+  57 │     const subscription = supabase
+  58 │       .channel(`conversation:${conversationId}`)
+  59 │       .on(
+  60 │         "postgres_changes",
+  61 │         {
+  62 │           event: "INSERT",
+  63 │           schema: "public",
+  64 │           table: "messages",
+  65 │           filter: `conversation_id=eq.${conversationId}`,
+  66 │         },
+  67 │         async (payload) => {
+  68 │           const { data: newMessage, error } = await supabase
+  69 │             .from("messages")
+  70 │             .select(`
+  71 │               *,
+  72 │               profiles:sender_id (
+  73 │                 username,
+  74 │                 avatar_url
+  75 │               )
+  76 │             `)
+  77 │             .eq("id", payload.new.id)
+  78 │             .single();
+  79 │ 
+  80 │           if (newMessage) {
+  81 │             setMessages((prev) => [...prev, newMessage as Message]);
+  82 │             scrollToBottom();
+  83 │           }
+  84 │         }
+  85 │       )
+  86 │       .subscribe();
+  87 │ 
+  88 │     return () => {
+  89 │       subscription.unsubscribe();
+  90 │     };
+  91 │   }, [conversationId]);
+  92 │ 
+  93 │   const sendMessage = async (e: React.FormEvent) => {
+  94 │     e.preventDefault();
+  95 │     if (!newMessage.trim()) return;
+  96 │ 
+  97 │     const { data, error } = await supabase
+  98 │       .from("messages")
+  99 │       .insert({
+ 100 │         conversation_id: conversationId,
+ 101 │         sender_id: currentUserId,
+ 102 │         content: newMessage.trim(),
+ 103 │       })
+ 104 │       .select();
+ 105 │ 
+ 106 │     if (!error) {
+ 107 │       setNewMessage("");
+ 108 │     }
+ 109 │   };
+ 110 │ 
+ 111 │   return (
+ 112 │     <div className="flex flex-col h-[600px] border rounded-lg">
+ 113 │       <ScrollArea className="flex-1 p-4">
+ 114 │         <div className="space-y-4">
+ 115 │           {messages.map((message) => (
+ 116 │             <div
+ 117 │               key={message.id}
+ 118 │               className={`flex items-start gap-2 ${
+ 119 │                 message.sender_id === currentUserId ? "flex-row-reverse" : ""
+ 120 │               }`}
+ 121 │             >
+ 122 │               <Avatar className="h-8 w-8">
+ 123 │                 <AvatarImage src={message.profiles.avatar_url} />
+ 124 │                 <AvatarFallback>
+ 125 │                   {message.profiles.username.slice(0, 2).toUpperCase()}
+ 126 │                 </AvatarFallback>
+ 127 │               </Avatar>
+ 128 │               <div
+ 129 │                 className={`rounded-lg px-3 py-2 max-w-[70%] ${
+ 130 │                   message.sender_id === currentUserId
+ 131 │                     ? "bg-primary text-primary-foreground"
+ 132 │                     : "bg-muted"
+ 133 │                 }`}
+ 134 │               >
+ 135 │                 <p className="text-sm">{message.content}</p>
+ 136 │               </div>
+ 137 │             </div>
+ 138 │           ))}
+ 139 │           <div ref={messagesEndRef} />
+ 140 │         </div>
+ 141 │       </ScrollArea>
+ 142 │       <form onSubmit={sendMessage} className="p-4 border-t">
+ 143 │         <div className="flex gap-2">
+ 144 │           <Input
+ 145 │             value={newMessage}
+ 146 │             onChange={(e) => setNewMessage(e.target.value)}
+ 147 │             placeholder="Type a message..."
+ 148 │             className="flex-1"
+ 149 │           />
+ 150 │           <Button type="submit">Send</Button>
+ 151 │         </div>
+ 152 │       </form>
+ 153 │     </div>
+ 154 │   );
+ 155 │ }
+ 156 │ "use client";
+ 157 │ 
+ 158 │ import { useEffect, useRef, useState } from "react";
+ 159 │ import { useAuth } from "@/contexts/auth-context";
+ 160 │ import { supabase } from "@/lib/supabase";
+ 161 │ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+     ·                  ───────┬──────
+     ·                         ╰── `AvatarFallback` redefined here
+ 162 │ import { Button } from "@/components/ui/button";
+ 163 │ import { Input } from "@/components/ui/input";
+ 164 │ import { ScrollArea } from "@/components/ui/scroll-area";
+     ╰────
+
+  × the name `AvatarImage` is defined multiple times
+     ╭─[/home/runner/workspace/components/chat/chat-window.tsx:6:1]
+   6 │ import { Button } from "@/components/ui/button";
+   7 │ import { Input } from "@/components/ui/input";
+   8 │ import { ScrollArea } from "@/components/ui/scroll-area";
+   9 │ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+     ·                                  ─────┬─────
+     ·                                       ╰── previous definition of `AvatarImage` here
+  10 │ 
+  11 │ interface Message {
+  12 │   id: string;
+  13 │   content: string;
+  14 │   sender_id: string;
+  15 │   created_at: string;
+  16 │   profiles: {
+  17 │     username: string;
+  18 │     avatar_url: string;
+  19 │   };
+  20 │ }
+  21 │ 
+  22 │ interface ChatWindowProps {
+  23 │   conversationId: string;
+  24 │   currentUserId: string;
+  25 │ }
+  26 │ 
+  27 │ export function ChatWindow({ conversationId, currentUserId }: ChatWindowProps) {
+  28 │   const [messages, setMessages] = useState<Message[]>([]);
+  29 │   const [newMessage, setNewMessage] = useState("");
+  30 │   const messagesEndRef = useRef<HTMLDivElement>(null);
+  31 │ 
+  32 │   const scrollToBottom = () => {
+  33 │     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  34 │   };
+  35 │ 
+  36 │   useEffect(() => {
+  37 │     // Fetch existing messages
+  38 │     const fetchMessages = async () => {
+  39 │       const { data, error } = await supabase
+  40 │         .from("messages")
+  41 │         .select(`
+  42 │           *,
+  43 │           profiles:sender_id (
+  44 │             username,
+  45 │             avatar_url
+  46 │           )
+  47 │         `)
+  48 │         .eq("conversation_id", conversationId)
+  49 │         .order("created_at", { ascending: true });
+  50 │ 
+  51 │       if (data) setMessages(data as Message[]);
+  52 │     };
+  53 │ 
+  54 │     fetchMessages();
+  55 │ 
+  56 │     // Subscribe to new messages
+  57 │     const subscription = supabase
+  58 │       .channel(`conversation:${conversationId}`)
+  59 │       .on(
+  60 │         "postgres_changes",
+  61 │         {
+  62 │           event: "INSERT",
+  63 │           schema: "public",
+  64 │           table: "messages",
+  65 │           filter: `conversation_id=eq.${conversationId}`,
+  66 │         },
+  67 │         async (payload) => {
+  68 │           const { data: newMessage, error } = await supabase
+  69 │             .from("messages")
+  70 │             .select(`
+  71 │               *,
+  72 │               profiles:sender_id (
+  73 │                 username,
+  74 │                 avatar_url
+  75 │               )
+  76 │             `)
+  77 │             .eq("id", payload.new.id)
+  78 │             .single();
+  79 │ 
+  80 │           if (newMessage) {
+  81 │             setMessages((prev) => [...prev, newMessage as Message]);
+  82 │             scrollToBottom();
+  83 │           }
+  84 │         }
+  85 │       )
+  86 │       .subscribe();
+  87 │ 
+  88 │     return () => {
+  89 │       subscription.unsubscribe();
+  90 │     };
+  91 │   }, [conversationId]);
+  92 │ 
+  93 │   const sendMessage = async (e: React.FormEvent) => {
+  94 │     e.preventDefault();
+  95 │     if (!newMessage.trim()) return;
+  96 │ 
+  97 │     const { data, error } = await supabase
+  98 │       .from("messages")
+  99 │       .insert({
+ 100 │         conversation_id: conversationId,
+ 101 │         sender_id: currentUserId,
+ 102 │         content: newMessage.trim(),
+ 103 │       })
+ 104 │       .select();
+ 105 │ 
+ 106 │     if (!error) {
+ 107 │       setNewMessage("");
+ 108 │     }
+ 109 │   };
+ 110 │ 
+ 111 │   return (
+ 112 │     <div className="flex flex-col h-[600px] border rounded-lg">
+ 113 │       <ScrollArea className="flex-1 p-4">
+ 114 │         <div className="space-y-4">
+ 115 │           {messages.map((message) => (
+ 116 │             <div
+ 117 │               key={message.id}
+ 118 │               className={`flex items-start gap-2 ${
+ 119 │                 message.sender_id === currentUserId ? "flex-row-reverse" : ""
+ 120 │               }`}
+ 121 │             >
+ 122 │               <Avatar className="h-8 w-8">
+ 123 │                 <AvatarImage src={message.profiles.avatar_url} />
+ 124 │                 <AvatarFallback>
+ 125 │                   {message.profiles.username.slice(0, 2).toUpperCase()}
+ 126 │                 </AvatarFallback>
+ 127 │               </Avatar>
+ 128 │               <div
+ 129 │                 className={`rounded-lg px-3 py-2 max-w-[70%] ${
+ 130 │                   message.sender_id === currentUserId
+ 131 │                     ? "bg-primary text-primary-foreground"
+ 132 │                     : "bg-muted"
+ 133 │                 }`}
+ 134 │               >
+ 135 │                 <p className="text-sm">{message.content}</p>
+ 136 │               </div>
+ 137 │             </div>
+ 138 │           ))}
+ 139 │           <div ref={messagesEndRef} />
+ 140 │         </div>
+ 141 │       </ScrollArea>
+ 142 │       <form onSubmit={sendMessage} className="p-4 border-t">
+ 143 │         <div className="flex gap-2">
+ 144 │           <Input
+ 145 │             value={newMessage}
+ 146 │             onChange={(e) => setNewMessage(e.target.value)}
+ 147 │             placeholder="Type a message..."
+ 148 │             className="flex-1"
+ 149 │           />
+ 150 │           <Button type="submit">Send</Button>
+ 151 │         </div>
+ 152 │       </form>
+ 153 │     </div>
+ 154 │   );
+ 155 │ }
+ 156 │ "use client";
+ 157 │ 
+ 158 │ import { useEffect, useRef, useState } from "react";
+ 159 │ import { useAuth } from "@/contexts/auth-context";
+ 160 │ import { supabase } from "@/lib/supabase";
+ 161 │ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+     ·                                  ─────┬─────
+     ·                                       ╰── `AvatarImage` redefined here
+ 162 │ import { Button } from "@/components/ui/button";
+ 163 │ import { Input } from "@/components/ui/input";
+ 164 │ import { ScrollArea } from "@/components/ui/scroll-area";
+     ╰────
+
+  × the name `Button` is defined multiple times
+     ╭─[/home/runner/workspace/components/chat/chat-window.tsx:3:1]
+   3 │ 
+   4 │ import { useEffect, useState, useRef } from "react";
+   5 │ import { supabase } from "@/lib/supabase";
+   6 │ import { Button } from "@/components/ui/button";
+     ·          ───┬──
+     ·             ╰── previous definition of `Button` here
+   7 │ import { Input } from "@/components/ui/input";
+   8 │ import { ScrollArea } from "@/components/ui/scroll-area";
+   9 │ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+  10 │ 
+  11 │ interface Message {
+  12 │   id: string;
+  13 │   content: string;
+  14 │   sender_id: string;
+  15 │   created_at: string;
+  16 │   profiles: {
+  17 │     username: string;
+  18 │     avatar_url: string;
+  19 │   };
+  20 │ }
+  21 │ 
+  22 │ interface ChatWindowProps {
+  23 │   conversationId: string;
+  24 │   currentUserId: string;
+  25 │ }
+  26 │ 
+  27 │ export function ChatWindow({ conversationId, currentUserId }: ChatWindowProps) {
+  28 │   const [messages, setMessages] = useState<Message[]>([]);
+  29 │   const [newMessage, setNewMessage] = useState("");
+  30 │   const messagesEndRef = useRef<HTMLDivElement>(null);
+  31 │ 
+  32 │   const scrollToBottom = () => {
+  33 │     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  34 │   };
+  35 │ 
+  36 │   useEffect(() => {
+  37 │     // Fetch existing messages
+  38 │     const fetchMessages = async () => {
+  39 │       const { data, error } = await supabase
+  40 │         .from("messages")
+  41 │         .select(`
+  42 │           *,
+  43 │           profiles:sender_id (
+  44 │             username,
+  45 │             avatar_url
+  46 │           )
+  47 │         `)
+  48 │         .eq("conversation_id", conversationId)
+  49 │         .order("created_at", { ascending: true });
+  50 │ 
+  51 │       if (data) setMessages(data as Message[]);
+  52 │     };
+  53 │ 
+  54 │     fetchMessages();
+  55 │ 
+  56 │     // Subscribe to new messages
+  57 │     const subscription = supabase
+  58 │       .channel(`conversation:${conversationId}`)
+  59 │       .on(
+  60 │         "postgres_changes",
+  61 │         {
+  62 │           event: "INSERT",
+  63 │           schema: "public",
+  64 │           table: "messages",
+  65 │           filter: `conversation_id=eq.${conversationId}`,
+  66 │         },
+  67 │         async (payload) => {
+  68 │           const { data: newMessage, error } = await supabase
+  69 │             .from("messages")
+  70 │             .select(`
+  71 │               *,
+  72 │               profiles:sender_id (
+  73 │                 username,
+  74 │                 avatar_url
+  75 │               )
+  76 │             `)
+  77 │             .eq("id", payload.new.id)
+  78 │             .single();
+  79 │ 
+  80 │           if (newMessage) {
+  81 │             setMessages((prev) => [...prev, newMessage as Message]);
+  82 │             scrollToBottom();
+  83 │           }
+  84 │         }
+  85 │       )
+  86 │       .subscribe();
+  87 │ 
+  88 │     return () => {
+  89 │       subscription.unsubscribe();
+  90 │     };
+  91 │   }, [conversationId]);
+  92 │ 
+  93 │   const sendMessage = async (e: React.FormEvent) => {
+  94 │     e.preventDefault();
+  95 │     if (!newMessage.trim()) return;
+  96 │ 
+  97 │     const { data, error } = await supabase
+  98 │       .from("messages")
+  99 │       .insert({
+ 100 │         conversation_id: conversationId,
+ 101 │         sender_id: currentUserId,
+ 102 │         content: newMessage.trim(),
+ 103 │       })
+ 104 │       .select();
+ 105 │ 
+ 106 │     if (!error) {
+ 107 │       setNewMessage("");
+ 108 │     }
+ 109 │   };
+ 110 │ 
+ 111 │   return (
+ 112 │     <div className="flex flex-col h-[600px] border rounded-lg">
+ 113 │       <ScrollArea className="flex-1 p-4">
+ 114 │         <div className="space-y-4">
+ 115 │           {messages.map((message) => (
+ 116 │             <div
+ 117 │               key={message.id}
+ 118 │               className={`flex items-start gap-2 ${
+ 119 │                 message.sender_id === currentUserId ? "flex-row-reverse" : ""
+ 120 │               }`}
+ 121 │             >
+ 122 │               <Avatar className="h-8 w-8">
+ 123 │                 <AvatarImage src={message.profiles.avatar_url} />
+ 124 │                 <AvatarFallback>
+ 125 │                   {message.profiles.username.slice(0, 2).toUpperCase()}
+ 126 │                 </AvatarFallback>
+ 127 │               </Avatar>
+ 128 │               <div
+ 129 │                 className={`rounded-lg px-3 py-2 max-w-[70%] ${
+ 130 │                   message.sender_id === currentUserId
+ 131 │                     ? "bg-primary text-primary-foreground"
+ 132 │                     : "bg-muted"
+ 133 │                 }`}
+ 134 │               >
+ 135 │                 <p className="text-sm">{message.content}</p>
+ 136 │               </div>
+ 137 │             </div>
+ 138 │           ))}
+ 139 │           <div ref={messagesEndRef} />
+ 140 │         </div>
+ 141 │       </ScrollArea>
+ 142 │       <form onSubmit={sendMessage} className="p-4 border-t">
+ 143 │         <div className="flex gap-2">
+ 144 │           <Input
+ 145 │             value={newMessage}
+ 146 │             onChange={(e) => setNewMessage(e.target.value)}
+ 147 │             placeholder="Type a message..."
+ 148 │             className="flex-1"
+ 149 │           />
+ 150 │           <Button type="submit">Send</Button>
+ 151 │         </div>
+ 152 │       </form>
+ 153 │     </div>
+ 154 │   );
+ 155 │ }
+ 156 │ "use client";
+ 157 │ 
+ 158 │ import { useEffect, useRef, useState } from "react";
+ 159 │ import { useAuth } from "@/contexts/auth-context";
+ 160 │ import { supabase } from "@/lib/supabase";
+ 161 │ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+ 162 │ import { Button } from "@/components/ui/button";
+     ·          ───┬──
+     ·             ╰── `Button` redefined here
+ 163 │ import { Input } from "@/components/ui/input";
+ 164 │ import { ScrollArea } from "@/components/ui/scroll-area";
+ 165 │ import { Send } from "lucide-react";
+     ╰────
+
+  × the name `Input` is defined multiple times
+     ╭─[/home/runner/workspace/components/chat/chat-window.tsx:4:1]
+   4 │ import { useEffect, useState, useRef } from "react";
+   5 │ import { supabase } from "@/lib/supabase";
+   6 │ import { Button } from "@/components/ui/button";
+   7 │ import { Input } from "@/components/ui/input";
+     ·          ──┬──
+     ·            ╰── previous definition of `Input` here
+   8 │ import { ScrollArea } from "@/components/ui/scroll-area";
+   9 │ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+  10 │ 
+  11 │ interface Message {
+  12 │   id: string;
+  13 │   content: string;
+  14 │   sender_id: string;
+  15 │   created_at: string;
+  16 │   profiles: {
+  17 │     username: string;
+  18 │     avatar_url: string;
+  19 │   };
+  20 │ }
+  21 │ 
+  22 │ interface ChatWindowProps {
+  23 │   conversationId: string;
+  24 │   currentUserId: string;
+  25 │ }
+  26 │ 
+  27 │ export function ChatWindow({ conversationId, currentUserId }: ChatWindowProps) {
+  28 │   const [messages, setMessages] = useState<Message[]>([]);
+  29 │   const [newMessage, setNewMessage] = useState("");
+  30 │   const messagesEndRef = useRef<HTMLDivElement>(null);
+  31 │ 
+  32 │   const scrollToBottom = () => {
+  33 │     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  34 │   };
+  35 │ 
+  36 │   useEffect(() => {
+  37 │     // Fetch existing messages
+  38 │     const fetchMessages = async () => {
+  39 │       const { data, error } = await supabase
+  40 │         .from("messages")
+  41 │         .select(`
+  42 │           *,
+  43 │           profiles:sender_id (
+  44 │             username,
+  45 │             avatar_url
+  46 │           )
+  47 │         `)
+  48 │         .eq("conversation_id", conversationId)
+  49 │         .order("created_at", { ascending: true });
+  50 │ 
+  51 │       if (data) setMessages(data as Message[]);
+  52 │     };
+  53 │ 
+  54 │     fetchMessages();
+  55 │ 
+  56 │     // Subscribe to new messages
+  57 │     const subscription = supabase
+  58 │       .channel(`conversation:${conversationId}`)
+  59 │       .on(
+  60 │         "postgres_changes",
+  61 │         {
+  62 │           event: "INSERT",
+  63 │           schema: "public",
+  64 │           table: "messages",
+  65 │           filter: `conversation_id=eq.${conversationId}`,
+  66 │         },
+  67 │         async (payload) => {
+  68 │           const { data: newMessage, error } = await supabase
+  69 │             .from("messages")
+  70 │             .select(`
+  71 │               *,
+  72 │               profiles:sender_id (
+  73 │                 username,
+  74 │                 avatar_url
+  75 │               )
+  76 │             `)
+  77 │             .eq("id", payload.new.id)
+  78 │             .single();
+  79 │ 
+  80 │           if (newMessage) {
+  81 │             setMessages((prev) => [...prev, newMessage as Message]);
+  82 │             scrollToBottom();
+  83 │           }
+  84 │         }
+  85 │       )
+  86 │       .subscribe();
+  87 │ 
+  88 │     return () => {
+  89 │       subscription.unsubscribe();
+  90 │     };
+  91 │   }, [conversationId]);
+  92 │ 
+  93 │   const sendMessage = async (e: React.FormEvent) => {
+  94 │     e.preventDefault();
+  95 │     if (!newMessage.trim()) return;
+  96 │ 
+  97 │     const { data, error } = await supabase
+  98 │       .from("messages")
+  99 │       .insert({
+ 100 │         conversation_id: conversationId,
+ 101 │         sender_id: currentUserId,
+ 102 │         content: newMessage.trim(),
+ 103 │       })
+ 104 │       .select();
+ 105 │ 
+ 106 │     if (!error) {
+ 107 │       setNewMessage("");
+ 108 │     }
+ 109 │   };
+ 110 │ 
+ 111 │   return (
+ 112 │     <div className="flex flex-col h-[600px] border rounded-lg">
+ 113 │       <ScrollArea className="flex-1 p-4">
+ 114 │         <div className="space-y-4">
+ 115 │           {messages.map((message) => (
+ 116 │             <div
+ 117 │               key={message.id}
+ 118 │               className={`flex items-start gap-2 ${
+ 119 │                 message.sender_id === currentUserId ? "flex-row-reverse" : ""
+ 120 │               }`}
+ 121 │             >
+ 122 │               <Avatar className="h-8 w-8">
+ 123 │                 <AvatarImage src={message.profiles.avatar_url} />
+ 124 │                 <AvatarFallback>
+ 125 │                   {message.profiles.username.slice(0, 2).toUpperCase()}
+ 126 │                 </AvatarFallback>
+ 127 │               </Avatar>
+ 128 │               <div
+ 129 │                 className={`rounded-lg px-3 py-2 max-w-[70%] ${
+ 130 │                   message.sender_id === currentUserId
+ 131 │                     ? "bg-primary text-primary-foreground"
+ 132 │                     : "bg-muted"
+ 133 │                 }`}
+ 134 │               >
+ 135 │                 <p className="text-sm">{message.content}</p>
+ 136 │               </div>
+ 137 │             </div>
+ 138 │           ))}
+ 139 │           <div ref={messagesEndRef} />
+ 140 │         </div>
+ 141 │       </ScrollArea>
+ 142 │       <form onSubmit={sendMessage} className="p-4 border-t">
+ 143 │         <div className="flex gap-2">
+ 144 │           <Input
+ 145 │             value={newMessage}
+ 146 │             onChange={(e) => setNewMessage(e.target.value)}
+ 147 │             placeholder="Type a message..."
+ 148 │             className="flex-1"
+ 149 │           />
+ 150 │           <Button type="submit">Send</Button>
+ 151 │         </div>
+ 152 │       </form>
+ 153 │     </div>
+ 154 │   );
+ 155 │ }
+ 156 │ "use client";
+ 157 │ 
+ 158 │ import { useEffect, useRef, useState } from "react";
+ 159 │ import { useAuth } from "@/contexts/auth-context";
+ 160 │ import { supabase } from "@/lib/supabase";
+ 161 │ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+ 162 │ import { Button } from "@/components/ui/button";
+ 163 │ import { Input } from "@/components/ui/input";
+     ·          ──┬──
+     ·            ╰── `Input` redefined here
+ 164 │ import { ScrollArea } from "@/components/ui/scroll-area";
+ 165 │ import { Send } from "lucide-react";
+ 166 │ import { formatDistanceToNow } from "date-fns";
+     ╰────
+
+  × the name `ScrollArea` is defined multiple times
+     ╭─[/home/runner/workspace/components/chat/chat-window.tsx:5:1]
+   5 │ import { supabase } from "@/lib/supabase";
+   6 │ import { Button } from "@/components/ui/button";
+   7 │ import { Input } from "@/components/ui/input";
+   8 │ import { ScrollArea } from "@/components/ui/scroll-area";
+     ·          ─────┬────
+     ·               ╰── previous definition of `ScrollArea` here
+   9 │ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+  10 │ 
+  11 │ interface Message {
+  12 │   id: string;
+  13 │   content: string;
+  14 │   sender_id: string;
+  15 │   created_at: string;
+  16 │   profiles: {
+  17 │     username: string;
+  18 │     avatar_url: string;
+  19 │   };
+  20 │ }
+  21 │ 
+  22 │ interface ChatWindowProps {
+  23 │   conversationId: string;
+  24 │   currentUserId: string;
+  25 │ }
+  26 │ 
+  27 │ export function ChatWindow({ conversationId, currentUserId }: ChatWindowProps) {
+  28 │   const [messages, setMessages] = useState<Message[]>([]);
+  29 │   const [newMessage, setNewMessage] = useState("");
+  30 │   const messagesEndRef = useRef<HTMLDivElement>(null);
+  31 │ 
+  32 │   const scrollToBottom = () => {
+  33 │     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  34 │   };
+  35 │ 
+  36 │   useEffect(() => {
+  37 │     // Fetch existing messages
+  38 │     const fetchMessages = async () => {
+  39 │       const { data, error } = await supabase
+  40 │         .from("messages")
+  41 │         .select(`
+  42 │           *,
+  43 │           profiles:sender_id (
+  44 │             username,
+  45 │             avatar_url
+  46 │           )
+  47 │         `)
+  48 │         .eq("conversation_id", conversationId)
+  49 │         .order("created_at", { ascending: true });
+  50 │ 
+  51 │       if (data) setMessages(data as Message[]);
+  52 │     };
+  53 │ 
+  54 │     fetchMessages();
+  55 │ 
+  56 │     // Subscribe to new messages
+  57 │     const subscription = supabase
+  58 │       .channel(`conversation:${conversationId}`)
+  59 │       .on(
+  60 │         "postgres_changes",
+  61 │         {
+  62 │           event: "INSERT",
+  63 │           schema: "public",
+  64 │           table: "messages",
+  65 │           filter: `conversation_id=eq.${conversationId}`,
+  66 │         },
+  67 │         async (payload) => {
+  68 │           const { data: newMessage, error } = await supabase
+  69 │             .from("messages")
+  70 │             .select(`
+  71 │               *,
+  72 │               profiles:sender_id (
+  73 │                 username,
+  74 │                 avatar_url
+  75 │               )
+  76 │             `)
+  77 │             .eq("id", payload.new.id)
+  78 │             .single();
+  79 │ 
+  80 │           if (newMessage) {
+  81 │             setMessages((prev) => [...prev, newMessage as Message]);
+  82 │             scrollToBottom();
+  83 │           }
+  84 │         }
+  85 │       )
+  86 │       .subscribe();
+  87 │ 
+  88 │     return () => {
+  89 │       subscription.unsubscribe();
+  90 │     };
+  91 │   }, [conversationId]);
+  92 │ 
+  93 │   const sendMessage = async (e: React.FormEvent) => {
+  94 │     e.preventDefault();
+  95 │     if (!newMessage.trim()) return;
+  96 │ 
+  97 │     const { data, error } = await supabase
+  98 │       .from("messages")
+  99 │       .insert({
+ 100 │         conversation_id: conversationId,
+ 101 │         sender_id: currentUserId,
+ 102 │         content: newMessage.trim(),
+ 103 │       })
+ 104 │       .select();
+ 105 │ 
+ 106 │     if (!error) {
+ 107 │       setNewMessage("");
+ 108 │     }
+ 109 │   };
+ 110 │ 
+ 111 │   return (
+ 112 │     <div className="flex flex-col h-[600px] border rounded-lg">
+ 113 │       <ScrollArea className="flex-1 p-4">
+ 114 │         <div className="space-y-4">
+ 115 │           {messages.map((message) => (
+ 116 │             <div
+ 117 │               key={message.id}
+ 118 │               className={`flex items-start gap-2 ${
+ 119 │                 message.sender_id === currentUserId ? "flex-row-reverse" : ""
+ 120 │               }`}
+ 121 │             >
+ 122 │               <Avatar className="h-8 w-8">
+ 123 │                 <AvatarImage src={message.profiles.avatar_url} />
+ 124 │                 <AvatarFallback>
+ 125 │                   {message.profiles.username.slice(0, 2).toUpperCase()}
+ 126 │                 </AvatarFallback>
+ 127 │               </Avatar>
+ 128 │               <div
+ 129 │                 className={`rounded-lg px-3 py-2 max-w-[70%] ${
+ 130 │                   message.sender_id === currentUserId
+ 131 │                     ? "bg-primary text-primary-foreground"
+ 132 │                     : "bg-muted"
+ 133 │                 }`}
+ 134 │               >
+ 135 │                 <p className="text-sm">{message.content}</p>
+ 136 │               </div>
+ 137 │             </div>
+ 138 │           ))}
+ 139 │           <div ref={messagesEndRef} />
+ 140 │         </div>
+ 141 │       </ScrollArea>
+ 142 │       <form onSubmit={sendMessage} className="p-4 border-t">
+ 143 │         <div className="flex gap-2">
+ 144 │           <Input
+ 145 │             value={newMessage}
+ 146 │             onChange={(e) => setNewMessage(e.target.value)}
+ 147 │             placeholder="Type a message..."
+ 148 │             className="flex-1"
+ 149 │           />
+ 150 │           <Button type="submit">Send</Button>
+ 151 │         </div>
+ 152 │       </form>
+ 153 │     </div>
+ 154 │   );
+ 155 │ }
+ 156 │ "use client";
+ 157 │ 
+ 158 │ import { useEffect, useRef, useState } from "react";
+ 159 │ import { useAuth } from "@/contexts/auth-context";
+ 160 │ import { supabase } from "@/lib/supabase";
+ 161 │ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+ 162 │ import { Button } from "@/components/ui/button";
+ 163 │ import { Input } from "@/components/ui/input";
+ 164 │ import { ScrollArea } from "@/components/ui/scroll-area";
+     ·          ─────┬────
+     ·               ╰── `ScrollArea` redefined here
+ 165 │ import { Send } from "lucide-react";
+ 166 │ import { formatDistanceToNow } from "date-fns";
+     ╰────
+
+  × the name `ChatWindow` is defined multiple times
+     ╭─[/home/runner/workspace/components/chat/chat-window.tsx:24:1]
+  24 │   currentUserId: string;
+  25 │ }
+  26 │ 
+  27 │ export function ChatWindow({ conversationId, currentUserId }: ChatWindowProps) {
+     ·                 ─────┬────
+     ·                      ╰── previous definition of `ChatWindow` here
+  28 │   const [messages, setMessages] = useState<Message[]>([]);
+  29 │   const [newMessage, setNewMessage] = useState("");
+  30 │   const messagesEndRef = useRef<HTMLDivElement>(null);
+  31 │ 
+  32 │   const scrollToBottom = () => {
+  33 │     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  34 │   };
+  35 │ 
+  36 │   useEffect(() => {
+  37 │     // Fetch existing messages
+  38 │     const fetchMessages = async () => {
+  39 │       const { data, error } = await supabase
+  40 │         .from("messages")
+  41 │         .select(`
+  42 │           *,
+  43 │           profiles:sender_id (
+  44 │             username,
+  45 │             avatar_url
+  46 │           )
+  47 │         `)
+  48 │         .eq("conversation_id", conversationId)
+  49 │         .order("created_at", { ascending: true });
+  50 │ 
+  51 │       if (data) setMessages(data as Message[]);
+  52 │     };
+  53 │ 
+  54 │     fetchMessages();
+  55 │ 
+  56 │     // Subscribe to new messages
+  57 │     const subscription = supabase
+  58 │       .channel(`conversation:${conversationId}`)
+  59 │       .on(
+  60 │         "postgres_changes",
+  61 │         {
+  62 │           event: "INSERT",
+  63 │           schema: "public",
+  64 │           table: "messages",
+  65 │           filter: `conversation_id=eq.${conversationId}`,
+  66 │         },
+  67 │         async (payload) => {
+  68 │           const { data: newMessage, error } = await supabase
+  69 │             .from("messages")
+  70 │             .select(`
+  71 │               *,
+  72 │               profiles:sender_id (
+  73 │                 username,
+  74 │                 avatar_url
+  75 │               )
+  76 │             `)
+  77 │             .eq("id", payload.new.id)
+  78 │             .single();
+  79 │ 
+  80 │           if (newMessage) {
+  81 │             setMessages((prev) => [...prev, newMessage as Message]);
+  82 │             scrollToBottom();
+  83 │           }
+  84 │         }
+  85 │       )
+  86 │       .subscribe();
+  87 │ 
+  88 │     return () => {
+  89 │       subscription.unsubscribe();
+  90 │     };
+  91 │   }, [conversationId]);
+  92 │ 
+  93 │   const sendMessage = async (e: React.FormEvent) => {
+  94 │     e.preventDefault();
+  95 │     if (!newMessage.trim()) return;
+  96 │ 
+  97 │     const { data, error } = await supabase
+  98 │       .from("messages")
+  99 │       .insert({
+ 100 │         conversation_id: conversationId,
+ 101 │         sender_id: currentUserId,
+ 102 │         content: newMessage.trim(),
+ 103 │       })
+ 104 │       .select();
+ 105 │ 
+ 106 │     if (!error) {
+ 107 │       setNewMessage("");
+ 108 │     }
+ 109 │   };
+ 110 │ 
+ 111 │   return (
+ 112 │     <div className="flex flex-col h-[600px] border rounded-lg">
+ 113 │       <ScrollArea className="flex-1 p-4">
+ 114 │         <div className="space-y-4">
+ 115 │           {messages.map((message) => (
+ 116 │             <div
+ 117 │               key={message.id}
+ 118 │               className={`flex items-start gap-2 ${
+ 119 │                 message.sender_id === currentUserId ? "flex-row-reverse" : ""
+ 120 │               }`}
+ 121 │             >
+ 122 │               <Avatar className="h-8 w-8">
+ 123 │                 <AvatarImage src={message.profiles.avatar_url} />
+ 124 │                 <AvatarFallback>
+ 125 │                   {message.profiles.username.slice(0, 2).toUpperCase()}
+ 126 │                 </AvatarFallback>
+ 127 │               </Avatar>
+ 128 │               <div
+ 129 │                 className={`rounded-lg px-3 py-2 max-w-[70%] ${
+ 130 │                   message.sender_id === currentUserId
+ 131 │                     ? "bg-primary text-primary-foreground"
+ 132 │                     : "bg-muted"
+ 133 │                 }`}
+ 134 │               >
+ 135 │                 <p className="text-sm">{message.content}</p>
+ 136 │               </div>
+ 137 │             </div>
+ 138 │           ))}
+ 139 │           <div ref={messagesEndRef} />
+ 140 │         </div>
+ 141 │       </ScrollArea>
+ 142 │       <form onSubmit={sendMessage} className="p-4 border-t">
+ 143 │         <div className="flex gap-2">
+ 144 │           <Input
+ 145 │             value={newMessage}
+ 146 │             onChange={(e) => setNewMessage(e.target.value)}
+ 147 │             placeholder="Type a message..."
+ 148 │             className="flex-1"
+ 149 │           />
+ 150 │           <Button type="submit">Send</Button>
+ 151 │         </div>
+ 152 │       </form>
+ 153 │     </div>
+ 154 │   );
+ 155 │ }
+ 156 │ "use client";
+ 157 │ 
+ 158 │ import { useEffect, useRef, useState } from "react";
+ 159 │ import { useAuth } from "@/contexts/auth-context";
+ 160 │ import { supabase } from "@/lib/supabase";
+ 161 │ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+ 162 │ import { Button } from "@/components/ui/button";
+ 163 │ import { Input } from "@/components/ui/input";
+ 164 │ import { ScrollArea } from "@/components/ui/scroll-area";
+ 165 │ import { Send } from "lucide-react";
+ 166 │ import { formatDistanceToNow } from "date-fns";
+ 167 │ 
+ 168 │ interface Message {
+ 169 │   id: string;
+ 170 │   content: string;
+ 171 │   sender_id: string;
+ 172 │   created_at: string;
+ 173 │   profiles: {
+ 174 │     username: string;
+ 175 │     avatar_url?: string;
+ 176 │   };
+ 177 │ }
+ 178 │ 
+ 179 │ export function ChatWindow({ conversationId }: { conversationId: string }) {
+     ·                 ─────┬────
+     ·                      ╰── `ChatWindow` redefined here
+ 180 │   const { user } = useAuth();
+ 181 │   const [messages, setMessages] = useState<Message[]>([]);
+ 182 │   const [newMessage, setNewMessage] = useState("");
+     ╰────
+
+  × The "use client" directive must be placed before other expressions. Move it to the top of the file to resolve this issue.
+     ╭─[/home/runner/workspace/components/chat/chat-window.tsx:153:1]
+ 153 │     </div>
+ 154 │   );
+ 155 │ }
+ 156 │ "use client";
+     · ─────────────
+ 157 │ 
+ 158 │ import { useEffect, useRef, useState } from "react";
+ 159 │ import { useAuth } from "@/contexts/auth-context";
+     ╰────
+This error occurred during the build process and can only be dismissed by fixing the error.
