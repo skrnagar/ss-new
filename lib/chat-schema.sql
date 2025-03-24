@@ -2,6 +2,11 @@
 -- Enable UUID extension if not already enabled
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
+-- Drop existing tables if they exist
+DROP TABLE IF EXISTS messages CASCADE;
+DROP TABLE IF EXISTS conversation_participants CASCADE;
+DROP TABLE IF EXISTS conversations CASCADE;
+
 -- Create conversations table
 CREATE TABLE conversations (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
