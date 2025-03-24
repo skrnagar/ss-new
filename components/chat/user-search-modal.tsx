@@ -40,12 +40,12 @@ export function UserSearchModal({ open, onOpenChange, onSelectUser }: UserSearch
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="pt-6" aria-describedby="user-search-description">
-        <DialogDescription id="user-search-description" className="sr-only">
-          Search for users to start a conversation
-        </DialogDescription>
+      <DialogContent className="sm:max-w-[425px]" aria-describedby="user-search-description">
         <DialogHeader>
           <DialogTitle>Start a conversation</DialogTitle>
+          <DialogDescription id="user-search-description">
+            Search for users to start a conversation with.
+          </DialogDescription>
         </DialogHeader>
         <Input
           placeholder="Search by username..."
