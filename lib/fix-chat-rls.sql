@@ -1,3 +1,4 @@
+
 -- Enable RLS
 ALTER TABLE conversations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE conversation_participants ENABLE ROW LEVEL SECURITY;
@@ -21,7 +22,7 @@ GRANT ALL ON conversation_participants TO authenticated;
 GRANT ALL ON messages TO authenticated;
 
 -- Conversation policies
-CREATE POLICY "Enable read access for participants" ON conversations
+CREATE POLICY "conversation_participants_read" ON conversations
 FOR ALL TO authenticated
 USING (
   EXISTS (
@@ -32,16 +33,16 @@ USING (
 );
 
 -- Participant policies (without recursion)
-CREATE POLICY "Enable read access for participants" ON conversation_participants
+CREATE POLICY "participant_read" ON conversation_participants
 FOR SELECT TO authenticated
 USING (profile_id = auth.uid());
 
-CREATE POLICY "Enable insert for participants" ON conversation_participants
+CREATE POLICY "participant_insert" ON conversation_participants
 FOR INSERT TO authenticated
 WITH CHECK (profile_id = auth.uid());
 
 -- Message policies
-CREATE POLICY "Enable read access for messages" ON messages
+CREATE POLICY "message_read" ON messages
 FOR SELECT TO authenticated
 USING (
   EXISTS (
@@ -51,7 +52,7 @@ USING (
   )
 );
 
-CREATE POLICY "Enable insert for messages" ON messages
+CREATE POLICY "message_insert" ON messages
 FOR INSERT TO authenticated
 WITH CHECK (
   sender_id = auth.uid() AND
