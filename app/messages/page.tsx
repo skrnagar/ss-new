@@ -6,7 +6,6 @@ import { supabase } from "@/lib/supabase";
 import { ChatWindow } from "@/components/chat/chat-window";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useToast } from "@/hooks/use-toast";
 
 interface Conversation {
   id: string;
@@ -20,7 +19,6 @@ interface Conversation {
 
 export default function MessagesPage() {
   const { user } = useAuth();
-  const { toast } = useToast();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
   const [newChatUsername, setNewChatUsername] = useState("");
@@ -65,16 +63,19 @@ export default function MessagesPage() {
       return;
     }
 
-    try {
-      // Create new conversation
-      const { data: conversation, error: convError } = await supabase
-        .from("conversations")
-        .insert({})
-        .select()
-        .single();
+    // Create new conversation and add participants
+    const { data: conversation, error: convError } = await supabase
+      .from("conversations")
+      .insert({})
+      .select()
+      .single();
 
-      if (convError) throw new Error('Failed to create conversation');
+    if (convError) {
+      console.error('Error creating conversation:', convError);
+      return;
+    }
 
+    if (conversation) {
       // Add participants
       const { error: participantsError } = await supabase
         .from("conversation_participants")
@@ -83,17 +84,14 @@ export default function MessagesPage() {
           { conversation_id: conversation.id, profile_id: profileData.id }
         ]);
 
-      if (participantsError) throw new Error('Failed to add participants');
+      if (participantsError) {
+        console.error('Error adding participants:', participantsError);
+        return;
+      }
 
       await fetchConversations();
       setNewChatUsername("");
       setSelectedConversation(conversation.id);
-    } catch (error) {
-      toast({
-        title: "Error starting chat",
-        description: "Please try again later",
-        variant: "destructive"
-      });
     }
   };
 
