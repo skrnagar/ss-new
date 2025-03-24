@@ -22,7 +22,7 @@ CREATE POLICY "Enable read access for participants" ON conversations
 FOR SELECT TO authenticated
 USING (EXISTS (
   SELECT 1 FROM conversation_participants
-  WHERE conversation_participants.conversation_id = conversations.id
+  WHERE conversation_participants.conversation_id = id
   AND conversation_participants.profile_id = auth.uid()
 ));
 
@@ -33,10 +33,7 @@ WITH CHECK (auth.uid() IS NOT NULL);
 -- Simple policies for conversation participants
 CREATE POLICY "Enable read access for own participants" ON conversation_participants
 FOR SELECT TO authenticated
-USING (profile_id = auth.uid() OR conversation_id IN (
-  SELECT conversation_id FROM conversation_participants 
-  WHERE profile_id = auth.uid()
-));
+USING (profile_id = auth.uid());
 
 CREATE POLICY "Enable insert access for participants" ON conversation_participants
 FOR INSERT TO authenticated
