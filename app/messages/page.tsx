@@ -30,8 +30,10 @@ export default function MessagesPage() {
       .from('conversations')
       .select(`
         id,
-        conversation_participants (
-          profiles (
+        created_at,
+        conversation_participants!inner(
+          profile_id,
+          profiles!inner(
             id,
             username,
             avatar_url

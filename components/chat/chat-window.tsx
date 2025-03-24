@@ -43,8 +43,12 @@ export function ChatWindow({ conversationId }: ChatWindowProps) {
       const { data, error } = await supabase
         .from("messages")
         .select(`
-          *,
-          profiles (
+          id,
+          content,
+          created_at,
+          sender_id,
+          conversation_id,
+          profiles!inner(
             username,
             avatar_url
           )
