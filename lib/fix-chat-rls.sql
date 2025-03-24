@@ -1,7 +1,8 @@
+
 -- Enable UUID extension if not already enabled
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
--- Drop existing policies
+-- Drop existing policies first
 DROP POLICY IF EXISTS "Users can view their conversations" ON conversations;
 DROP POLICY IF EXISTS "Users can create conversations" ON conversations;
 DROP POLICY IF EXISTS "Users can view participants" ON conversation_participants;
@@ -17,25 +18,27 @@ ALTER TABLE messages ENABLE ROW LEVEL SECURITY;
 -- Conversations policies
 CREATE POLICY "Users can view their conversations"
 ON conversations FOR SELECT
-USING (EXISTS (
-  SELECT 1 FROM conversation_participants
-  WHERE conversation_id = id 
-  AND profile_id = auth.uid()
-));
+USING (
+  EXISTS (
+    SELECT 1 FROM conversation_participants
+    WHERE conversation_id = conversations.id 
+    AND profile_id = auth.uid()
+  )
+);
 
 CREATE POLICY "Users can create conversations"
 ON conversations FOR INSERT
 WITH CHECK (true);
 
--- Participants policies - simplified to avoid recursion
+-- Participants policies
 CREATE POLICY "Users can view participants"
 ON conversation_participants FOR SELECT
 USING (
   profile_id = auth.uid() OR
-  EXISTS (
-    SELECT 1 FROM conversation_participants cp
-    WHERE cp.conversation_id = conversation_participants.conversation_id
-    AND cp.profile_id = auth.uid()
+  conversation_id IN (
+    SELECT conversation_id 
+    FROM conversation_participants
+    WHERE profile_id = auth.uid()
   )
 );
 
@@ -46,18 +49,21 @@ WITH CHECK (true);
 -- Messages policies
 CREATE POLICY "Users can view messages"
 ON messages FOR SELECT
-USING (EXISTS (
-  SELECT 1 FROM conversation_participants
-  WHERE conversation_id = messages.conversation_id
-  AND profile_id = auth.uid()
-));
+USING (
+  conversation_id IN (
+    SELECT conversation_id
+    FROM conversation_participants
+    WHERE profile_id = auth.uid()
+  )
+);
 
 CREATE POLICY "Users can send messages"
 ON messages FOR INSERT
 WITH CHECK (
   sender_id = auth.uid() AND
   EXISTS (
-    SELECT 1 FROM conversation_participants
+    SELECT 1 
+    FROM conversation_participants
     WHERE conversation_id = messages.conversation_id
     AND profile_id = auth.uid()
   )
