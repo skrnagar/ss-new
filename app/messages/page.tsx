@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -7,6 +8,7 @@ import { ChatWindow } from "@/components/chat/chat-window";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { MessageCircle, Search, Plus } from "lucide-react";
+import { supabase } from "@/lib/supabase";
 
 export default function MessagesPage() {
   const { user } = useAuth();
@@ -16,13 +18,54 @@ export default function MessagesPage() {
 
   useEffect(() => {
     if (user) {
-      // Fetch conversations for the current user
       fetchConversations();
     }
   }, [user]);
 
   const fetchConversations = async () => {
-    // TODO: Implement conversation fetching
+    if (!user) return;
+    
+    const { data, error } = await supabase
+      .from('conversations')
+      .select(`
+        id,
+        conversation_participants (
+          profiles (
+            id,
+            username,
+            avatar_url
+          )
+        )
+      `)
+      .order('created_at', { ascending: false });
+
+    if (data && !error) {
+      setConversations(data);
+    }
+  };
+
+  const startNewChat = async () => {
+    if (!user) return;
+    
+    const { data, error } = await supabase
+      .from('conversations')
+      .insert({
+        created_by: user.id
+      })
+      .select()
+      .single();
+
+    if (data && !error) {
+      await supabase
+        .from('conversation_participants')
+        .insert({
+          conversation_id: data.id,
+          profile_id: user.id
+        });
+
+      await fetchConversations();
+      setSelectedChat(data.id);
+    }
   };
 
   if (!user) {
@@ -35,11 +78,10 @@ export default function MessagesPage() {
 
   return (
     <div className="container flex h-[calc(100vh-4rem)] gap-6 py-6">
-      {/* Sidebar */}
       <div className="w-80 flex flex-col border-r pr-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-2xl font-semibold">Messages</h2>
-          <Button size="icon" variant="ghost">
+          <Button size="icon" variant="ghost" onClick={startNewChat}>
             <Plus className="h-5 w-5" />
           </Button>
         </div>
@@ -56,23 +98,7 @@ export default function MessagesPage() {
         </div>
 
         <div className="flex-1 overflow-auto">
-          {/* Placeholder conversations */}
-          {[1, 2, 3].map((i) => (
-            <div
-              key={i}
-              className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted cursor-pointer"
-            >
-              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                <MessageCircle className="h-5 w-5 text-primary" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-medium truncate">Conversation {i}</p>
-                <p className="text-sm text-muted-foreground truncate">
-                  Latest message preview...
-                </p>
-              </div>
-            </div>
-          ))}
+          <ChatList conversations={conversations} onSelect={(chat) => setSelectedChat(chat.id)} selectedId={selectedChat} />
         </div>
       </div>
 
