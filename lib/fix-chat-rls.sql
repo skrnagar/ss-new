@@ -6,8 +6,10 @@ ALTER TABLE messages ENABLE ROW LEVEL SECURITY;
 
 -- Drop existing policies
 DROP POLICY IF EXISTS "Enable read access for participants" ON conversations;
+DROP POLICY IF EXISTS "Enable read access for own participants" ON conversation_participants;
 DROP POLICY IF EXISTS "Enable read for participants" ON conversation_participants;
 DROP POLICY IF EXISTS "Enable insert for participants" ON conversation_participants;
+DROP POLICY IF EXISTS "Enable insert for own participants" ON conversation_participants;
 DROP POLICY IF EXISTS "Enable read access for messages" ON messages;
 DROP POLICY IF EXISTS "Enable insert for messages" ON messages;
 
