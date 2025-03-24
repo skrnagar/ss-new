@@ -25,7 +25,14 @@ USING (EXISTS (
 
 CREATE POLICY "Users can create conversations"
 ON conversations FOR INSERT
-WITH CHECK (auth.uid() IS NOT NULL);
+WITH CHECK (true);
+
+CREATE POLICY "Users can update conversations"
+ON conversations FOR UPDATE
+USING (EXISTS (
+  SELECT 1 FROM conversation_participants
+  WHERE conversation_id = id AND profile_id = auth.uid()
+));
 
 -- Create simplified policies for participants
 CREATE POLICY "Users can view participants"
