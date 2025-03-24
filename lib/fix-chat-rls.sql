@@ -32,7 +32,14 @@ USING (profile_id = auth.uid());
 
 CREATE POLICY "Enable insert access for participants" ON conversation_participants
 FOR INSERT TO authenticated
-WITH CHECK (profile_id = auth.uid());
+WITH CHECK (
+  profile_id = auth.uid() OR 
+  EXISTS (
+    SELECT 1 FROM conversation_participants 
+    WHERE conversation_id = NEW.conversation_id 
+    AND profile_id = auth.uid()
+  )
+);
 
 -- Simple policies for messages
 CREATE POLICY "Enable read access for conversation messages" ON messages
