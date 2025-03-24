@@ -20,7 +20,7 @@ CREATE POLICY "Users can view their conversations"
 ON conversations FOR SELECT
 USING (EXISTS (
   SELECT 1 FROM conversation_participants
-  WHERE conversation_id = id 
+  WHERE conversation_id = conversations.id 
   AND profile_id = auth.uid()
 ));
 
@@ -28,7 +28,7 @@ CREATE POLICY "Users can create conversations"
 ON conversations FOR INSERT
 WITH CHECK (true);
 
--- Participants policies - simplified to prevent recursion
+-- Participants policies
 CREATE POLICY "Users can view participants"
 ON conversation_participants FOR SELECT
 USING (
@@ -40,8 +40,16 @@ USING (
 );
 
 CREATE POLICY "Users can add participants"
-ON conversation_participants FOR INSERT
-WITH CHECK (true);
+ON conversation_participants FOR INSERT 
+WITH CHECK (
+  (SELECT COUNT(*) FROM conversation_participants WHERE conversation_id = NEW.conversation_id) = 0 
+  OR 
+  EXISTS (
+    SELECT 1 FROM conversation_participants 
+    WHERE conversation_id = NEW.conversation_id 
+    AND profile_id = auth.uid()
+  )
+);
 
 -- Messages policies
 CREATE POLICY "Users can view messages"
