@@ -1,0 +1,109 @@
+
+Build Error
+Failed to compile
+
+Next.js (14.2.16) is outdated (learn more)
+./app/messages/page.tsx
+Error: 
+  × await isn't allowed in non-async function
+    ╭─[/home/runner/workspace/app/messages/page.tsx:82:1]
+ 82 │   };
+ 83 │ 
+ 84 │     if (data && !error) {
+ 85 │       await supabase
+    ·             ────────
+ 86 │         .from('conversation_participants')
+ 87 │         .insert({
+ 88 │           conversation_id: data.id,
+    ╰────
+
+  × await isn't allowed in non-async function
+    ╭─[/home/runner/workspace/app/messages/page.tsx:89:1]
+ 89 │           profile_id: user.id
+ 90 │         });
+ 91 │ 
+ 92 │       await fetchConversations();
+    ·             ──────────────────
+ 93 │       setSelectedChat(data.id);
+ 94 │     }
+ 95 │   };
+    ╰────
+
+  × Return statement is not allowed here
+     ╭─[/home/runner/workspace/app/messages/page.tsx:95:1]
+  95 │       };
+  96 │     
+  97 │       if (!user) {
+  98 │ ╭─▶     return (
+  99 │ │         <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
+ 100 │ │           <p>Please sign in to access messages</p>
+ 101 │ │         </div>
+ 102 │ ╰─▶     );
+ 103 │       }
+ 104 │     
+ 105 │       return (
+     ╰────
+
+  × Return statement is not allowed here
+     ╭─[/home/runner/workspace/app/messages/page.tsx:102:1]
+ 102 │         );
+ 103 │       }
+ 104 │     
+ 105 │ ╭─▶   return (
+ 106 │ │       <div className="container flex h-[calc(100vh-4rem)] gap-6 py-6">
+ 107 │ │         <div className="w-80 flex flex-col border-r pr-6">
+ 108 │ │           <div className="flex items-center justify-between mb-4">
+ 109 │ │             <h2 className="text-2xl font-semibold">Messages</h2>
+ 110 │ │             <Button size="icon" variant="ghost" onClick={() => setSearchModalOpen(true)}>
+ 111 │ │               <Plus className="h-5 w-5" />
+ 112 │ │             </Button>
+ 113 │ │             <UserSearchModal 
+ 114 │ │               open={searchModalOpen}
+ 115 │ │               onOpenChange={setSearchModalOpen}
+ 116 │ │               onSelectUser={startNewChat}
+ 117 │ │             />
+ 118 │ │           </div>
+ 119 │ │   
+ 120 │ │           <div className="relative mb-4">
+ 121 │ │             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+ 122 │ │             <Input
+ 123 │ │               type="search"
+ 124 │ │               placeholder="Search messages..."
+ 125 │ │               className="pl-8"
+ 126 │ │               value={searchQuery}
+ 127 │ │               onChange={(e) => setSearchQuery(e.target.value)}
+ 128 │ │             />
+ 129 │ │           </div>
+ 130 │ │   
+ 131 │ │           <div className="flex-1 overflow-auto">
+ 132 │ │             <ChatList conversations={conversations} onSelect={(chat) => setSelectedChat(chat.id)} selectedId={selectedChat} />
+ 133 │ │           </div>
+ 134 │ │         </div>
+ 135 │ │   
+ 136 │ │         {/* Main chat area */}
+ 137 │ │         <div className="flex-1 flex flex-col">
+ 138 │ │           {selectedChat ? (
+ 139 │ │             <ChatWindow conversationId={selectedChat} />
+ 140 │ │           ) : (
+ 141 │ │             <div className="flex-1 flex items-center justify-center text-muted-foreground">
+ 142 │ │               Select a conversation or start a new one
+ 143 │ │             </div>
+ 144 │ │           )}
+ 145 │ │         </div>
+ 146 │ │       </div>
+ 147 │ ╰─▶   );
+ 148 │     }
+     ╰────
+
+  × Expression expected
+     ╭─[/home/runner/workspace/app/messages/page.tsx:145:1]
+ 145 │       </div>
+ 146 │     </div>
+ 147 │   );
+ 148 │ }
+     · ─
+     ╰────
+
+Caused by:
+    Syntax Error
+This error occurred during the build process and can only be dismissed by fixing the error.
