@@ -46,13 +46,7 @@ USING (profile_id = auth.uid() OR
 
 CREATE POLICY "Users can add participants"
 ON conversation_participants FOR INSERT
-WITH CHECK (
-  profile_id = auth.uid() OR
-  conversation_id IN (
-    SELECT id FROM conversations 
-    WHERE created_by = auth.uid()
-  )
-);
+WITH CHECK (true);
 
 -- Create simplified policies for messages
 CREATE POLICY "Users can view messages"
