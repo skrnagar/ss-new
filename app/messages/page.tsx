@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { MessageCircle, Search, Plus } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { UserSearchModal } from "@/components/chat/user-search-modal";
 
 export default function MessagesPage() {
   const { user } = useAuth();
@@ -44,16 +45,41 @@ export default function MessagesPage() {
     }
   };
 
-  const startNewChat = async () => {
+  const [searchModalOpen, setSearchModalOpen] = useState(false);
+
+  const startNewChat = async (otherUserId: string) => {
     if (!user) return;
     
-    const { data, error } = await supabase
+    // Create new conversation
+    const { data: conversationData, error: conversationError } = await supabase
       .from('conversations')
       .insert({
         created_by: user.id
       })
       .select()
       .single();
+
+    if (conversationData && !conversationError) {
+      // Add both users to conversation
+      await Promise.all([
+        supabase
+          .from('conversation_participants')
+          .insert({
+            conversation_id: conversationData.id,
+            profile_id: user.id
+          }),
+        supabase
+          .from('conversation_participants')
+          .insert({
+            conversation_id: conversationData.id,
+            profile_id: otherUserId
+          })
+      ]);
+
+      await fetchConversations();
+      setSelectedChat(conversationData.id);
+    }
+  };
 
     if (data && !error) {
       await supabase
@@ -81,9 +107,14 @@ export default function MessagesPage() {
       <div className="w-80 flex flex-col border-r pr-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-2xl font-semibold">Messages</h2>
-          <Button size="icon" variant="ghost" onClick={startNewChat}>
+          <Button size="icon" variant="ghost" onClick={() => setSearchModalOpen(true)}>
             <Plus className="h-5 w-5" />
           </Button>
+          <UserSearchModal 
+            open={searchModalOpen}
+            onOpenChange={setSearchModalOpen}
+            onSelectUser={startNewChat}
+          />
         </div>
 
         <div className="relative mb-4">
