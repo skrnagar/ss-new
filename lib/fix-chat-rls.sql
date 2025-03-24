@@ -26,7 +26,8 @@ USING (EXISTS (
 ));
 
 -- Simplified participant policies to avoid recursion
-CREATE POLICY "Enable read access for participants" ON conversation_participants
+DROP POLICY IF EXISTS "Enable read access for participants" ON conversation_participants;
+CREATE POLICY "Enable read for participants" ON conversation_participants
 FOR SELECT TO authenticated
 USING (profile_id = auth.uid());
 
