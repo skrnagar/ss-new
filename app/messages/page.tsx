@@ -1,135 +1,35 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useAuth } from "@/contexts/auth-context";
-import { supabase } from "@/lib/supabase";
+import { ChatList } from "@/components/chat/chat-list";
 import { ChatWindow } from "@/components/chat/chat-window";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-
-interface Conversation {
-  id: string;
-  participants: {
-    profile_id: string;
-    profiles: {
-      username: string;
-    };
-  }[];
-}
 
 export default function MessagesPage() {
   const { user } = useAuth();
-  const [conversations, setConversations] = useState<Conversation[]>([]);
-  const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
-  const [newChatUsername, setNewChatUsername] = useState("");
+  const [selectedChat, setSelectedChat] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (user) {
-      fetchConversations();
-    }
-  }, [user]);
-
-  const fetchConversations = async () => {
-    const { data, error } = await supabase
-      .from("conversation_participants")
-      .select(`
-        conversation_id,
-        conversations!inner(id),
-        profile:profiles!inner(*)
-      `)
-      .eq("profile_id", user?.id);
-
-    if (data) {
-      const formattedConversations = data.map(d => ({
-        id: d.conversation_id,
-        participants: [{ profile_id: user?.id, profiles: d.profile }]
-      }));
-      setConversations(formattedConversations);
-    }
-  };
-
-  const startNewChat = async () => {
-    if (!newChatUsername.trim() || !user) return;
-
-    // Get profile ID for username
-    const { data: profileData } = await supabase
-      .from("profiles")
-      .select("id")
-      .eq("username", newChatUsername)
-      .single();
-
-    if (!profileData) {
-      alert("User not found");
-      return;
-    }
-
-    // Create new conversation and add participants
-    const { data: conversation, error: convError } = await supabase
-      .from("conversations")
-      .insert({})
-      .select()
-      .single();
-
-    if (convError) {
-      console.error('Error creating conversation:', convError);
-      return;
-    }
-
-    if (conversation) {
-      // Add participants
-      const { error: participantsError } = await supabase
-        .from("conversation_participants")
-        .insert([
-          { conversation_id: conversation.id, profile_id: user.id },
-          { conversation_id: conversation.id, profile_id: profileData.id }
-        ]);
-
-      if (participantsError) {
-        console.error('Error adding participants:', participantsError);
-        return;
-      }
-
-      await fetchConversations();
-      setNewChatUsername("");
-      setSelectedConversation(conversation.id);
-    }
-  };
+  if (!user) {
+    return (
+      <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
+        <p>Please sign in to access messages</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="container mx-auto py-6">
-      <div className="grid grid-cols-12 gap-6">
-        <div className="col-span-4 space-y-4">
-          <h2 className="text-2xl font-bold">Messages</h2>
-          <div className="flex gap-2">
-            <Input
-              value={newChatUsername}
-              onChange={(e) => setNewChatUsername(e.target.value)}
-              placeholder="Enter username to chat"
-            />
-            <Button onClick={startNewChat}>Start Chat</Button>
+    <div className="grid grid-cols-1 md:grid-cols-[300px_1fr]">
+      <div className="border-r">
+        <ChatList onSelectChat={setSelectedChat} />
+      </div>
+      <div>
+        {selectedChat ? (
+          <ChatWindow conversationId={selectedChat} />
+        ) : (
+          <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
+            <p className="text-muted-foreground">Select a conversation to start chatting</p>
           </div>
-          {conversations.map((conversation) => (
-            <Button
-              key={conversation.id}
-              variant={selectedConversation === conversation.id ? "default" : "ghost"}
-              className="w-full justify-start"
-              onClick={() => setSelectedConversation(conversation.id)}
-            >
-              {conversation.participants
-                .filter((p) => p.profile_id !== user?.id)
-                .map((p) => p.profiles.username)
-                .join(", ")}
-            </Button>
-          ))}
-        </div>
-        <div className="col-span-8">
-          {selectedConversation && user?.id && (
-            <ChatWindow
-              conversationId={selectedConversation}
-              currentUserId={user.id}
-            />
-          )}
-        </div>
+        )}
       </div>
     </div>
   );
