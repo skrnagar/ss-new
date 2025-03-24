@@ -99,11 +99,11 @@ export const Navbar = memo(function Navbar() {
         <div className="flex items-center gap-4">
           <Link href="/" className="flex items-center" prefetch={true}>
             <Image
-              src="/slogos.png"
+              src="/safter_logo.png"
               alt="Safety Shaper Logo"
               width={65}
-              height={45}
-              className="mr-2 h-9 w-9 transition-transform hover:scale-105"
+              height={30}
+              className="mr-2 h-8 w-8 transition-transform hover:scale-105"
               style={{ width: "auto", height: "auto" }}
               priority
             />
