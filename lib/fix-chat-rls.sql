@@ -1,4 +1,3 @@
-
 -- Enable UUID extension if not already enabled
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
@@ -28,32 +27,14 @@ CREATE POLICY "Users can create conversations"
 ON conversations FOR INSERT
 WITH CHECK (true);
 
--- Participants policies - simplified to avoid recursion
+-- Participants policies
 CREATE POLICY "Users can view participants"
 ON conversation_participants FOR SELECT
-USING (
-  profile_id = auth.uid() OR
-  EXISTS (
-    SELECT 1 FROM conversation_participants cp2
-    WHERE cp2.conversation_id = conversation_participants.conversation_id
-    AND cp2.profile_id = auth.uid()
-  )
-);
+USING (profile_id = auth.uid());
 
 CREATE POLICY "Users can add participants"
 ON conversation_participants FOR INSERT
-WITH CHECK (
-  EXISTS (
-    SELECT 1 FROM conversation_participants
-    WHERE conversation_id = conversation_participants.conversation_id
-    AND profile_id = auth.uid()
-  ) OR
-  EXISTS (
-    SELECT 1 FROM conversations
-    WHERE id = conversation_participants.conversation_id
-    AND created_at > NOW() - INTERVAL '5 seconds'
-  )
-);
+WITH CHECK (true);
 
 -- Messages policies
 CREATE POLICY "Users can view messages"

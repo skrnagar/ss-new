@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { supabase } from "@/lib/supabase";
@@ -40,7 +40,10 @@ export function UserSearchModal({ open, onOpenChange, onSelectUser }: UserSearch
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="pt-6" aria-describedby="user-search-description">
+        <DialogDescription id="user-search-description" className="sr-only">
+          Search for users to start a conversation
+        </DialogDescription>
         <DialogHeader>
           <DialogTitle>Start a conversation</DialogTitle>
         </DialogHeader>
