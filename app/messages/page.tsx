@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from "react";
@@ -16,6 +15,7 @@ export default function MessagesPage() {
   const [selectedChat, setSelectedChat] = useState<string | null>(null);
   const [conversations, setConversations] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchModalOpen, setSearchModalOpen] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -25,7 +25,7 @@ export default function MessagesPage() {
 
   const fetchConversations = async () => {
     if (!user) return;
-    
+
     const { data, error } = await supabase
       .from('conversations')
       .select(`
@@ -45,13 +45,10 @@ export default function MessagesPage() {
     }
   };
 
-  const [searchModalOpen, setSearchModalOpen] = useState(false);
-
   const startNewChat = async (otherUserId: string) => {
     if (!user) return;
-    
-    // Create new conversation
-    const { data: conversationData, error: conversationError } = await supabase
+
+    const { data, error } = await supabase
       .from('conversations')
       .insert({
         created_by: user.id
@@ -59,35 +56,21 @@ export default function MessagesPage() {
       .select()
       .single();
 
-    if (conversationData && !conversationError) {
-      // Add both users to conversation
+    if (data && !error) {
       await Promise.all([
         supabase
           .from('conversation_participants')
           .insert({
-            conversation_id: conversationData.id,
+            conversation_id: data.id,
             profile_id: user.id
           }),
         supabase
           .from('conversation_participants')
           .insert({
-            conversation_id: conversationData.id,
+            conversation_id: data.id,
             profile_id: otherUserId
           })
       ]);
-
-      await fetchConversations();
-      setSelectedChat(conversationData.id);
-    }
-  };
-
-    if (data && !error) {
-      await supabase
-        .from('conversation_participants')
-        .insert({
-          conversation_id: data.id,
-          profile_id: user.id
-        });
 
       await fetchConversations();
       setSelectedChat(data.id);
@@ -133,7 +116,6 @@ export default function MessagesPage() {
         </div>
       </div>
 
-      {/* Main chat area */}
       <div className="flex-1 flex flex-col">
         {selectedChat ? (
           <ChatWindow conversationId={selectedChat} />
