@@ -1,7 +1,7 @@
 
-import fs from 'fs';
-import path from 'path';
-import { createClient } from '@supabase/supabase-js';
+const fs = require('fs');
+const path = require('path');
+const { createClient } = require('@supabase/supabase-js');
 
 if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
   console.error('Missing Supabase environment variables');
