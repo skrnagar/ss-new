@@ -202,7 +202,7 @@ export default function CompliancePage() {
               <div
                 className="flex justify-between items-center cursor-pointer"
                 onClick={() => toggleSection(index)}
-                onKeyDown={(e) => e.key === 'Enter' && toggleSection(index)}
+                onKeyDown={(e) => e.key === "Enter" && toggleSection(index)}
                 role="button"
                 tabIndex={0}
               >
