@@ -229,7 +229,7 @@ export default function NetworkPage() {
                 <div className="space-y-6">
                   <h2 className="text-lg font-semibold">People you may know</h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {suggestions.map((profile) => (
+                    {networkUsers.map((profile) => (
                       <Card key={profile.id}>
                         <CardContent className="p-4">
                           <div className="flex items-start gap-4">
