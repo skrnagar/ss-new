@@ -1,57 +1,69 @@
+
 "use client";
 
-import { useState, useEffect } from "react";
-import { useAuth } from "@/contexts/auth-context";
+import { useEffect, useState } from "react";
 import { ChatList } from "@/components/chat/chat-list";
 import { ChatWindow } from "@/components/chat/chat-window";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { MessageCircle, Search, Plus } from "lucide-react";
+import { useAuth } from "@/contexts/auth-context";
 import { supabase } from "@/lib/supabase";
+import { MessageCircle, Plus, Search } from "lucide-react";
 import { UserSearchModal } from "@/components/chat/user-search-modal";
+
+interface Conversation {
+  id: string;
+  created_at: string;
+  conversation_participants: {
+    profile_id: string;
+    profiles: {
+      id: string;
+      username: string;
+      avatar_url: string | null;
+    }[];
+  }[];
+}
 
 export default function MessagesPage() {
   const { user } = useAuth();
-  const [selectedChat, setSelectedChat] = useState<string | null>(null);
-  const [conversations, setConversations] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchModalOpen, setSearchModalOpen] = useState(false);
-
-  useEffect(() => {
-    if (user) {
-      fetchConversations();
-    }
-  }, [user]);
+  const [selectedChat, setSelectedChat] = useState<string | null>(null);
+  const [conversations, setConversations] = useState<Conversation[]>([]);
 
   const fetchConversations = async () => {
     if (!user) return;
 
     const { data, error } = await supabase
-      .from('conversations')
+      .from("conversations")
       .select(`
         id,
         created_at,
-        conversation_participants!inner(
+        conversation_participants (
           profile_id,
-          profiles!inner(
+          profiles (
             id,
             username,
             avatar_url
           )
         )
       `)
-      .order('created_at', { ascending: false });
+      .order("created_at", { ascending: false });
 
     if (data && !error) {
       setConversations(data);
     }
   };
 
+  useEffect(() => {
+    fetchConversations();
+  }, [user]);
+
   const startNewChat = async (otherUserId: string) => {
     if (!user) return;
 
     const { data, error } = await supabase
-      .from('conversations')
+      .from("conversations")
       .insert({
         created_by: user.id
       })
@@ -61,13 +73,13 @@ export default function MessagesPage() {
     if (data && !error) {
       await Promise.all([
         supabase
-          .from('conversation_participants')
+          .from("conversation_participants")
           .insert({
             conversation_id: data.id,
             profile_id: user.id
           }),
         supabase
-          .from('conversation_participants')
+          .from("conversation_participants")
           .insert({
             conversation_id: data.id,
             profile_id: otherUserId
