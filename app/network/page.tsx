@@ -145,10 +145,10 @@ export default function NetworkPage() {
         {/* Main Content */}
         <div className="md:col-span-3 space-y-6">
           {/* Connection Requests */}
-          {connectionRequests.length > 0 && (
-            <Card>
-              <CardContent className="p-6">
-                <h2 className="text-lg font-semibold mb-4">Pending Requests</h2>
+          <Card>
+            <CardContent className="p-6">
+              <h2 className="text-lg font-semibold mb-4">Connection Requests</h2>
+              {connectionRequests.length > 0 ? (
                 <div className="space-y-4">
                   {connectionRequests.map((request) => (
                     <div key={request.id} className="flex items-center justify-between p-4 border rounded-lg">
@@ -166,9 +166,13 @@ export default function NetworkPage() {
                     </div>
                   ))}
                 </div>
+              ) : (
+                <div className="text-center py-4 text-muted-foreground">
+                  <p>No pending connection requests</p>
+                </div>
+              )}
               </CardContent>
             </Card>
-          )}
 
           {/* My Connections */}
           <Card>
