@@ -1,0 +1,382 @@
+~/workspace$ npm run lint
+
+> my-v0-project@0.1.0 lint
+> biome lint .
+
+./.next/server/middleware-build-manifest.js:14:42 lint/suspicious/noSparseArray  FIXABLE  ━━━━━━━━━━
+
+  ✖ This array contains an empty slot.
+  
+    12 │   "ampFirstPages": []
+    13 │ };
+  > 14 │ self.__BUILD_MANIFEST.lowPriorityFiles = [
+       │                                          ^
+  > 15 │ "/static/" + process.env.__NEXT_BUILD_ID + "/_buildManifest.js",
+  > 16 │ ,"/static/" + process.env.__NEXT_BUILD_ID + "/_ssgManifest.js",
+  > 17 │ 
+  > 18 │ ];
+       │ ^
+  
+  ℹ Unsafe fix: Replace hole with undefined
+  
+    15 │ "/static/"·+·process.env.__NEXT_BUILD_ID·+·"/_buildManifest.js",·undefined
+       │                                                                 ++++++++++
+
+./.next/server/middleware-build-manifest.js:15:1 lint/style/useTemplate  FIXABLE  ━━━━━━━━━━━━━━━━━━
+
+  ✖ Template literals are preferred over string concatenation.
+  
+    13 │ };
+    14 │ self.__BUILD_MANIFEST.lowPriorityFiles = [
+  > 15 │ "/static/" + process.env.__NEXT_BUILD_ID + "/_buildManifest.js",
+       │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    16 │ ,"/static/" + process.env.__NEXT_BUILD_ID + "/_ssgManifest.js",
+    17 │ 
+  
+  ℹ Unsafe fix: Use a template literal.
+  
+    13 13 │   };
+    14 14 │   self.__BUILD_MANIFEST.lowPriorityFiles = [
+    15    │ - "/static/"·+·process.env.__NEXT_BUILD_ID·+·"/_buildManifest.js",
+       15 │ + `/static/${process.env.__NEXT_BUILD_ID}/_buildManifest.js`,
+    16 16 │   ,"/static/" + process.env.__NEXT_BUILD_ID + "/_ssgManifest.js",
+    17 17 │   
+  
+
+./.next/server/middleware-build-manifest.js:16:2 lint/style/useTemplate  FIXABLE  ━━━━━━━━━━━━━━━━━━
+
+  ✖ Template literals are preferred over string concatenation.
+  
+    14 │ self.__BUILD_MANIFEST.lowPriorityFiles = [
+    15 │ "/static/" + process.env.__NEXT_BUILD_ID + "/_buildManifest.js",
+  > 16 │ ,"/static/" + process.env.__NEXT_BUILD_ID + "/_ssgManifest.js",
+       │  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    17 │ 
+    18 │ ];
+  
+  ℹ Unsafe fix: Use a template literal.
+  
+    14 14 │   self.__BUILD_MANIFEST.lowPriorityFiles = [
+    15 15 │   "/static/" + process.env.__NEXT_BUILD_ID + "/_buildManifest.js",
+    16    │ - ,"/static/"·+·process.env.__NEXT_BUILD_ID·+·"/_ssgManifest.js",
+       16 │ + ,`/static/${process.env.__NEXT_BUILD_ID}/_ssgManifest.js`,
+    17 17 │   
+    18 18 │   ];
+  
+
+./.next/static/development/_buildManifest.js:1:108 lint/complexity/useOptionalChain  FIXABLE  ━━━━━━━━━━
+
+  ✖ Change to an optional chain.
+  
+  > 1 │ self.__BUILD_MANIFEST = {__rewrites:{afterFiles:[],beforeFiles:[],fallback:[]},sortedPages:["\u002F_app"]};self.__BUILD_MANIFEST_CB && self.__BUILD_MANIFEST_CB()
+      │                                                                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  
+  ℹ Unsafe fix: Change to an optional chain.
+  
+  - self.__BUILD_MANIFEST·=·{__rewrites:{afterFiles:[],beforeFiles:[],fallback:[]},sortedPages:["\u002F_app"]};self.__BUILD_MANIFEST_CB·&&·self.__BUILD_MANIFEST_CB()
+  + self.__BUILD_MANIFEST·=·{__rewrites:{afterFiles:[],beforeFiles:[],fallback:[]},sortedPages:["\u002F_app"]};self.__BUILD_MANIFEST_CB?.()
+  
+
+./app/auth/callback/page.tsx:10:10 lint/correctness/noUnusedVariables  FIXABLE  ━━━━━━━━━━━━━━━━━━━━
+
+  ✖ This variable is unused.
+  
+     8 │ export default function AuthCallbackPage() {
+     9 │   const router = useRouter();
+  > 10 │   const [status, setStatus] = useState("Processing authentication...");
+       │          ^^^^^^
+    11 │ 
+    12 │   useEffect(() => {
+  
+  ℹ Unused variables usually are result of incomplete refactoring, typos and other source of bugs.
+  
+  ℹ Unsafe fix: If this is intentional, prepend status with an underscore.
+  
+     8  8 │   export default function AuthCallbackPage() {
+     9  9 │     const router = useRouter();
+    10    │ - ··const·[status,·setStatus]·=·useState("Processing·authentication...");
+       10 │ + ··const·[_status,·setStatus]·=·useState("Processing·authentication...");
+    11 11 │   
+    12 12 │     useEffect(() => {
+  
+
+./app/auth/login/page.tsx:92:14 lint/correctness/noUnusedVariables  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━
+
+  ✖ This variable is unused.
+  
+    90 │       // Redirect to feed page after successful login using router.push instead of window.location
+    91 │       router.push("/feed");
+  > 92 │     } catch (error) {
+       │              ^^^^^
+    93 │       toast({
+    94 │         title: "An error occurred",
+  
+  ℹ Unused variables usually are result of incomplete refactoring, typos and other source of bugs.
+  
+  ℹ Unsafe fix: If this is intentional, prepend error with an underscore.
+  
+     90  90 │         // Redirect to feed page after successful login using router.push instead of window.location
+     91  91 │         router.push("/feed");
+     92     │ - ····}·catch·(error)·{
+         92 │ + ····}·catch·(_error)·{
+     93  93 │         toast({
+     94  94 │           title: "An error occurred",
+  
+
+./app/auth/login/page.tsx:136:14 lint/correctness/noUnusedVariables  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━
+
+  ✖ This variable is unused.
+  
+    134 │       // Redirect to profile setup immediately using router
+    135 │       router.replace("/profile/setup");
+  > 136 │     } catch (error) {
+        │              ^^^^^
+    137 │       toast({
+    138 │         title: "An error occurred",
+  
+  ℹ Unused variables usually are result of incomplete refactoring, typos and other source of bugs.
+  
+  ℹ Unsafe fix: If this is intentional, prepend error with an underscore.
+  
+    134 134 │         // Redirect to profile setup immediately using router
+    135 135 │         router.replace("/profile/setup");
+    136     │ - ····}·catch·(error)·{
+        136 │ + ····}·catch·(_error)·{
+    137 137 │         toast({
+    138 138 │           title: "An error occurred",
+  
+
+./.next/static/development/_ssgManifest.js:1:29 lint/complexity/useOptionalChain  FIXABLE  ━━━━━━━━━━
+
+  ✖ Change to an optional chain.
+  
+  > 1 │ self.__SSG_MANIFEST=new Set;self.__SSG_MANIFEST_CB&&self.__SSG_MANIFEST_CB()
+      │                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  
+  ℹ Unsafe fix: Change to an optional chain.
+  
+  - self.__SSG_MANIFEST=new·Set;self.__SSG_MANIFEST_CB&&self.__SSG_MANIFEST_CB()
+  + self.__SSG_MANIFEST=new·Set;self.__SSG_MANIFEST_CB?.()
+  
+
+./lib/update-schema.ts:4:23 lint/style/noNonNullAssertion ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ⚠ Forbidden non-null assertion.
+  
+    3 │ const updateSchema = async () => {
+  > 4 │   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+      │                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    5 │   const supabaseServiceKey =
+    6 │     process.env.SUPABASE_SERVICE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+  
+
+./lib/update-schema.ts:6:41 lint/style/noNonNullAssertion ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ⚠ Forbidden non-null assertion.
+  
+    4 │   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+    5 │   const supabaseServiceKey =
+  > 6 │     process.env.SUPABASE_SERVICE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+      │                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    7 │ 
+    8 │   if (!supabaseUrl || !supabaseServiceKey) {
+  
+
+./app/auth/register/page.tsx:222:13 lint/style/useSelfClosingElements  FIXABLE  ━━━━━━━━━━━━━━━━━━━━
+
+  ✖ JSX elements without children should be marked as self-closing. In JSX, it is valid for any element to be self-closing.
+  
+    220 │           <h1 className="text-2xl font-semibold mb-2">Loading...</h1>
+    221 │           <div className="h-2 w-64 bg-muted overflow-hidden rounded-full">
+  > 222 │             <div className="h-full bg-primary animate-pulse rounded-full"></div>
+        │             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    223 │           </div>
+    224 │         </div>
+  
+  ℹ Unsafe fix: Use a SelfClosingElement instead
+  
+    220 220 │             <h1 className="text-2xl font-semibold mb-2">Loading...</h1>
+    221 221 │             <div className="h-2 w-64 bg-muted overflow-hidden rounded-full">
+    222     │ - ············<div·className="h-full·bg-primary·animate-pulse·rounded-full"></div>
+        222 │ + ············<div·className="h-full·bg-primary·animate-pulse·rounded-full"·/>
+    223 223 │             </div>
+    224 224 │           </div>
+  
+
+./app/compliance/page.tsx:202:15 lint/a11y/useKeyWithClickEvents ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ✖ Enforce to have the onClick mouse event with the onKeyUp, the onKeyDown, or the onKeyPress keyboard event.
+  
+    200 │           <Card key={area.id} className={`border-l-4 ${getStatusClass(area.status)}`}>
+    201 │             <CardHeader className="p-6 pb-0">
+  > 202 │               <div
+        │               ^^^^
+  > 203 │                 className="flex justify-between items-center cursor-pointer"
+  > 204 │                 onClick={() => toggleSection(index)}
+  > 205 │               >
+        │               ^
+    206 │                 <div className="flex items-center gap-3">
+    207 │                   {getStatusIcon(area.status)}
+  
+  ℹ Actions triggered using mouse events should have corresponding keyboard events to account for keyboard-only navigation.
+  
+
+./app/compliance/page.tsx:280:34 lint/suspicious/noArrayIndexKey ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ✖ Avoid using the index of an array as key property in an element.
+  
+    278 │                     <tbody className="bg-white divide-y divide-gray-200">
+    279 │                       {area.items.map((item, itemIndex) => (
+  > 280 │                         <tr key={itemIndex}>
+        │                                  ^^^^^^^^^
+    281 │                           <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+    282 │                             {item.name}
+  
+  ℹ This is the source of the key value.
+  
+    277 │                     </thead>
+    278 │                     <tbody className="bg-white divide-y divide-gray-200">
+  > 279 │                       {area.items.map((item, itemIndex) => (
+        │                                              ^^^^^^^^^
+    280 │                         <tr key={itemIndex}>
+    281 │                           <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+  
+  ℹ The order of the items may change, and this also affects performances and component state.
+  
+  ℹ Check the React documentation. 
+  
+
+./app/components/avatar-upload.tsx:24:3 lint/correctness/noUnusedVariables ━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ✖ This variable is unused.
+  
+    22 │   name,
+    23 │   isOwnProfile,
+  > 24 │   onAvatarChange,
+       │   ^^^^^^^^^^^^^^
+    25 │ }: AvatarUploadProps) {
+    26 │   const [modalOpen, setModalOpen] = useState(false);
+  
+  ℹ Unused variables usually are result of incomplete refactoring, typos and other source of bugs.
+  
+
+./app/components/avatar-upload.tsx:27:11 lint/correctness/noUnusedVariables ━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ✖ This variable is unused.
+  
+    25 │ }: AvatarUploadProps) {
+    26 │   const [modalOpen, setModalOpen] = useState(false);
+  > 27 │   const { toast } = useToast();
+       │           ^^^^^
+    28 │   const router = useRouter();
+    29 │ 
+  
+  ℹ Unused variables usually are result of incomplete refactoring, typos and other source of bugs.
+  
+
+./app/components/avatar-upload.tsx:28:9 lint/correctness/noUnusedVariables  FIXABLE  ━━━━━━━━━━━━━━━
+
+  ✖ This variable is unused.
+  
+    26 │   const [modalOpen, setModalOpen] = useState(false);
+    27 │   const { toast } = useToast();
+  > 28 │   const router = useRouter();
+       │         ^^^^^^
+    29 │ 
+    30 │   // Get initials for avatar fallback
+  
+  ℹ Unused variables usually are result of incomplete refactoring, typos and other source of bugs.
+  
+  ℹ Unsafe fix: If this is intentional, prepend router with an underscore.
+  
+    26 26 │     const [modalOpen, setModalOpen] = useState(false);
+    27 27 │     const { toast } = useToast();
+    28    │ - ··const·router·=·useRouter();
+       28 │ + ··const·_router·=·useRouter();
+    29 29 │   
+    30 30 │     // Get initials for avatar fallback
+  
+
+./lib/test-likes-comments.ts:90:11 lint/complexity/useOptionalChain  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━
+
+  ✖ Change to an optional chain.
+  
+    88 │       console.log("Comment added successfully:", commentData);
+    89 │ 
+  > 90 │       if (commentData && commentData[0] && commentData[0].id) {
+       │           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    91 │         // Try to delete the comment
+    92 │         const { error: deleteCommentError } = await supabase
+  
+  ℹ Unsafe fix: Change to an optional chain.
+  
+     88  88 │         console.log("Comment added successfully:", commentData);
+     89  89 │   
+     90     │ - ······if·(commentData·&&·commentData[0]·&&·commentData[0].id)·{
+         90 │ + ······if·(commentData?.[0]?.id)·{
+     91  91 │           // Try to delete the comment
+     92  92 │           const { error: deleteCommentError } = await supabase
+  
+
+./app/components/footer-cta.tsx:9:36 lint/suspicious/noExplicitAny ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ⚠ Unexpected any. Specify a different type.
+  
+     8 │ export default function FooterCTA() {
+   > 9 │   const [user, setUser] = useState<any>(null);
+       │                                    ^^^
+    10 │   const [loading, setLoading] = useState(true);
+    11 │ 
+  
+  ℹ any disables many type checking rules. Its use should be avoided.
+  
+
+./app/components/footer-cta.tsx:28:42 lint/correctness/noUnusedVariables  FIXABLE  ━━━━━━━━━━━━━━━━━
+
+  ✖ This parameter is unused.
+  
+    26 │     const {
+    27 │       data: { subscription },
+  > 28 │     } = supabase.auth.onAuthStateChange((event, session) => {
+       │                                          ^^^^^
+    29 │       setUser(session?.user || null);
+    30 │     });
+  
+  ℹ Unused variables usually are result of incomplete refactoring, typos and other source of bugs.
+  
+  ℹ Unsafe fix: If this is intentional, prepend event with an underscore.
+  
+    26 26 │       const {
+    27 27 │         data: { subscription },
+    28    │ - ····}·=·supabase.auth.onAuthStateChange((event,·session)·=>·{
+       28 │ + ····}·=·supabase.auth.onAuthStateChange((_event,·session)·=>·{
+    29 29 │         setUser(session?.user || null);
+    30 30 │       });
+  
+
+./app/components/hero-auth-buttons.tsx:24:9 lint/a11y/noSvgWithoutTitle ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ✖ Alternative text title element cannot be empty
+  
+    22 │         className="flex-1 flex items-center justify-center bg-white py-3 px-4 rounded-lg w-full hover:bg-gray-100 transition-colors h-auto"
+    23 │       >
+  > 24 │         <svg className="mr-2 h-5 w-5" viewBox="0 0 24 24">
+       │         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    25 │           <path
+    26 │             d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+  
+  ℹ For accessibility purposes, SVGs should have an alternative text, provided via title element. If the svg element has role="img", you should add the aria-label or aria-labelledby attribute.
+  
+
+The number of diagnostics exceeds the number allowed by Biome.
+Diagnostics not shown: 3416.
+Checked 156 files in 239ms. No fixes applied.
+Found 150 errors.
+Found 39 warnings.
+lint ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ✖ Some errors were emitted while running checks.
+  
+
+ Environment updated. Reloading shell...
+~/workspace$ 
