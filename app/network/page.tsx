@@ -12,7 +12,7 @@ import Link from "next/link";
 export default function NetworkPage() {
   const { user } = useAuth();
   const [connections, setConnections] = useState<any[]>([]);
-  const [networkUsers, setNetworkUsers] = useState<any[]>([]);
+  const [suggestions, setSuggestions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -31,17 +31,15 @@ export default function NetworkPage() {
         .select('*, profile:profiles(*)')
         .eq('user_id', user.id);
 
-      // Fetch other users for network suggestions
-      const { data: networkData } = await supabase
+      // Fetch connection suggestions
+      const { data: suggestionData } = await supabase
         .from('profiles')
         .select('*')
         .neq('id', user.id)
-        .not('id', 'in', (connectionData || []).map(c => c.connected_user_id))
-        .eq('active', true)
-        .limit(20);
+        .limit(5);
 
       setConnections(connectionData || []);
-      setNetworkUsers(networkData || []);
+      setSuggestions(suggestionData || []);
     } catch (error) {
       console.error('Error fetching network data:', error);
     } finally {
@@ -99,8 +97,6 @@ export default function NetworkPage() {
         .eq('status', 'pending');
       setConnectionRequests(data || []);
     }
-  const handleConnect = async (userId: string) => {
-    // Connection logic
   };
 
   return (
@@ -155,72 +151,70 @@ export default function NetworkPage() {
               {connectionRequests.length > 0 ? (
                 <div className="space-y-4">
                   {connectionRequests.map((request) => (
-                    <div key={request.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
+                    <div key={request.id} className="flex items-center justify-between p-4 border rounded-lg">
                       <div className="flex items-center gap-3">
                         <Avatar className="h-10 w-10">
-                          <AvatarImage src={request.profile.avatar_url} alt={request.profile.full_name} />
+                          <AvatarImage src={request.profile.avatar_url} />
                           <AvatarFallback>{request.profile.full_name?.substring(0, 2)}</AvatarFallback>
                         </Avatar>
                         <div>
                           <h3 className="font-medium">{request.profile.full_name}</h3>
                           <p className="text-sm text-muted-foreground">{request.profile.headline}</p>
-                          <p className="text-xs text-muted-foreground">{request.profile.title} · {request.profile.company}</p>
                         </div>
                       </div>
-                      <Button onClick={() => handleAcceptConnection(request.id)} className="min-w-[100px]">Accept</Button>
+                      <Button onClick={() => handleAcceptConnection(request.id)}>Accept</Button>
                     </div>
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-8 text-muted-foreground">
-                  <Users className="h-12 w-12 mx-auto mb-3 text-muted" />
+                <div className="text-center py-4 text-muted-foreground">
                   <p>No pending connection requests</p>
-                  <p className="text-sm">When someone sends you a connection request, it will appear here</p>
                 </div>
               )}
               </CardContent>
             </Card>
 
-          {/* People You May Know */}
+          {/* My Connections */}
           <Card>
             <CardContent className="p-6">
-              <h2 className="text-lg font-semibold mb-4">People You May Know</h2>
+              <h2 className="text-lg font-semibold mb-4">My Connections</h2>
               {loading ? (
                 <div className="space-y-4">
                   {[1, 2, 3].map((i) => (
                     <div key={i} className="flex items-center space-x-4">
-                      <div className="h-12 w-12 rounded-full bg-muted animate-pulse" />
+                      <div className="h-10 w-10 rounded-full bg-muted animate-pulse" />
                       <div className="space-y-2">
                         <div className="h-4 w-[200px] bg-muted animate-pulse rounded" />
                         <div className="h-3 w-[150px] bg-muted animate-pulse rounded" />
-                        <div className="h-3 w-[100px] bg-muted animate-pulse rounded" />
                       </div>
                     </div>
                   ))}
                 </div>
-              ) : networkUsers.length > 0 ? (
+              ) : connections.length > 0 ? (
                 <div className="space-y-4">
-                  {networkUsers.map((user) => (
-                    <div key={user.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
-                      <div className="flex items-center gap-4">
-                        <Avatar className="h-12 w-12">
-                          <AvatarImage src={user.avatar_url} />
-                          <AvatarFallback>{user.full_name?.substring(0, 2)}</AvatarFallback>
+                  {connections.map((connection) => (
+                    <div key={connection.id} className="flex items-center justify-between p-4 border rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <Avatar className="h-10 w-10">
+                          <AvatarImage src={connection.profile.avatar_url} />
+                          <AvatarFallback>{connection.profile.full_name?.substring(0, 2)}</AvatarFallback>
                         </Avatar>
                         <div>
-                          <h3 className="font-medium">{user.full_name}</h3>
-                          <p className="text-sm text-muted-foreground">{user.headline}</p>
-                          <p className="text-xs text-muted-foreground mt-1">{user.title || 'Professional'}</p>
+                          <h3 className="font-medium">{connection.profile.full_name}</h3>
+                          <p className="text-sm text-muted-foreground">{connection.profile.headline}</p>
                         </div>
                       </div>
-                      <Button onClick={() => handleConnect(user.id)}>Connect</Button>
+                      <div className="flex gap-2">
+                        <Button variant="outline" size="sm">Message</Button>
+                        <Button variant="ghost" size="sm">View Profile</Button>
+                      </div>
                     </div>
                   ))}
                 </div>
               ) : (
                 <div className="text-center py-8 text-muted-foreground">
-                  <p>No new professionals to connect with at the moment.</p>
-                  <p className="mt-2">Check back later for more connections!</p>
+                  <p>You don't have any connections yet.</p>
+                  <p className="mt-2">Start connecting with other professionals in your field!</p>
                 </div>
               )}
             </CardContent>
@@ -234,28 +228,27 @@ export default function NetworkPage() {
               ) : (
                 <div className="space-y-6">
                   <h2 className="text-lg font-semibold">People you may know</h2>
-                  {networkUsers.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {networkUsers.map((profile) => (
-                        <Card key={profile.id}>
-                          <CardContent className="p-4">
-                            <div className="flex items-start gap-4">
-                              <Avatar className="h-12 w-12">
-                                <AvatarImage src={profile.avatar_url} />
-                                <AvatarFallback>{profile.full_name?.substring(0, 2)}</AvatarFallback>
-                              </Avatar>
-                              <div className="flex-1">
-                                <h3 className="font-medium">{profile.full_name}</h3>
-                                <p className="text-sm text-muted-foreground">{profile.headline}</p>
-                                <p className="text-xs text-muted-foreground mb-2">{profile.title} at {profile.company}</p>
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => handleConnect(profile.id)}
-                                >
-                                  Connect
-                                </Button>
-                              </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {suggestions.map((profile) => (
+                      <Card key={profile.id}>
+                        <CardContent className="p-4">
+                          <div className="flex items-start gap-4">
+                            <Avatar className="h-12 w-12">
+                              <AvatarImage src={profile.avatar_url} />
+                              <AvatarFallback>{profile.full_name?.substring(0, 2)}</AvatarFallback>
+                            </Avatar>
+                            <div className="flex-1">
+                              <h3 className="font-medium">{profile.full_name}</h3>
+                              <p className="text-sm text-muted-foreground">{profile.headline}</p>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="mt-2"
+                                onClick={() => handleConnect(profile.id)}
+                              >
+                                Connect
+                              </Button>
+                            </div>
                           </div>
                         </CardContent>
                       </Card>
