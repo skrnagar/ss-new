@@ -232,27 +232,28 @@ export default function NetworkPage() {
               ) : (
                 <div className="space-y-6">
                   <h2 className="text-lg font-semibold">People you may know</h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {networkUsers.map((profile) => (
-                      <Card key={profile.id}>
-                        <CardContent className="p-4">
-                          <div className="flex items-start gap-4">
-                            <Avatar className="h-12 w-12">
-                              <AvatarImage src={profile.avatar_url} />
-                              <AvatarFallback>{profile.full_name?.substring(0, 2)}</AvatarFallback>
-                            </Avatar>
-                            <div className="flex-1">
-                              <h3 className="font-medium">{profile.full_name}</h3>
-                              <p className="text-sm text-muted-foreground">{profile.headline}</p>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                className="mt-2"
-                                onClick={() => handleConnect(profile.id)}
-                              >
-                                Connect
-                              </Button>
-                            </div>
+                  {networkUsers.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {networkUsers.map((profile) => (
+                        <Card key={profile.id}>
+                          <CardContent className="p-4">
+                            <div className="flex items-start gap-4">
+                              <Avatar className="h-12 w-12">
+                                <AvatarImage src={profile.avatar_url} />
+                                <AvatarFallback>{profile.full_name?.substring(0, 2)}</AvatarFallback>
+                              </Avatar>
+                              <div className="flex-1">
+                                <h3 className="font-medium">{profile.full_name}</h3>
+                                <p className="text-sm text-muted-foreground">{profile.headline}</p>
+                                <p className="text-xs text-muted-foreground mb-2">{profile.title} at {profile.company}</p>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => handleConnect(profile.id)}
+                                >
+                                  Connect
+                                </Button>
+                              </div>
                           </div>
                         </CardContent>
                       </Card>
