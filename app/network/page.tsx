@@ -12,7 +12,7 @@ import Link from "next/link";
 export default function NetworkPage() {
   const { user } = useAuth();
   const [connections, setConnections] = useState<any[]>([]);
-  const [suggestions, setSuggestions] = useState<any[]>([]);
+  const [networkUsers, setNetworkUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -31,15 +31,16 @@ export default function NetworkPage() {
         .select('*, profile:profiles(*)')
         .eq('user_id', user.id);
 
-      // Fetch connection suggestions
-      const { data: suggestionData } = await supabase
+      // Fetch other users for network suggestions
+      const { data: networkData } = await supabase
         .from('profiles')
         .select('*')
         .neq('id', user.id)
-        .limit(5);
+        .not('id', 'in', (connectionData || []).map(c => c.connected_user_id))
+        .limit(10);
 
       setConnections(connectionData || []);
-      setSuggestions(suggestionData || []);
+      setNetworkUsers(networkData || []);
     } catch (error) {
       console.error('Error fetching network data:', error);
     } finally {
