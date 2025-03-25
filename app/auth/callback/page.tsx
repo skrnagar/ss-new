@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 
 export default function AuthCallbackPage() {
   const router = useRouter();
-  const [status, setStatus] = useState("Processing authentication...");
+  const [_status, setStatus] = useState("Processing authentication...");
 
   useEffect(() => {
     // This code only runs on the client side

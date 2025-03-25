@@ -21,7 +21,8 @@ export function HeroAuthButtons() {
         onClick={handleGoogleSignIn}
         className="flex-1 flex items-center justify-center bg-white py-3 px-4 rounded-lg w-full hover:bg-gray-100 transition-colors h-auto"
       >
-        <svg className="mr-2 h-5 w-5" viewBox="0 0 24 24">
+        <svg className="mr-2 h-5 w-5" viewBox="0 0 24 24" role="img" aria-label="Google Login">
+          <title>Google Login Icon</title>
           <path
             d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
             fill="#4285F4"

@@ -89,7 +89,7 @@ export default function LoginPage() {
 
       // Redirect to feed page after successful login using router.push instead of window.location
       router.push("/feed");
-    } catch (error) {
+    } catch (_error) {
       toast({
         title: "An error occurred",
         description: "Please try again later",
@@ -133,7 +133,7 @@ export default function LoginPage() {
 
       // Redirect to profile setup immediately using router
       router.replace("/profile/setup");
-    } catch (error) {
+    } catch (_error) {
       toast({
         title: "An error occurred",
         description: "Please try again later",
