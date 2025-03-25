@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Search, BookOpen, Clock, Award, Users } from "lucide-react";
+import { Search, BookOpen, Clock, Award, Users, Video, Book } from "lucide-react";
 
 export default function LearningPage() {
   const courses = [
@@ -17,6 +17,8 @@ export default function LearningPage() {
       duration: "20 hours",
       enrolled: 1234,
       certification: "OSHA Certified",
+      type: "Self-paced",
+      examInfo: "Final certification exam included"
     },
     {
       title: "ISO 45001 Fundamentals",
@@ -25,15 +27,49 @@ export default function LearningPage() {
       duration: "40 hours",
       enrolled: 856,
       certification: "ISO Certified",
+      type: "Instructor-led",
+      examInfo: "Monthly certification exams"
     },
     {
-      title: "Environmental Management Systems",
-      category: "Environmental",
+      title: "Fire Safety & Prevention",
+      category: "Safety",
       level: "Beginner",
       duration: "15 hours",
       enrolled: 2100,
-      certification: "EMS Certified",
+      certification: "Fire Safety Certified",
+      type: "Self-paced",
+      examInfo: "Includes practical assessment"
     },
+    {
+      title: "NEBOSH General Certificate",
+      category: "Certification",
+      level: "Advanced",
+      duration: "120 hours",
+      enrolled: 450,
+      certification: "NEBOSH IGC",
+      type: "Instructor-led",
+      examInfo: "Written exam and practical assessment"
+    },
+    {
+      title: "Chemical Handling Safety",
+      category: "Hazmat",
+      level: "Intermediate",
+      duration: "25 hours",
+      enrolled: 780,
+      certification: "HAZMAT Certified",
+      type: "Blended",
+      examInfo: "Theory and practical certification"
+    },
+    {
+      title: "ESG Compliance & Reporting",
+      category: "ESG",
+      level: "Advanced",
+      duration: "30 hours",
+      enrolled: 920,
+      certification: "ESG Professional",
+      type: "Self-paced",
+      examInfo: "Case study based assessment"
+    }
   ];
 
   return (
@@ -61,8 +97,10 @@ export default function LearningPage() {
               <TabsList className="w-full flex flex-col space-y-1">
                 <TabsTrigger value="all" className="w-full justify-start">All Courses</TabsTrigger>
                 <TabsTrigger value="safety" className="w-full justify-start">Safety Training</TabsTrigger>
+                <TabsTrigger value="certification" className="w-full justify-start">Certifications</TabsTrigger>
                 <TabsTrigger value="environmental" className="w-full justify-start">Environmental</TabsTrigger>
-                <TabsTrigger value="certifications" className="w-full justify-start">Certifications</TabsTrigger>
+                <TabsTrigger value="hazmat" className="w-full justify-start">Hazardous Materials</TabsTrigger>
+                <TabsTrigger value="esg" className="w-full justify-start">ESG</TabsTrigger>
               </TabsList>
             </Tabs>
           </div>
@@ -89,12 +127,23 @@ export default function LearningPage() {
                       <span>{course.duration}</span>
                     </div>
                     <div className="flex items-center text-sm text-muted-foreground">
+                      {course.type === "Self-paced" ? (
+                        <Book className="h-4 w-4 mr-2" />
+                      ) : (
+                        <Video className="h-4 w-4 mr-2" />
+                      )}
+                      <span>{course.type}</span>
+                    </div>
+                    <div className="flex items-center text-sm text-muted-foreground">
                       <Users className="h-4 w-4 mr-2" />
                       <span>{course.enrolled.toLocaleString()} enrolled</span>
                     </div>
                     <div className="flex items-center text-sm text-muted-foreground">
                       <Award className="h-4 w-4 mr-2" />
                       <span>{course.certification}</span>
+                    </div>
+                    <div className="text-sm text-muted-foreground mt-2">
+                      {course.examInfo}
                     </div>
                     <Button className="w-full mt-4">Enroll Now</Button>
                   </div>
