@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useAuth } from "@/contexts/auth-context";
 import { supabase } from "@/lib/supabase";
-import { Calendar, Newspaper, Users } from "lucide-react";
+import { Users } from "lucide-react";
 import Link from "next/link";
 
 export default function NetworkPage() {
@@ -14,6 +14,7 @@ export default function NetworkPage() {
   const [connections, setConnections] = useState<any[]>([]);
   const [networkUsers, setNetworkUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [connectionRequests, setConnectionRequests] = useState<any[]>([]);
 
   useEffect(() => {
     fetchNetworkData();
@@ -25,13 +26,11 @@ export default function NetworkPage() {
     try {
       setLoading(true);
 
-      // Fetch existing connections
       const { data: connectionData } = await supabase
         .from('connections')
         .select('*, profile:profiles(*)')
         .eq('user_id', user.id);
 
-      // Fetch other users for network suggestions
       const { data: networkData } = await supabase
         .from('profiles')
         .select('*')
@@ -42,6 +41,15 @@ export default function NetworkPage() {
 
       setConnections(connectionData || []);
       setNetworkUsers(networkData || []);
+
+      // Fetch connection requests
+      const { data: requestData } = await supabase
+        .from('connections')
+        .select('*, profile:profiles(*)')
+        .eq('connected_user_id', user.id)
+        .eq('status', 'pending');
+
+      setConnectionRequests(requestData || []);
     } catch (error) {
       console.error('Error fetching network data:', error);
     } finally {
@@ -58,30 +66,11 @@ export default function NetworkPage() {
         ]);
 
       if (error) throw error;
-
       fetchNetworkData();
     } catch (error) {
       console.error('Error sending connection request:', error);
     }
   };
-
-  const [connectionRequests, setConnectionRequests] = useState<any[]>([]);
-
-  useEffect(() => {
-    if (user) {
-      // Fetch connection requests
-      supabase
-        .from('connections')
-        .select('*, profile:profiles(*)')
-        .eq('connected_user_id', user.id)
-        .eq('status', 'pending')
-        .then(({ data, error }) => {
-          if (!error && data) {
-            setConnectionRequests(data);
-          }
-        });
-    }
-  }, [user]);
 
   const handleAcceptConnection = async (connectionId: string) => {
     const { error } = await supabase
@@ -91,13 +80,6 @@ export default function NetworkPage() {
 
     if (!error) {
       fetchNetworkData();
-      // Refresh connection requests
-      const { data } = await supabase
-        .from('connections')
-        .select('*, profile:profiles(*)')
-        .eq('connected_user_id', user?.id)
-        .eq('status', 'pending');
-      setConnectionRequests(data || []);
     }
   };
 
@@ -108,38 +90,10 @@ export default function NetworkPage() {
         <Card className="md:col-span-1">
           <CardContent className="p-4 space-y-2">
             <h2 className="text-lg font-semibold mb-4">Manage my network</h2>
-
             <Link href="/network/connections" className="flex items-center gap-3 p-2 hover:bg-muted rounded-md">
               <Users className="h-5 w-5" />
               <span>Connections</span>
               <span className="ml-auto text-muted-foreground">{connections.length}</span>
-            </Link>
-
-            <Link href="/network/followers" className="flex items-center gap-3 p-2 hover:bg-muted rounded-md">
-              <Users className="h-5 w-5" />
-              <span>Following & followers</span>
-            </Link>
-
-            <Link href="/network/groups" className="flex items-center gap-3 p-2 hover:bg-muted rounded-md">
-              <Users className="h-5 w-5" />
-              <span>Groups</span>
-              <span className="ml-auto text-muted-foreground">4</span>
-            </Link>
-
-            <Link href="/network/events" className="flex items-center gap-3 p-2 hover:bg-muted rounded-md">
-              <Calendar className="h-5 w-5" />
-              <span>Events</span>
-            </Link>
-
-            <Link href="/network/pages" className="flex items-center gap-3 p-2 hover:bg-muted rounded-md">
-              <Newspaper className="h-5 w-5" />
-              <span>Pages</span>
-              <span className="ml-auto text-muted-foreground">12</span>
-            </Link>
-
-            <Link href="/network/newsletters" className="flex items-center gap-3 p-2 hover:bg-muted rounded-md">
-              <Newspaper className="h-5 w-5" />
-              <span>Newsletters</span>
             </Link>
           </CardContent>
         </Card>
@@ -176,89 +130,45 @@ export default function NetworkPage() {
                   <p className="text-sm">When someone sends you a connection request, it will appear here</p>
                 </div>
               )}
-              </CardContent>
-            </Card>
-
-          {/* People You May Know */}
-          <Card>
-            <CardContent className="p-6">
-              <h2 className="text-lg font-semibold mb-4">People You May Know</h2>
-              {loading ? (
-                <div className="space-y-4">
-                  {[1, 2, 3].map((i) => (
-                    <div key={i} className="flex items-center space-x-4">
-                      <div className="h-12 w-12 rounded-full bg-muted animate-pulse" />
-                      <div className="space-y-2">
-                        <div className="h-4 w-[200px] bg-muted animate-pulse rounded" />
-                        <div className="h-3 w-[150px] bg-muted animate-pulse rounded" />
-                        <div className="h-3 w-[100px] bg-muted animate-pulse rounded" />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : networkUsers.length > 0 ? (
-                <div className="space-y-4">
-                  {networkUsers.map((user) => (
-                    <div key={user.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
-                      <div className="flex items-center gap-4">
-                        <Avatar className="h-12 w-12">
-                          <AvatarImage src={user.avatar_url} />
-                          <AvatarFallback>{user.full_name?.substring(0, 2)}</AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <h3 className="font-medium">{user.full_name}</h3>
-                          <p className="text-sm text-muted-foreground">{user.headline}</p>
-                          <p className="text-xs text-muted-foreground mt-1">{user.title || 'Professional'}</p>
-                        </div>
-                      </div>
-                      <Button onClick={() => handleConnect(user.id)}>Connect</Button>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-8 text-muted-foreground">
-                  <p>No new professionals to connect with at the moment.</p>
-                  <p className="mt-2">Check back later for more connections!</p>
-                </div>
-              )}
             </CardContent>
           </Card>
 
           {/* People You May Know */}
           <Card>
             <CardContent className="p-6">
+              <h2 className="text-lg font-semibold mb-4">People You May Know</h2>
               {loading ? (
-                <div className="text-center">Loading...</div>
-              ) : (
-                <div className="space-y-6">
-                  <h2 className="text-lg font-semibold">People you may know</h2>
-                  {networkUsers.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {networkUsers.map((profile) => (
-                        <Card key={profile.id}>
-                          <CardContent className="p-4">
-                            <div className="flex items-start gap-4">
-                              <Avatar className="h-12 w-12">
-                                <AvatarImage src={profile.avatar_url} />
-                                <AvatarFallback>{profile.full_name?.substring(0, 2)}</AvatarFallback>
-                              </Avatar>
-                              <div className="flex-1">
-                                <h3 className="font-medium">{profile.full_name}</h3>
-                                <p className="text-sm text-muted-foreground">{profile.headline}</p>
-                                <p className="text-xs text-muted-foreground mb-2">{profile.title} at {profile.company}</p>
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => handleConnect(profile.id)}
-                                >
-                                  Connect
-                                </Button>
-                              </div>
+                <div className="text-center py-4">Loading...</div>
+              ) : networkUsers.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {networkUsers.map((profile) => (
+                    <Card key={profile.id}>
+                      <CardContent className="p-4">
+                        <div className="flex items-start gap-4">
+                          <Avatar className="h-12 w-12">
+                            <AvatarImage src={profile.avatar_url} />
+                            <AvatarFallback>{profile.full_name?.substring(0, 2)}</AvatarFallback>
+                          </Avatar>
+                          <div className="flex-1">
+                            <h3 className="font-medium">{profile.full_name}</h3>
+                            <p className="text-sm text-muted-foreground">{profile.headline}</p>
+                            <p className="text-xs text-muted-foreground mb-2">{profile.title} at {profile.company}</p>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleConnect(profile.id)}
+                            >
+                              Connect
+                            </Button>
                           </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-4 text-muted-foreground">
+                  <p>No new connections available at the moment</p>
                 </div>
               )}
             </CardContent>
