@@ -16,10 +16,7 @@ const verifyDatabase = async () => {
 
   try {
     // Check if profiles table exists
-    const { error: profilesError } = await supabase
-      .from("profiles")
-      .select("*")
-      .limit(1);
+    const { error: profilesError } = await supabase.from("profiles").select("*").limit(1);
 
     if (profilesError) {
       console.error("Error accessing profiles table:", profilesError.message);

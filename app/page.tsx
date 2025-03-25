@@ -86,7 +86,7 @@ export default async function Home() {
                 alt="ACC Logo"
                 width={80}
                 height={40}
-                className="w-20 grayscale backdrop-opacity-10"
+                className="w-20 h-auto grayscale backdrop-opacity-10"
                 priority={false}
                 loading="lazy"
               />
@@ -97,7 +97,7 @@ export default async function Home() {
                 alt="Adiya Logo"
                 width={64}
                 height={32}
-                className="w-16 grayscale backdrop-opacity-10"
+                className="w-16 h-auto grayscale backdrop-opacity-10"
                 priority={false}
                 loading="lazy"
               />
@@ -108,7 +108,7 @@ export default async function Home() {
                 alt="LT Logo"
                 width={40}
                 height={40}
-                className="w-10 grayscale backdrop-opacity-10"
+                className="w-10 h-auto grayscale backdrop-opacity-10"
                 priority={false}
                 loading="lazy"
               />
@@ -119,7 +119,7 @@ export default async function Home() {
                 alt="Tata Logo"
                 width={64}
                 height={32}
-                className="w-16 grayscale backdrop-opacity-10"
+                className="w-16 h-auto grayscale backdrop-opacity-10"
                 priority={false}
                 loading="lazy"
               />
@@ -130,7 +130,7 @@ export default async function Home() {
                 alt="Siemens Logo"
                 width={80}
                 height={40}
-                className="w-20 grayscale backdrop-opacity-10"
+                className="w-20 h-auto grayscale backdrop-opacity-10"
                 priority={false}
                 loading="lazy"
               />
@@ -141,7 +141,7 @@ export default async function Home() {
                 alt="KPMG Logo"
                 width={80}
                 height={40}
-                className="w-20"
+                className="w-20 h-auto"
                 priority={false}
                 loading="lazy"
               />
@@ -152,7 +152,7 @@ export default async function Home() {
                 alt="SAP Logo"
                 width={80}
                 height={40}
-                className="w-20"
+                className="w-20 h-auto"
                 priority={false}
                 loading="lazy"
               />

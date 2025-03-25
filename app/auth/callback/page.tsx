@@ -69,9 +69,7 @@ export default function AuthCallbackPage() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center">
       <div className="text-center">
-        <p className="text-lg mb-4">
-          We are setting up your account. This may take a few moments.
-        </p>
+        <p className="text-lg mb-4">We are setting up your account. This may take a few moments.</p>
         <div className="animate-pulse inline-block rounded-full bg-primary/10 p-4">
           <div className="h-8 w-8 rounded-full border-2 border-primary border-t-transparent animate-spin" />
         </div>
