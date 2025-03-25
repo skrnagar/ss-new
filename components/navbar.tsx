@@ -94,7 +94,7 @@ export const Navbar = memo(function Navbar() {
   }, [user]);
 
   return (
-    <header className="sticky top-0 z-40 border-b bg-background">
+    <header className="sticky top-0 z-40 border-b bg-white">
       <div className="container flex h-16 items-center justify-between py-4">
         <div className="flex items-center gap-4">
           <Link href="/" className="flex items-center" prefetch={true}>
@@ -123,6 +123,13 @@ export const Navbar = memo(function Navbar() {
                   <Link href="/knowledge" legacyBehavior passHref prefetch={true}>
                     <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                       Knowledge Hub
+                    </NavigationMenuLink>
+                  </Link>
+                </NavigationMenuItem>
+                <NavigationMenuItem>
+                  <Link href="/learning" legacyBehavior passHref prefetch={true}>
+                    <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                      Learning
                     </NavigationMenuLink>
                   </Link>
                 </NavigationMenuItem>
