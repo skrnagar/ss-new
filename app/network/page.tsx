@@ -99,6 +99,8 @@ export default function NetworkPage() {
         .eq('status', 'pending');
       setConnectionRequests(data || []);
     }
+  const handleConnect = async (userId: string) => {
+    // Connection logic
   };
 
   return (
