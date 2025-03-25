@@ -64,6 +64,42 @@ export default function NetworkPage() {
     }
   };
 
+  const [connectionRequests, setConnectionRequests] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (user) {
+      // Fetch connection requests
+      supabase
+        .from('connections')
+        .select('*, profile:profiles(*)')
+        .eq('connected_user_id', user.id)
+        .eq('status', 'pending')
+        .then(({ data, error }) => {
+          if (!error && data) {
+            setConnectionRequests(data);
+          }
+        });
+    }
+  }, [user]);
+
+  const handleAcceptConnection = async (connectionId: string) => {
+    const { error } = await supabase
+      .from('connections')
+      .update({ status: 'accepted' })
+      .eq('id', connectionId);
+
+    if (!error) {
+      fetchNetworkData();
+      // Refresh connection requests
+      const { data } = await supabase
+        .from('connections')
+        .select('*, profile:profiles(*)')
+        .eq('connected_user_id', user?.id)
+        .eq('status', 'pending');
+      setConnectionRequests(data || []);
+    }
+  };
+
   return (
     <div className="container py-6">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -108,7 +144,58 @@ export default function NetworkPage() {
         </Card>
 
         {/* Main Content */}
-        <div className="md:col-span-3">
+        <div className="md:col-span-3 space-y-6">
+          {/* Connection Requests */}
+          {connectionRequests.length > 0 && (
+            <Card>
+              <CardContent className="p-6">
+                <h2 className="text-lg font-semibold mb-4">Pending Requests</h2>
+                <div className="space-y-4">
+                  {connectionRequests.map((request) => (
+                    <div key={request.id} className="flex items-center justify-between p-4 border rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <Avatar className="h-10 w-10">
+                          <AvatarImage src={request.profile.avatar_url} />
+                          <AvatarFallback>{request.profile.full_name?.substring(0, 2)}</AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <h3 className="font-medium">{request.profile.full_name}</h3>
+                          <p className="text-sm text-muted-foreground">{request.profile.headline}</p>
+                        </div>
+                      </div>
+                      <Button onClick={() => handleAcceptConnection(request.id)}>Accept</Button>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* My Connections */}
+          <Card>
+            <CardContent className="p-6">
+              <h2 className="text-lg font-semibold mb-4">My Connections</h2>
+              <div className="space-y-4">
+                {connections.map((connection) => (
+                  <div key={connection.id} className="flex items-center justify-between p-4 border rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <Avatar className="h-10 w-10">
+                        <AvatarImage src={connection.profile.avatar_url} />
+                        <AvatarFallback>{connection.profile.full_name?.substring(0, 2)}</AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <h3 className="font-medium">{connection.profile.full_name}</h3>
+                        <p className="text-sm text-muted-foreground">{connection.profile.headline}</p>
+                      </div>
+                    </div>
+                    <Button variant="outline" size="sm">Message</Button>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* People You May Know */}
           <Card>
             <CardContent className="p-6">
               {loading ? (
