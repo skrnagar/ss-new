@@ -4,10 +4,11 @@
 import { useEffect, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent } from "@/components/ui/card";
 import { useAuth } from "@/contexts/auth-context";
 import { supabase } from "@/lib/supabase";
+import { Calendar, Newspaper, Users } from "lucide-react";
+import Link from "next/link";
 
 export default function NetworkPage() {
   const { user } = useAuth();
@@ -63,82 +64,90 @@ export default function NetworkPage() {
     }
   };
 
-  const getInitials = (name: string) => {
-    return name
-      .split(' ')
-      .map(part => part[0])
-      .join('')
-      .toUpperCase()
-      .substring(0, 2);
-  };
-
   return (
-    <div className="container py-6 space-y-6">
-      <Tabs defaultValue="grow" className="w-full">
-        <TabsList>
-          <TabsTrigger value="grow">Grow</TabsTrigger>
-          <TabsTrigger value="connections">My Network</TabsTrigger>
-        </TabsList>
+    <div className="container py-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        {/* Left Sidebar */}
+        <Card className="md:col-span-1">
+          <CardContent className="p-4 space-y-2">
+            <h2 className="text-lg font-semibold mb-4">Manage my network</h2>
+            
+            <Link href="/network/connections" className="flex items-center gap-3 p-2 hover:bg-muted rounded-md">
+              <Users className="h-5 w-5" />
+              <span>Connections</span>
+              <span className="ml-auto text-muted-foreground">{connections.length}</span>
+            </Link>
 
-        <TabsContent value="grow" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>People you may know</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {suggestions.map((profile) => (
-                  <Card key={profile.id} className="p-4">
-                    <div className="flex items-start gap-4">
-                      <Avatar className="h-12 w-12">
-                        <AvatarImage src={profile.avatar_url} />
-                        <AvatarFallback>{getInitials(profile.full_name)}</AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1">
-                        <h4 className="font-medium">{profile.full_name}</h4>
-                        <p className="text-sm text-muted-foreground line-clamp-2">{profile.headline}</p>
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          className="mt-2"
-                          onClick={() => handleConnect(profile.id)}
-                        >
-                          Connect
-                        </Button>
-                      </div>
-                    </div>
-                  </Card>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+            <Link href="/network/followers" className="flex items-center gap-3 p-2 hover:bg-muted rounded-md">
+              <Users className="h-5 w-5" />
+              <span>Following & followers</span>
+            </Link>
 
-        <TabsContent value="connections" className="space-y-4">
+            <Link href="/network/groups" className="flex items-center gap-3 p-2 hover:bg-muted rounded-md">
+              <Users className="h-5 w-5" />
+              <span>Groups</span>
+              <span className="ml-auto text-muted-foreground">4</span>
+            </Link>
+
+            <Link href="/network/events" className="flex items-center gap-3 p-2 hover:bg-muted rounded-md">
+              <Calendar className="h-5 w-5" />
+              <span>Events</span>
+            </Link>
+
+            <Link href="/network/pages" className="flex items-center gap-3 p-2 hover:bg-muted rounded-md">
+              <Newspaper className="h-5 w-5" />
+              <span>Pages</span>
+              <span className="ml-auto text-muted-foreground">12</span>
+            </Link>
+
+            <Link href="/network/newsletters" className="flex items-center gap-3 p-2 hover:bg-muted rounded-md">
+              <Newspaper className="h-5 w-5" />
+              <span>Newsletters</span>
+            </Link>
+          </CardContent>
+        </Card>
+
+        {/* Main Content */}
+        <div className="md:col-span-3">
           <Card>
-            <CardHeader>
-              <CardTitle>My Connections ({connections.length})</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-4">
-                {connections.map((connection) => (
-                  <div key={connection.id} className="flex items-center gap-4 p-4 border rounded-lg">
-                    <Avatar className="h-12 w-12">
-                      <AvatarImage src={connection.profile.avatar_url} />
-                      <AvatarFallback>{getInitials(connection.profile.full_name)}</AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1">
-                      <h4 className="font-medium">{connection.profile.full_name}</h4>
-                      <p className="text-sm text-muted-foreground">{connection.profile.headline}</p>
-                    </div>
-                    <Button variant="secondary" size="sm">Message</Button>
+            <CardContent className="p-6">
+              {loading ? (
+                <div className="text-center">Loading...</div>
+              ) : (
+                <div className="space-y-6">
+                  <h2 className="text-lg font-semibold">People you may know</h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {suggestions.map((profile) => (
+                      <Card key={profile.id}>
+                        <CardContent className="p-4">
+                          <div className="flex items-start gap-4">
+                            <Avatar className="h-12 w-12">
+                              <AvatarImage src={profile.avatar_url} />
+                              <AvatarFallback>{profile.full_name?.substring(0, 2)}</AvatarFallback>
+                            </Avatar>
+                            <div className="flex-1">
+                              <h3 className="font-medium">{profile.full_name}</h3>
+                              <p className="text-sm text-muted-foreground">{profile.headline}</p>
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                className="mt-2"
+                                onClick={() => handleConnect(profile.id)}
+                              >
+                                Connect
+                              </Button>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
                   </div>
-                ))}
-              </div>
+                </div>
+              )}
             </CardContent>
           </Card>
-        </TabsContent>
-      </Tabs>
+        </div>
+      </div>
     </div>
   );
 }
