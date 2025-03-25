@@ -174,47 +174,46 @@ export default function NetworkPage() {
               </CardContent>
             </Card>
 
-          {/* My Connections */}
+          {/* People You May Know */}
           <Card>
             <CardContent className="p-6">
-              <h2 className="text-lg font-semibold mb-4">My Connections</h2>
+              <h2 className="text-lg font-semibold mb-4">People You May Know</h2>
               {loading ? (
                 <div className="space-y-4">
                   {[1, 2, 3].map((i) => (
                     <div key={i} className="flex items-center space-x-4">
-                      <div className="h-10 w-10 rounded-full bg-muted animate-pulse" />
+                      <div className="h-12 w-12 rounded-full bg-muted animate-pulse" />
                       <div className="space-y-2">
                         <div className="h-4 w-[200px] bg-muted animate-pulse rounded" />
                         <div className="h-3 w-[150px] bg-muted animate-pulse rounded" />
+                        <div className="h-3 w-[100px] bg-muted animate-pulse rounded" />
                       </div>
                     </div>
                   ))}
                 </div>
-              ) : connections.length > 0 ? (
+              ) : networkUsers.length > 0 ? (
                 <div className="space-y-4">
-                  {connections.map((connection) => (
-                    <div key={connection.id} className="flex items-center justify-between p-4 border rounded-lg">
-                      <div className="flex items-center gap-3">
-                        <Avatar className="h-10 w-10">
-                          <AvatarImage src={connection.profile.avatar_url} />
-                          <AvatarFallback>{connection.profile.full_name?.substring(0, 2)}</AvatarFallback>
+                  {networkUsers.map((user) => (
+                    <div key={user.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
+                      <div className="flex items-center gap-4">
+                        <Avatar className="h-12 w-12">
+                          <AvatarImage src={user.avatar_url} />
+                          <AvatarFallback>{user.full_name?.substring(0, 2)}</AvatarFallback>
                         </Avatar>
                         <div>
-                          <h3 className="font-medium">{connection.profile.full_name}</h3>
-                          <p className="text-sm text-muted-foreground">{connection.profile.headline}</p>
+                          <h3 className="font-medium">{user.full_name}</h3>
+                          <p className="text-sm text-muted-foreground">{user.headline}</p>
+                          <p className="text-xs text-muted-foreground mt-1">{user.title || 'Professional'}</p>
                         </div>
                       </div>
-                      <div className="flex gap-2">
-                        <Button variant="outline" size="sm">Message</Button>
-                        <Button variant="ghost" size="sm">View Profile</Button>
-                      </div>
+                      <Button onClick={() => handleConnect(user.id)}>Connect</Button>
                     </div>
                   ))}
                 </div>
               ) : (
                 <div className="text-center py-8 text-muted-foreground">
-                  <p>You don't have any connections yet.</p>
-                  <p className="mt-2">Start connecting with other professionals in your field!</p>
+                  <p>No new professionals to connect with at the moment.</p>
+                  <p className="mt-2">Check back later for more connections!</p>
                 </div>
               )}
             </CardContent>
