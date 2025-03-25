@@ -24,8 +24,9 @@ interface ChatPreview {
 }
 
 export interface ChatListProps {
-  onSelect: (conversation: any) => void;
-  selectedId?: string;
+  conversations: ChatPreview[];
+  onSelect: (conversation: ChatPreview) => void;
+  selectedId?: string | null;
 }
 
 export function ChatList({ onSelect, selectedId }: ChatListProps) {

@@ -28,7 +28,7 @@ export default function MessagesPage() {
   const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [searchModalOpen, setSearchModalOpen] = useState(false);
-  const [selectedChat, setSelectedChat] = useState<string | null>(null);
+  const [selectedChat, setSelectedChat] = useState<string | undefined>();
   const [conversations, setConversations] = useState<Conversation[]>([]);
 
   const fetchConversations = async () => {
