@@ -37,7 +37,8 @@ export default function NetworkPage() {
         .select('*')
         .neq('id', user.id)
         .not('id', 'in', (connectionData || []).map(c => c.connected_user_id))
-        .limit(10);
+        .eq('active', true)
+        .limit(20);
 
       setConnections(connectionData || []);
       setNetworkUsers(networkData || []);
@@ -152,24 +153,27 @@ export default function NetworkPage() {
               {connectionRequests.length > 0 ? (
                 <div className="space-y-4">
                   {connectionRequests.map((request) => (
-                    <div key={request.id} className="flex items-center justify-between p-4 border rounded-lg">
+                    <div key={request.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
                       <div className="flex items-center gap-3">
                         <Avatar className="h-10 w-10">
-                          <AvatarImage src={request.profile.avatar_url} />
+                          <AvatarImage src={request.profile.avatar_url} alt={request.profile.full_name} />
                           <AvatarFallback>{request.profile.full_name?.substring(0, 2)}</AvatarFallback>
                         </Avatar>
                         <div>
                           <h3 className="font-medium">{request.profile.full_name}</h3>
                           <p className="text-sm text-muted-foreground">{request.profile.headline}</p>
+                          <p className="text-xs text-muted-foreground">{request.profile.title} · {request.profile.company}</p>
                         </div>
                       </div>
-                      <Button onClick={() => handleAcceptConnection(request.id)}>Accept</Button>
+                      <Button onClick={() => handleAcceptConnection(request.id)} className="min-w-[100px]">Accept</Button>
                     </div>
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-4 text-muted-foreground">
+                <div className="text-center py-8 text-muted-foreground">
+                  <Users className="h-12 w-12 mx-auto mb-3 text-muted" />
                   <p>No pending connection requests</p>
+                  <p className="text-sm">When someone sends you a connection request, it will appear here</p>
                 </div>
               )}
               </CardContent>
