@@ -144,7 +144,7 @@ export default function MessagesPage() {
 
       <div className="flex-1 flex flex-col">
         {selectedChat ? (
-          <ChatWindow conversationId={selectedChat} />
+          <ChatWindow conversationId={selectedChat} currentUserId={user?.id} />
         ) : (
           <div className="flex-1 flex items-center justify-center text-muted-foreground">
             Select a conversation or start a new one
