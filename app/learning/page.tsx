@@ -73,23 +73,30 @@ export default function LearningPage() {
   ];
 
   return (
-    <div className="container py-6">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
+    <div className="container py-8">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8 gap-4">
         <div>
-          <h1 className="text-3xl font-bold">Learning Center</h1>
-          <p className="text-muted-foreground mt-1">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Learning Center</h1>
+          <p className="text-muted-foreground mt-2 text-lg">
             Enhance your ESH & ESG knowledge with industry-recognized courses
           </p>
         </div>
+        <Button className="bg-secondary hover:bg-secondary/90">
+          <BookOpen className="h-4 w-4 mr-2" />
+          Browse All Courses
+        </Button>
       </div>
 
       <div className="flex flex-col md:flex-row gap-6">
         <div className="md:w-1/4">
           <div className="sticky top-20">
-            <div className="mb-6">
+            <div className="mb-8">
               <div className="relative">
                 <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input placeholder="Search courses..." className="pl-9" />
+                <Input 
+                  placeholder="Search courses..." 
+                  className="pl-9 bg-muted/30 border-muted/20 focus:border-primary/50 transition-colors"
+                />
               </div>
             </div>
 
@@ -109,14 +116,14 @@ export default function LearningPage() {
         <div className="md:w-3/4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {courses.map((course, index) => (
-              <Card key={index} className="hover:shadow-md transition-shadow">
-                <CardHeader>
-                  <div className="flex justify-between items-start">
-                    <CardTitle className="text-lg">{course.title}</CardTitle>
-                    <Badge variant="secondary">{course.category}</Badge>
+              <Card key={index} className="hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border-muted/20">
+                <CardHeader className="pb-4">
+                  <div className="flex justify-between items-start gap-4">
+                    <CardTitle className="text-lg font-semibold text-primary">{course.title}</CardTitle>
+                    <Badge variant="secondary" className="bg-secondary/10 text-secondary hover:bg-secondary/20">{course.category}</Badge>
                   </div>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="pt-0">
                   <div className="space-y-2">
                     <div className="flex items-center text-sm text-muted-foreground">
                       <BookOpen className="h-4 w-4 mr-2" />
