@@ -9,28 +9,54 @@ import { Search, BookOpen, Clock, Award, Users, Video, Book, Library, Briefcase,
 export default function LearningPage() {
   const categories = [
     {
-      title: "Cybersecurity",
-      icon: "🔒",
-      description: "Learn to protect information systems and data",
+      title: "OSHA Compliance",
+      icon: "⚠️",
+      description: "Essential workplace safety standards",
       color: "bg-red-100"
     },
     {
-      title: "Business Intelligence",
-      icon: "📊",
-      description: "Master data-driven decision making",
-      color: "bg-yellow-100"
-    },
-    {
-      title: "Advanced Data Analytics",
-      icon: "📈",
-      description: "Analyze and interpret complex data sets",
+      title: "Environmental Management",
+      icon: "🌱",
+      description: "Sustainable practices and compliance",
       color: "bg-green-100"
     },
     {
-      title: "Safety Management",
-      icon: "⚠️",
-      description: "Implement effective safety protocols",
+      title: "Health & Safety",
+      icon: "🛡️",
+      description: "Occupational health and safety protocols",
       color: "bg-blue-100"
+    },
+    {
+      title: "ISO Certifications",
+      icon: "✅",
+      description: "International standards and certifications",
+      color: "bg-yellow-100"
+    },
+    {
+      title: "Fire Safety",
+      icon: "🚒",
+      description: "Fire prevention and emergency response",
+      color: "bg-orange-100"
+    },
+    {
+      title: "Chemical Safety",
+      icon: "⚗️",
+      description: "Hazardous materials handling",
+      color: "bg-purple-100"
+    },
+    {
+      title: "Emergency Management",
+      icon: "🚨",
+      description: "Crisis response and preparedness",
+      color: "bg-indigo-100"
+    },
+    {
+      title: "Quality Management",
+      icon: "📋",
+      description: "Quality assurance and control",
+      color: "bg-teal-100"
+    }
+  ];0"
     }
   ];
 
