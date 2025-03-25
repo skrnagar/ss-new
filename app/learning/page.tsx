@@ -36,25 +36,58 @@ export default function LearningPage() {
 
   const courses = [
     {
-      title: "OSHA Safety Leadership",
-      duration: "40m",
-      instructor: "Anna Smith",
+      title: "Basic Life Support (BLS)",
+      duration: "2h 30m",
+      instructor: "Dr. Medical Team",
+      rating: 4.6,
+      reviews: 3400,
+      image: "/placeholder.jpg",
+      tag: "Bestseller"
+    },
+    {
+      title: "Bloodborne Pathogens (BBP)",
+      duration: "1h 45m",
+      instructor: "Dr. Safety Expert",
+      rating: 4.6,
+      reviews: 1700,
       image: "/placeholder.jpg",
       tag: "Popular"
     },
     {
-      title: "ESG Compliance Fundamentals",
-      duration: "1h 5m",
-      instructor: "John Miller",
+      title: "CPR, AED & First Aid",
+      duration: "3h",
+      instructor: "Emergency Response Team",
+      rating: 4.1,
+      reviews: 1100,
       image: "/placeholder.jpg",
-      tag: "New"
+      tag: "Essential"
     },
     {
-      title: "Workplace Risk Assessment",
-      duration: "32m",
-      instructor: "Sarah Johnson",
+      title: "OSHA Transport Safety",
+      duration: "1h 15m",
+      instructor: "OSHA Pro Team",
+      rating: 4.7,
+      reviews: 992,
       image: "/placeholder.jpg",
-      tag: "Popular"
+      tag: "OSHA"
+    },
+    {
+      title: "Hazards Identification & Risk Assessment",
+      duration: "2h",
+      instructor: "Risk Management Expert",
+      rating: 4.5,
+      reviews: 902,
+      image: "/placeholder.jpg",
+      tag: "Safety"
+    },
+    {
+      title: "Work Zone Traffic Control",
+      duration: "1h 30m",
+      instructor: "MUTCD Specialist",
+      rating: 4.7,
+      reviews: 637,
+      image: "/placeholder.jpg",
+      tag: "OSHA"
     }
   ];
 
@@ -107,17 +140,24 @@ export default function LearningPage() {
             <h2 className="text-xl font-semibold mb-4">This week's top courses</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {courses.map((course, index) => (
-                <Card key={index} className="hover:shadow-lg transition-all duration-300">
+                <Card key={index} className="hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
                   <div className="aspect-video relative bg-muted">
-                    <Badge className="absolute top-2 right-2">{course.tag}</Badge>
+                    <Badge className="absolute top-2 right-2" variant={course.tag === "OSHA" ? "destructive" : "secondary"}>{course.tag}</Badge>
                   </div>
                   <CardContent className="p-4">
-                    <h3 className="font-semibold mb-2">{course.title}</h3>
-                    <div className="flex items-center text-sm text-muted-foreground">
+                    <h3 className="font-semibold mb-2 text-primary/90">{course.title}</h3>
+                    <div className="flex items-center text-sm text-muted-foreground mb-2">
                       <Clock className="h-4 w-4 mr-1" />
                       <span>{course.duration}</span>
                       <span className="mx-2">•</span>
                       <span>{course.instructor}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="flex items-center">
+                        <span className="text-yellow-500">★</span>
+                        <span className="ml-1 font-medium">{course.rating}</span>
+                      </div>
+                      <span className="text-muted-foreground">({course.reviews.toLocaleString()} reviews)</span>
                     </div>
                   </CardContent>
                 </Card>
