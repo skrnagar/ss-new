@@ -133,7 +133,6 @@ export const Navbar = memo(function Navbar() {
                     </NavigationMenuLink>
                   </Link>
                 </NavigationMenuItem>
-                
               </NavigationMenuList>
             </NavigationMenu>
           )}

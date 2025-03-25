@@ -1,10 +1,23 @@
 "use client";
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Search, BookOpen, Clock, Award, Users, Video, Book, Library, Briefcase, TrendingUp, Bookmark, ScrollText } from "lucide-react";
+import {
+  Award,
+  Book,
+  BookOpen,
+  Bookmark,
+  Briefcase,
+  Clock,
+  Library,
+  ScrollText,
+  Search,
+  TrendingUp,
+  Users,
+  Video,
+} from "lucide-react";
 
 export default function LearningPage() {
   const categories = [
@@ -12,50 +25,50 @@ export default function LearningPage() {
       title: "OSHA Compliance",
       icon: "⚠️",
       description: "Essential workplace safety standards",
-      color: "bg-red-100"
+      color: "bg-red-100",
     },
     {
       title: "Environmental Management",
       icon: "🌱",
       description: "Sustainable practices and compliance",
-      color: "bg-green-100"
+      color: "bg-green-100",
     },
     {
       title: "Health & Safety",
       icon: "🛡️",
       description: "Occupational health and safety protocols",
-      color: "bg-blue-100"
+      color: "bg-blue-100",
     },
     {
       title: "ISO Certifications",
       icon: "✅",
       description: "International standards and certifications",
-      color: "bg-yellow-100"
+      color: "bg-yellow-100",
     },
     {
       title: "Fire Safety",
       icon: "🚒",
       description: "Fire prevention and emergency response",
-      color: "bg-orange-100"
+      color: "bg-orange-100",
     },
     {
       title: "Chemical Safety",
       icon: "⚗️",
       description: "Hazardous materials handling",
-      color: "bg-purple-100"
+      color: "bg-purple-100",
     },
     {
       title: "Emergency Management",
       icon: "🚨",
       description: "Crisis response and preparedness",
-      color: "bg-indigo-100"
+      color: "bg-indigo-100",
     },
     {
       title: "Quality Management",
       icon: "📋",
       description: "Quality assurance and control",
-      color: "bg-teal-100"
-    }
+      color: "bg-teal-100",
+    },
   ];
 
   const courses = [
@@ -66,7 +79,7 @@ export default function LearningPage() {
       rating: 4.8,
       reviews: 5200,
       image: "/placeholder.jpg",
-      tag: "OSHA"
+      tag: "OSHA",
     },
     {
       title: "ISO 45001 Occupational Health & Safety",
@@ -75,7 +88,7 @@ export default function LearningPage() {
       rating: 4.7,
       reviews: 3800,
       image: "/placeholder.jpg",
-      tag: "Certification"
+      tag: "Certification",
     },
     {
       title: "Fire Safety & Prevention",
@@ -84,7 +97,7 @@ export default function LearningPage() {
       rating: 4.9,
       reviews: 4200,
       image: "/placeholder.jpg",
-      tag: "Essential"
+      tag: "Essential",
     },
     {
       title: "NEBOSH Safety Certification",
@@ -93,7 +106,7 @@ export default function LearningPage() {
       rating: 4.6,
       reviews: 2900,
       image: "/placeholder.jpg",
-      tag: "Bestseller"
+      tag: "Bestseller",
     },
     {
       title: "Workplace Ergonomics",
@@ -102,7 +115,7 @@ export default function LearningPage() {
       rating: 4.5,
       reviews: 1800,
       image: "/placeholder.jpg",
-      tag: "Popular"
+      tag: "Popular",
     },
     {
       title: "Environmental Management Systems",
@@ -111,7 +124,7 @@ export default function LearningPage() {
       rating: 4.7,
       reviews: 2100,
       image: "/placeholder.jpg",
-      tag: "ESG"
+      tag: "ESG",
     },
     {
       title: "ISO 14001 Environmental Management",
@@ -120,7 +133,7 @@ export default function LearningPage() {
       rating: 4.8,
       reviews: 1600,
       image: "/placeholder.jpg",
-      tag: "Certification"
+      tag: "Certification",
     },
     {
       title: "Warehouse Safety Management",
@@ -129,7 +142,7 @@ export default function LearningPage() {
       rating: 4.6,
       reviews: 1900,
       image: "/placeholder.jpg",
-      tag: "Safety"
+      tag: "Safety",
     },
     {
       title: "Hazardous Material Handling",
@@ -138,7 +151,7 @@ export default function LearningPage() {
       rating: 4.9,
       reviews: 2400,
       image: "/placeholder.jpg",
-      tag: "OSHA"
+      tag: "OSHA",
     },
     {
       title: "ISO 9001 Quality Management",
@@ -147,7 +160,7 @@ export default function LearningPage() {
       rating: 4.7,
       reviews: 2200,
       image: "/placeholder.jpg",
-      tag: "Certification"
+      tag: "Certification",
     },
     {
       title: "HR & Workplace Safety Integration",
@@ -156,7 +169,7 @@ export default function LearningPage() {
       rating: 4.5,
       reviews: 1500,
       image: "/placeholder.jpg",
-      tag: "HR"
+      tag: "HR",
     },
     {
       title: "Emergency & Disaster Management",
@@ -165,24 +178,31 @@ export default function LearningPage() {
       rating: 4.8,
       reviews: 2800,
       image: "/placeholder.jpg",
-      tag: "Essential"
-    }
+      tag: "Essential",
+    },
   ];
 
   return (
     <div className="container py-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Learn job-ready skills with Safter Career Certificates</h1>
+        <h1 className="text-3xl font-bold mb-2">
+          Learn job-ready skills with Safter Career Certificates
+        </h1>
 
         {/* Categories Carousel */}
         <div className="flex gap-4 overflow-x-auto pb-4 -mx-2 px-2">
           {categories.map((category, index) => (
-            <Card key={index} className={`flex-shrink-0 w-[300px] cursor-pointer hover:shadow-md transition-shadow ${category.color}`}>
+            <Card
+              key={index}
+              className={`flex-shrink-0 w-[300px] cursor-pointer hover:shadow-md transition-shadow ${category.color}`}
+            >
               <CardContent className="p-4">
                 <div className="text-4xl mb-2">{category.icon}</div>
                 <h3 className="font-semibold mb-1">{category.title}</h3>
                 <p className="text-sm text-muted-foreground">{category.description}</p>
-                <Button className="mt-4" variant="secondary">Learn more</Button>
+                <Button className="mt-4" variant="secondary">
+                  Learn more
+                </Button>
               </CardContent>
             </Card>
           ))}
@@ -218,9 +238,17 @@ export default function LearningPage() {
             <h2 className="text-xl font-semibold mb-4">This week's top courses</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {courses.map((course, index) => (
-                <Card key={index} className="hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+                <Card
+                  key={index}
+                  className="hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
+                >
                   <div className="aspect-video relative bg-muted">
-                    <Badge className="absolute top-2 right-2" variant={course.tag === "OSHA" ? "destructive" : "secondary"}>{course.tag}</Badge>
+                    <Badge
+                      className="absolute top-2 right-2"
+                      variant={course.tag === "OSHA" ? "destructive" : "secondary"}
+                    >
+                      {course.tag}
+                    </Badge>
                   </div>
                   <CardContent className="p-4">
                     <h3 className="font-semibold mb-2 text-primary/90">{course.title}</h3>
@@ -235,7 +263,9 @@ export default function LearningPage() {
                         <span className="text-yellow-500">★</span>
                         <span className="ml-1 font-medium">{course.rating}</span>
                       </div>
-                      <span className="text-muted-foreground">({course.reviews.toLocaleString()} reviews)</span>
+                      <span className="text-muted-foreground">
+                        ({course.reviews.toLocaleString()} reviews)
+                      </span>
                     </div>
                   </CardContent>
                 </Card>

@@ -22,24 +22,27 @@ export function ErrorBoundary({
   useEffect(() => {
     const errorHandler = (event: ErrorEvent) => {
       console.error("Error caught by boundary:", event.error);
-      
+
       // Check for ChunkLoadError specifically
-      const isChunkError = event.error && 
-        (event.error.toString().includes('ChunkLoadError') || 
-         event.error.toString().includes('Loading chunk'));
-      
+      const isChunkError =
+        event.error &&
+        (event.error.toString().includes("ChunkLoadError") ||
+          event.error.toString().includes("Loading chunk"));
+
       if (isChunkError) {
         setErrorInfo("Failed to load a required component. This might be due to network issues.");
       }
-      
+
       setHasError(true);
       event.preventDefault();
     };
 
     const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
-      if (event.reason && 
-         (event.reason.toString().includes('ChunkLoadError') || 
-          event.reason.toString().includes('Loading chunk'))) {
+      if (
+        event.reason &&
+        (event.reason.toString().includes("ChunkLoadError") ||
+          event.reason.toString().includes("Loading chunk"))
+      ) {
         setErrorInfo("Failed to load a required component. This might be due to network issues.");
         setHasError(true);
         event.preventDefault();
@@ -48,7 +51,7 @@ export function ErrorBoundary({
 
     window.addEventListener("error", errorHandler);
     window.addEventListener("unhandledrejection", handleUnhandledRejection);
-    
+
     return () => {
       window.removeEventListener("error", errorHandler);
       window.removeEventListener("unhandledrejection", handleUnhandledRejection);

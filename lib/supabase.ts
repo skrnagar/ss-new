@@ -6,24 +6,25 @@ export const supabase = createClientComponentClient<Database>({
   options: {
     global: {
       headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      }
-    }
-  }
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+    },
+  },
 });
 
 // Export a function that provides a fresh client instance when needed
-export const getSupabaseClient = () => createClientComponentClient<Database>({
-  options: {
-    global: {
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      }
-    }
-  }
-});
+export const getSupabaseClient = () =>
+  createClientComponentClient<Database>({
+    options: {
+      global: {
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+      },
+    },
+  });
 
 // Utility function to check database health
 export const checkDatabaseHealth = async () => {
@@ -47,7 +48,7 @@ export const checkDatabaseHealth = async () => {
 
     return {
       healthy: true,
-      count: data && data[0] && 'count' in data[0] ? (data[0].count as number) : 0,
+      count: data && data[0] && "count" in data[0] ? (data[0].count as number) : 0,
     };
   } catch (err: any) {
     console.error("Database connection error:", err.message);

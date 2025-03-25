@@ -191,9 +191,7 @@ export default function FeedPage() {
                     <p className="text-muted-foreground mb-4">
                       Set up your profile to start posting and connecting with others.
                     </p>
-                    <Button onClick={() => router.push("/profile/setup")}>
-                      Set Up Profile
-                    </Button>
+                    <Button onClick={() => router.push("/profile/setup")}>Set Up Profile</Button>
                   </div>
                 </CardContent>
               </Card>
@@ -203,7 +201,9 @@ export default function FeedPage() {
               <CardContent className="p-6">
                 <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
                   <div>
-                    <h3 className="text-lg font-medium">Sign in to create posts and interact with the community</h3>
+                    <h3 className="text-lg font-medium">
+                      Sign in to create posts and interact with the community
+                    </h3>
                   </div>
                   <Button asChild>
                     <Link href="/auth/login">Sign In</Link>
@@ -399,7 +399,9 @@ export default function FeedPage() {
                       </Avatar>
                       <div>
                         <p className="text-sm font-medium">Maria Johnson</p>
-                        <p className="text-xs text-muted-foreground">ESG Analyst at Green Metrics</p>
+                        <p className="text-xs text-muted-foreground">
+                          ESG Analyst at Green Metrics
+                        </p>
                       </div>
                     </div>
                     <Button variant="outline" size="sm">

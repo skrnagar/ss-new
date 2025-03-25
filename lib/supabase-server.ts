@@ -25,7 +25,7 @@ export function createClient() {
       remove(name, options) {
         cookieStore.set({ name, value: "", ...options });
       },
-    }
+    },
   });
 }
 

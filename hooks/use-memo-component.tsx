@@ -1,7 +1,6 @@
-
 "use client";
 
-import { memo, useEffect, useRef, useState, useMemo } from "react";
+import { memo, useEffect, useMemo, useRef, useState } from "react";
 
 // Generic type for props
 type AnyProps = Record<string, any>;
@@ -24,7 +23,7 @@ export function useMemoComponent<P extends AnyProps>(
 /**
  * A utility function to create a memoized component with dependencies
  * This is useful for components that should only re-render when specific props change
- * 
+ *
  * @param Component The component to memoize
  * @param propsAreEqual Custom function to determine if props are equal (optional)
  * @returns Memoized component
@@ -39,7 +38,7 @@ export function createMemoComponent<P extends object>(
 /**
  * Hook to memoize expensive calculations or component parts
  * This ensures they don't recalculate on every render
- * 
+ *
  * @param factory Function that returns the value to memoize
  * @param dependencies Array of dependencies that should trigger recalculation
  * @returns Memoized value

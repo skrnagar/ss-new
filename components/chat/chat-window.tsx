@@ -1,14 +1,13 @@
-
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import { useAuth } from "@/contexts/auth-context";
-import { supabase } from "@/lib/supabase";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useAuth } from "@/contexts/auth-context";
+import { supabase } from "@/lib/supabase";
 import { Send } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 
 interface Message {
   id: string;
@@ -66,15 +65,19 @@ export function ChatWindow({ conversationId }: ChatWindowProps) {
 
     const subscription = supabase
       .channel("messages")
-      .on("postgres_changes", {
-        event: "INSERT",
-        schema: "public",
-        table: "messages",
-        filter: `conversation_id=eq.${conversationId}`
-      }, (payload) => {
-        setMessages((prev) => [...prev, payload.new as Message]);
-        scrollToBottom();
-      })
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "messages",
+          filter: `conversation_id=eq.${conversationId}`,
+        },
+        (payload) => {
+          setMessages((prev) => [...prev, payload.new as Message]);
+          scrollToBottom();
+        }
+      )
       .subscribe();
 
     return () => {
@@ -89,7 +92,7 @@ export function ChatWindow({ conversationId }: ChatWindowProps) {
     const { error } = await supabase.from("messages").insert({
       content: newMessage,
       conversation_id: conversationId,
-      sender_id: user.id
+      sender_id: user.id,
     });
 
     if (!error) {
@@ -116,9 +119,7 @@ export function ChatWindow({ conversationId }: ChatWindowProps) {
               </Avatar>
               <div
                 className={`rounded-lg px-3 py-2 max-w-[70%] ${
-                  message.sender_id === user?.id
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted"
+                  message.sender_id === user?.id ? "bg-primary text-primary-foreground" : "bg-muted"
                 }`}
               >
                 <p className="text-sm">{message.content}</p>

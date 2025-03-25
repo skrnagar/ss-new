@@ -1,0 +1,356 @@
+
+./.next/server/middleware-build-manifest.js:12:42 lint/suspicious/noSparseArray  FIXABLE  ━━━━━━━━━━
+
+  ✖ This array contains an empty slot.
+  
+    10 │   ampFirstPages: [],
+    11 │ };
+  > 12 │ self.__BUILD_MANIFEST.lowPriorityFiles = [
+       │                                          ^
+  > 13 │   "/static/" + process.env.__NEXT_BUILD_ID + "/_buildManifest.js",
+  > 14 │   ,
+  > 15 │   "/static/" + process.env.__NEXT_BUILD_ID + "/_ssgManifest.js",
+  > 16 │ ];
+       │ ^
+    17 │ 
+  
+  ℹ Unsafe fix: Replace hole with undefined
+  
+    13 │ ··"/static/"·+·process.env.__NEXT_BUILD_ID·+·"/_buildManifest.js",·undefined
+       │                                                                   ++++++++++
+
+./.next/server/middleware-build-manifest.js:13:3 lint/style/useTemplate  FIXABLE  ━━━━━━━━━━━━━━━━━━
+
+  ✖ Template literals are preferred over string concatenation.
+  
+    11 │ };
+    12 │ self.__BUILD_MANIFEST.lowPriorityFiles = [
+  > 13 │   "/static/" + process.env.__NEXT_BUILD_ID + "/_buildManifest.js",
+       │   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    14 │   ,
+    15 │   "/static/" + process.env.__NEXT_BUILD_ID + "/_ssgManifest.js",
+  
+  ℹ Unsafe fix: Use a template literal.
+  
+    11 11 │   };
+    12 12 │   self.__BUILD_MANIFEST.lowPriorityFiles = [
+    13    │ - ··"/static/"·+·process.env.__NEXT_BUILD_ID·+·"/_buildManifest.js",
+       13 │ + ··`/static/${process.env.__NEXT_BUILD_ID}/_buildManifest.js`,
+    14 14 │     ,
+    15 15 │     "/static/" + process.env.__NEXT_BUILD_ID + "/_ssgManifest.js",
+  
+
+./.next/server/middleware-build-manifest.js:15:3 lint/style/useTemplate  FIXABLE  ━━━━━━━━━━━━━━━━━━
+
+  ✖ Template literals are preferred over string concatenation.
+  
+    13 │   "/static/" + process.env.__NEXT_BUILD_ID + "/_buildManifest.js",
+    14 │   ,
+  > 15 │   "/static/" + process.env.__NEXT_BUILD_ID + "/_ssgManifest.js",
+       │   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    16 │ ];
+    17 │ 
+  
+  ℹ Unsafe fix: Use a template literal.
+  
+    13 13 │     "/static/" + process.env.__NEXT_BUILD_ID + "/_buildManifest.js",
+    14 14 │     ,
+    15    │ - ··"/static/"·+·process.env.__NEXT_BUILD_ID·+·"/_ssgManifest.js",
+       15 │ + ··`/static/${process.env.__NEXT_BUILD_ID}/_ssgManifest.js`,
+    16 16 │   ];
+    17 17 │   
+  
+
+./.next/server/middleware.js lint ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ✖ Size of ./.next/server/middleware.js is 1.5 MiB which exceeds configured maximum of 1.0 MiB for this project.
+    The file size limit exists to prevent us inadvertently slowing down and loading large files that we shouldn't.
+    Use the `files.maxSize` configuration to change the maximum size of files processed.
+  
+
+./lib/verify-db.ts:1:16 lint/style/useNodejsImportProtocol  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ✖ A Node.js builtin module should be imported with the node: protocol.
+  
+  > 1 │ import fs from "fs";
+      │                ^^^^
+    2 │ import path from "path";
+    3 │ import { createClient } from "@supabase/supabase-js";
+  
+  ℹ Using the node: protocol is more explicit and signals that the imported module belongs to Node.js.
+  
+  ℹ Unsafe fix: Add the node: protocol.
+  
+     1    │ - import·fs·from·"fs";
+        1 │ + import·fs·from·"node:fs";
+     2  2 │   import path from "path";
+     3  3 │   import { createClient } from "@supabase/supabase-js";
+  
+
+./lib/verify-db.ts:2:18 lint/style/useNodejsImportProtocol  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ✖ A Node.js builtin module should be imported with the node: protocol.
+  
+    1 │ import fs from "fs";
+  > 2 │ import path from "path";
+      │                  ^^^^^^
+    3 │ import { createClient } from "@supabase/supabase-js";
+    4 │ 
+  
+  ℹ Using the node: protocol is more explicit and signals that the imported module belongs to Node.js.
+  
+  ℹ Unsafe fix: Add the node: protocol.
+  
+     1  1 │   import fs from "fs";
+     2    │ - import·path·from·"path";
+        2 │ + import·path·from·"node:path";
+     3  3 │   import { createClient } from "@supabase/supabase-js";
+     4  4 │   
+  
+
+./lib/verify-db.ts:6:23 lint/style/noNonNullAssertion ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ⚠ Forbidden non-null assertion.
+  
+    5 │ const verifyDatabase = async () => {
+  > 6 │   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+      │                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    7 │   const supabaseServiceKey =
+    8 │     process.env.SUPABASE_SERVICE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+  
+
+./lib/verify-db.ts:8:41 lint/style/noNonNullAssertion ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ⚠ Forbidden non-null assertion.
+  
+     6 │   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+     7 │   const supabaseServiceKey =
+   > 8 │     process.env.SUPABASE_SERVICE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+       │                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     9 │ 
+    10 │   if (!supabaseUrl || !supabaseServiceKey) {
+  
+
+./lib/verify-db.ts:19:19 lint/correctness/noUnusedVariables ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ✖ This variable is unused.
+  
+    17 │   try {
+    18 │     // Check if profiles table exists
+  > 19 │     const { data: profilesTable, error: profilesError } = await supabase
+       │                   ^^^^^^^^^^^^^
+    20 │       .from("profiles")
+    21 │       .select("*")
+  
+  ℹ Unused variables usually are result of incomplete refactoring, typos and other source of bugs.
+  
+
+./.next/static/development/_buildManifest.js:5:1 lint/complexity/useOptionalChain  FIXABLE  ━━━━━━━━━━
+
+  ✖ Change to an optional chain.
+  
+    3 │   sortedPages: ["\u002F_app"],
+    4 │ };
+  > 5 │ self.__BUILD_MANIFEST_CB && self.__BUILD_MANIFEST_CB();
+      │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    6 │ 
+  
+  ℹ Unsafe fix: Change to an optional chain.
+  
+    3 3 │     sortedPages: ["\u002F_app"],
+    4 4 │   };
+    5   │ - self.__BUILD_MANIFEST_CB·&&·self.__BUILD_MANIFEST_CB();
+      5 │ + self.__BUILD_MANIFEST_CB?.();
+    6 6 │   
+  
+
+./lib/update-schema.ts:4:23 lint/style/noNonNullAssertion ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ⚠ Forbidden non-null assertion.
+  
+    3 │ const updateSchema = async () => {
+  > 4 │   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+      │                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    5 │   const supabaseServiceKey =
+    6 │     process.env.SUPABASE_SERVICE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+  
+
+./lib/update-schema.ts:6:41 lint/style/noNonNullAssertion ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ⚠ Forbidden non-null assertion.
+  
+    4 │   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+    5 │   const supabaseServiceKey =
+  > 6 │     process.env.SUPABASE_SERVICE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+      │                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    7 │ 
+    8 │   if (!supabaseUrl || !supabaseServiceKey) {
+  
+
+./lib/update-post-schema.ts:1:16 lint/style/useNodejsImportProtocol  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━
+
+  ✖ A Node.js builtin module should be imported with the node: protocol.
+  
+  > 1 │ import fs from "fs";
+      │                ^^^^
+    2 │ import path from "path";
+    3 │ import { createClient } from "@supabase/supabase-js";
+  
+  ℹ Using the node: protocol is more explicit and signals that the imported module belongs to Node.js.
+  
+  ℹ Unsafe fix: Add the node: protocol.
+  
+     1    │ - import·fs·from·"fs";
+        1 │ + import·fs·from·"node:fs";
+     2  2 │   import path from "path";
+     3  3 │   import { createClient } from "@supabase/supabase-js";
+  
+
+./lib/update-post-schema.ts:2:18 lint/style/useNodejsImportProtocol  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━
+
+  ✖ A Node.js builtin module should be imported with the node: protocol.
+  
+    1 │ import fs from "fs";
+  > 2 │ import path from "path";
+      │                  ^^^^^^
+    3 │ import { createClient } from "@supabase/supabase-js";
+    4 │ 
+  
+  ℹ Using the node: protocol is more explicit and signals that the imported module belongs to Node.js.
+  
+  ℹ Unsafe fix: Add the node: protocol.
+  
+     1  1 │   import fs from "fs";
+     2    │ - import·path·from·"path";
+        2 │ + import·path·from·"node:path";
+     3  3 │   import { createClient } from "@supabase/supabase-js";
+     4  4 │   
+  
+
+./lib/update-post-schema.ts:16:19 lint/correctness/noUnusedVariables ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ✖ This variable is unused.
+  
+    14 │   try {
+    15 │     // Check if columns already exist
+  > 16 │     const { data: existingColumns, error: columnCheckError } = await supabase
+       │                   ^^^^^^^^^^^^^^^
+    17 │       .from("posts")
+    18 │       .select("video_url, document_url")
+  
+  ℹ Unused variables usually are result of incomplete refactoring, typos and other source of bugs.
+  
+
+./.next/static/development/_ssgManifest.js:2:1 lint/complexity/useOptionalChain  FIXABLE  ━━━━━━━━━━
+
+  ✖ Change to an optional chain.
+  
+    1 │ self.__SSG_MANIFEST = new Set();
+  > 2 │ self.__SSG_MANIFEST_CB && self.__SSG_MANIFEST_CB();
+      │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    3 │ 
+  
+  ℹ Unsafe fix: Change to an optional chain.
+  
+    1 1 │   self.__SSG_MANIFEST = new Set();
+    2   │ - self.__SSG_MANIFEST_CB·&&·self.__SSG_MANIFEST_CB();
+      2 │ + self.__SSG_MANIFEST_CB?.();
+    3 3 │   
+  
+
+./app/auth/callback/page.tsx:78:13 lint/style/useSelfClosingElements  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━
+
+  ✖ JSX elements without children should be marked as self-closing. In JSX, it is valid for any element to be self-closing.
+  
+    76 │           <h2 className="text-xl font-semibold mb-4">Authentication in Progress</h2>
+    77 │           <div className="flex items-center space-x-4 mb-4">
+  > 78 │             <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
+       │             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    79 │             <p>{status}</p>
+    80 │           </div>
+  
+  ℹ Unsafe fix: Use a SelfClosingElement instead
+  
+     76  76 │             <h2 className="text-xl font-semibold mb-4">Authentication in Progress</h2>
+     77  77 │             <div className="flex items-center space-x-4 mb-4">
+     78     │ - ············<div·className="animate-spin·rounded-full·h-8·w-8·border-t-2·border-b-2·border-primary"></div>
+         78 │ + ············<div·className="animate-spin·rounded-full·h-8·w-8·border-t-2·border-b-2·border-primary"·/>
+     79  79 │               <p>{status}</p>
+     80  80 │             </div>
+  
+
+./app/auth/callback/page.tsx:97:11 lint/style/useSelfClosingElements  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━
+
+  ✖ JSX elements without children should be marked as self-closing. In JSX, it is valid for any element to be self-closing.
+  
+    95 │         </p>
+    96 │         <div className="animate-pulse inline-block rounded-full bg-primary/10 p-4">
+  > 97 │           <div className="h-8 w-8 rounded-full border-2 border-primary border-t-transparent animate-spin"></div>
+       │           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    98 │         </div>
+    99 │       </div>
+  
+  ℹ Unsafe fix: Use a SelfClosingElement instead
+  
+     95  95 │           </p>
+     96  96 │           <div className="animate-pulse inline-block rounded-full bg-primary/10 p-4">
+     97     │ - ··········<div·className="h-8·w-8·rounded-full·border-2·border-primary·border-t-transparent·animate-spin"></div>
+         97 │ + ··········<div·className="h-8·w-8·rounded-full·border-2·border-primary·border-t-transparent·animate-spin"·/>
+     98  98 │           </div>
+     99  99 │         </div>
+  
+
+./app/auth/callback/page.tsx:86:3 lint/correctness/noUnreachable ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ✖ This code will never be reached ...
+  
+     84 │   );
+     85 │ 
+   > 86 │   return (
+        │   ^^^^^^^^
+   > 87 │     <div className="min-h-screen flex flex-col items-center justify-center">
+         ...
+  > 100 │     </div>
+  > 101 │   );
+        │   ^^
+    102 │ }
+    103 │ 
+  
+  ℹ ... because this statement will return from the function beforehand
+  
+    67 │   }, [router]);
+    68 │ 
+  > 69 │   return (
+       │   ^^^^^^^^
+  > 70 │     <div className="flex flex-col items-center justify-center min-h-[70vh] p-4">
+        ...
+  > 83 │     </div>
+  > 84 │   );
+       │   ^^
+    85 │ 
+    86 │   return (
+  
+
+./app/auth/login/page.tsx:268:21 lint/a11y/noSvgWithoutTitle ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ✖ Alternative text title element cannot be empty
+  
+    266 │                 <div className="grid grid-cols-2 gap-3">
+    267 │                   <Button variant="outline" onClick={signInWithGoogle}>
+  > 268 │                     <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
+        │                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    269 │                       <path
+    270 │                         d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+  
+  ℹ For accessibility purposes, SVGs should have an alternative text, provided via title element. If the svg element has role="img", you should add the aria-label or aria-labelledby attribute.
+  
+
+The number of diagnostics exceeds the number allowed by Biome.
+Diagnostics not shown: 3736.
+Checked 159 files in 738ms. No fixes applied.
+Found 180 errors.
+Found 41 warnings.
+lint ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ✖ Some errors were emitted while running checks.
+  

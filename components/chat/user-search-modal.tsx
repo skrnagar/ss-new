@@ -1,12 +1,18 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/auth-context";
+import { supabase } from "@/lib/supabase";
+import { useEffect, useState } from "react";
 
 interface UserSearchModalProps {
   open: boolean;
@@ -24,10 +30,10 @@ export function UserSearchModal({ open, onOpenChange, onSelectUser }: UserSearch
       if (!searchQuery.trim() || !currentUser) return;
 
       const { data, error } = await supabase
-        .from('profiles')
-        .select('id, username, avatar_url')
-        .neq('id', currentUser.id)
-        .ilike('username', `%${searchQuery}%`)
+        .from("profiles")
+        .select("id, username, avatar_url")
+        .neq("id", currentUser.id)
+        .ilike("username", `%${searchQuery}%`)
         .limit(10);
 
       if (data && !error) {

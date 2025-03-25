@@ -38,7 +38,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const fetchProfile = async (userId: string) => {
     try {
       console.log("Fetching profile for user ID:", userId);
-      
+
       const { data, error } = await supabase
         .from("profiles")
         .select("id, username, full_name, avatar_url, headline, position, company")
@@ -78,7 +78,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         const {
           data: { session },
         } = await supabase.auth.getSession();
-        
+
         console.log("Session loaded:", !!session);
         setSession(session);
         setUser(session?.user || null);

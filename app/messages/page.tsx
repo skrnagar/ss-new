@@ -1,15 +1,14 @@
-
 "use client";
 
-import { useEffect, useState } from "react";
 import { ChatList } from "@/components/chat/chat-list";
 import { ChatWindow } from "@/components/chat/chat-window";
+import { UserSearchModal } from "@/components/chat/user-search-modal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/auth-context";
 import { supabase } from "@/lib/supabase";
 import { MessageCircle, Plus, Search } from "lucide-react";
-import { UserSearchModal } from "@/components/chat/user-search-modal";
+import { useEffect, useState } from "react";
 
 interface ChatParticipant {
   profile_id: string;
@@ -55,13 +54,13 @@ export default function MessagesPage() {
       .order("created_at", { ascending: false });
 
     if (data && !error) {
-      const formattedConversations = data.map(conv => ({
+      const formattedConversations = data.map((conv) => ({
         id: conv.id,
         created_at: conv.created_at,
-        participants: conv.conversation_participants.map(participant => ({
+        participants: conv.conversation_participants.map((participant) => ({
           profile_id: participant.profile_id,
-          profiles: participant.profiles[0]
-        }))
+          profiles: participant.profiles[0],
+        })),
       }));
       setConversations(formattedConversations);
     }
@@ -77,25 +76,21 @@ export default function MessagesPage() {
     const { data, error } = await supabase
       .from("conversations")
       .insert({
-        created_by: user.id
+        created_by: user.id,
       })
       .select()
       .single();
 
     if (data && !error) {
       await Promise.all([
-        supabase
-          .from("conversation_participants")
-          .insert({
-            conversation_id: data.id,
-            profile_id: user.id
-          }),
-        supabase
-          .from("conversation_participants")
-          .insert({
-            conversation_id: data.id,
-            profile_id: otherUserId
-          })
+        supabase.from("conversation_participants").insert({
+          conversation_id: data.id,
+          profile_id: user.id,
+        }),
+        supabase.from("conversation_participants").insert({
+          conversation_id: data.id,
+          profile_id: otherUserId,
+        }),
       ]);
 
       await fetchConversations();
@@ -119,7 +114,7 @@ export default function MessagesPage() {
           <Button size="icon" variant="ghost" onClick={() => setSearchModalOpen(true)}>
             <Plus className="h-5 w-5" />
           </Button>
-          <UserSearchModal 
+          <UserSearchModal
             open={searchModalOpen}
             onOpenChange={setSearchModalOpen}
             onSelectUser={startNewChat}
@@ -138,7 +133,11 @@ export default function MessagesPage() {
         </div>
 
         <div className="flex-1 overflow-auto">
-          <ChatList conversations={conversations} onSelect={(chat) => setSelectedChat(chat.id)} selectedId={selectedChat} />
+          <ChatList
+            conversations={conversations}
+            onSelect={(chat) => setSelectedChat(chat.id)}
+            selectedId={selectedChat}
+          />
         </div>
       </div>
 

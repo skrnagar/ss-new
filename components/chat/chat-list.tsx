@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { useAuth } from "@/contexts/auth-context";
 import { supabase } from "@/lib/supabase";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { formatDistanceToNow } from "date-fns";
 import { MessageCircle } from "lucide-react";
+import { useEffect, useState } from "react";
 
 interface ChatPreview {
   id: string;
@@ -49,7 +49,7 @@ export function ChatList({ onSelect, selectedId }: ChatListProps) {
 
       if (!participations?.length) return;
 
-      const conversationIds = participations.map(p => p.conversation_id);
+      const conversationIds = participations.map((p) => p.conversation_id);
 
       const { data: conversations, error: conversationsError } = await supabase
         .from("conversation_participants")
@@ -76,16 +76,18 @@ export function ChatList({ onSelect, selectedId }: ChatListProps) {
         return;
       }
 
-      const formattedChats = conversations?.map(chat => ({
+      const formattedChats = conversations?.map((chat) => ({
         id: chat.conversation_id,
-        participants: [{
-          profile_id: chat.profiles.id,
-          profiles: {
-            username: chat.profiles.username,
-            avatar_url: chat.profiles.avatar_url
-          }
-        }],
-        last_message: chat.conversations.messages[0]
+        participants: [
+          {
+            profile_id: chat.profiles.id,
+            profiles: {
+              username: chat.profiles.username,
+              avatar_url: chat.profiles.avatar_url,
+            },
+          },
+        ],
+        last_message: chat.conversations.messages[0],
       }));
 
       setChats(formattedChats || []);
@@ -97,9 +99,7 @@ export function ChatList({ onSelect, selectedId }: ChatListProps) {
   return (
     <div className="flex-1 overflow-auto space-y-2">
       {chats.length === 0 ? (
-        <div className="text-center text-muted-foreground p-4">
-          No conversations yet
-        </div>
+        <div className="text-center text-muted-foreground p-4">No conversations yet</div>
       ) : (
         chats.map((chat) => {
           const otherParticipant = chat.participants[0];
@@ -131,7 +131,9 @@ export function ChatList({ onSelect, selectedId }: ChatListProps) {
                       {chat.last_message.content}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {formatDistanceToNow(new Date(chat.last_message.created_at), { addSuffix: true })}
+                      {formatDistanceToNow(new Date(chat.last_message.created_at), {
+                        addSuffix: true,
+                      })}
                     </p>
                   </>
                 )}

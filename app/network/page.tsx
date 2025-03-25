@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -8,6 +7,7 @@ import { useAuth } from "@/contexts/auth-context";
 import { supabase } from "@/lib/supabase";
 import { Calendar, Newspaper, Users } from "lucide-react";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
 export default function NetworkPage() {
   const { user } = useAuth();
@@ -27,21 +27,21 @@ export default function NetworkPage() {
 
       // Fetch existing connections
       const { data: connectionData } = await supabase
-        .from('connections')
-        .select('*, profile:profiles(*)')
-        .eq('user_id', user.id);
+        .from("connections")
+        .select("*, profile:profiles(*)")
+        .eq("user_id", user.id);
 
       // Fetch connection suggestions
       const { data: suggestionData } = await supabase
-        .from('profiles')
-        .select('*')
-        .neq('id', user.id)
+        .from("profiles")
+        .select("*")
+        .neq("id", user.id)
         .limit(5);
 
       setConnections(connectionData || []);
       setSuggestions(suggestionData || []);
     } catch (error) {
-      console.error('Error fetching network data:', error);
+      console.error("Error fetching network data:", error);
     } finally {
       setLoading(false);
     }
@@ -50,16 +50,14 @@ export default function NetworkPage() {
   const handleConnect = async (profileId: string) => {
     try {
       const { error } = await supabase
-        .from('connections')
-        .insert([
-          { user_id: user?.id, connected_user_id: profileId, status: 'pending' }
-        ]);
+        .from("connections")
+        .insert([{ user_id: user?.id, connected_user_id: profileId, status: "pending" }]);
 
       if (error) throw error;
 
       fetchNetworkData();
     } catch (error) {
-      console.error('Error sending connection request:', error);
+      console.error("Error sending connection request:", error);
     }
   };
 
@@ -69,10 +67,10 @@ export default function NetworkPage() {
     if (user) {
       // Fetch connection requests
       supabase
-        .from('connections')
-        .select('*, profile:profiles(*)')
-        .eq('connected_user_id', user.id)
-        .eq('status', 'pending')
+        .from("connections")
+        .select("*, profile:profiles(*)")
+        .eq("connected_user_id", user.id)
+        .eq("status", "pending")
         .then(({ data, error }) => {
           if (!error && data) {
             setConnectionRequests(data);
@@ -83,18 +81,18 @@ export default function NetworkPage() {
 
   const handleAcceptConnection = async (connectionId: string) => {
     const { error } = await supabase
-      .from('connections')
-      .update({ status: 'accepted' })
-      .eq('id', connectionId);
+      .from("connections")
+      .update({ status: "accepted" })
+      .eq("id", connectionId);
 
     if (!error) {
       fetchNetworkData();
       // Refresh connection requests
       const { data } = await supabase
-        .from('connections')
-        .select('*, profile:profiles(*)')
-        .eq('connected_user_id', user?.id)
-        .eq('status', 'pending');
+        .from("connections")
+        .select("*, profile:profiles(*)")
+        .eq("connected_user_id", user?.id)
+        .eq("status", "pending");
       setConnectionRequests(data || []);
     }
   };
@@ -107,35 +105,53 @@ export default function NetworkPage() {
           <CardContent className="p-4 space-y-2">
             <h2 className="text-lg font-semibold mb-4">Manage my network</h2>
 
-            <Link href="/network/connections" className="flex items-center gap-3 p-2 hover:bg-muted rounded-md">
+            <Link
+              href="/network/connections"
+              className="flex items-center gap-3 p-2 hover:bg-muted rounded-md"
+            >
               <Users className="h-5 w-5" />
               <span>Connections</span>
               <span className="ml-auto text-muted-foreground">{connections.length}</span>
             </Link>
 
-            <Link href="/network/followers" className="flex items-center gap-3 p-2 hover:bg-muted rounded-md">
+            <Link
+              href="/network/followers"
+              className="flex items-center gap-3 p-2 hover:bg-muted rounded-md"
+            >
               <Users className="h-5 w-5" />
               <span>Following & followers</span>
             </Link>
 
-            <Link href="/network/groups" className="flex items-center gap-3 p-2 hover:bg-muted rounded-md">
+            <Link
+              href="/network/groups"
+              className="flex items-center gap-3 p-2 hover:bg-muted rounded-md"
+            >
               <Users className="h-5 w-5" />
               <span>Groups</span>
               <span className="ml-auto text-muted-foreground">4</span>
             </Link>
 
-            <Link href="/network/events" className="flex items-center gap-3 p-2 hover:bg-muted rounded-md">
+            <Link
+              href="/network/events"
+              className="flex items-center gap-3 p-2 hover:bg-muted rounded-md"
+            >
               <Calendar className="h-5 w-5" />
               <span>Events</span>
             </Link>
 
-            <Link href="/network/pages" className="flex items-center gap-3 p-2 hover:bg-muted rounded-md">
+            <Link
+              href="/network/pages"
+              className="flex items-center gap-3 p-2 hover:bg-muted rounded-md"
+            >
               <Newspaper className="h-5 w-5" />
               <span>Pages</span>
               <span className="ml-auto text-muted-foreground">12</span>
             </Link>
 
-            <Link href="/network/newsletters" className="flex items-center gap-3 p-2 hover:bg-muted rounded-md">
+            <Link
+              href="/network/newsletters"
+              className="flex items-center gap-3 p-2 hover:bg-muted rounded-md"
+            >
               <Newspaper className="h-5 w-5" />
               <span>Newsletters</span>
             </Link>
@@ -151,15 +167,22 @@ export default function NetworkPage() {
               {connectionRequests.length > 0 ? (
                 <div className="space-y-4">
                   {connectionRequests.map((request) => (
-                    <div key={request.id} className="flex items-center justify-between p-4 border rounded-lg">
+                    <div
+                      key={request.id}
+                      className="flex items-center justify-between p-4 border rounded-lg"
+                    >
                       <div className="flex items-center gap-3">
                         <Avatar className="h-10 w-10">
                           <AvatarImage src={request.profile.avatar_url} />
-                          <AvatarFallback>{request.profile.full_name?.substring(0, 2)}</AvatarFallback>
+                          <AvatarFallback>
+                            {request.profile.full_name?.substring(0, 2)}
+                          </AvatarFallback>
                         </Avatar>
                         <div>
                           <h3 className="font-medium">{request.profile.full_name}</h3>
-                          <p className="text-sm text-muted-foreground">{request.profile.headline}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {request.profile.headline}
+                          </p>
                         </div>
                       </div>
                       <Button onClick={() => handleAcceptConnection(request.id)}>Accept</Button>
@@ -171,8 +194,8 @@ export default function NetworkPage() {
                   <p>No pending connection requests</p>
                 </div>
               )}
-              </CardContent>
-            </Card>
+            </CardContent>
+          </Card>
 
           {/* My Connections */}
           <Card>
@@ -193,20 +216,31 @@ export default function NetworkPage() {
               ) : connections.length > 0 ? (
                 <div className="space-y-4">
                   {connections.map((connection) => (
-                    <div key={connection.id} className="flex items-center justify-between p-4 border rounded-lg">
+                    <div
+                      key={connection.id}
+                      className="flex items-center justify-between p-4 border rounded-lg"
+                    >
                       <div className="flex items-center gap-3">
                         <Avatar className="h-10 w-10">
                           <AvatarImage src={connection.profile.avatar_url} />
-                          <AvatarFallback>{connection.profile.full_name?.substring(0, 2)}</AvatarFallback>
+                          <AvatarFallback>
+                            {connection.profile.full_name?.substring(0, 2)}
+                          </AvatarFallback>
                         </Avatar>
                         <div>
                           <h3 className="font-medium">{connection.profile.full_name}</h3>
-                          <p className="text-sm text-muted-foreground">{connection.profile.headline}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {connection.profile.headline}
+                          </p>
                         </div>
                       </div>
                       <div className="flex gap-2">
-                        <Button variant="outline" size="sm">Message</Button>
-                        <Button variant="ghost" size="sm">View Profile</Button>
+                        <Button variant="outline" size="sm">
+                          Message
+                        </Button>
+                        <Button variant="ghost" size="sm">
+                          View Profile
+                        </Button>
                       </div>
                     </div>
                   ))}

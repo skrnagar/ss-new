@@ -1,14 +1,13 @@
-
 "use client";
 
-import { useEffect, useState } from "react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/contexts/auth-context";
 import { supabase } from "@/lib/supabase";
 import { MessageSquare, UserMinus, UserPlus } from "lucide-react";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
 export default function ConnectionsPage() {
   const { user } = useAuth();
@@ -26,18 +25,18 @@ export default function ConnectionsPage() {
   const fetchConnections = async () => {
     try {
       const { data: connectionData, error } = await supabase
-        .from('connections')
+        .from("connections")
         .select(`
           *,
           profile:profiles!connected_user_id(*)
         `)
-        .eq('user_id', user?.id)
-        .eq('status', 'accepted');
+        .eq("user_id", user?.id)
+        .eq("status", "accepted");
 
       if (error) throw error;
       setConnections(connectionData || []);
     } catch (error) {
-      console.error('Error fetching connections:', error);
+      console.error("Error fetching connections:", error);
     } finally {
       setLoading(false);
     }
@@ -46,49 +45,46 @@ export default function ConnectionsPage() {
   const fetchPendingRequests = async () => {
     try {
       const { data: requestData, error } = await supabase
-        .from('connections')
+        .from("connections")
         .select(`
           *,
           profile:profiles!user_id(*)
         `)
-        .eq('connected_user_id', user?.id)
-        .eq('status', 'pending');
+        .eq("connected_user_id", user?.id)
+        .eq("status", "pending");
 
       if (error) throw error;
       setPendingRequests(requestData || []);
     } catch (error) {
-      console.error('Error fetching pending requests:', error);
+      console.error("Error fetching pending requests:", error);
     }
   };
 
   const handleAcceptConnection = async (connectionId: string) => {
     try {
       const { error } = await supabase
-        .from('connections')
-        .update({ status: 'accepted' })
-        .eq('id', connectionId);
+        .from("connections")
+        .update({ status: "accepted" })
+        .eq("id", connectionId);
 
       if (error) throw error;
-      
+
       fetchConnections();
       fetchPendingRequests();
     } catch (error) {
-      console.error('Error accepting connection:', error);
+      console.error("Error accepting connection:", error);
     }
   };
 
   const handleRemoveConnection = async (connectionId: string) => {
     try {
-      const { error } = await supabase
-        .from('connections')
-        .delete()
-        .eq('id', connectionId);
+      const { error } = await supabase.from("connections").delete().eq("id", connectionId);
 
       if (error) throw error;
-      
+
       fetchConnections();
     } catch (error) {
-      console.error('Error removing connection:', error);
+      console.error("Error removing connection:", error);
     }
   };
 
@@ -102,7 +98,10 @@ export default function ConnectionsPage() {
             <h2 className="text-lg font-semibold mb-4">Pending Connection Requests</h2>
             <div className="space-y-4">
               {pendingRequests.map((request) => (
-                <div key={request.id} className="flex items-center justify-between p-4 border rounded-lg">
+                <div
+                  key={request.id}
+                  className="flex items-center justify-between p-4 border rounded-lg"
+                >
                   <div className="flex items-center gap-3">
                     <Avatar className="h-10 w-10">
                       <AvatarImage src={request.profile.avatar_url} />
@@ -148,14 +147,22 @@ export default function ConnectionsPage() {
           ) : connections.length > 0 ? (
             <div className="grid gap-4">
               {connections.map((connection) => (
-                <div key={connection.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
+                <div
+                  key={connection.id}
+                  className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
+                >
                   <div className="flex items-center gap-3">
                     <Avatar className="h-10 w-10">
                       <AvatarImage src={connection.profile.avatar_url} />
-                      <AvatarFallback>{connection.profile.full_name?.substring(0, 2)}</AvatarFallback>
+                      <AvatarFallback>
+                        {connection.profile.full_name?.substring(0, 2)}
+                      </AvatarFallback>
                     </Avatar>
                     <div>
-                      <Link href={`/profile/${connection.profile.username}`} className="font-medium hover:underline">
+                      <Link
+                        href={`/profile/${connection.profile.username}`}
+                        className="font-medium hover:underline"
+                      >
                         {connection.profile.full_name}
                       </Link>
                       <p className="text-sm text-muted-foreground">{connection.profile.headline}</p>
@@ -168,7 +175,11 @@ export default function ConnectionsPage() {
                         Message
                       </Link>
                     </Button>
-                    <Button variant="outline" size="sm" onClick={() => handleRemoveConnection(connection.id)}>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleRemoveConnection(connection.id)}
+                    >
                       <UserMinus className="h-4 w-4 mr-2" />
                       Remove
                     </Button>
