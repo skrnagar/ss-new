@@ -56,8 +56,6 @@ export default function LearningPage() {
       description: "Quality assurance and control",
       color: "bg-teal-100"
     }
-  ];0"
-    }
   ];
 
   const courses = [
