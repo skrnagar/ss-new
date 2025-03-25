@@ -28,7 +28,6 @@ import {
   Bell,
   Briefcase,
   Calendar,
-  FileText,
   LogOut,
   MessageCircle,
   Search,
@@ -227,34 +226,6 @@ export const Navbar = memo(function Navbar() {
                                   <div className="font-medium">Events</div>
                                   <p className="text-xs text-muted-foreground">
                                     Discover industry events and conferences
-                                  </p>
-                                </div>
-                              </Link>
-                              <Link
-                                href="/pages"
-                                className="flex items-center gap-2 p-2 rounded-md hover:bg-muted transition-colors"
-                              >
-                                <div className="relative">
-                                  <FileText className="h-4 w-4 text-primary" />
-                                </div>
-                                <div>
-                                  <div className="font-medium">Pages</div>
-                                  <p className="text-xs text-muted-foreground">
-                                    View and manage your followed pages
-                                  </p>
-                                </div>
-                              </Link>
-                              <Link
-                                href="/profile"
-                                className="flex items-center gap-2 p-2 rounded-md hover:bg-muted transition-colors"
-                              >
-                                <div className="relative">
-                                  <User className="h-4 w-4 text-primary" />
-                                </div>
-                                <div>
-                                  <div className="font-medium">Profile</div>
-                                  <p className="text-xs text-muted-foreground">
-                                    View and edit your professional profile
                                   </p>
                                 </div>
                               </Link>
