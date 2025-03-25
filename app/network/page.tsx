@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -22,10 +21,10 @@ export default function NetworkPage() {
 
   const fetchNetworkData = async () => {
     if (!user) return;
-    
+
     try {
       setLoading(true);
-      
+
       // Fetch existing connections
       const { data: connectionData } = await supabase
         .from('connections')
@@ -57,7 +56,7 @@ export default function NetworkPage() {
         ]);
 
       if (error) throw error;
-      
+
       fetchNetworkData();
     } catch (error) {
       console.error('Error sending connection request:', error);
@@ -107,7 +106,7 @@ export default function NetworkPage() {
         <Card className="md:col-span-1">
           <CardContent className="p-4 space-y-2">
             <h2 className="text-lg font-semibold mb-4">Manage my network</h2>
-            
+
             <Link href="/network/connections" className="flex items-center gap-3 p-2 hover:bg-muted rounded-md">
               <Users className="h-5 w-5" />
               <span>Connections</span>
@@ -175,23 +174,45 @@ export default function NetworkPage() {
           <Card>
             <CardContent className="p-6">
               <h2 className="text-lg font-semibold mb-4">My Connections</h2>
-              <div className="space-y-4">
-                {connections.map((connection) => (
-                  <div key={connection.id} className="flex items-center justify-between p-4 border rounded-lg">
-                    <div className="flex items-center gap-3">
-                      <Avatar className="h-10 w-10">
-                        <AvatarImage src={connection.profile.avatar_url} />
-                        <AvatarFallback>{connection.profile.full_name?.substring(0, 2)}</AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <h3 className="font-medium">{connection.profile.full_name}</h3>
-                        <p className="text-sm text-muted-foreground">{connection.profile.headline}</p>
+              {loading ? (
+                <div className="space-y-4">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="flex items-center space-x-4">
+                      <div className="h-10 w-10 rounded-full bg-muted animate-pulse" />
+                      <div className="space-y-2">
+                        <div className="h-4 w-[200px] bg-muted animate-pulse rounded" />
+                        <div className="h-3 w-[150px] bg-muted animate-pulse rounded" />
                       </div>
                     </div>
-                    <Button variant="outline" size="sm">Message</Button>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              ) : connections.length > 0 ? (
+                <div className="space-y-4">
+                  {connections.map((connection) => (
+                    <div key={connection.id} className="flex items-center justify-between p-4 border rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <Avatar className="h-10 w-10">
+                          <AvatarImage src={connection.profile.avatar_url} />
+                          <AvatarFallback>{connection.profile.full_name?.substring(0, 2)}</AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <h3 className="font-medium">{connection.profile.full_name}</h3>
+                          <p className="text-sm text-muted-foreground">{connection.profile.headline}</p>
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button variant="outline" size="sm">Message</Button>
+                        <Button variant="ghost" size="sm">View Profile</Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8 text-muted-foreground">
+                  <p>You don't have any connections yet.</p>
+                  <p className="mt-2">Start connecting with other professionals in your field!</p>
+                </div>
+              )}
             </CardContent>
           </Card>
 
@@ -215,9 +236,9 @@ export default function NetworkPage() {
                             <div className="flex-1">
                               <h3 className="font-medium">{profile.full_name}</h3>
                               <p className="text-sm text-muted-foreground">{profile.headline}</p>
-                              <Button 
-                                variant="outline" 
-                                size="sm" 
+                              <Button
+                                variant="outline"
+                                size="sm"
                                 className="mt-2"
                                 onClick={() => handleConnect(profile.id)}
                               >
