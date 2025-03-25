@@ -36,58 +36,112 @@ export default function LearningPage() {
 
   const courses = [
     {
-      title: "Basic Life Support (BLS)",
-      duration: "2h 30m",
-      instructor: "Dr. Medical Team",
-      rating: 4.6,
-      reviews: 3400,
+      title: "OSHA Compliance Fundamentals",
+      duration: "4h",
+      instructor: "OSHA Certified Trainer",
+      rating: 4.8,
+      reviews: 5200,
       image: "/placeholder.jpg",
-      tag: "Bestseller"
+      tag: "OSHA"
     },
     {
-      title: "Bloodborne Pathogens (BBP)",
-      duration: "1h 45m",
-      instructor: "Dr. Safety Expert",
-      rating: 4.6,
-      reviews: 1700,
+      title: "ISO 45001 Occupational Health & Safety",
+      duration: "6h",
+      instructor: "ISO Standards Expert",
+      rating: 4.7,
+      reviews: 3800,
       image: "/placeholder.jpg",
-      tag: "Popular"
+      tag: "Certification"
     },
     {
-      title: "CPR, AED & First Aid",
+      title: "Fire Safety & Prevention",
       duration: "3h",
-      instructor: "Emergency Response Team",
-      rating: 4.1,
-      reviews: 1100,
+      instructor: "Fire Safety Professional",
+      rating: 4.9,
+      reviews: 4200,
       image: "/placeholder.jpg",
       tag: "Essential"
     },
     {
-      title: "OSHA Transport Safety",
-      duration: "1h 15m",
-      instructor: "OSHA Pro Team",
-      rating: 4.7,
-      reviews: 992,
+      title: "NEBOSH Safety Certification",
+      duration: "40h",
+      instructor: "NEBOSH Instructor",
+      rating: 4.6,
+      reviews: 2900,
       image: "/placeholder.jpg",
-      tag: "OSHA"
+      tag: "Bestseller"
     },
     {
-      title: "Hazards Identification & Risk Assessment",
-      duration: "2h",
-      instructor: "Risk Management Expert",
+      title: "Workplace Ergonomics",
+      duration: "2h 30m",
+      instructor: "Ergonomics Specialist",
       rating: 4.5,
-      reviews: 902,
+      reviews: 1800,
+      image: "/placeholder.jpg",
+      tag: "Popular"
+    },
+    {
+      title: "Environmental Management Systems",
+      duration: "5h",
+      instructor: "EMS Expert",
+      rating: 4.7,
+      reviews: 2100,
+      image: "/placeholder.jpg",
+      tag: "ESG"
+    },
+    {
+      title: "ISO 14001 Environmental Management",
+      duration: "8h",
+      instructor: "Environmental Auditor",
+      rating: 4.8,
+      reviews: 1600,
+      image: "/placeholder.jpg",
+      tag: "Certification"
+    },
+    {
+      title: "Warehouse Safety Management",
+      duration: "4h 30m",
+      instructor: "Logistics Safety Expert",
+      rating: 4.6,
+      reviews: 1900,
       image: "/placeholder.jpg",
       tag: "Safety"
     },
     {
-      title: "Work Zone Traffic Control",
-      duration: "1h 30m",
-      instructor: "MUTCD Specialist",
-      rating: 4.7,
-      reviews: 637,
+      title: "Hazardous Material Handling",
+      duration: "6h",
+      instructor: "Chemical Safety Specialist",
+      rating: 4.9,
+      reviews: 2400,
       image: "/placeholder.jpg",
       tag: "OSHA"
+    },
+    {
+      title: "ISO 9001 Quality Management",
+      duration: "7h",
+      instructor: "Quality Systems Expert",
+      rating: 4.7,
+      reviews: 2200,
+      image: "/placeholder.jpg",
+      tag: "Certification"
+    },
+    {
+      title: "HR & Workplace Safety Integration",
+      duration: "3h 30m",
+      instructor: "HR Safety Coordinator",
+      rating: 4.5,
+      reviews: 1500,
+      image: "/placeholder.jpg",
+      tag: "HR"
+    },
+    {
+      title: "Emergency & Disaster Management",
+      duration: "5h",
+      instructor: "Emergency Response Expert",
+      rating: 4.8,
+      reviews: 2800,
+      image: "/placeholder.jpg",
+      tag: "Essential"
     }
   ];
 
