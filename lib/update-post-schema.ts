@@ -1,5 +1,5 @@
-import fs from "fs";
-import path from "path";
+import fs from "node:fs";
+import path from "node:path";
 import { createClient } from "@supabase/supabase-js";
 
 // Initialize Supabase client
@@ -13,7 +13,7 @@ async function updatePostsTable() {
 
   try {
     // Check if columns already exist
-    const { data: existingColumns, error: columnCheckError } = await supabase
+    const { error: columnCheckError } = await supabase
       .from("posts")
       .select("video_url, document_url")
       .limit(1)

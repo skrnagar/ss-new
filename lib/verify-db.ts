@@ -1,11 +1,11 @@
-import fs from "fs";
-import path from "path";
+import fs from "node:fs";
+import path from "node:path";
 import { createClient } from "@supabase/supabase-js";
 
 const verifyDatabase = async () => {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseServiceKey =
-    process.env.SUPABASE_SERVICE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+    process.env.SUPABASE_SERVICE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   if (!supabaseUrl || !supabaseServiceKey) {
     console.error("Missing Supabase URL or key in environment variables");
@@ -16,7 +16,7 @@ const verifyDatabase = async () => {
 
   try {
     // Check if profiles table exists
-    const { data: profilesTable, error: profilesError } = await supabase
+    const { error: profilesError } = await supabase
       .from("profiles")
       .select("*")
       .limit(1);
