@@ -80,10 +80,10 @@ export function ChatList({ onSelect, selectedId }: ChatListProps) {
         id: chat.conversation_id,
         participants: [
           {
-            profile_id: chat.profiles.id,
+            profile_id: chat.participants[0].profile_id,
             profiles: {
-              username: chat.profiles.username,
-              avatar_url: chat.profiles.avatar_url,
+              username: chat.participants[0].profiles.username,
+              avatar_url: chat.participants[0].profiles.avatar_url,
             },
           },
         ],
