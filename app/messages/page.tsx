@@ -11,17 +11,22 @@ import { supabase } from "@/lib/supabase";
 import { MessageCircle, Plus, Search } from "lucide-react";
 import { UserSearchModal } from "@/components/chat/user-search-modal";
 
+interface ChatParticipant {
+  profile_id: string;
+  profiles: {
+    username: string;
+    avatar_url?: string;
+  };
+}
+
 interface Conversation {
   id: string;
   created_at: string;
-  conversation_participants: {
-    profile_id: string;
-    profiles: {
-      id: string;
-      username: string;
-      avatar_url: string | null;
-    }[];
-  }[];
+  participants: ChatParticipant[];
+  last_message?: {
+    content: string;
+    created_at: string;
+  };
 }
 
 export default function MessagesPage() {
@@ -39,10 +44,9 @@ export default function MessagesPage() {
       .select(`
         id,
         created_at,
-        conversation_participants (
+        conversation_participants!inner (
           profile_id,
-          profiles (
-            id,
+          profiles!inner (
             username,
             avatar_url
           )
@@ -51,7 +55,15 @@ export default function MessagesPage() {
       .order("created_at", { ascending: false });
 
     if (data && !error) {
-      setConversations(data);
+      const formattedConversations = data.map(conv => ({
+        id: conv.id,
+        created_at: conv.created_at,
+        participants: conv.conversation_participants.map(participant => ({
+          profile_id: participant.profile_id,
+          profiles: participant.profiles[0]
+        }))
+      }));
+      setConversations(formattedConversations);
     }
   };
 
