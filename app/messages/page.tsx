@@ -70,12 +70,14 @@ export default function MessagesPage() {
         id: conv.id,
         conversation_participants: conv.conversation_participants.map((participant) => ({
           profile_id: participant.profile_id,
-          profiles: participant.profiles
+          profiles: participant.profiles,
         })),
-        last_message: conv.messages?.[0] ? {
-          content: conv.messages[0].content,
-          created_at: conv.messages[0].created_at
-        } : undefined
+        last_message: conv.messages?.[0]
+          ? {
+              content: conv.messages[0].content,
+              created_at: conv.messages[0].created_at,
+            }
+          : undefined,
       }));
       setConversations(formattedConversations);
     }
