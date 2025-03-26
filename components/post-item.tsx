@@ -571,10 +571,47 @@ const PostItem = memo(function PostItem({ post, currentUser }: PostItemProps) {
             <MessageSquare className="h-4 w-4 mr-2" />
             {comments.length > 0 ? `Comments (${comments.length})` : "Comments"}
           </Button>
-          <Button variant="ghost" size="sm" className="text-muted-foreground">
-            <Share2 className="h-4 w-4 mr-2" />
-            Share
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm" className="text-muted-foreground">
+                <Share2 className="h-4 w-4 mr-2" />
+                Share
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem onClick={() => {
+                window.open(`https://twitter.com/intent/tweet?text=Check out this post&url=${window.location.origin}/posts/${post.id}`, '_blank')
+              }}>
+                Share on X (Twitter)
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => {
+                window.open(`https://www.facebook.com/sharer/sharer.php?u=${window.location.origin}/posts/${post.id}`, '_blank')
+              }}>
+                Share on Facebook
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => {
+                window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${window.location.origin}/posts/${post.id}`, '_blank')
+              }}>
+                Share on LinkedIn
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={async () => {
+                const url = `${window.location.origin}/posts/${post.id}`;
+                await navigator.clipboard.writeText(url);
+                toast({
+                  title: "Link copied",
+                  description: "Post link copied to clipboard"
+                });
+              }}>
+                Copy Link
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href={`/messages?share=${post.id}`}>
+                  Send as Message
+                </Link>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
 
         {/* Comments section */}
