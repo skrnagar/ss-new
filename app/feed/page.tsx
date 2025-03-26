@@ -165,23 +165,6 @@ export default function FeedPage() {
     <div className="container py-8">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div className="md:col-span-2 space-y-6">
-          {/* Post creation card */}
-          {userProfile ? (
-            <PostCreator userProfile={userProfile} />
-          ) : (
-            <Card className="mb-6">
-              <CardContent className="pt-6">
-                <div className="text-center py-8">
-                  <h3 className="text-lg font-medium mb-2">Complete your profile</h3>
-                  <p className="text-muted-foreground mb-4">
-                    Set up your profile to start posting and connecting with others.
-                  </p>
-                  <Button onClick={() => router.push("/profile/setup")}>Set Up Profile</Button>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
           {/* Post Creator */}
           <PostCreator userProfile={userProfile} isLoading={authLoading} />
 
