@@ -230,7 +230,7 @@ export default function CompliancePage() {
                     <ChevronDown className="h-5 w-5 text-muted-foreground" />
                   )}
                 </div>
-              </div>
+              </button>
             </CardHeader>
 
             {expandedSection === index && (

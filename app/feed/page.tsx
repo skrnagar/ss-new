@@ -72,7 +72,14 @@ const PostItem = dynamic(() => import("@/components/post-item").then((mod) => mo
 });
 
 export default function FeedPage() {
-  const [posts, setPosts] = useState<any[]>([]);
+  interface Post {
+    id: string;
+    content: string;
+    created_at: string;
+    author_id: string;
+    updated_at?: string;
+  }
+  const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const { user, profile: userProfile, isLoading: authLoading, session } = useAuth();
   const router = useRouter();
