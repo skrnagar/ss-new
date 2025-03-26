@@ -36,8 +36,18 @@ export default function EventsPage() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
-  const [eventsData, setEventsData] = useState<any[]>([]);
-  const [userEventsData, setUserEventsData] = useState<any[]>([]);
+  interface Event {
+    id: string;
+    title: string;
+    description: string;
+    date: string;
+    category: string;
+    image?: string;
+    type?: string;
+  }
+
+  const [eventsData, setEventsData] = useState<Event[]>([]);
+  const [userEventsData, setUserEventsData] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [categoryFilter, setCategoryFilter] = useState("");
   const [dateFilter, setDateFilter] = useState("");

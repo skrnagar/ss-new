@@ -199,12 +199,10 @@ export default function CompliancePage() {
         {complianceAreas.map((area, index) => (
           <Card key={area.id} className={`border-l-4 ${getStatusClass(area.status)}`}>
             <CardHeader className="p-6 pb-0">
-              <div
-                className="flex justify-between items-center cursor-pointer"
+              <button
+                type="button"
+                className="flex justify-between items-center cursor-pointer w-full text-left"
                 onClick={() => toggleSection(index)}
-                onKeyDown={(e) => e.key === "Enter" && toggleSection(index)}
-                role="button"
-                tabIndex={0}
               >
                 <div className="flex items-center gap-3">
                   {getStatusIcon(area.status)}
