@@ -21,9 +21,38 @@ type Profile = {
   [key: string]: any;
 };
 
-export function PostCreator({ userProfile }: { userProfile?: Profile | null }) {
+export function PostCreator({ 
+  userProfile,
+  isLoading = false 
+}: { 
+  userProfile?: Profile | null;
+  isLoading?: boolean;
+}) {
   const { user, profile: authProfile } = useAuth();
   const activeProfile = userProfile || authProfile;
+
+  if (isLoading) {
+    return (
+      <Card>
+        <CardContent className="pt-6">
+          <div className="flex items-start gap-4">
+            <Skeleton className="h-10 w-10 rounded-full" />
+            <div className="flex-1 space-y-4">
+              <Skeleton className="h-20 w-full" />
+              <div className="flex justify-between">
+                <div className="flex gap-2">
+                  <Skeleton className="h-8 w-20" />
+                  <Skeleton className="h-8 w-20" />
+                  <Skeleton className="h-8 w-20" />
+                </div>
+                <Skeleton className="h-8 w-16" />
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
   const [content, setContent] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [attachmentType, setAttachmentType] = useState<"image" | "video" | "document" | null>(null);

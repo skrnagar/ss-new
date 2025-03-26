@@ -79,14 +79,14 @@ export default function FeedPage() {
     updated_at?: string;
   }
   const [posts, setPosts] = useState<Post[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [postsLoading, setPostsLoading] = useState(true);
   const { user, profile: userProfile, isLoading: authLoading, session } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
     async function fetchPosts() {
       try {
-        setLoading(true);
+        setPostsLoading(true);
 
         // Fetch posts with user information
         const { data, error } = await supabase
@@ -182,8 +182,11 @@ export default function FeedPage() {
             </Card>
           )}
 
+          {/* Post Creator */}
+          <PostCreator userProfile={userProfile} isLoading={authLoading} />
+
           {/* Posts list */}
-          {loading ? (
+          {postsLoading ? (
             // Loading skeletons
             Array(3)
               .fill(0)
