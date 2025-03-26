@@ -10,18 +10,30 @@ import { supabase } from "@/lib/supabase";
 import { MessageCircle, Plus, Search } from "lucide-react";
 import { useEffect, useState } from "react";
 
-interface ChatParticipant {
-  profile_id: string;
-  profiles: {
-    username: string;
-    avatar_url?: string;
-  };
-}
-
 interface Conversation {
   id: string;
-  created_at: string;
-  participants: ChatParticipant[];
+  participants: {
+    profile_id: string;
+    profiles: {
+      username: string;
+      avatar_url?: string;
+    };
+  }[];
+  messages: {
+    content: string;
+    created_at: string;
+  }[];
+}
+
+interface ChatPreview {
+  id: string;
+  conversation_participants: {
+    profile_id: string;
+    profiles: {
+      username: string;
+      avatar_url?: string;
+    };
+  }[];
   last_message?: {
     content: string;
     created_at: string;
@@ -61,6 +73,7 @@ export default function MessagesPage() {
           profile_id: participant.profile_id,
           profiles: participant.profiles[0],
         })),
+        messages: [], // Added to satisfy the new interface
       }));
       setConversations(formattedConversations);
     }
