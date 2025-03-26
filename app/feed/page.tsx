@@ -166,58 +166,21 @@ export default function FeedPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div className="md:col-span-2 space-y-6">
           {/* Post creation card */}
-          {/* Show skeleton state while auth is loading */}
-          {authLoading ? (
+          {userProfile ? (
+            <PostCreator userProfile={userProfile} />
+          ) : (
             <Card className="mb-6">
-              <CardContent className="p-6">
-                <div className="flex items-start gap-4">
-                  <Skeleton className="h-10 w-10 rounded-full" />
-                  <div className="flex-1 space-y-4">
-                    <Skeleton className="h-20 w-full rounded-md" />
-                    <div className="flex justify-between">
-                      <div className="flex gap-2">
-                        <Skeleton className="h-8 w-20 rounded-md" />
-                        <Skeleton className="h-8 w-20 rounded-md" />
-                        <Skeleton className="h-8 w-20 rounded-md" />
-                      </div>
-                      <Skeleton className="h-8 w-16 rounded-md" />
-                    </div>
-                  </div>
+              <CardContent className="pt-6">
+                <div className="text-center py-8">
+                  <h3 className="text-lg font-medium mb-2">Complete your profile</h3>
+                  <p className="text-muted-foreground mb-4">
+                    Set up your profile to start posting and connecting with others.
+                  </p>
+                  <Button onClick={() => router.push("/profile/setup")}>Set Up Profile</Button>
                 </div>
               </CardContent>
             </Card>
-          ) : session && user ? (
-            userProfile ? (
-              <PostCreator userProfile={userProfile} />
-            ) : (
-              <Card className="mb-6">
-                <CardContent className="pt-6">
-                  <div className="text-center py-8">
-                    <h3 className="text-lg font-medium mb-2">Complete your profile</h3>
-                    <p className="text-muted-foreground mb-4">
-                      Set up your profile to start posting and connecting with others.
-                    </p>
-                    <Button onClick={() => router.push("/profile/setup")}>Set Up Profile</Button>
-                  </div>
-                </CardContent>
-              </Card>
-            )
-          ) : !session || !user ? (
-            <Card className="mb-6">
-              <CardContent className="p-6">
-                <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-                  <div>
-                    <h3 className="text-lg font-medium">
-                      Sign in to create posts and interact with the community
-                    </h3>
-                  </div>
-                  <Button asChild>
-                    <Link href="/auth/login">Sign In</Link>
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ) : null}
+          )}
 
           {/* Posts list */}
           {loading ? (
