@@ -560,24 +560,17 @@ const PostItem = memo(function PostItem({ post, currentUser }: PostItemProps) {
       </CardContent>
 
       <CardFooter className="flex flex-col px-6 py-3">
-        {/* Like, comment counts */}
-        {(likes.length > 0 || comments.length > 0) && (
-          <div className="flex justify-between w-full mb-3 text-sm text-muted-foreground">
-            {likes.length > 0 && (
-              <div className="flex items-center">
-                <ThumbsUp className="h-3 w-3 mr-1" />
-                <span>{likes.length}</span>
-              </div>
-            )}
-            {comments.length > 0 && (
-              <div className="flex items-center">
-                <span>
-                  {comments.length} {comments.length === 1 ? "comment" : "comments"}
-                </span>
-              </div>
-            )}
+        {/* Like and comment counts */}
+        <div className="flex justify-between w-full mb-3 text-sm text-muted-foreground">
+          <div className="flex items-center">
+            <ThumbsUp className="h-3 w-3 mr-1" />
+            <span>{likes.length || 0}</span>
           </div>
-        )}
+          <div className="flex items-center">
+            <MessageSquare className="h-3 w-3 mr-1" />
+            <span>{comments.length || 0}</span>
+          </div>
+        </div>
 
         {/* Action buttons */}
         <div className="flex justify-between w-full border-t pt-3">
