@@ -300,6 +300,15 @@ const PostItem = memo(function PostItem({ post, currentUser }: PostItemProps) {
     setIsSubmittingComment(true);
 
     try {
+      // First get the user's profile
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', currentUser.id)
+        .single();
+
+      if (profileError) throw profileError;
+
       // Insert comment in database
       const { data: newComment, error } = await supabase
         .from("comments")
@@ -308,21 +317,19 @@ const PostItem = memo(function PostItem({ post, currentUser }: PostItemProps) {
           post_id: post.id,
           user_id: currentUser.id,
         })
-        .select(`
-          *,
-          profiles:user_id (
-            id,
-            username,
-            full_name,
-            avatar_url
-          )
-        `)
+        .select('*')
         .single();
 
       if (error) throw error;
 
+      // Combine comment with profile data
+      const commentWithProfile = {
+        ...newComment,
+        profiles: profile
+      };
+
       // Update comments state with new comment
-      setComments(prev => [newComment, ...prev]);
+      setComments(prev => [commentWithProfile, ...prev]);
       setCommentContent("");
 
       toast({
