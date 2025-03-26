@@ -242,22 +242,22 @@ export function PostCreator({
   };
 
   return (
-    <Card>
-      <CardContent className="pt-6">
-        <div className="flex items-start gap-4">
-          <Avatar className="h-10 w-10">
+    <Card className="md:rounded-lg rounded-none border-x-0 md:border-x">
+      <CardContent className="pt-4 md:pt-6 px-4 md:px-6">
+        <div className="flex items-start gap-3 md:gap-4">
+          <Avatar className="h-8 w-8 md:h-10 md:w-10">
             <AvatarImage
               src={activeProfile?.avatar_url || ""}
               alt={activeProfile?.full_name || "User"}
             />
             <AvatarFallback>{getInitials(activeProfile?.full_name || "")}</AvatarFallback>
           </Avatar>
-          <div className="flex-1 space-y-4">
+          <div className="flex-1 space-y-3 md:space-y-4">
             <Textarea
               placeholder={`What's on your mind, ${activeProfile?.full_name?.split(" ")[0] || "User"}?`}
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              className="min-h-[120px] resize-none"
+              className="min-h-[80px] md:min-h-[120px] resize-none text-sm md:text-base"
             />
 
             {attachmentPreview && (
@@ -293,36 +293,36 @@ export function PostCreator({
               </div>
             )}
 
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
+            <div className="flex items-center justify-between flex-wrap gap-2">
+              <div className="flex items-center gap-1 md:gap-2">
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="text-muted-foreground"
+                  className="text-muted-foreground h-8 px-2 md:px-3"
                   onClick={() => handleAttachmentSelect("image")}
                 >
-                  <Image className="h-4 w-4 mr-2" />
-                  Photo
+                  <Image className="h-4 w-4 md:mr-2" />
+                  <span className="hidden md:inline">Photo</span>
                 </Button>
 
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="text-muted-foreground"
+                  className="text-muted-foreground h-8 px-2 md:px-3"
                   onClick={() => handleAttachmentSelect("video")}
                 >
-                  <Video className="h-4 w-4 mr-2" />
-                  Video
+                  <Video className="h-4 w-4 md:mr-2" />
+                  <span className="hidden md:inline">Video</span>
                 </Button>
 
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="text-muted-foreground"
+                  className="text-muted-foreground h-8 px-2 md:px-3"
                   onClick={() => handleAttachmentSelect("document")}
                 >
-                  <FileText className="h-4 w-4 mr-2" />
-                  Document
+                  <FileText className="h-4 w-4 md:mr-2" />
+                  <span className="hidden md:inline">Document</span>
                 </Button>
 
                 <input
