@@ -71,6 +71,8 @@ const PostItem = dynamic(() => import("@/components/post-item").then((mod) => mo
   ),
 });
 
+import { FeedSidebar } from "@/components/feed-sidebar";
+
 export default function FeedPage() {
   interface Post {
     id: string;
@@ -79,6 +81,19 @@ export default function FeedPage() {
     author_id: string;
     updated_at?: string;
   }
+
+  return (
+    <div className="container py-8">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div className="md:col-span-1">
+          <FeedSidebar />
+        </div>
+        <div className="md:col-span-3">
+          {/* Your existing feed content */}
+        </div>
+      </div>
+    </div>
+  );
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const { user, profile: userProfile, isLoading: authLoading, session } = useAuth();
