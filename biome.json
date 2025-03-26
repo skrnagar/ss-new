@@ -1,4 +1,3 @@
-
 {
   "$schema": "https://biomejs.dev/schemas/1.6.0/schema.json",
   "organizeImports": {
@@ -15,12 +14,7 @@
         "noNonNullAssertion": "warn"
       }
     },
-    "ignore": [
-      ".next/**",
-      "node_modules/**",
-      "public/**",
-      "attached_assets/**"
-    ]
+    "ignore": [".next/**", "node_modules/**", "public/**", "attached_assets/**"]
   },
   "formatter": {
     "enabled": true,
