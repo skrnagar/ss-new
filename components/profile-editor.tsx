@@ -32,17 +32,29 @@ export function ProfileEditor({ profile, onUpdate }: { profile: any; onUpdate: (
       let avatarUrl = profile.avatar_url; // Preserve existing avatar
 
       if (avatar) {
-        const fileName = `avatars/${profile.id}-${avatar.name}`;
-        const { data, error } = await supabase.storage
+        const fileExt = avatar.name.split('.').pop()?.toLowerCase();
+        const contentType = fileExt === 'png' ? 'image/png' : 
+                          fileExt === 'jpg' || fileExt === 'jpeg' ? 'image/jpeg' :
+                          fileExt === 'webp' ? 'image/webp' :
+                          fileExt === 'gif' ? 'image/gif' : 'image/jpeg';
+                          
+        const timestamp = Date.now();
+        const fileName = `${profile.id}/${timestamp}-${avatar.name}`;
+        const { data: uploadData, error: uploadError } = await supabase.storage
           .from("avatars")
           .upload(fileName, avatar, {
             cacheControl: "3600",
             upsert: true,
-            contentType: avatar.type,
+            contentType: contentType
           });
 
-        if (error) throw error;
-        avatarUrl = data.publicURL;
+        if (uploadError) throw uploadError;
+        
+        const { data: publicUrlData } = supabase.storage
+          .from("avatars")
+          .getPublicUrl(fileName);
+          
+        avatarUrl = publicUrlData.publicUrl;
       }
 
 

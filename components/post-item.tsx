@@ -419,6 +419,38 @@ const PostItem = memo(function PostItem({ post, currentUser }: PostItemProps) {
     return `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/post-images/${imageUrl}`;
   };
 
+  const uploadMedia = async (file: File) => {
+    const fileExt = file.name.split('.').pop()?.toLowerCase();
+    const contentType = fileExt === 'png' ? 'image/png' :
+                       fileExt === 'jpg' || fileExt === 'jpeg' ? 'image/jpeg' :
+                       fileExt === 'webp' ? 'image/webp' :
+                       fileExt === 'gif' ? 'image/gif' :
+                       fileExt === 'mp4' ? 'video/mp4' :
+                       fileExt === 'webm' ? 'video/webm' : 'application/octet-stream';
+
+    const timestamp = Date.now();
+    const fileName = `${post.id}/${timestamp}-${file.name}`;
+    try {
+      const { data, error } = await supabase.storage
+        .from("post-images")
+        .upload(fileName, file, {
+          contentType: contentType,
+          cacheControl: "3600",
+          upsert: true
+        });
+      if (error) throw error;
+      return fileName; // Return the uploaded file name
+    } catch (error) {
+      console.error("Error uploading media:", error);
+      toast({
+        title: "Upload failed",
+        description: "Could not upload media. Please try again later.",
+        variant: "destructive",
+      });
+      return null; // Indicate failure
+    }
+  };
+
 
   return (
     <Card>
