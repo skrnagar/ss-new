@@ -217,16 +217,38 @@ const PostItem = memo(function PostItem({ post, currentUser }: PostItemProps) {
     }
 
     try {
-      console.log("Attempting to toggle like for post:", post.id);
-      console.log("Current user ID:", currentUser.id);
-      console.log("Current isLiked status:", isLiked);
+      // Optimistically update UI immediately
+      const newIsLiked = !isLiked;
+      setIsLiked(newIsLiked);
+      
+      if (newIsLiked) {
+        const tempLike = { id: `temp-${Date.now()}`, post_id: post.id, user_id: currentUser.id };
+        setLikes((prev) => [...prev, tempLike]);
+        
+        const { data, error } = await supabase
+          .from("likes")
+          .insert({
+            post_id: post.id,
+            user_id: currentUser.id,
+          })
+          .select("id")
+          .single();
 
-      if (isLiked) {
-        // Optimistically update UI
-        setIsLiked(false);
-        setLikes(likes.filter((like) => like.user_id !== currentUser.id));
+        if (error) {
+          // Revert optimistic update on error
+          setIsLiked(false);
+          setLikes((prev) => prev.filter(like => like.id !== tempLike.id));
+          throw error;
+        }
 
-        // Unlike the post
+        // Update temporary ID with real one
+        setLikes((prev) => prev.map(like => 
+          like.id === tempLike.id ? { ...like, id: data.id } : like
+        ));
+      } else {
+        const likesToRemove = likes.filter(like => like.user_id === currentUser.id);
+        setLikes((prev) => prev.filter(like => like.user_id !== currentUser.id));
+
         const { error } = await supabase
           .from("likes")
           .delete()
@@ -234,39 +256,10 @@ const PostItem = memo(function PostItem({ post, currentUser }: PostItemProps) {
           .eq("user_id", currentUser.id);
 
         if (error) {
-          console.error("Error removing like:", error);
-          // Revert UI if error
+          // Revert optimistic update on error
           setIsLiked(true);
-          setLikes([...likes]);
+          setLikes((prev) => [...prev, ...likesToRemove]);
           throw error;
-        }
-      } else {
-        // Optimistically update UI
-        setIsLiked(true);
-        const newLike = { id: Date.now().toString(), post_id: post.id, user_id: currentUser.id };
-        setLikes([...likes, newLike]);
-
-        // Like the post
-        const { error, data } = await supabase
-          .from("likes")
-          .insert({
-            post_id: post.id,
-            user_id: currentUser.id,
-          })
-          .select("id");
-
-        if (error) {
-          // Revert UI if error
-          setIsLiked(false);
-          setLikes(likes.filter((like) => like.id !== newLike.id));
-          throw error;
-        }
-
-        // Update the temporary ID with the real one from DB
-        if (data && data.length > 0) {
-          setLikes(
-            likes.map((like) => (like.id === newLike.id ? { ...like, id: data[0].id } : like))
-          );
         }
       }
     } catch (error: any) {
@@ -281,7 +274,9 @@ const PostItem = memo(function PostItem({ post, currentUser }: PostItemProps) {
 
   const handleCommentSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!commentContent.trim()) {
+    const trimmedContent = commentContent.trim();
+    
+    if (!trimmedContent) {
       toast({
         title: "Error",
         description: "Comment cannot be empty",
@@ -301,68 +296,61 @@ const PostItem = memo(function PostItem({ post, currentUser }: PostItemProps) {
 
     setIsSubmittingComment(true);
 
-    try {
-      console.log("Attempting to submit comment for post:", post.id);
-      console.log("Current user ID:", currentUser.id);
+    // Create temporary comment for optimistic update
+    const tempComment = {
+      id: `temp-${Date.now()}`,
+      content: trimmedContent,
+      post_id: post.id,
+      user_id: currentUser.id,
+      created_at: new Date().toISOString(),
+      profiles: {
+        id: currentUser.id,
+        username: currentUser?.username || "User",
+        full_name: currentUser?.full_name || "User",
+        avatar_url: currentUser?.avatar_url || "/placeholder-user.jpg",
+      }
+    };
 
-      // Simplified comment insertion with better error handling
+    // Optimistically update UI
+    setComments(prev => [tempComment, ...prev]);
+    setCommentContent("");
+
+    try {
+      // Insert comment in database
       const { data, error } = await supabase
         .from("comments")
         .insert({
-          content: commentContent.trim(),
+          content: trimmedContent,
           post_id: post.id,
           user_id: currentUser.id,
         })
-        .select("*");
-
-      if (error) {
-        console.error("Error submitting comment:", error);
-        // Include more detailed error information
-        toast({
-          title: "Comment submission failed",
-          description: error.message || "Could not save your comment. Please try again.",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      console.log("Comment inserted successfully:", data);
-
-      // Get the user profile for the comment
-      const { data: profileData, error: profileError } = await supabase
-        .from("profiles")
-        .select("id, username, full_name, avatar_url")
-        .eq("id", currentUser.id)
+        .select("*, profiles:user_id(*)")
         .single();
 
-      if (profileError) {
-        console.error("Error fetching profile:", profileError);
-      }
+      if (error) throw error;
 
-      // Create new comment object with profile data
-      const newComment = {
-        ...data,
-        profiles: profileData || {
-          username: "User",
-          full_name: "User",
-          avatar_url: "/placeholder-user.jpg",
-        },
-      };
-
-      // Add to beginning of comments array
-      setComments((prev) => [newComment, ...prev]);
-      setCommentContent("");
+      // Update temporary comment with real data
+      setComments(prev => 
+        prev.map(comment => 
+          comment.id === tempComment.id ? { ...data } : comment
+        )
+      );
 
       toast({
         title: "Success",
         description: "Your comment has been posted!",
         variant: "default",
       });
-    } catch (error) {
-      console.error("Unexpected error during comment submission:", error);
+    } catch (error: any) {
+      console.error("Error submitting comment:", error);
+      
+      // Revert optimistic update
+      setComments(prev => prev.filter(comment => comment.id !== tempComment.id));
+      setCommentContent(trimmedContent);
+      
       toast({
-        title: "Error",
-        description: "An unexpected error occurred while posting your comment",
+        title: "Comment failed",
+        description: error.message || "Could not post your comment",
         variant: "destructive",
       });
     } finally {
