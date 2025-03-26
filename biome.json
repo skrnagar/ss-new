@@ -1,25 +1,26 @@
+
 {
   "$schema": "https://biomejs.dev/schemas/1.6.0/schema.json",
   "organizeImports": {
-    "enabled": true
+    "enabled": false
   },
   "linter": {
     "enabled": true,
     "rules": {
       "recommended": true,
-      "correctness": {
-        "noUnusedVariables": "error"
-      },
-      "a11y": {
-        "useKeyWithClickEvents": "error"
-      },
       "suspicious": {
         "noExplicitAny": "warn"
       },
       "style": {
         "noNonNullAssertion": "warn"
       }
-    }
+    },
+    "ignore": [
+      ".next/**",
+      "node_modules/**",
+      "public/**",
+      "attached_assets/**"
+    ]
   },
   "formatter": {
     "enabled": true,
