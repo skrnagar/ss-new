@@ -12,17 +12,17 @@ import { useEffect, useState } from "react";
 
 interface Conversation {
   id: string;
-  participants: {
+  conversation_participants: {
     profile_id: string;
     profiles: {
       username: string;
       avatar_url?: string;
     };
   }[];
-  messages: {
+  last_message?: {
     content: string;
     created_at: string;
-  }[];
+  };
 }
 
 interface ChatPreview {
@@ -68,12 +68,14 @@ export default function MessagesPage() {
     if (data && !error) {
       const formattedConversations = data.map((conv) => ({
         id: conv.id,
-        created_at: conv.created_at,
-        participants: conv.conversation_participants.map((participant) => ({
+        conversation_participants: conv.conversation_participants.map((participant) => ({
           profile_id: participant.profile_id,
-          profiles: participant.profiles[0],
+          profiles: participant.profiles
         })),
-        messages: [], // Added to satisfy the new interface
+        last_message: conv.messages?.[0] ? {
+          content: conv.messages[0].content,
+          created_at: conv.messages[0].created_at
+        } : undefined
       }));
       setConversations(formattedConversations);
     }
