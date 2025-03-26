@@ -3,9 +3,9 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/contexts/auth-context";
 import { supabase } from "@/lib/supabase";
+import { formatDistanceToNow } from "date-fns";
 import { MessageCircle } from "lucide-react";
 import { useEffect, useState } from "react";
-import { formatDistanceToNow } from 'date-fns';
 
 interface ChatParticipant {
   profile_id: string;
@@ -66,14 +66,16 @@ export function ChatList({ onSelect, selectedId }: ChatListProps) {
 
       const formattedChats = participations.map((chat) => ({
         id: chat.conversation_id,
-        conversation_participants: [{
-          profile_id: chat.profiles.id,
-          profiles: {
-            username: chat.profiles.username,
-            avatar_url: chat.profiles.avatar_url
-          }
-        }],
-        last_message: chat.conversations[0]?.messages[0]
+        conversation_participants: [
+          {
+            profile_id: chat.profiles.id,
+            profiles: {
+              username: chat.profiles.username,
+              avatar_url: chat.profiles.avatar_url,
+            },
+          },
+        ],
+        last_message: chat.conversations[0]?.messages[0],
       }));
 
       setChats(formattedChats);
