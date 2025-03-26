@@ -2,7 +2,7 @@
 
 import { supabase } from "@/lib/supabase";
 import type { Session, User } from "@supabase/supabase-js";
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState, useMemo } from "react";
 
 type Profile = {
   id: string;
@@ -17,6 +17,7 @@ type AuthContextType = {
   profile: Profile | null;
   session: Session | null;
   isLoading: boolean;
+  isAuthenticated: boolean;
   refreshProfile: () => Promise<void>;
 };
 
@@ -25,14 +26,22 @@ const AuthContext = createContext<AuthContextType>({
   profile: null,
   session: null,
   isLoading: true,
+  isAuthenticated: false,
   refreshProfile: async () => {},
 });
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [profile, setProfile] = useState<Profile | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [authState, setAuthState] = useState<{
+    user: User | null;
+    profile: Profile | null;
+  }>({ user: null, profile: null });
+
+  const memoizedAuthValue = useMemo(() => ({
+    user: authState.user,
+    profile: authState.profile,
+    isLoading: !authState.user && !authState.profile,
+    isAuthenticated: !!authState.user
+  }), [authState]);
 
   // Function to fetch profile data
   const fetchProfile = async (userId: string) => {
@@ -61,17 +70,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   // Function to refresh profile data
   const refreshProfile = async () => {
-    if (!user) return;
+    if (!memoizedAuthValue.user) return;
 
-    const profileData = await fetchProfile(user.id);
-    setProfile(profileData);
+    const profileData = await fetchProfile(memoizedAuthValue.user.id);
+    setAuthState((prev) => ({ ...prev, profile: profileData }));
   };
 
   useEffect(() => {
     // Initialize auth state
     const initAuth = async () => {
-      setIsLoading(true);
-
       try {
         console.log("Initializing auth state...");
         // Get initial session
@@ -80,23 +87,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         } = await supabase.auth.getSession();
 
         console.log("Session loaded:", !!session);
-        setSession(session);
-        setUser(session?.user || null);
+        setAuthState((prev) => ({ ...prev, user: session?.user || null, session }));
 
         // Fetch profile if user exists
         if (session?.user) {
           console.log("User found in session, fetching profile...");
           const profileData = await fetchProfile(session.user.id);
           console.log("Profile loaded:", !!profileData);
-          setProfile(profileData);
+          setAuthState((prev) => ({ ...prev, profile: profileData }));
         } else {
           console.log("No user in session");
         }
       } catch (error) {
         console.error("Error initializing auth:", error);
-      } finally {
-        console.log("Auth initialization complete");
-        setIsLoading(false);
       }
     };
 
@@ -107,16 +110,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log("Auth state changed:", event, session?.user?.id);
-      setSession(session);
-      setUser(session?.user || null);
+      setAuthState((prev) => ({ ...prev, session, user: session?.user || null }));
 
       // Fetch profile if user exists
       if (session?.user) {
         const profileData = await fetchProfile(session.user.id);
         console.log("Profile data fetched:", profileData ? "found" : "not found");
-        setProfile(profileData);
+        setAuthState((prev) => ({ ...prev, profile: profileData }));
       } else {
-        setProfile(null);
+        setAuthState((prev) => ({ ...prev, profile: null }));
       }
     });
 
@@ -127,7 +129,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, profile, session, isLoading, refreshProfile }}>
+    <AuthContext.Provider value={{ ...memoizedAuthValue, refreshProfile }}>
       {children}
     </AuthContext.Provider>
   );
