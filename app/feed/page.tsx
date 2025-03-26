@@ -83,12 +83,15 @@ export default function FeedPage() {
   const { user, profile: userProfile, isLoading: authLoading, session } = useAuth();
   const router = useRouter();
 
+  // Initial data fetch on mount
   useEffect(() => {
+    let mounted = true;
+
     async function fetchPosts() {
       try {
         setPostsLoading(true);
 
-        // Fetch posts with user information
+        // Fetch posts with user information and proper ordering
         const { data, error } = await supabase
           .from("posts")
           .select(`
@@ -109,31 +112,39 @@ export default function FeedPage() {
           throw error;
         }
 
-        if (data) {
+        if (data && mounted) {
           setPosts(data);
         }
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {
-        setLoading(false);
+        if (mounted) {
+          setPostsLoading(false);
+        }
       }
     }
 
     fetchPosts();
 
-    // Subscribe to new posts
+    // Cleanup function
+    return () => {
+      mounted = false;
+    };
+
+    // Subscribe to post changes in realtime
     const postsSubscription = supabase
       .channel("public:posts")
       .on(
         "postgres_changes",
         {
-          event: "INSERT",
+          event: "*", // Listen to all changes
           schema: "public",
           table: "posts",
         },
         async (payload) => {
-          // When a new post is created, fetch its user data as well
-          const { data: newPostWithUser } = await supabase
+          if (payload.eventType === "INSERT") {
+            // Immediately fetch new post with user data
+            const { data: newPostWithUser } = await supabase
             .from("posts")
             .select(`
             *,
@@ -150,10 +161,20 @@ export default function FeedPage() {
             .single();
 
           if (newPostWithUser) {
-            setPosts((prevPosts) => [newPostWithUser, ...prevPosts]);
+            setPosts((prevPosts) => {
+              // Ensure no duplicates
+              const existingPost = prevPosts.find(p => p.id === newPostWithUser.id);
+              if (existingPost) {
+                return prevPosts;
+              }
+              return [newPostWithUser, ...prevPosts];
+            });
           }
+        } else if (payload.eventType === "DELETE") {
+          // Remove deleted posts immediately
+          setPosts(prevPosts => prevPosts.filter(post => post.id !== payload.old.id));
         }
-      )
+      })
       .subscribe();
 
     return () => {
