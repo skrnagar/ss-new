@@ -1,22 +1,23 @@
 "use client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { useAuth } from "@/contexts/auth-context";
 import { supabase } from "@/lib/supabase";
-import { formatDistanceToNow } from "date-fns";
 import { MessageCircle } from "lucide-react";
 import { useEffect, useState } from "react";
+import { formatDistanceToNow } from 'date-fns';
+
+interface ChatParticipant {
+  profile_id: string;
+  profiles: {
+    username: string;
+    avatar_url?: string;
+  };
+}
 
 interface ChatPreview {
   id: string;
-  participants: {
-    profile_id: string;
-    profiles: {
-      username: string;
-      avatar_url?: string;
-    };
-  }[];
+  conversation_participants: ChatParticipant[];
   last_message?: {
     content: string;
     created_at: string;
@@ -39,7 +40,21 @@ export function ChatList({ onSelect, selectedId }: ChatListProps) {
     const fetchChats = async () => {
       const { data: participations, error: participationError } = await supabase
         .from("conversation_participants")
-        .select("conversation_id")
+        .select(`
+          conversation_id,
+          profiles (
+            username,
+            avatar_url
+          ),
+          conversations (
+            id,
+            messages (
+              content,
+              created_at,
+              sender_id
+            )
+          )
+        `)
         .eq("profile_id", user.id);
 
       if (participationError) {
@@ -49,48 +64,19 @@ export function ChatList({ onSelect, selectedId }: ChatListProps) {
 
       if (!participations?.length) return;
 
-      const conversationIds = participations.map((p) => p.conversation_id);
-
-      const { data: conversations, error: conversationsError } = await supabase
-        .from("conversation_participants")
-        .select(`
-          conversation_id,
-          profiles!inner(
-            username,
-            avatar_url
-          ),
-          conversations!inner(
-            id,
-            messages(
-              content,
-              created_at,
-              sender_id
-            )
-          )
-        `)
-        .in("conversation_id", conversationIds)
-        .neq("profile_id", user.id);
-
-      if (conversationsError) {
-        console.error("Error fetching conversation details:", conversationsError);
-        return;
-      }
-
-      const formattedChats = conversations?.map((chat) => ({
+      const formattedChats = participations.map((chat) => ({
         id: chat.conversation_id,
-        participants: [
-          {
-            profile_id: chat.participants[0].profile_id,
-            profiles: {
-              username: chat.participants[0].profiles.username,
-              avatar_url: chat.participants[0].profiles.avatar_url,
-            },
-          },
-        ],
-        last_message: chat.conversations.messages[0],
+        conversation_participants: [{
+          profile_id: chat.profiles.id,
+          profiles: {
+            username: chat.profiles.username,
+            avatar_url: chat.profiles.avatar_url
+          }
+        }],
+        last_message: chat.conversations[0]?.messages[0]
       }));
 
-      setChats(formattedChats || []);
+      setChats(formattedChats);
     };
 
     fetchChats();
@@ -102,7 +88,7 @@ export function ChatList({ onSelect, selectedId }: ChatListProps) {
         <div className="text-center text-muted-foreground p-4">No conversations yet</div>
       ) : (
         chats.map((chat) => {
-          const otherParticipant = chat.participants[0];
+          const otherParticipant = chat.conversation_participants[0];
           return (
             <div
               key={chat.id}
