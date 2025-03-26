@@ -1,0 +1,369 @@
+./app/compliance/page.tsx:205:77 lint/a11y/useSemanticElements ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ✖ The elements with the following roles can be changed to the following elements:
+    <button>
+    <input type="button">
+  
+  
+    203 │                 className="flex justify-between items-center cursor-pointer"
+    204 │                 onClick={() => toggleSection(index)}
+  > 205 │                 onKeyDown={(e) => e.key === "Enter" && toggleSection(index)}
+        │                                                                             
+  > 206 │                 role="button"
+        │                 ^^^^^^^^^^^^^
+    207 │                 tabIndex={0}
+    208 │               >
+  
+  ℹ For examples and more information, see WAI-ARIA Roles
+  
+
+./components/ui/use-toast.ts:96:9 lint/complexity/noForEach ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ✖ Prefer for...of instead of forEach.
+  
+     94 │         addToRemoveQueue(toastId);
+     95 │       } else {
+   > 96 │         state.toasts.forEach((toast) => {
+        │         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   > 97 │           addToRemoveQueue(toast.id);
+   > 98 │         });
+        │         ^^
+     99 │       }
+    100 │ 
+  
+  ℹ forEach may lead to performance issues when working with large arrays. When combined with functions like filter or map, this causes multiple iterations over the same type.
+  
+
+./components/ui/use-toast.ts:133:3 lint/complexity/noForEach ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ✖ Prefer for...of instead of forEach.
+  
+    131 │ function dispatch(action: Action) {
+    132 │   memoryState = reducer(memoryState, action);
+  > 133 │   listeners.forEach((listener) => {
+        │   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  > 134 │     listener(memoryState);
+  > 135 │   });
+        │   ^^
+    136 │ }
+    137 │ 
+  
+  ℹ forEach may lead to performance issues when working with large arrays. When combined with functions like filter or map, this causes multiple iterations over the same type.
+  
+
+./components/ui/use-toast.ts:172:9 lint/correctness/useExhaustiveDependencies ━━━━━━━━━━━━━━━━━━━━━━
+
+  ✖ This hook specifies more dependencies than necessary: state
+  
+    170 │   const [state, setState] = React.useState<State>(memoryState);
+    171 │ 
+  > 172 │   React.useEffect(() => {
+        │         ^^^^^^^^^
+    173 │     listeners.push(setState);
+    174 │     return () => {
+  
+  ℹ This dependency can be removed from the list.
+  
+    178 │       }
+    179 │     };
+  > 180 │   }, [state]);
+        │       ^^^^^
+    181 │ 
+    182 │   return {
+  
+
+./app/components/footer-cta.tsx:9:36 lint/suspicious/noExplicitAny ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ⚠ Unexpected any. Specify a different type.
+  
+     8 │ export default function FooterCTA() {
+   > 9 │   const [user, setUser] = useState<any>(null);
+       │                                    ^^^
+    10 │   const [loading, setLoading] = useState(true);
+    11 │ 
+  
+  ℹ any disables many type checking rules. Its use should be avoided.
+  
+
+./app/components/hero-auth-buttons.tsx:58:11 lint/style/useSelfClosingElements  FIXABLE  ━━━━━━━━━━━
+
+  ✖ JSX elements without children should be marked as self-closing. In JSX, it is valid for any element to be self-closing.
+  
+    56 │         >
+    57 │           <title>LinkedIn logo</title>
+  > 58 │           <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.32 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.79M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z"></path>
+       │           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    59 │         </svg>
+    60 │         Continue with LinkedIn
+  
+  ℹ Unsafe fix: Use a SelfClosingElement instead
+  
+    56 56 │           >
+    57 57 │             <title>LinkedIn logo</title>
+    58    │ - ··········<path·d="M19·3a2·2·0·0·1·2·2v14a2·2·0·0·1-2·2H5a2·2·0·0·1-2-2V5a2·2·0·0·1·2-2h14m-.5·15.5v-5.3a3.26·3.26·0·0·0-3.26-3.26c-.85·0-1.84.52-2.32·1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4·1.39-1.4a1.4·1.4·0·0·1·1.4·1.4v4.93h2.79M6.88·8.56a1.68·1.68·0·0·0·1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69·1.69·0·0·0-1.69·1.69c0·.93.76·1.68·1.69·1.68m1.39·9.94v-8.37H5.5v8.37h2.77z"></path>
+       58 │ + ··········<path·d="M19·3a2·2·0·0·1·2·2v14a2·2·0·0·1-2·2H5a2·2·0·0·1-2-2V5a2·2·0·0·1·2-2h14m-.5·15.5v-5.3a3.26·3.26·0·0·0-3.26-3.26c-.85·0-1.84.52-2.32·1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4·1.39-1.4a1.4·1.4·0·0·1·1.4·1.4v4.93h2.79M6.88·8.56a1.68·1.68·0·0·0·1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69·1.69·0·0·0-1.69·1.69c0·.93.76·1.68·1.69·1.68m1.39·9.94v-8.37H5.5v8.37h2.77z"·/>
+    59 59 │           </svg>
+    60 60 │           Continue with LinkedIn
+  
+
+./app/components/profile-photo-modal.tsx:152:21 lint/suspicious/noExplicitAny ━━━━━━━━━━━━━━━━━━━━━━
+
+  ⚠ Unexpected any. Specify a different type.
+  
+    150 │       // Refresh the page to show the updated avatar
+    151 │       router.refresh();
+  > 152 │     } catch (error: any) {
+        │                     ^^^
+    153 │       toast({
+    154 │         title: "Error updating avatar",
+  
+  ℹ any disables many type checking rules. Its use should be avoided.
+  
+
+./app/components/profile-photo-modal.tsx:191:21 lint/suspicious/noExplicitAny ━━━━━━━━━━━━━━━━━━━━━━
+
+  ⚠ Unexpected any. Specify a different type.
+  
+    189 │       // Refresh the page
+    190 │       router.refresh();
+  > 191 │     } catch (error: any) {
+        │                     ^^^
+    192 │       toast({
+    193 │         title: "Error removing avatar",
+  
+  ℹ any disables many type checking rules. Its use should be avoided.
+  
+
+./app/components/profile-photo-modal.tsx:213:11 lint/a11y/useButtonType ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ✖ Provide an explicit type prop for the button element.
+  
+    211 │         <div className="flex items-center justify-between p-4 border-b">
+    212 │           <h2 className="text-xl font-bold">Profile photo</h2>
+  > 213 │           <button onClick={onClose} className="text-muted-foreground hover:text-foreground">
+        │           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    214 │             <X className="h-5 w-5" />
+    215 │           </button>
+  
+  ℹ The default type of a button is submit, which causes the submission of a form when placed inside a `form` element. This is likely not the behaviour that you want inside a React application.
+  
+  ℹ Allowed button types are: submit, button or reset
+  
+
+./app/events/page.tsx:39:48 lint/suspicious/noExplicitAny ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ⚠ Unexpected any. Specify a different type.
+  
+    37 │   const [searchQuery, setSearchQuery] = useState("");
+    38 │   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  > 39 │   const [eventsData, setEventsData] = useState<any[]>([]);
+       │                                                ^^^
+    40 │   const [userEventsData, setUserEventsData] = useState<any[]>([]);
+    41 │   const [loading, setLoading] = useState(true);
+  
+  ℹ any disables many type checking rules. Its use should be avoided.
+  
+
+./app/events/page.tsx:40:56 lint/suspicious/noExplicitAny ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ⚠ Unexpected any. Specify a different type.
+  
+    38 │   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+    39 │   const [eventsData, setEventsData] = useState<any[]>([]);
+  > 40 │   const [userEventsData, setUserEventsData] = useState<any[]>([]);
+       │                                                        ^^^
+    41 │   const [loading, setLoading] = useState(true);
+    42 │   const [categoryFilter, setCategoryFilter] = useState("");
+  
+  ℹ any disables many type checking rules. Its use should be avoided.
+  
+
+./app/events/page.tsx:46:38 lint/suspicious/noExplicitAny ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ⚠ Unexpected any. Specify a different type.
+  
+    45 │   // Filtered events based on search and filters
+  > 46 │   const getFilteredEvents = (events: any[]) => {
+       │                                      ^^^
+    47 │     return events.filter((event) => {
+    48 │       // Search filter
+  
+  ℹ any disables many type checking rules. Its use should be avoided.
+  
+
+./app/events/page.tsx:304:35 lint/suspicious/noExplicitAny ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ⚠ Unexpected any. Specify a different type.
+  
+    303 │   // Function to render event cards
+  > 304 │   const renderEventCard = (event: any) => (
+        │                                   ^^^
+    305 │     <Card className="overflow-hidden" key={event.id}>
+    306 │       <div className="h-48 overflow-hidden relative">
+  
+  ℹ any disables many type checking rules. Its use should be avoided.
+  
+
+./app/events/page.tsx:361:39 lint/suspicious/noExplicitAny ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ⚠ Unexpected any. Specify a different type.
+  
+    360 │   // Function to render event list items
+  > 361 │   const renderEventListItem = (event: any) => (
+        │                                       ^^^
+    362 │     <Card className="mb-3" key={event.id}>
+    363 │       <CardContent className="p-4 flex gap-4">
+  
+  ℹ any disables many type checking rules. Its use should be avoided.
+  
+
+./app/events/page.tsx:539:58 lint/suspicious/noArrayIndexKey ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ✖ Avoid using the index of an array as key property in an element.
+  
+    537 │                 .fill(0)
+    538 │                 .map((_, i) => (
+  > 539 │                   <Card className="overflow-hidden" key={i}>
+        │                                                          ^
+    540 │                     <div className="h-48 bg-muted animate-pulse" />
+    541 │                     <CardHeader className="p-4">
+  
+  ℹ This is the source of the key value.
+  
+    536 │               {Array(6)
+    537 │                 .fill(0)
+  > 538 │                 .map((_, i) => (
+        │                          ^
+    539 │                   <Card className="overflow-hidden" key={i}>
+    540 │                     <div className="h-48 bg-muted animate-pulse" />
+  
+  ℹ The order of the items may change, and this also affects performances and component state.
+  
+  ℹ Check the React documentation. 
+  
+
+./app/events/page.tsx:584:58 lint/suspicious/noArrayIndexKey ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ✖ Avoid using the index of an array as key property in an element.
+  
+    582 │                 .fill(0)
+    583 │                 .map((_, i) => (
+  > 584 │                   <Card className="overflow-hidden" key={i}>
+        │                                                          ^
+    585 │                     <div className="h-48 bg-muted animate-pulse" />
+    586 │                     <CardHeader className="p-4">
+  
+  ℹ This is the source of the key value.
+  
+    581 │               {Array(3)
+    582 │                 .fill(0)
+  > 583 │                 .map((_, i) => (
+        │                          ^
+    584 │                   <Card className="overflow-hidden" key={i}>
+    585 │                     <div className="h-48 bg-muted animate-pulse" />
+  
+  ℹ The order of the items may change, and this also affects performances and component state.
+  
+  ℹ Check the React documentation. 
+  
+
+./app/events/page.tsx:658:30 lint/suspicious/noArrayIndexKey ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ✖ Avoid using the index of an array as key property in an element.
+  
+    656 │                     return (
+    657 │                       <div
+  > 658 │                         key={i}
+        │                              ^
+    659 │                         className={`min-h-24 border rounded-md p-1 ${day < 1 || day > 30 ? "bg-muted/30" : ""}`}
+    660 │                       >
+  
+  ℹ This is the source of the key value.
+  
+    653 │                   {/* Calendar grid - example for a month */}
+  > 654 │                   {Array.from({ length: 35 }).map((_, i) => {
+        │                                                       ^
+    655 │                     const day = i - 2; // Adjust to start from correct day (example)
+    656 │                     return (
+  
+  ℹ The order of the items may change, and this also affects performances and component state.
+  
+  ℹ Check the React documentation. 
+  
+
+./app/events/page.tsx:732:29 lint/suspicious/noArrayIndexKey ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ✖ Avoid using the index of an array as key property in an element.
+  
+    730 │                   },
+    731 │                 ].map((event, index) => (
+  > 732 │                   <div key={index} className="flex items-start gap-3">
+        │                             ^^^^^
+    733 │                     <div
+    734 │                       className={`w-3 h-3 mt-1 rounded-full flex-shrink-0 ${
+  
+  ℹ This is the source of the key value.
+  
+    729 │                     type: "health",
+    730 │                   },
+  > 731 │                 ].map((event, index) => (
+        │                               ^^^^^
+    732 │                   <div key={index} className="flex items-start gap-3">
+    733 │                     <div
+  
+  ℹ The order of the items may change, and this also affects performances and component state.
+  
+  ℹ Check the React documentation. 
+  
+
+./app/groups/page.tsx:39:14 lint/style/noUnusedTemplateLiteral  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ✖ Do not use template literals if interpolation and special-character handling are not needed.
+  
+    37 │       posts: 87,
+    38 │       lastActive: "2 hours ago",
+  > 39 │       image: `https://placehold.co/400x200/1f2937/60a5fa?text=Group+1`,
+       │              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    40 │     },
+    41 │     {
+  
+  ℹ Unsafe fix: Replace with string literal
+  
+     37  37 │         posts: 87,
+     38  38 │         lastActive: "2 hours ago",
+     39     │ - ······image:·`https://placehold.co/400x200/1f2937/60a5fa?text=Group+1`,
+         39 │ + ······image:·"https://placehold.co/400x200/1f2937/60a5fa?text=Group+1",
+     40  40 │       },
+     41  41 │       {
+  
+
+./app/groups/page.tsx:49:14 lint/style/noUnusedTemplateLiteral  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ✖ Do not use template literals if interpolation and special-character handling are not needed.
+  
+    47 │       posts: 56,
+    48 │       lastActive: "5 hours ago",
+  > 49 │       image: `https://placehold.co/400x200/1f2937/60a5fa?text=Group+2`,
+       │              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    50 │     },
+    51 │     {
+  
+  ℹ Unsafe fix: Replace with string literal
+  
+     47  47 │         posts: 56,
+     48  48 │         lastActive: "5 hours ago",
+     49     │ - ······image:·`https://placehold.co/400x200/1f2937/60a5fa?text=Group+2`,
+         49 │ + ······image:·"https://placehold.co/400x200/1f2937/60a5fa?text=Group+2",
+     50  50 │       },
+     51  51 │       {
+  
+
+Skipped 14 suggested fixes.
+If you wish to apply the suggested (unsafe) fixes, use the command biome check --fix --unsafe
+
+The number of diagnostics exceeds the number allowed by Biome.
+Diagnostics not shown: 60.
+Checked 91 files in 179ms. Fixed 1 file.
+Found 54 errors.
+Found 26 warnings.
+check ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
