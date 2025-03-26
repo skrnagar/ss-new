@@ -84,7 +84,7 @@ const PostItem = memo(function PostItem({ post, currentUser }: PostItemProps) {
 
     // Fetch likes count
     fetchLikes();
-    
+
     // Fetch comments count on mount
     fetchComments();
   }, [post.id, currentUser?.id]);
@@ -223,11 +223,11 @@ const PostItem = memo(function PostItem({ post, currentUser }: PostItemProps) {
       // Optimistically update UI immediately
       const newIsLiked = !isLiked;
       setIsLiked(newIsLiked);
-      
+
       if (newIsLiked) {
         const tempLike = { id: `temp-${Date.now()}`, post_id: post.id, user_id: currentUser.id };
         setLikes((prev) => [...prev, tempLike]);
-        
+
         const { data, error } = await supabase
           .from("likes")
           .insert({
@@ -278,7 +278,7 @@ const PostItem = memo(function PostItem({ post, currentUser }: PostItemProps) {
   const handleCommentSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const trimmedContent = commentContent.trim();
-    
+
     if (!trimmedContent) {
       toast({
         title: "Error",
@@ -412,6 +412,14 @@ const PostItem = memo(function PostItem({ post, currentUser }: PostItemProps) {
       ? `${post.content?.substring(0, MAX_CONTENT_LENGTH) || ""}...`
       : post.content;
 
+  const getStorageUrl = (imageUrl: string | null) => {
+    if (!imageUrl) return null;
+    // Handle already formed URLs
+    if (imageUrl.startsWith('http')) return imageUrl;
+    return `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/post-images/${imageUrl}`;
+  };
+
+
   return (
     <Card>
       <CardContent className="pt-6">
@@ -485,25 +493,20 @@ const PostItem = memo(function PostItem({ post, currentUser }: PostItemProps) {
           {post.image_url && (
             <div className="mt-3 rounded-md overflow-hidden">
               <div className="relative w-full max-h-[500px]" style={{ aspectRatio: "16/9" }}>
-                {post.image_url.startsWith("https://lephbkawjuyyygguxqio.supabase.co") ? (
-                  <Image
-                    src={post.image_url}
-                    alt="Post attachment"
-                    width={800}
-                    height={450}
-                    style={{ objectFit: "cover", width: "100%", height: "auto" }}
-                    className="rounded-md"
-                    loading="lazy"
-                    quality={80}
-                  />
-                ) : (
-                  <img
-                    src={post.image_url}
-                    alt="Post attachment"
-                    className="w-full object-cover max-h-[500px] rounded-md"
-                    loading="lazy"
-                  />
-                )}
+                <Image
+                  src={getStorageUrl(post.image_url) || '/placeholder.jpg'}
+                  alt="Post attachment"
+                  width={800}
+                  height={450}
+                  style={{ objectFit: "cover", width: "100%", height: "auto" }}
+                  className="rounded-md"
+                  loading="lazy"
+                  quality={80}
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.src = '/placeholder.jpg';
+                  }}
+                />
               </div>
             </div>
           )}
@@ -588,7 +591,7 @@ const PostItem = memo(function PostItem({ post, currentUser }: PostItemProps) {
               <DropdownMenuItem onClick={() => {
                 window.open(`https://www.facebook.com/sharer/sharer.php?u=${window.location.origin}/posts/${post.id}`, '_blank')
               }} className="flex items-center gap-2 cursor-pointer">
-                <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24"><path d="M9.101 23.691v-7.98H6.627v-3.667h2.474v-1.58c0-4.085 1.848-5.978 5.858-5.978.401 0 .955.042 1.468.103a8.68 8.68 0 0 1 1.141.195v3.325a8.623 8.623 0 0 0-.653-.036 26.805 26.805 0 0 0-.733-.009c-.707 0-1.259.096-1.675.309a1.686 1.686 0 0 0-.679.622c-.258.42-.374.995-.374 1.752v1.297h3.919l-.386 2.103-.287 1.564h-3.246v8.245C19.396 23.238 24 18.179 24 12.044c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.628 3.874 10.35 9.101 11.647Z"/></svg>
+                <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24"><path d="M9.101 23.691v-7.98H6.627v-3.667h2.474v-1.58c0-4.085 1.848-5.978 5.858-5.978.401 0 .955.042 1.468.103a8.68 8.68 0 0 1 1.141.195v3.325a8.623 8.623 0 0 0-.653-.036 26.805 26.805 0 0 0-.733-.009c-.707 0-1.259.096-1.675.309a1.686 1.686 0 0 0-.679.622c-.258.42-.374.995-.374 1.752v1.297h3.919l-.386 2.103-.287 1.564h-3.246v8.245C19.396 23.238 24 18.179 24 12.044c0-6.627-5.373-12-12-12s-12 12-12 12c0 5.628 3.874 10.35 9.101 11.647Z"/></svg>
                 Share on Facebook
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => {
