@@ -219,7 +219,7 @@ export default function RegisterPage() {
           />
           <h1 className="text-2xl font-semibold mb-2">Loading...</h1>
           <div className="h-2 w-64 bg-muted overflow-hidden rounded-full">
-            <div className="h-full bg-primary animate-pulse rounded-full"></div>
+            <div className="h-full bg-primary animate-pulse rounded-full" />
           </div>
         </div>
       }

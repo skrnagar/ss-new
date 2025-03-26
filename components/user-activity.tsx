@@ -210,7 +210,10 @@ export function UserActivity({ userId, isOwnProfile }: UserActivityProps) {
             ) : activities.length > 0 ? (
               <div className="space-y-4">
                 {activities.map((activity, index) => (
-                  <div key={index} className="border-b pb-3 last:border-b-0 last:pb-0">
+                  <div
+                    key={`${activity.type}-${activity.created_at}`}
+                    className="border-b pb-3 last:border-b-0 last:pb-0"
+                  >
                     <div className="flex items-center gap-2 mb-1">
                       {activity.type === "comment" && (
                         <MessageSquare className="h-4 w-4 text-green-500" />
