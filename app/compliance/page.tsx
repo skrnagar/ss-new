@@ -280,7 +280,7 @@ export default function CompliancePage() {
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
                       {area.items.map((item, itemIndex) => (
-                        <tr key={itemIndex}>
+                        <tr key={`${area.id}-${item.id || itemIndex}`}>
                           <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                             {item.name}
                           </td>

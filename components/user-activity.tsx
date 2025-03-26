@@ -17,8 +17,22 @@ interface UserActivityProps {
 }
 
 export function UserActivity({ userId, isOwnProfile }: UserActivityProps) {
-  const [activities, setActivities] = useState<any[]>([]);
-  const [posts, setPosts] = useState<any[]>([]);
+  interface Activity {
+    id: string;
+    type: string;
+    created_at: string;
+    content?: string;
+    post_id?: string;
+  }
+
+  interface Post {
+    id: string;
+    content: string;
+    created_at: string;
+  }
+
+  const [activities, setActivities] = useState<Activity[]>([]);
+  const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
