@@ -299,45 +299,31 @@ const PostItem = memo(function PostItem({ post, currentUser }: PostItemProps) {
 
     setIsSubmittingComment(true);
 
-    // Create temporary comment for optimistic update
-    const tempComment = {
-      id: `temp-${Date.now()}`,
-      content: trimmedContent,
-      post_id: post.id,
-      user_id: currentUser.id,
-      created_at: new Date().toISOString(),
-      profiles: {
-        id: currentUser.id,
-        username: currentUser?.username || "User",
-        full_name: currentUser?.full_name || "User",
-        avatar_url: currentUser?.avatar_url || "/placeholder-user.jpg",
-      }
-    };
-
-    // Optimistically update UI
-    setComments(prev => [tempComment, ...prev]);
-    setCommentContent("");
-
     try {
       // Insert comment in database
-      const { data, error } = await supabase
+      const { data: newComment, error } = await supabase
         .from("comments")
         .insert({
           content: trimmedContent,
           post_id: post.id,
           user_id: currentUser.id,
         })
-        .select("*, profiles:user_id(*)")
+        .select(`
+          *,
+          profiles:user_id (
+            id,
+            username,
+            full_name,
+            avatar_url
+          )
+        `)
         .single();
 
       if (error) throw error;
 
-      // Update temporary comment with real data
-      setComments(prev => 
-        prev.map(comment => 
-          comment.id === tempComment.id ? { ...data } : comment
-        )
-      );
+      // Update comments state with new comment
+      setComments(prev => [newComment, ...prev]);
+      setCommentContent("");
 
       toast({
         title: "Success",
@@ -346,11 +332,6 @@ const PostItem = memo(function PostItem({ post, currentUser }: PostItemProps) {
       });
     } catch (error: any) {
       console.error("Error submitting comment:", error);
-      
-      // Revert optimistic update
-      setComments(prev => prev.filter(comment => comment.id !== tempComment.id));
-      setCommentContent(trimmedContent);
-      
       toast({
         title: "Comment failed",
         description: error.message || "Could not post your comment",
