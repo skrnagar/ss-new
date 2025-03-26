@@ -84,6 +84,9 @@ const PostItem = memo(function PostItem({ post, currentUser }: PostItemProps) {
 
     // Fetch likes count
     fetchLikes();
+    
+    // Fetch comments count on mount
+    fetchComments();
   }, [post.id, currentUser?.id]);
 
   const getInitials = (name: string) => {
