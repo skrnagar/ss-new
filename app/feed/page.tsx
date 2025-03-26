@@ -6,14 +6,13 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/contexts/auth-context";
 import { supabase } from "@/lib/supabase";
-import { Briefcase, Clock, MapPin, MessageSquare, Share2, ThumbsUp, User } from "lucide-react";
+import { Calendar, Clock, Search, User, Users } from "lucide-react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -438,6 +437,45 @@ export default function FeedPage() {
                   </Button>
                 </div>
               )}
+            </CardContent>
+          </Card>
+
+          {/* Network Navigation Card */}
+          <Card>
+            <CardContent className="pt-6">
+              <div className="space-y-4">
+                <Link href="/network" className="flex items-center gap-3 hover:text-primary">
+                  <Users className="h-5 w-5" />
+                  <div>
+                    <h3 className="font-medium">My Connections</h3>
+                    <p className="text-sm text-muted-foreground">Manage your professional network</p>
+                  </div>
+                </Link>
+
+                <Link href="/network/professionals" className="flex items-center gap-3 hover:text-primary">
+                  <Search className="h-5 w-5" />
+                  <div>
+                    <h3 className="font-medium">Explore People</h3>
+                    <p className="text-sm text-muted-foreground">Find ESG & EHS professionals</p>
+                  </div>
+                </Link>
+
+                <Link href="/groups" className="flex items-center gap-3 hover:text-primary">
+                  <Users className="h-5 w-5" />
+                  <div>
+                    <h3 className="font-medium">Groups</h3>
+                    <p className="text-sm text-muted-foreground">Join specialized professional groups</p>
+                  </div>
+                </Link>
+
+                <Link href="/events" className="flex items-center gap-3 hover:text-primary">
+                  <Calendar className="h-5 w-5" />
+                  <div>
+                    <h3 className="font-medium">Events</h3>
+                    <p className="text-sm text-muted-foreground">Discover industry events and conferences</p>
+                  </div>
+                </Link>
+              </div>
             </CardContent>
           </Card>
         </div>
