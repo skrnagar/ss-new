@@ -14,15 +14,39 @@ export function ProfileEditor({ profile, onUpdate }: { profile: any; onUpdate: (
   const [position, setPosition] = useState(profile.position || "");
   const [company, setCompany] = useState(profile.company || "");
   const [location, setLocation] = useState(profile.location || "");
+  const [avatar, setAvatar] = useState(null); // Added state for avatar
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setAvatar(e.target.files[0]);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      const { error } = await supabase
+      let avatarUrl = profile.avatar_url; // Preserve existing avatar
+
+      if (avatar) {
+        const fileName = `avatars/${profile.id}-${avatar.name}`;
+        const { data, error } = await supabase.storage
+          .from("avatars")
+          .upload(fileName, avatar, {
+            cacheControl: "3600",
+            upsert: true,
+            contentType: avatar.type,
+          });
+
+        if (error) throw error;
+        avatarUrl = data.publicURL;
+      }
+
+
+      const { error: updateError } = await supabase
         .from("profiles")
         .update({
           name,
@@ -31,11 +55,12 @@ export function ProfileEditor({ profile, onUpdate }: { profile: any; onUpdate: (
           position,
           company,
           location,
+          avatar_url: avatarUrl, // Update avatar URL
           updated_at: new Date().toISOString(),
         })
         .eq("id", profile.id);
 
-      if (error) throw error;
+      if (updateError) throw updateError;
 
       toast({
         title: "Profile updated",
@@ -56,6 +81,10 @@ export function ProfileEditor({ profile, onUpdate }: { profile: any; onUpdate: (
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      <div>
+        <label className="block text-sm font-medium mb-1">Avatar</label>
+        <input type="file" onChange={handleAvatarChange} /> {/* Added avatar input */}
+      </div>
       <div>
         <label className="block text-sm font-medium mb-1">Username</label>
         <Input
