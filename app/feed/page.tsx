@@ -202,7 +202,7 @@ export default function FeedPage() {
                 </CardContent>
               </Card>
             )
-          ) : (
+          ) : !session || !user ? (
             <Card className="mb-6">
               <CardContent className="p-6">
                 <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
@@ -217,7 +217,7 @@ export default function FeedPage() {
                 </div>
               </CardContent>
             </Card>
-          )}
+          ) : null}
 
           {/* Posts list */}
           {loading ? (
