@@ -1,4 +1,12 @@
 
+-- Drop existing tables and views
+DROP VIEW IF EXISTS articles_with_author CASCADE;
+DROP TABLE IF EXISTS bookmarks CASCADE;
+DROP TABLE IF EXISTS article_likes CASCADE;
+DROP TABLE IF EXISTS article_tags CASCADE;
+DROP TABLE IF EXISTS tags CASCADE;
+DROP TABLE IF EXISTS articles CASCADE;
+
 -- Create articles table
 CREATE TABLE IF NOT EXISTS articles (
   id UUID DEFAULT extensions.uuid_generate_v4() PRIMARY KEY,
@@ -45,20 +53,31 @@ CREATE TABLE IF NOT EXISTS bookmarks (
   PRIMARY KEY (article_id, user_id)
 );
 
--- Create RLS policies
+-- Create view for articles with author info
+CREATE OR REPLACE VIEW articles_with_author AS
+SELECT 
+    articles.*,
+    profiles.full_name,
+    profiles.avatar_url
+FROM 
+    articles
+    LEFT JOIN auth.users ON articles.author_id = auth.users.id
+    LEFT JOIN profiles ON auth.users.id = profiles.id;
+
+-- Enable RLS
 ALTER TABLE articles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE tags ENABLE ROW LEVEL SECURITY;
 ALTER TABLE article_tags ENABLE ROW LEVEL SECURITY;
 ALTER TABLE article_likes ENABLE ROW LEVEL SECURITY;
 ALTER TABLE bookmarks ENABLE ROW LEVEL SECURITY;
 
--- Drop existing articles policies
+-- Drop existing policies
 DROP POLICY IF EXISTS "Public articles are viewable by everyone" ON articles;
 DROP POLICY IF EXISTS "Users can create articles" ON articles;
 DROP POLICY IF EXISTS "Users can update own articles" ON articles;
 DROP POLICY IF EXISTS "Users can delete own articles" ON articles;
 
--- Articles policies
+-- Create policies
 CREATE POLICY "Public articles are viewable by everyone"
 ON articles FOR SELECT
 USING (published = true);
@@ -130,6 +149,9 @@ FOR ALL
 TO authenticated
 USING (user_id = auth.uid());
 
+-- Grant access to the view
+GRANT SELECT ON articles_with_author TO anon, authenticated;
+
 -- Create functions
 CREATE OR REPLACE FUNCTION increment_article_views(article_id UUID)
 RETURNS void AS $$
@@ -139,3 +161,6 @@ BEGIN
   WHERE id = article_id;
 END;
 $$ LANGUAGE plpgsql;
+
+-- Refresh the schema cache
+NOTIFY pgrst, 'reload schema';
