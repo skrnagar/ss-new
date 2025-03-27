@@ -1,24 +1,37 @@
 
-import { createLegacyClient } from "@/lib/supabase-server";
+"use client";
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import { createClient } from "@/lib/supabase";
 
-export default async function ArticlesPage() {
-  const supabase = createLegacyClient();
-  const { data: articles } = await supabase
-    .from("articles")
-    .select(`
-      *,
-      profiles:author_id (
-        full_name,
-        avatar_url
-      )
-    `)
-    .eq("published", true)
-    .order("published_at", { ascending: false });
+export default function ArticlesPage() {
+  const [articles, setArticles] = useState([]);
+  const supabase = createClient();
+
+  useEffect(() => {
+    async function fetchArticles() {
+      const { data } = await supabase
+        .from("articles")
+        .select(`
+          *,
+          profiles:author_id (
+            full_name,
+            avatar_url
+          )
+        `)
+        .eq("published", true)
+        .order("published_at", { ascending: false });
+
+      if (data) setArticles(data);
+    }
+
+    fetchArticles();
+  }, []);
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
@@ -31,7 +44,6 @@ export default async function ArticlesPage() {
           </Link>
         </Button>
       </div>
-
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {articles?.map((article) => (
           <Link 
