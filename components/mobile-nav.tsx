@@ -53,12 +53,23 @@ export function MobileNav() {
           const Icon = item.icon;
           const isActive = item.isActive(pathname);
           
-          return (
-            {item.label === "Post" ? (
-              <button
-                key={item.label}
-                onClick={() => setPostDialogOpen(true)}
-                className={cn(
+          return item.label === "Post" ? (
+            <button
+              key={item.label}
+              onClick={() => setPostDialogOpen(true)}
+              className={cn(
+                "flex flex-col items-center justify-center relative",
+                isActive ? "text-primary" : "text-gray-500 hover:text-primary"
+              )}
+            >
+              <Icon className="w-5 h-5" />
+              <span className="text-xs mt-1">{item.label}</span>
+            </button>
+          ) : (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={cn(
                 "flex flex-col items-center justify-center relative",
                 isActive ? "text-primary" : "text-gray-500 hover:text-primary"
               )}
