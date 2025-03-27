@@ -7,14 +7,14 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useState } from "react";
 import { PostDialog } from "./post-dialog";
+import { Button } from "./ui/button";
 
 export function MobileNav() {
   const router = useRouter();
   const pathname = usePathname();
   const [postDialogOpen, setPostDialogOpen] = useState(false);
 
-  const handlePostClick = (e: React.MouseEvent) => {
-    e.preventDefault();
+  const handlePostClick = () => {
     setPostDialogOpen(true);
   };
 
@@ -59,14 +59,15 @@ export function MobileNav() {
           const isActive = item.isActive(pathname);
           
           return item.label === "Post" ? (
-            <button
+            <Button
               key={item.label}
+              variant="ghost"
               onClick={handlePostClick}
-              className="flex flex-col items-center justify-center relative text-gray-500 hover:text-primary"
+              className="flex flex-col items-center justify-center h-auto w-full relative text-gray-500 hover:text-primary"
             >
               <Icon className="w-5 h-5" />
               <span className="text-xs mt-1">{item.label}</span>
-            </button>
+            </Button>
           ) : (
             <Link
               key={item.href}
