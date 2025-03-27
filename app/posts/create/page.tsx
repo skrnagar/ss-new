@@ -42,7 +42,7 @@ export default function CreatePostPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-white"> {/* Changed background color here */}
       <div className="container max-w-3xl px-4 py-6">
         <div className="flex items-center gap-3 mb-6">
           <Avatar className="h-12 w-12">
