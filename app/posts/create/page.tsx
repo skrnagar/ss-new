@@ -1,12 +1,12 @@
 
 "use client";
 
-import { X } from "lucide-react";
+import { X, Image as ImageIcon, AtSign, Hash } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/contexts/auth-context";
-import { PostCreator } from "@/components/post-creator";
 
 export default function CreatePostPage() {
   const router = useRouter();
@@ -23,26 +23,21 @@ export default function CreatePostPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="border-b">
-        <div className="flex items-center justify-between p-4">
-          <Button 
-            variant="ghost" 
-            size="icon"
-            onClick={() => router.push("/feed")}
-          >
-            <X className="h-5 w-5" />
+    <div className="min-h-screen bg-white">
+      {/* Header */}
+      <div className="flex items-center justify-between p-4 border-b">
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="icon" onClick={() => router.back()}>
+            <X className="h-6 w-6" />
           </Button>
-          <h1 className="text-lg font-medium">Share</h1>
-          <Button 
-            variant="ghost" 
-            className="invisible" // For alignment
-          >
-            <X className="h-5 w-5" />
-          </Button>
+          <h1 className="text-xl font-semibold">Share</h1>
         </div>
+        <Button variant="secondary" className="rounded-full px-6">
+          Post
+        </Button>
       </div>
-      
+
+      {/* Content */}
       <div className="p-4">
         <div className="flex items-start gap-3 mb-4">
           <Avatar className="h-10 w-10">
@@ -52,15 +47,34 @@ export default function CreatePostPage() {
             />
             <AvatarFallback>{getInitials(profile?.full_name || "")}</AvatarFallback>
           </Avatar>
-          <div>
-            <p className="font-medium">{profile?.full_name || "User"}</p>
-            <Button variant="outline" size="sm" className="mt-1 text-xs">
-              Public
-            </Button>
+          <div className="flex-1">
+            <div className="flex items-center gap-2 mb-1">
+              <span className="font-semibold">{profile?.full_name}</span>
+              <Button variant="outline" size="sm" className="h-6 text-xs rounded-full">
+                Public
+              </Button>
+            </div>
+            <Textarea 
+              placeholder="Share your thoughts. Add photos or hashtags."
+              className="min-h-[200px] resize-none border-none shadow-none focus-visible:ring-0 p-0 text-base"
+            />
           </div>
         </div>
+      </div>
 
-        <PostCreator isDialog={false} />
+      {/* Bottom Icons */}
+      <div className="absolute bottom-0 left-0 right-0 p-4 border-t bg-white">
+        <div className="flex gap-6">
+          <Button variant="ghost" size="icon" className="h-8 w-8">
+            <ImageIcon className="h-6 w-6" />
+          </Button>
+          <Button variant="ghost" size="icon" className="h-8 w-8">
+            <AtSign className="h-6 w-6" />
+          </Button>
+          <Button variant="ghost" size="icon" className="h-8 w-8">
+            <Hash className="h-6 w-6" />
+          </Button>
+        </div>
       </div>
     </div>
   );
