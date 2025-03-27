@@ -2,7 +2,7 @@
 "use client";
 
 import { useRouter, usePathname } from "next/navigation";
-import { Home, Users, PlusSquare, BookOpen, GraduationCap } from "lucide-react";
+import { Home, Users, PlusSquare, Bell, Briefcase } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function MobileNav() {
@@ -13,27 +13,33 @@ export function MobileNav() {
     {
       label: "Home",
       href: "/feed",
-      icon: Home
+      icon: Home,
+      isActive: (path: string) => path === "/feed"
     },
     {
-      label: "Network",
+      label: "My Network",
       href: "/network",
-      icon: Users
+      icon: Users,
+      isActive: (path: string) => path.startsWith("/network")
     },
     {
       label: "Post",
       href: "/posts/create",
-      icon: PlusSquare
+      icon: PlusSquare,
+      isActive: (path: string) => path.startsWith("/posts/create")
     },
     {
-      label: "Knowledge",
-      href: "/knowledge",
-      icon: BookOpen
+      label: "Notifications",
+      href: "/notifications",
+      icon: Bell,
+      badge: 2,
+      isActive: (path: string) => path === "/notifications"
     },
     {
-      label: "Learning",
-      href: "/learning",
-      icon: GraduationCap
+      label: "Jobs",
+      href: "/jobs",
+      icon: Briefcase,
+      isActive: (path: string) => path.startsWith("/jobs")
     }
   ];
 
@@ -42,18 +48,25 @@ export function MobileNav() {
       <div className="grid h-full grid-cols-5">
         {navItems.map((item) => {
           const Icon = item.icon;
-          const isActive = pathname === item.href;
+          const isActive = item.isActive(pathname);
           
           return (
             <button
               key={item.href}
               onClick={() => router.push(item.href)}
               className={cn(
-                "flex flex-col items-center justify-center",
-                isActive && "text-primary"
+                "flex flex-col items-center justify-center relative",
+                isActive ? "text-primary" : "text-gray-500 hover:text-primary"
               )}
             >
-              <Icon className="w-6 h-6" />
+              <div className="relative">
+                <Icon className="w-5 h-5" />
+                {item.badge && (
+                  <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
+                    {item.badge}
+                  </span>
+                )}
+              </div>
               <span className="text-xs mt-1">{item.label}</span>
             </button>
           );
