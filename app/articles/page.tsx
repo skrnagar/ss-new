@@ -2,6 +2,8 @@
 import { createLegacyClient } from "@/lib/supabase-server";
 import Link from "next/link";
 import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
 
 export default async function ArticlesPage() {
   const supabase = createLegacyClient();
@@ -13,7 +15,16 @@ export default async function ArticlesPage() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8">Articles</h1>
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold">Articles</h1>
+        <Button asChild>
+          <Link href="/articles/create">
+            <Plus className="h-4 w-4 mr-2" />
+            Write Article
+          </Link>
+        </Button>
+      </div>
+
       <div className="grid gap-8">
         {articles?.map((article) => (
           <article key={article.id} className="group">
