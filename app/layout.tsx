@@ -6,6 +6,7 @@ import type { Metadata } from "next";
 import dynamic from "next/dynamic";
 import { Manrope, Poppins } from "next/font/google";
 import { Home, Users, PlusSquare, BookOpen, GraduationCap } from "lucide-react";
+import Link from "next/link";
 import { Suspense } from "react";
 
 // Dynamically import Navbar with Suspense
@@ -60,25 +61,35 @@ const MobileNav = () => {
   return (
     <nav className="bg-white fixed bottom-0 w-full border-t md:hidden">
       <ul className="flex justify-around p-2">
-        <li className="flex flex-col items-center">
-          <Home className="w-5 h-5 mb-1" />
-          <span className="text-xs">Home</span>
+        <li>
+          <Link href="/feed" className="flex flex-col items-center text-gray-500 hover:text-primary">
+            <Home className="w-5 h-5 mb-1" />
+            <span className="text-xs">Home</span>
+          </Link>
         </li>
-        <li className="flex flex-col items-center">
-          <Users className="w-5 h-5 mb-1" />
-          <span className="text-xs">Network</span>
+        <li>
+          <Link href="/network" className="flex flex-col items-center text-gray-500 hover:text-primary">
+            <Users className="w-5 h-5 mb-1" />
+            <span className="text-xs">Network</span>
+          </Link>
         </li>
-        <li className="flex flex-col items-center">
-          <PlusSquare className="w-5 h-5 mb-1" />
-          <span className="text-xs">Post</span>
+        <li>
+          <Link href="/posts/create" className="flex flex-col items-center text-gray-500 hover:text-primary">
+            <PlusSquare className="w-5 h-5 mb-1" />
+            <span className="text-xs">Post</span>
+          </Link>
         </li>
-        <li className="flex flex-col items-center">
-          <BookOpen className="w-5 h-5 mb-1" />
-          <span className="text-xs">Knowledge</span>
+        <li>
+          <Link href="/knowledge" className="flex flex-col items-center text-gray-500 hover:text-primary">
+            <BookOpen className="w-5 h-5 mb-1" />
+            <span className="text-xs">Knowledge</span>
+          </Link>
         </li>
-        <li className="flex flex-col items-center">
-          <GraduationCap className="w-5 h-5 mb-1" />
-          <span className="text-xs">Learning</span>
+        <li>
+          <Link href="/learning" className="flex flex-col items-center text-gray-500 hover:text-primary">
+            <GraduationCap className="w-5 h-5 mb-1" />
+            <span className="text-xs">Learning</span>
+          </Link>
         </li>
       </ul>
     </nav>
