@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -42,98 +41,56 @@ export default function CreatePostPage() {
     }, 100);
   };
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
     if (!file) return;
-
-    if (file.size > 10 * 1024 * 1024) {
-      toast({
-        title: "File too large",
-        description: "Please select a file smaller than 10MB",
-        variant: "destructive",
-      });
-      return;
-    }
 
     setAttachmentFile(file);
 
     if (attachmentType === "image") {
       const reader = new FileReader();
-      reader.onload = (e) => {
-        setAttachmentPreview(e.target?.result as string);
+      reader.onloadend = () => {
+        setAttachmentPreview(reader.result as string);
       };
       reader.readAsDataURL(file);
-    } else {
-      setAttachmentPreview(file.name);
-    }
-  };
-
-  const clearAttachment = () => {
-    setAttachmentFile(null);
-    setAttachmentPreview(null);
-    setAttachmentType(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
     }
   };
 
   const handleSubmit = async () => {
-    if (!content.trim() && !attachmentFile) {
-      toast({
-        title: "Empty post",
-        description: "Please add some text or an attachment to your post",
-        variant: "destructive",
-      });
-      return;
-    }
+    if (!content.trim() && !attachmentFile) return;
 
     setIsSubmitting(true);
 
     try {
-      let imageUrl = null;
-      let videoUrl = null;
-      let documentUrl = null;
+      let attachmentUrl = null;
 
       if (attachmentFile) {
         const fileExt = attachmentFile.name.split(".").pop();
-        const fileName = `${profile?.id || "user"}-${Date.now()}.${fileExt}`;
-        let bucket = "";
-
-        if (attachmentType === "image") bucket = "post-images";
-        else if (attachmentType === "video") bucket = "post-videos";
-        else if (attachmentType === "document") bucket = "post-documents";
-
-        const { data: uploadData, error: uploadError } = await supabase.storage
-          .from(bucket)
-          .upload(fileName, attachmentFile, {
-            cacheControl: "3600",
-            upsert: false,
-          });
+        const fileName = `${Math.random()}.${fileExt}`;
+        const { error: uploadError, data } = await supabase.storage
+          .from("attachments")
+          .upload(fileName, attachmentFile);
 
         if (uploadError) throw uploadError;
 
-        const { data: { publicUrl } } = supabase.storage.from(bucket).getPublicUrl(fileName);
+        const {
+          data: { publicUrl },
+        } = supabase.storage.from("attachments").getPublicUrl(fileName);
 
-        if (attachmentType === "image") imageUrl = publicUrl;
-        else if (attachmentType === "video") videoUrl = publicUrl;
-        else if (attachmentType === "document") documentUrl = publicUrl;
+        attachmentUrl = publicUrl;
       }
 
-      const { error: postError } = await supabase
-        .from("posts")
-        .insert({
-          user_id: profile?.id,
-          content: content.trim(),
-          image_url: imageUrl,
-          video_url: videoUrl,
-          document_url: documentUrl,
-        });
+      const { error: postError } = await supabase.from("posts").insert({
+        content,
+        author_id: profile?.id,
+        attachment_url: attachmentUrl,
+        attachment_type: attachmentType,
+      });
 
       if (postError) throw postError;
 
       toast({
-        title: "Post created",
-        description: "Your post has been published successfully",
+        title: "Post created successfully",
       });
 
       router.push("/feed");
@@ -151,85 +108,81 @@ export default function CreatePostPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="flex flex-col h-screen">
-        {/* Top bar */}
-        <div className="flex items-center justify-between p-4 border-b">
-          <button onClick={() => router.back()} className="p-2">
-            <X className="h-6 w-6" />
-          </button>
-          <h1 className="text-xl font-semibold">Share</h1>
-          <Button
-            variant="default"
-            size="sm"
-            className="rounded-full px-6"
-            onClick={handleSubmit}
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? (
-              <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Posting...
-              </>
-            ) : (
-              "Post"
-            )}
-          </Button>
+    <div className="min-h-screen bg-background flex flex-col">
+      {/* Top bar */}
+      <div className="flex items-center justify-between p-4 border-b bg-white">
+        <button onClick={() => router.back()} className="p-2">
+          <X className="h-6 w-6" />
+        </button>
+        <Button
+          variant="default"
+          size="sm"
+          className="rounded-full px-6"
+          onClick={handleSubmit}
+          disabled={isSubmitting || (!content.trim() && !attachmentFile)}
+        >
+          {isSubmitting ? (
+            <>
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              Posting...
+            </>
+          ) : (
+            "Post"
+          )}
+        </Button>
+      </div>
+
+      {/* Content area */}
+      <div className="flex-1 p-4">
+        <div className="flex items-start gap-3 mb-4">
+          <Avatar className="h-10 w-10">
+            <AvatarImage src={profile?.avatar_url || ""} alt={profile?.full_name || "User"} />
+            <AvatarFallback>{getInitials(profile?.full_name || "")}</AvatarFallback>
+          </Avatar>
+          <Textarea
+            placeholder="What's on your mind?"
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            className="flex-1 resize-none border-0 focus-visible:ring-0 p-0 text-lg"
+            rows={5}
+          />
         </div>
 
-        {/* Content area */}
-        <div className="flex-1 p-4 overflow-y-auto">
-          <div className="flex items-start gap-3">
-            <Avatar className="h-10 w-10">
-              <AvatarImage src={profile?.avatar_url || ""} alt={profile?.full_name || "User"} />
-              <AvatarFallback>{getInitials(profile?.full_name || "")}</AvatarFallback>
-            </Avatar>
-            
-            <div className="flex-1">
-              <Textarea
-                placeholder={`What's on your mind, ${profile?.full_name?.split(" ")[0] || "User"}?`}
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                className="min-h-[150px] resize-none border-none shadow-none text-base focus-visible:ring-0 p-0"
-              />
-
-              {attachmentPreview && (
-                <div className="relative mt-4 rounded-md border p-3">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="absolute top-2 right-2 h-6 w-6 rounded-full bg-background/80"
-                    onClick={clearAttachment}
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-
-                  {attachmentType === "image" ? (
-                    <div className="relative aspect-video max-h-[300px] overflow-hidden rounded-md">
-                      <img
-                        src={attachmentPreview}
-                        alt="Preview"
-                        className="object-contain w-full h-full"
-                      />
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      {attachmentType === "video" ? (
-                        <Video className="h-4 w-4" />
-                      ) : (
-                        <FileText className="h-4 w-4" />
-                      )}
-                      <span>{attachmentPreview}</span>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
+        {attachmentPreview && (
+          <div className="relative mb-4">
+            <img src={attachmentPreview} alt="Preview" className="rounded-lg max-h-[300px] w-auto" />
+            <Button
+              variant="destructive"
+              size="icon"
+              className="absolute top-2 right-2"
+              onClick={() => {
+                setAttachmentFile(null);
+                setAttachmentPreview(null);
+                setAttachmentType(null);
+              }}
+            >
+              <X className="h-4 w-4" />
+            </Button>
           </div>
-        </div>
+        )}
+      </div>
 
-        {/* Bottom attachment toolbar */}
-        <div className="border-t p-2 flex items-center gap-2">
+      {/* Bottom toolbar */}
+      <div className="border-t bg-white p-4">
+        <div className="flex gap-4">
+          <input
+            type="file"
+            ref={fileInputRef}
+            className="hidden"
+            accept={
+              attachmentType === "image"
+                ? "image/*"
+                : attachmentType === "video"
+                ? "video/*"
+                : "application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            }
+            onChange={handleFileChange}
+          />
           <Button
             variant="ghost"
             size="icon"
@@ -254,20 +207,6 @@ export default function CreatePostPage() {
           >
             <FileText className="h-6 w-6" />
           </Button>
-
-          <input
-            type="file"
-            ref={fileInputRef}
-            className="hidden"
-            onChange={handleFileChange}
-            accept={
-              attachmentType === "image"
-                ? "image/*"
-                : attachmentType === "video"
-                  ? "video/*"
-                  : ".pdf,.doc,.docx,.txt"
-            }
-          />
         </div>
       </div>
     </div>
