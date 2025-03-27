@@ -185,9 +185,9 @@ export default function FeedPage() {
   }, [router]);
 
   return (
-    <div className="container py-8">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div className="md:col-span-2 space-y-6">
+    <div className="container py-8 min-h-screen flex flex-col">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 flex-grow">
+        <div className="md:col-span-2 space-y-6 mx-auto w-full max-w-2xl">
           {/* Post Trigger */}
           <PostTrigger />
 
