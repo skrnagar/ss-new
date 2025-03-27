@@ -5,10 +5,13 @@ import { useRouter, usePathname } from "next/navigation";
 import { Home, Users, PlusSquare, BookOpen, GraduationCap } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { useState } from "react";
+import { PostDialog } from "./post-dialog";
 
 export function MobileNav() {
   const router = useRouter();
   const pathname = usePathname();
+  const [postDialogOpen, setPostDialogOpen] = useState(false);
 
   const navItems = [
     {
@@ -51,10 +54,11 @@ export function MobileNav() {
           const isActive = item.isActive(pathname);
           
           return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={cn(
+            {item.label === "Post" ? (
+              <button
+                key={item.label}
+                onClick={() => setPostDialogOpen(true)}
+                className={cn(
                 "flex flex-col items-center justify-center relative",
                 isActive ? "text-primary" : "text-gray-500 hover:text-primary"
               )}
@@ -65,6 +69,7 @@ export function MobileNav() {
           );
         })}
       </div>
+      <PostDialog open={postDialogOpen} onOpenChange={setPostDialogOpen} />
     </div>
   );
 }

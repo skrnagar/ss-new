@@ -24,10 +24,12 @@ type Profile = {
 
 export function PostCreator({ 
   userProfile,
-  isLoading = false 
+  isLoading = false,
+  isDialog = false
 }: { 
   userProfile?: Profile | null;
   isLoading?: boolean;
+  isDialog?: boolean;
 }) {
   const { user, profile: authProfile } = useAuth();
   const activeProfile = userProfile || authProfile;
