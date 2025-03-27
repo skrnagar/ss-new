@@ -1,4 +1,3 @@
-
 -- Drop existing tables and views
 DROP VIEW IF EXISTS articles_with_author CASCADE;
 DROP TABLE IF EXISTS bookmarks CASCADE;
@@ -30,14 +29,13 @@ CREATE TABLE IF NOT EXISTS tags (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Create article_tags junction table
+-- Create junction tables
 CREATE TABLE IF NOT EXISTS article_tags (
   article_id UUID REFERENCES articles(id) ON DELETE CASCADE,
   tag_id UUID REFERENCES tags(id) ON DELETE CASCADE,
   PRIMARY KEY (article_id, tag_id)
 );
 
--- Create article_likes table
 CREATE TABLE IF NOT EXISTS article_likes (
   article_id UUID REFERENCES articles(id) ON DELETE CASCADE,
   user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -45,7 +43,6 @@ CREATE TABLE IF NOT EXISTS article_likes (
   PRIMARY KEY (article_id, user_id)
 );
 
--- Create bookmarks table
 CREATE TABLE IF NOT EXISTS bookmarks (
   article_id UUID REFERENCES articles(id) ON DELETE CASCADE,
   user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -53,16 +50,17 @@ CREATE TABLE IF NOT EXISTS bookmarks (
   PRIMARY KEY (article_id, user_id)
 );
 
--- Create view for articles with author info
-CREATE OR REPLACE VIEW articles_with_author AS
+-- Create view to join articles with author profiles
+CREATE OR REPLACE VIEW public.articles_with_profiles AS
 SELECT 
-    articles.*,
-    profiles.full_name,
-    profiles.avatar_url
+  articles.*,
+  profiles.id as profile_id,
+  profiles.full_name,
+  profiles.avatar_url
 FROM 
-    articles
-    LEFT JOIN auth.users ON articles.author_id = auth.users.id
-    LEFT JOIN profiles ON auth.users.id = profiles.id;
+  articles
+  LEFT JOIN auth.users ON articles.author_id = auth.users.id
+  LEFT JOIN profiles ON auth.users.id = profiles.id;
 
 -- Enable RLS
 ALTER TABLE articles ENABLE ROW LEVEL SECURITY;
@@ -70,12 +68,6 @@ ALTER TABLE tags ENABLE ROW LEVEL SECURITY;
 ALTER TABLE article_tags ENABLE ROW LEVEL SECURITY;
 ALTER TABLE article_likes ENABLE ROW LEVEL SECURITY;
 ALTER TABLE bookmarks ENABLE ROW LEVEL SECURITY;
-
--- Drop existing policies
-DROP POLICY IF EXISTS "Public articles are viewable by everyone" ON articles;
-DROP POLICY IF EXISTS "Users can create articles" ON articles;
-DROP POLICY IF EXISTS "Users can update own articles" ON articles;
-DROP POLICY IF EXISTS "Users can delete own articles" ON articles;
 
 -- Create policies
 CREATE POLICY "Public articles are viewable by everyone"
@@ -85,82 +77,20 @@ USING (published = true);
 CREATE POLICY "Users can create articles"
 ON articles FOR INSERT
 TO authenticated
-WITH CHECK (true);
+WITH CHECK (auth.uid() = author_id);
 
 CREATE POLICY "Users can update own articles"
 ON articles FOR UPDATE
 TO authenticated
-USING (auth.uid() = author_id)
-WITH CHECK (auth.uid() = author_id);
+USING (auth.uid() = author_id);
 
 CREATE POLICY "Users can delete own articles"
 ON articles FOR DELETE
 TO authenticated
 USING (auth.uid() = author_id);
 
--- Tags policies
-CREATE POLICY "Tags are viewable by everyone"
-ON tags FOR SELECT
-TO PUBLIC
-USING (true);
+-- Grant access
+GRANT SELECT ON articles_with_profiles TO anon, authenticated;
 
-CREATE POLICY "Authenticated users can create tags"
-ON tags FOR INSERT
-TO authenticated
-WITH CHECK (true);
-
--- Article tags policies
-CREATE POLICY "Article tags are viewable by everyone"
-ON article_tags FOR SELECT
-TO PUBLIC
-USING (true);
-
-CREATE POLICY "Users can manage article tags"
-ON article_tags 
-FOR ALL
-TO authenticated
-USING (EXISTS (
-  SELECT 1 FROM articles 
-  WHERE articles.id = article_tags.article_id 
-  AND articles.author_id = auth.uid()
-));
-
--- Article likes policies
-CREATE POLICY "Article likes are viewable by everyone"
-ON article_likes FOR SELECT
-TO PUBLIC
-USING (true);
-
-CREATE POLICY "Authenticated users can manage their likes"
-ON article_likes
-FOR ALL
-TO authenticated
-USING (user_id = auth.uid());
-
--- Bookmarks policies
-CREATE POLICY "Users can view their own bookmarks"
-ON bookmarks FOR SELECT
-TO authenticated
-USING (user_id = auth.uid());
-
-CREATE POLICY "Users can manage their bookmarks"
-ON bookmarks
-FOR ALL
-TO authenticated
-USING (user_id = auth.uid());
-
--- Grant access to the view
-GRANT SELECT ON articles_with_author TO anon, authenticated;
-
--- Create functions
-CREATE OR REPLACE FUNCTION increment_article_views(article_id UUID)
-RETURNS void AS $$
-BEGIN
-  UPDATE articles
-  SET views = views + 1
-  WHERE id = article_id;
-END;
-$$ LANGUAGE plpgsql;
-
--- Refresh the schema cache
+-- Refresh PostgREST schema cache
 NOTIFY pgrst, 'reload schema';
