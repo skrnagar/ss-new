@@ -5,6 +5,7 @@ import { AuthProvider } from "@/contexts/auth-context";
 import type { Metadata } from "next";
 import dynamic from "next/dynamic";
 import { Manrope, Poppins } from "next/font/google";
+import { Home, Users, PlusSquare, BookOpen, GraduationCap } from "lucide-react";
 import { Suspense } from "react";
 
 // Dynamically import Navbar with Suspense
@@ -57,13 +58,28 @@ export const metadata: Metadata = {
 //New MobileNav Component
 const MobileNav = () => {
   return (
-    <nav className="bg-gray-100 fixed bottom-0 w-full border-t">
+    <nav className="bg-white fixed bottom-0 w-full border-t md:hidden">
       <ul className="flex justify-around p-2">
-        <li>Home</li>
-        <li>Network</li>
-        <li>Post</li>
-        <li>Knowledge</li>
-        <li>Learning</li>
+        <li className="flex flex-col items-center">
+          <Home className="w-5 h-5 mb-1" />
+          <span className="text-xs">Home</span>
+        </li>
+        <li className="flex flex-col items-center">
+          <Users className="w-5 h-5 mb-1" />
+          <span className="text-xs">Network</span>
+        </li>
+        <li className="flex flex-col items-center">
+          <PlusSquare className="w-5 h-5 mb-1" />
+          <span className="text-xs">Post</span>
+        </li>
+        <li className="flex flex-col items-center">
+          <BookOpen className="w-5 h-5 mb-1" />
+          <span className="text-xs">Knowledge</span>
+        </li>
+        <li className="flex flex-col items-center">
+          <GraduationCap className="w-5 h-5 mb-1" />
+          <span className="text-xs">Learning</span>
+        </li>
       </ul>
     </nav>
   );
