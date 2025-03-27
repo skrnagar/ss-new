@@ -19,6 +19,10 @@ export function Footer() {
                 <Link
                   href="/about"
                   className="text-muted-foreground hover:text-primary transition-colors duration-200"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    router.push('/about');
+                  }}
                 >
                   About Us
                 </Link>
