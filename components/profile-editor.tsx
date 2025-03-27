@@ -45,7 +45,7 @@ export function ProfileEditor({ profile, onUpdate }: { profile: any; onUpdate: (
           .upload(fileName, avatar, {
             cacheControl: "3600",
             upsert: true,
-            contentType: contentType
+            contentType: avatar.type || 'image/jpeg' // Use file's actual type or fallback
           });
 
         if (uploadError) throw uploadError;

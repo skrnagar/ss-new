@@ -180,6 +180,7 @@ export function PostCreator({
           .upload(fileName, attachmentFile, {
             cacheControl: "3600",
             upsert: false,
+            contentType: attachmentFile.type // Preserve original file type
           });
 
         if (uploadError) {
