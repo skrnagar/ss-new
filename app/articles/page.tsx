@@ -18,14 +18,8 @@ export default function ArticlesPage() {
     async function fetchArticles() {
       try {
         const { data, error } = await supabase
-          .from("articles")
-          .select(`
-            *,
-            profiles:author_id (
-              full_name,
-              avatar_url
-            )
-          `)
+          .from("articles_with_author")
+          .select("*")
           .eq("published", true)
           .order("published_at", { ascending: false });
 
