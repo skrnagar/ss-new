@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useRouter, usePathname } from "next/navigation";
@@ -48,7 +47,7 @@ export function MobileNav() {
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = item.isActive(pathname);
-          
+
           return (
             <button
               key={item.href}
