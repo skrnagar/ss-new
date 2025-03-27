@@ -2,7 +2,7 @@
 "use client";
 
 import { useRouter, usePathname } from "next/navigation";
-import { Home, Users, PlusSquare, Bell, Briefcase } from "lucide-react";
+import { Home, Users, PlusSquare, BookOpen, GraduationCap } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function MobileNav() {
@@ -17,7 +17,7 @@ export function MobileNav() {
       isActive: (path: string) => path === "/feed"
     },
     {
-      label: "My Network",
+      label: "Network",
       href: "/network",
       icon: Users,
       isActive: (path: string) => path.startsWith("/network")
@@ -29,17 +29,16 @@ export function MobileNav() {
       isActive: (path: string) => path.startsWith("/posts/create")
     },
     {
-      label: "Notifications",
-      href: "/notifications",
-      icon: Bell,
-      badge: 2,
-      isActive: (path: string) => path === "/notifications"
+      label: "Knowledge",
+      href: "/knowledge",
+      icon: BookOpen,
+      isActive: (path: string) => path.startsWith("/knowledge")
     },
     {
-      label: "Jobs",
-      href: "/jobs",
-      icon: Briefcase,
-      isActive: (path: string) => path.startsWith("/jobs")
+      label: "Learning",
+      href: "/learning",
+      icon: GraduationCap,
+      isActive: (path: string) => path.startsWith("/learning")
     }
   ];
 
@@ -55,19 +54,12 @@ export function MobileNav() {
               key={item.href}
               onClick={() => router.push(item.href)}
               className={cn(
-                "flex flex-col items-center justify-center relative",
+                "flex flex-col items-center justify-center",
                 isActive ? "text-primary" : "text-gray-500 hover:text-primary"
               )}
             >
-              <div className="relative">
-                <Icon className="w-6 h-6" />
-                {item.badge && (
-                  <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
-                    {item.badge}
-                  </span>
-                )}
-              </div>
-              <span className="text-xs mt-1">{item.label}</span>
+              <Icon className="w-5 h-5 mb-1" />
+              <span className="text-xs">{item.label}</span>
             </button>
           );
         })}
