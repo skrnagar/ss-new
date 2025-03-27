@@ -52,6 +52,12 @@ ALTER TABLE article_tags ENABLE ROW LEVEL SECURITY;
 ALTER TABLE article_likes ENABLE ROW LEVEL SECURITY;
 ALTER TABLE bookmarks ENABLE ROW LEVEL SECURITY;
 
+-- Drop existing articles policies
+DROP POLICY IF EXISTS "Public articles are viewable by everyone" ON articles;
+DROP POLICY IF EXISTS "Users can create articles" ON articles;
+DROP POLICY IF EXISTS "Users can update own articles" ON articles;
+DROP POLICY IF EXISTS "Users can delete own articles" ON articles;
+
 -- Articles policies
 CREATE POLICY "Public articles are viewable by everyone"
 ON articles FOR SELECT
