@@ -1,3 +1,4 @@
+
 -- Drop existing tables and views
 DROP VIEW IF EXISTS articles_with_author CASCADE;
 DROP TABLE IF EXISTS bookmarks CASCADE;
@@ -15,7 +16,7 @@ CREATE TABLE IF NOT EXISTS articles (
   excerpt TEXT,
   published BOOLEAN DEFAULT false,
   published_at TIMESTAMPTZ,
-  author_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  author_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW(),
   read_time INTEGER,
@@ -38,29 +39,27 @@ CREATE TABLE IF NOT EXISTS article_tags (
 
 CREATE TABLE IF NOT EXISTS article_likes (
   article_id UUID REFERENCES articles(id) ON DELETE CASCADE,
-  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   PRIMARY KEY (article_id, user_id)
 );
 
 CREATE TABLE IF NOT EXISTS bookmarks (
   article_id UUID REFERENCES articles(id) ON DELETE CASCADE,
-  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   PRIMARY KEY (article_id, user_id)
 );
 
--- Create view to join articles with author profiles
-CREATE OR REPLACE VIEW public.articles_with_profiles AS
+-- Create view for articles with author info
+CREATE OR REPLACE VIEW articles_with_author AS
 SELECT 
-  articles.*,
-  profiles.id as profile_id,
-  profiles.full_name,
-  profiles.avatar_url
+  a.*,
+  p.full_name as author_name,
+  p.avatar_url as author_avatar
 FROM 
-  articles
-  LEFT JOIN auth.users ON articles.author_id = auth.users.id
-  LEFT JOIN profiles ON auth.users.id = profiles.id;
+  articles a
+  LEFT JOIN profiles p ON a.author_id = p.id;
 
 -- Enable RLS
 ALTER TABLE articles ENABLE ROW LEVEL SECURITY;
@@ -90,7 +89,7 @@ TO authenticated
 USING (auth.uid() = author_id);
 
 -- Grant access
-GRANT SELECT ON articles_with_profiles TO anon, authenticated;
+GRANT SELECT ON articles_with_author TO anon, authenticated;
 
 -- Refresh PostgREST schema cache
 NOTIFY pgrst, 'reload schema';
