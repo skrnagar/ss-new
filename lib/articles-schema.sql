@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS articles (
   excerpt TEXT,
   published BOOLEAN DEFAULT false,
   published_at TIMESTAMPTZ,
-  author_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
+  author_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW(),
   read_time INTEGER,
