@@ -28,8 +28,8 @@ export function ArticleEditor({ initialContent = "", initialTitle = "", articleI
 
   useEffect(() => {
     const getUser = async () => {
-      const { data, error } = await supabase.auth.user();
-      if (data) setUser(data);
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (session?.user) setUser(session.user);
       else console.error('Error fetching user:', error);
     };
     getUser();
