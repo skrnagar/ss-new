@@ -7,11 +7,11 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
-import { createClient } from "@/lib/supabase";
+import { supabase } from "@/lib/supabase";
 
 export default function ArticlesPage() {
   const [articles, setArticles] = useState([]);
-  const supabase = createClient();
+  const supabaseClient = supabase;
 
   useEffect(() => {
     async function fetchArticles() {
