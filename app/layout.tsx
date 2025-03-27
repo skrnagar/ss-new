@@ -54,6 +54,22 @@ export const metadata: Metadata = {
   generator: "v0.dev",
 };
 
+//New MobileNav Component
+const MobileNav = () => {
+  return (
+    <nav className="bg-gray-100 fixed bottom-0 w-full border-t">
+      <ul className="flex justify-around p-2">
+        <li>Home</li>
+        <li>Network</li>
+        <li>Post</li>
+        <li>Knowledge</li>
+        <li>Learning</li>
+      </ul>
+    </nav>
+  );
+};
+
+
 export default function RootLayout({
   children,
 }: {
@@ -80,8 +96,11 @@ export default function RootLayout({
             >
               <Navbar />
             </Suspense>
-            <main className="flex-grow">{children}</main>
-            <Footer />
+            <div className="pb-16 md:pb-0"> {/* Added padding to avoid overlap */}
+              <main className="flex-grow">{children}</main>
+              <Footer />
+            </div>
+            <MobileNav />
           </div>
         </AuthProvider>
       </body>
