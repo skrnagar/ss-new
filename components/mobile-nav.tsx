@@ -13,6 +13,11 @@ export function MobileNav() {
   const pathname = usePathname();
   const [postDialogOpen, setPostDialogOpen] = useState(false);
 
+  const handlePostClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setPostDialogOpen(true);
+  };
+
   const navItems = [
     {
       label: "Home",
@@ -28,9 +33,9 @@ export function MobileNav() {
     },
     {
       label: "Post",
-      href: "/posts/create",
+      href: "#",
       icon: PlusSquare,
-      isActive: (path: string) => path.startsWith("/posts/create")
+      isActive: (path: string) => false
     },
     {
       label: "Knowledge",
@@ -56,11 +61,8 @@ export function MobileNav() {
           return item.label === "Post" ? (
             <button
               key={item.label}
-              onClick={() => setPostDialogOpen(true)}
-              className={cn(
-                "flex flex-col items-center justify-center relative",
-                isActive ? "text-primary" : "text-gray-500 hover:text-primary"
-              )}
+              onClick={handlePostClick}
+              className="flex flex-col items-center justify-center relative text-gray-500 hover:text-primary"
             >
               <Icon className="w-5 h-5" />
               <span className="text-xs mt-1">{item.label}</span>
