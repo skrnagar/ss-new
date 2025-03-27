@@ -10,7 +10,6 @@ import { PostDialog } from "./post-dialog";
 import { Button } from "./ui/button";
 
 export function MobileNav() {
-  const router = useRouter();
   const pathname = usePathname();
   const [postDialogOpen, setPostDialogOpen] = useState(false);
 
@@ -30,7 +29,7 @@ export function MobileNav() {
     {
       label: "Post",
       icon: PlusSquare,
-      isActive: (path: string) => false,
+      isActive: () => false,
       onClick: () => setPostDialogOpen(true)
     },
     {
@@ -48,42 +47,43 @@ export function MobileNav() {
   ];
 
   return (
-    <div className="fixed bottom-0 left-0 z-50 w-full h-16 bg-white border-t">
-      <div className="grid h-full grid-cols-5">
-        {navItems.map((item) => {
-          const Icon = item.icon;
-          const isActive = item.isActive(pathname);
-          
-          if (item.label === "Post") {
+    <>
+      <div className="fixed bottom-0 left-0 z-50 w-full h-16 bg-white border-t">
+        <div className="grid h-full grid-cols-5">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = item.isActive(pathname);
+            
+            if (item.label === "Post") {
+              return (
+                <button
+                  key={item.label}
+                  onClick={item.onClick}
+                  className="flex flex-col items-center justify-center text-gray-500 hover:text-primary"
+                >
+                  <Icon className="w-5 h-5" />
+                  <span className="text-xs mt-1">{item.label}</span>
+                </button>
+              );
+            }
+
             return (
-              <Button
-                key={item.label}
-                variant="ghost"
-                onClick={item.onClick}
-                className="flex flex-col items-center justify-center h-auto w-full relative text-gray-500 hover:text-primary"
+              <Link
+                key={item.href}
+                href={item.href}
+                className={cn(
+                  "flex flex-col items-center justify-center relative",
+                  isActive ? "text-primary" : "text-gray-500 hover:text-primary"
+                )}
               >
                 <Icon className="w-5 h-5" />
                 <span className="text-xs mt-1">{item.label}</span>
-              </Button>
+              </Link>
             );
-          }
-
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={cn(
-                "flex flex-col items-center justify-center relative",
-                isActive ? "text-primary" : "text-gray-500 hover:text-primary"
-              )}
-            >
-              <Icon className="w-5 h-5" />
-              <span className="text-xs mt-1">{item.label}</span>
-            </Link>
-          );
-        })}
+          })}
+        </div>
       </div>
       <PostDialog open={postDialogOpen} onOpenChange={setPostDialogOpen} />
-    </div>
+    </>
   );
 }
