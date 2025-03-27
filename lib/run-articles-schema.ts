@@ -1,13 +1,12 @@
 
 #!/usr/bin/env node
 
-import fs from "node:fs";
-import path from "node:path";
-import { fileURLToPath } from 'node:url';
 import { createClient } from "@supabase/supabase-js";
+import { readFileSync } from "fs";
+import { dirname, join } from "path";
+import { fileURLToPath } from "url";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
   console.error("Missing Supabase environment variables");
@@ -23,8 +22,8 @@ async function setupArticlesSchema() {
   try {
     console.log("Running articles schema migration...");
 
-    const sqlPath = path.join(process.cwd(), "lib", "articles-schema.sql");
-    const sql = fs.readFileSync(sqlPath, "utf8");
+    const sqlPath = join(__dirname, "articles-schema.sql");
+    const sql = readFileSync(sqlPath, "utf8");
 
     const { error } = await supabaseClient.rpc("exec_sql", { sql_string: sql });
 
