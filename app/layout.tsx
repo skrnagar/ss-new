@@ -123,11 +123,14 @@ export default function RootLayout({
             >
               <Navbar />
             </Suspense>
-            <div className="pb-16 md:pb-0"> {/* Added padding to avoid overlap */}
+            <div className="pb-16 md:pb-0">
               <main className="flex-grow">{children}</main>
               <Footer />
             </div>
-            <MobileNav />
+            {/* Mobile navigation - only visible on mobile devices */}
+            <div className="block md:hidden">
+              <MobileNav />
+            </div>
           </div>
         </AuthProvider>
       </body>
