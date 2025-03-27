@@ -1,3 +1,4 @@
+
 import { createLegacyClient } from "@/lib/supabase-server";
 import Link from "next/link";
 import Image from "next/image";
@@ -52,7 +53,7 @@ export default async function ArticlesPage() {
                   {article.title}
                 </h2>
                 <p className="text-muted-foreground line-clamp-2 mb-4">
-                  {article.description}
+                  {article.excerpt || article.content?.substring(0, 160)}
                 </p>
                 <div className="flex items-center justify-between text-sm text-muted-foreground">
                   <div className="flex items-center">
