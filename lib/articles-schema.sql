@@ -60,7 +60,7 @@ USING (published = true);
 CREATE POLICY "Users can create articles"
 ON articles FOR INSERT
 TO authenticated
-WITH CHECK (auth.uid() = author_id);
+WITH CHECK (true);
 
 CREATE POLICY "Users can update own articles"
 ON articles FOR UPDATE

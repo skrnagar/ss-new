@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEditor, EditorContent } from "@tiptap/react";
@@ -25,6 +24,17 @@ export function ArticleEditor({ initialContent = "", initialTitle = "", articleI
   const [coverImage, setCoverImage] = useState<File | null>(null);
   const { toast } = useToast();
   const router = useRouter();
+  const [user, setUser] = useState(null); // Assuming user object is available
+
+  useEffect(() => {
+    const getUser = async () => {
+      const { data, error } = await supabase.auth.user();
+      if (data) setUser(data);
+      else console.error('Error fetching user:', error);
+    };
+    getUser();
+  }, []);
+
 
   const editor = useEditor({
     extensions: [
@@ -46,11 +56,11 @@ export function ArticleEditor({ initialContent = "", initialTitle = "", articleI
 
   const autosave = useCallback(async () => {
     if (!editor || !title) return;
-    
+
     try {
       setSaving(true);
       const content = editor.getHTML();
-      
+
       if (articleId) {
         const { error } = await supabase
           .from("articles")
@@ -69,6 +79,7 @@ export function ArticleEditor({ initialContent = "", initialTitle = "", articleI
             title,
             content,
             published: false,
+            author_id: user?.id, // Added author_id
           })
           .select()
           .single();
@@ -90,7 +101,7 @@ export function ArticleEditor({ initialContent = "", initialTitle = "", articleI
     } finally {
       setSaving(false);
     }
-  }, [editor, title, articleId, router, toast]);
+  }, [editor, title, articleId, router, toast, user]);
 
   useEffect(() => {
     const saveInterval = setInterval(autosave, 30000);
@@ -100,7 +111,7 @@ export function ArticleEditor({ initialContent = "", initialTitle = "", articleI
   const handlePublish = async () => {
     try {
       setSaving(true);
-      
+
       if (!editor || !title) {
         throw new Error("Please add a title and content");
       }
@@ -109,7 +120,7 @@ export function ArticleEditor({ initialContent = "", initialTitle = "", articleI
       if (coverImage) {
         const fileExt = coverImage.name.split(".").pop();
         const fileName = `${Date.now()}.${fileExt}`;
-        
+
         const { error: uploadError, data } = await supabase.storage
           .from("article-covers")
           .upload(fileName, coverImage);
@@ -146,6 +157,7 @@ export function ArticleEditor({ initialContent = "", initialTitle = "", articleI
             published: true,
             published_at: new Date().toISOString(),
             read_time: readTime,
+            author_id: user?.id, // Added author_id
           });
 
         if (error) throw error;
@@ -155,7 +167,7 @@ export function ArticleEditor({ initialContent = "", initialTitle = "", articleI
         title: "Article published",
         description: "Your article has been published successfully",
       });
-      
+
       router.push("/articles");
     } catch (error) {
       toast({
@@ -182,7 +194,7 @@ export function ArticleEditor({ initialContent = "", initialTitle = "", articleI
           onChange={(e) => setTitle(e.target.value)}
           className="text-4xl font-bold border-none px-0 focus-visible:ring-0"
         />
-        
+
         <div className="mt-4">
           <Input
             type="file"
