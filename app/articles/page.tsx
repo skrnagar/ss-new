@@ -4,12 +4,19 @@ import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
+import { formatDistanceToNow } from "date-fns";
 
 export default async function ArticlesPage() {
   const supabase = createLegacyClient();
   const { data: articles } = await supabase
     .from("articles")
-    .select(`*, author:author_id(name, avatar_url), tags(name)`)
+    .select(`
+      *,
+      profiles:author_id (
+        full_name,
+        avatar_url
+      )
+    `)
     .eq("published", true)
     .order("published_at", { ascending: false });
 
@@ -45,24 +52,23 @@ export default async function ArticlesPage() {
                     {article.title}
                   </h2>
                   <p className="text-muted-foreground mb-4">
-                    {article.excerpt || article.content.substring(0, 160)}...
+                    {article.excerpt || article.content?.substring(0, 160)}...
                   </p>
                   <div className="flex items-center gap-4">
                     <div className="flex items-center gap-2">
                       <Image
-                        src={article.author.avatar_url || "/placeholder-user.jpg"}
-                        alt={article.author.name}
+                        src={article.profiles?.avatar_url || "/placeholder-user.jpg"}
+                        alt={article.profiles?.full_name || "Author"}
                         width={24}
                         height={24}
                         className="rounded-full"
                       />
-                      <span className="text-sm font-medium">{article.author.name}</span>
+                      <span className="text-sm text-muted-foreground">
+                        {article.profiles?.full_name}
+                      </span>
                     </div>
                     <span className="text-sm text-muted-foreground">
-                      {new Date(article.published_at).toLocaleDateString()}
-                    </span>
-                    <span className="text-sm text-muted-foreground">
-                      {article.read_time} min read
+                      {formatDistanceToNow(new Date(article.published_at), { addSuffix: true })}
                     </span>
                   </div>
                 </div>
