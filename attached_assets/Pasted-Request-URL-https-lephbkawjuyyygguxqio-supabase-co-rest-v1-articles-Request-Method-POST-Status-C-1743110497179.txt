@@ -1,0 +1,93 @@
+Request URL:
+https://lephbkawjuyyygguxqio.supabase.co/rest/v1/articles
+Request Method:
+POST
+Status Code:
+403 Forbidden
+Remote Address:
+104.18.38.10:443
+Referrer Policy:
+strict-origin-when-cross-origin
+access-control-allow-origin:
+https://93c00826-6a18-441f-9b3f-00bb5524cdaf-00-bcc8qbkf20da.pike.replit.dev
+access-control-expose-headers:
+Content-Encoding, Content-Location, Content-Range, Content-Type, Date, Location, Server, Transfer-Encoding, Range-Unit
+alt-svc:
+h3=":443"; ma=86400
+cf-cache-status:
+DYNAMIC
+cf-ray:
+9271ee7afc2b84fe-BOM
+content-encoding:
+gzip
+content-type:
+application/json; charset=utf-8
+date:
+Thu, 27 Mar 2025 21:20:24 GMT
+priority:
+u=1,i
+sb-gateway-version:
+1
+sb-project-ref:
+lephbkawjuyyygguxqio
+server:
+cloudflare
+server-timing:
+cfExtPri
+strict-transport-security:
+max-age=31536000; includeSubDomains; preload
+vary:
+Accept-Encoding
+x-content-type-options:
+nosniff
+x-envoy-attempt-count:
+1
+x-envoy-upstream-service-time:
+15
+:authority:
+lephbkawjuyyygguxqio.supabase.co
+:method:
+POST
+:path:
+/rest/v1/articles
+:scheme:
+https
+accept:
+application/json
+accept-encoding:
+gzip, deflate, br, zstd
+accept-language:
+en-GB,en-US;q=0.9,en;q=0.8
+apikey:
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxlcGhia2F3anV5eXlnZ3V4cWlvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjMwNjU4MDMsImV4cCI6MjAzODY0MTgwM30.sKOG1qFK2JyQl6dPJ3Jg7juvHRCOB2GzVLbysdnZiS0
+authorization:
+Bearer eyJhbGciOiJIUzI1NiIsImtpZCI6Ijd0V0NTeXhoWEFlWDNCNjIiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL2xlcGhia2F3anV5eXlnZ3V4cWlvLnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiJlNjI4YTM1NS0zN2M1LTQxZjEtYjdhNy1mZjNmZjVhZTlmMzkiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzQzMTQzMzc5LCJpYXQiOjE3NDMxMDczNzksImVtYWlsIjoidGhlc2tybmFnYXJAZ21haWwuY29tIiwicGhvbmUiOiIiLCJhcHBfbWV0YWRhdGEiOnsicHJvdmlkZXIiOiJlbWFpbCIsInByb3ZpZGVycyI6WyJlbWFpbCIsImdvb2dsZSJdfSwidXNlcl9tZXRhZGF0YSI6eyJhdmF0YXJfdXJsIjoiaHR0cHM6Ly9saDMuZ29vZ2xldXNlcmNvbnRlbnQuY29tL2EvQUNnOG9jSW5kS3N4dFEwRGxNUklQRXJma24tTEtmMHpDd2J0eHpLMDJmOV9aUFRUOFFtVkFBPXM5Ni1jIiwiZW1haWwiOiJ0aGVza3JuYWdhckBnbWFpbC5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiZnVsbF9uYW1lIjoiU3VuaWwgTmFnYXIiLCJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJuYW1lIjoiU3VuaWwgTmFnYXIiLCJwaG9uZV92ZXJpZmllZCI6ZmFsc2UsInBpY3R1cmUiOiJodHRwczovL2xoMy5nb29nbGV1c2VyY29udGVudC5jb20vYS9BQ2c4b2NJbmRLc3h0UTBEbE1SSVBFcmZrbi1MS2YwekN3YnR4ekswMmY5X1pQVFQ4UW1WQUE9czk2LWMiLCJwcm92aWRlcl9pZCI6IjExNDgzMzIxNjc5NzAzMTA2NDc2NiIsInN1YiI6IjExNDgzMzIxNjc5NzAzMTA2NDc2NiJ9LCJyb2xlIjoiYXV0aGVudGljYXRlZCIsImFhbCI6ImFhbDEiLCJhbXIiOlt7Im1ldGhvZCI6Im9hdXRoIiwidGltZXN0YW1wIjoxNzQyNzcyNjY2fV0sInNlc3Npb25faWQiOiIyZDYyZWVkZi1kY2U2LTRiODMtYTQ1YS02NGExZThlYzgwY2IiLCJpc19hbm9ueW1vdXMiOmZhbHNlfQ.4GcuRUx7a6ip6efK4IFcg0e_oXcVcsbB-YOnYwmWlyw
+content-length:
+3236
+content-profile:
+public
+content-type:
+application/json
+origin:
+https://93c00826-6a18-441f-9b3f-00bb5524cdaf-00-bcc8qbkf20da.pike.replit.dev
+prefer:
+priority:
+u=1, i
+referer:
+https://93c00826-6a18-441f-9b3f-00bb5524cdaf-00-bcc8qbkf20da.pike.replit.dev/
+sec-ch-ua:
+"Chromium";v="134", "Not:A-Brand";v="24", "Google Chrome";v="134"
+sec-ch-ua-mobile:
+?0
+sec-ch-ua-platform:
+"macOS"
+sec-fetch-dest:
+empty
+sec-fetch-mode:
+cors
+sec-fetch-site:
+cross-site
+user-agent:
+Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36
+x-client-info:
+@supabase/auth-helpers
