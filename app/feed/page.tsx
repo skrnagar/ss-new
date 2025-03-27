@@ -20,6 +20,8 @@ import { Suspense, useEffect, useState } from "react";
 import { unstable_serialize } from "swr";
 
 // Import dynamically to avoid SSR issues - properly resolving to component functions
+import { PostTrigger } from "@/components/post-trigger";
+
 const PostCreator = dynamic(
   () => import("@/components/post-creator").then((mod) => mod.PostCreator),
   {
