@@ -123,7 +123,10 @@ export function ArticleEditor({ initialContent = "", initialTitle = "", articleI
 
         const { error: uploadError, data } = await supabase.storage
           .from("article-covers")
-          .upload(fileName, coverImage);
+          .upload(fileName, coverImage, {
+            contentType: coverImage.type, // Set the correct MIME type
+            cacheControl: '3600'
+          });
 
         if (uploadError) throw uploadError;
         coverImageUrl = data.path;
