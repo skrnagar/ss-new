@@ -23,6 +23,10 @@ export default function ArticlesPage() {
           .eq("published", true)
           .order("published_at", { ascending: false });
 
+        if (error) {
+          console.error("Error fetching articles:", error);
+        }
+
         if (error) throw error;
         if (data) setArticles(data);
       } catch (error) {
