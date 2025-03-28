@@ -10,9 +10,7 @@ export async function setupStorageBuckets() {
       {
         public: true,
         fileSizeLimit: 10485760, // 10MB
-        allowedMimeTypes: ["image/png", "image/jpeg", "image/gif", "image/webp", "image/svg+xml", "application/pdf"],
-        defaultContentType: "image/png",
-        contentDisposition: "inline"
+        allowedMimeTypes: ["image/png", "image/jpeg", "image/gif", "image/webp", "application/pdf"],
       }
     );
 
