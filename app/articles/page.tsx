@@ -81,7 +81,7 @@ export default function ArticlesPage() {
               <div className="border rounded-lg overflow-hidden hover:shadow-lg transition-shadow">
                 <div className="relative h-48">
                   <Image
-                    src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/article-covers/${article.cover_image}`}
+                    src={article.cover_image ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/article-covers/${article.cover_image}` : "/placeholder.jpg"}
                     alt={article.title}
                     fill
                     className="object-cover"
