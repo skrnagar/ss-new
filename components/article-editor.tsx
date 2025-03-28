@@ -121,15 +121,9 @@ export function ArticleEditor({ initialContent = "", initialTitle = "", articleI
         const fileExt = coverImage.name.split(".").pop();
         const fileName = `${Date.now()}.${fileExt}`;
 
-        // Create blob with correct MIME type
-        const blob = new Blob([coverImage], { type: coverImage.type });
-        
         const { error: uploadError, data } = await supabase.storage
           .from("article-covers")
-          .upload(fileName, blob, {
-            contentType: coverImage.type,
-            cacheControl: '3600'
-          });
+          .upload(fileName, coverImage);
 
         if (uploadError) throw uploadError;
         coverImageUrl = data.path;
