@@ -4,6 +4,34 @@ export async function setupStorageBuckets() {
   console.log("Setting up storage buckets...");
 
   try {
+    // Create article-covers bucket with proper configuration
+    const { data: coversBucket, error: coversBucketError } = await supabase.storage.createBucket(
+      "article-covers",
+      {
+        public: true,
+        fileSizeLimit: 10485760, // 10MB
+        allowedMimeTypes: ["image/png", "image/jpeg", "image/gif", "image/webp"],
+      }
+    );
+
+    if (coversBucketError && coversBucketError.message !== "Bucket already exists") {
+      console.error("Error creating article-covers bucket:", coversBucketError);
+    } else {
+      console.log("article-covers bucket created or already exists");
+    }
+
+    // Update storage policies for article-covers bucket
+    const { error: policyError } = await supabase.storage.updateBucket("article-covers", {
+      public: true,
+      allowedMimeTypes: ["image/png", "image/jpeg", "image/gif", "image/webp"],
+      fileSizeLimit: 10485760,
+    });
+
+    if (policyError) {
+      console.error("Error updating article-covers bucket policy:", policyError);
+    }
+
+
     // Create post-images bucket
     const { data: imagesBucket, error: imagesBucketError } = await supabase.storage.createBucket(
       "post-images",
@@ -55,7 +83,7 @@ export async function setupStorageBuckets() {
     }
 
     // Set public bucket policies for each bucket
-    for (const bucketName of ["post-images", "post-videos", "post-documents"]) {
+    for (const bucketName of ["post-images", "post-videos", "post-documents", "article-covers"]) {
       try {
         await supabase.storage.from(bucketName).getPublicUrl("test");
       } catch (policyError) {
