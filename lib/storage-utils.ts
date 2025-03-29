@@ -1,35 +1,42 @@
 
-import { supabase } from './supabase';
+import { supabase } from './supabase'
 
-export async function uploadMedia(
-  bucket: string,
-  file: File,
-  path: string
-) {
+export async function uploadMedia(file: File, folder: string = '') {
   try {
-    // Convert file to ArrayBuffer to preserve binary data
-    const arrayBuffer = await file.arrayBuffer();
-    const fileBlob = new Blob([arrayBuffer], { type: file.type });
+    const fileExt = file.name.split('.').pop()
+    const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`
+    const filePath = folder ? `${folder}/${fileName}` : fileName
 
-    // Upload options with correct content type handling
-    const fileOptions = {
-      contentType: file.type || 'image/jpeg',
-      cacheControl: '3600',
-      upsert: true
-    };
+    const { error: uploadError } = await supabase.storage
+      .from('media')
+      .upload(filePath, file)
 
-    // Upload blob directly
-    const { data, error } = await supabase.storage
-      .from(bucket)
-      .upload(path, fileBlob, fileOptions);
+    if (uploadError) {
+      throw uploadError
+    }
+
+    const { data: { publicUrl } } = supabase.storage
+      .from('media')
+      .getPublicUrl(filePath)
+
+    return { url: publicUrl, path: filePath }
+  } catch (error) {
+    console.error('Error uploading media:', error)
+    throw error
+  }
+}
+
+export async function deleteMedia(path: string) {
+  try {
+    const { error } = await supabase.storage
+      .from('media')
+      .remove([path])
 
     if (error) {
-      console.error('Upload error:', error);
-      throw error;
+      throw error
     }
-    return data;
   } catch (error) {
-    console.error('Error uploading media:', error);
-    throw error;
+    console.error('Error deleting media:', error)
+    throw error
   }
 }
