@@ -1,5 +1,5 @@
 
-import { supabase } from './supabase'
+import supabase from './supabase'
 
 export async function uploadMedia(file: File, folder: string = '') {
   try {
