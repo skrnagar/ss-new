@@ -9,7 +9,11 @@ export async function uploadMedia(file: File, folder: string = '') {
 
     const { error: uploadError } = await supabase.storage
       .from('media')
-      .upload(filePath, file)
+      .upload(filePath, file, {
+        contentType: file.type, // Explicitly set the content type
+        cacheControl: '3600',
+        upsert: false
+      })
 
     if (uploadError) {
       throw uploadError
