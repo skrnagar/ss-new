@@ -7,21 +7,21 @@ export async function uploadMedia(
   path: string
 ) {
   try {
-    // Define content type based on file extension
-    const contentType = file.type || 'image/jpeg';
-    
+    // Convert file to ArrayBuffer to preserve binary data
+    const arrayBuffer = await file.arrayBuffer();
+    const fileBlob = new Blob([arrayBuffer], { type: file.type });
+
     // Upload options with correct content type handling
     const fileOptions = {
-      contentType,
+      contentType: file.type || 'image/jpeg',
       cacheControl: '3600',
-      upsert: true,
-      formData: true
+      upsert: true
     };
 
-    // Upload directly using the file
+    // Upload blob directly
     const { data, error } = await supabase.storage
       .from(bucket)
-      .upload(path, file, fileOptions);
+      .upload(path, fileBlob, fileOptions);
 
     if (error) {
       console.error('Upload error:', error);
