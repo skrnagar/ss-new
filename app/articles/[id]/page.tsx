@@ -100,25 +100,27 @@ export default function ArticlePage() {
       <article className="mb-12">
         <header className="mb-8">
           <h1 className="text-4xl font-bold mb-4">{article.title}</h1>
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-4 mb-6">
             <div className="flex items-center gap-3">
-              <Image
-                src={article.profiles?.avatar_url || "/placeholder-user.jpg"}
-                alt={article.profiles?.name}
-                width={48}
-                height={48}
-                className="rounded-full"
-              />
-              <div className="flex gap-2 items-center">
-                <div>
-                  <div className="font-medium">{article.profiles?.name}</div>
-                  <div className="text-sm text-gray-500 flex items-center gap-2">
-                    <span>{formatDistanceToNow(new Date(article.published_at), { addSuffix: true })}</span>
-                    <span>·</span>
-                    <span>{article.read_time || "5"} min read</span>
-                  </div>
+              <div className="relative w-12 h-12">
+                <Image
+                  src={article.profiles?.avatar_url || "/placeholder-user.jpg"}
+                  alt={article.profiles?.name}
+                  fill
+                  className="rounded-full object-cover"
+                  sizes="48px"
+                />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="font-medium">{article.profiles?.name}</span>
+                  <Button variant="link" className="text-gray-600 px-1 h-auto">Follow</Button>
                 </div>
-                <Button variant="ghost" className="ml-2">Follow</Button>
+                <div className="text-gray-600">
+                  <span>{article.read_time || "5"} min read</span>
+                  <span className="mx-1">·</span>
+                  <span>{formatDistanceToNow(new Date(article.published_at), { addSuffix: true })}</span>
+                </div>
               </div>
             </div>
 
