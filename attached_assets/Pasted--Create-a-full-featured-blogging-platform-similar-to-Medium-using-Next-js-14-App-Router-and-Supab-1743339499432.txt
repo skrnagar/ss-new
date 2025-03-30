@@ -1,0 +1,43 @@
+•
+Create a full-featured blogging platform similar to Medium using Next.js 14 (App Router) and Supabase. The application should allow users to write, edit, publish, and read articles with a rich text editor. The key features should include:
+
+User Authentication:
+• Implement authentication using Supabase (Email, Google, LinkedIn).
+• Only logged-in users should be able to write or comment on articles.
+
+Rich Text Editor:
+• Use TipTap or Quill.js for a Medium-like writing experience.
+• Support text formatting (bold, italic, headings, links, images, etc.).
+• Autosave drafts and allow users to publish later.
+Article Management:
+• Users can create, edit, and delete their own articles.
+• Articles should include title, content, cover image, tags, and publish date.
+• Store drafts before publishing.
+Article Display & Reading Experience:
+• Design a clean, minimalist UI for reading articles.
+• Include author info, publish date, read time, and tags.
+• Optimize typography for readability (similar to Medium).
+Commenting System:
+• Allow users to comment and reply on articles.
+• Display the number of comments below each article.
+Likes & Reactions:
+• Users can like or bookmark articles.
+• Show total likes on each article page.
+User Profiles & Dashboard:
+• Each user should have a profile page showing their published articles.
+• Profile should display username, bio, and avatar.
+Search & Tags:
+• Users should be able to search articles by title, author, or tags.
+• Implement a trending tags section for easy discovery.
+SEO & Social Sharing:
+• Optimize article pages for SEO (meta title, description, OpenGraph tags).
+• Add social sharing buttons (Twitter, LinkedIn, Facebook).
+Tech Stack:
+• Frontend: Next.js 14 (App Router) with Tailwind CSS.
+• Backend: Supabase (PostgreSQL) for data storage and authentication.
+• Storage: Supabase Storage for images.
+• Editor: TipTap or Quill.js for rich-text functionality.
+
+Ensure the application is fully responsive and provides a smooth UX across devices. The UI should resemble Medium’s clean and distraction-free design.”
+
+UI like image as I shared

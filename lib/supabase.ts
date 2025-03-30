@@ -6,7 +6,6 @@ export const supabase = createClientComponentClient<Database>({
   options: {
     global: {
       headers: {
-        "Content-Type": "application/json",
         Accept: "application/json",
       },
     },
