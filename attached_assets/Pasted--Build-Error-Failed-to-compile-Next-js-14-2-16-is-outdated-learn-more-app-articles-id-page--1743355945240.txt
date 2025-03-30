@@ -1,0 +1,945 @@
+
+Build Error
+Failed to compile
+
+Next.js (14.2.16) is outdated (learn more)
+./app/articles/[id]/page.tsx
+Error: 
+  × the name `useEffect` is defined multiple times
+     ╭─[/home/runner/workspace/app/articles/[id]/page.tsx:1:1]
+   1 │ 
+   2 │ "use client";
+   3 │ 
+   4 │ import { useEffect, useState } from "react";
+     ·          ────┬────
+     ·              ╰── previous definition of `useEffect` here
+   5 │ import { useParams } from "next/navigation";
+   6 │ import Image from "next/image";
+   7 │ import Link from "next/link";
+   8 │ import { formatDistanceToNow } from "date-fns";
+   9 │ import { supabase } from "@/lib/supabase";
+  10 │ import { Skeleton } from "@/components/ui/skeleton";
+  11 │ 
+  12 │ export default function ArticlePage() {
+  13 │   const { id } = useParams();
+  14 │   const [article, setArticle] = useState<any>(null);
+  15 │   const [loading, setLoading] = useState(true);
+  16 │ 
+  17 │   useEffect(() => {
+  18 │     async function fetchArticle() {
+  19 │       try {
+  20 │         const { data, error } = await supabase
+  21 │           .from("articles_with_author")
+  22 │           .select("*")
+  23 │           .eq("id", id)
+  24 │           .single();
+  25 │ 
+  26 │         if (error) throw error;
+  27 │         if (data) setArticle(data);
+  28 │       } catch (error) {
+  29 │         console.error("Error fetching article:", error);
+  30 │       } finally {
+  31 │         setLoading(false);
+  32 │       }
+  33 │     }
+  34 │ 
+  35 │     fetchArticle();
+  36 │   }, [id]);
+  37 │ 
+  38 │   if (loading) {
+  39 │     return (
+  40 │       <div className="max-w-3xl mx-auto px-4 py-8">
+  41 │         <Skeleton className="h-12 w-3/4 mb-4" />
+  42 │         <Skeleton className="h-6 w-48 mb-8" />
+  43 │         <Skeleton className="h-96 w-full" />
+  44 │       </div>
+  45 │     );
+  46 │   }
+  47 │ 
+  48 │   if (!article) {
+  49 │     return <div>Article not found</div>;
+  50 │   }
+  51 │ 
+  52 │   return (
+  53 │     <article className="max-w-3xl mx-auto px-4 py-8">
+  54 │       <header className="mb-8">
+  55 │         <h1 className="text-4xl font-bold mb-4">{article.title}</h1>
+  56 │         
+  57 │         <div className="flex items-center gap-4 mb-6">
+  58 │           <Link href={`/profile/${article.profiles?.username}`} className="flex items-center gap-3 group">
+  59 │             <Image
+  60 │               src={article.profiles?.avatar_url || "/placeholder-user.jpg"}
+  61 │               alt={article.profiles?.name}
+  62 │               width={40}
+  63 │               height={40}
+  64 │               className="rounded-full"
+  65 │             />
+  66 │             <div>
+  67 │               <div className="font-medium group-hover:text-primary">
+  68 │                 {article.profiles?.name}
+  69 │               </div>
+  70 │               <div className="text-sm text-gray-500">
+  71 │                 {article.profiles?.headline}
+  72 │               </div>
+  73 │             </div>
+  74 │           </Link>
+  75 │         </div>
+  76 │ 
+  77 │         {article.cover_image && (
+  78 │           <div className="relative aspect-[2/1] mb-8">
+  79 │             <Image
+  80 │               src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/article-covers/${article.cover_image}`}
+  81 │               alt={article.title}
+  82 │               fill
+  83 │               className="object-cover rounded-lg"
+  84 │             />
+  85 │           </div>
+  86 │         )}
+  87 │ 
+  88 │         <div className="flex items-center text-sm text-gray-500 gap-3">
+  89 │           <span>
+  90 │             {formatDistanceToNow(new Date(article.published_at), { addSuffix: true })}
+  91 │           </span>
+  92 │           <span>·</span>
+  93 │           <span>{article.read_time || "5"} min read</span>
+  94 │         </div>
+  95 │       </header>
+  96 │ 
+  97 │       <div 
+  98 │         className="prose prose-lg max-w-none"
+  99 │         dangerouslySetInnerHTML={{ __html: article.content }}
+ 100 │       />
+ 101 │     </article>
+ 102 │   );
+ 103 │ }
+ 104 │ "use client";
+ 105 │ 
+ 106 │ import { useEffect, useState } from "react";
+     ·          ────┬────
+     ·              ╰── `useEffect` redefined here
+ 107 │ import { useParams } from "next/navigation";
+ 108 │ import { supabase } from "@/lib/supabase";
+ 109 │ import { Button } from "@/components/ui/button";
+     ╰────
+
+  × the name `useState` is defined multiple times
+     ╭─[/home/runner/workspace/app/articles/[id]/page.tsx:1:1]
+   1 │ 
+   2 │ "use client";
+   3 │ 
+   4 │ import { useEffect, useState } from "react";
+     ·                     ────┬───
+     ·                         ╰── previous definition of `useState` here
+   5 │ import { useParams } from "next/navigation";
+   6 │ import Image from "next/image";
+   7 │ import Link from "next/link";
+   8 │ import { formatDistanceToNow } from "date-fns";
+   9 │ import { supabase } from "@/lib/supabase";
+  10 │ import { Skeleton } from "@/components/ui/skeleton";
+  11 │ 
+  12 │ export default function ArticlePage() {
+  13 │   const { id } = useParams();
+  14 │   const [article, setArticle] = useState<any>(null);
+  15 │   const [loading, setLoading] = useState(true);
+  16 │ 
+  17 │   useEffect(() => {
+  18 │     async function fetchArticle() {
+  19 │       try {
+  20 │         const { data, error } = await supabase
+  21 │           .from("articles_with_author")
+  22 │           .select("*")
+  23 │           .eq("id", id)
+  24 │           .single();
+  25 │ 
+  26 │         if (error) throw error;
+  27 │         if (data) setArticle(data);
+  28 │       } catch (error) {
+  29 │         console.error("Error fetching article:", error);
+  30 │       } finally {
+  31 │         setLoading(false);
+  32 │       }
+  33 │     }
+  34 │ 
+  35 │     fetchArticle();
+  36 │   }, [id]);
+  37 │ 
+  38 │   if (loading) {
+  39 │     return (
+  40 │       <div className="max-w-3xl mx-auto px-4 py-8">
+  41 │         <Skeleton className="h-12 w-3/4 mb-4" />
+  42 │         <Skeleton className="h-6 w-48 mb-8" />
+  43 │         <Skeleton className="h-96 w-full" />
+  44 │       </div>
+  45 │     );
+  46 │   }
+  47 │ 
+  48 │   if (!article) {
+  49 │     return <div>Article not found</div>;
+  50 │   }
+  51 │ 
+  52 │   return (
+  53 │     <article className="max-w-3xl mx-auto px-4 py-8">
+  54 │       <header className="mb-8">
+  55 │         <h1 className="text-4xl font-bold mb-4">{article.title}</h1>
+  56 │         
+  57 │         <div className="flex items-center gap-4 mb-6">
+  58 │           <Link href={`/profile/${article.profiles?.username}`} className="flex items-center gap-3 group">
+  59 │             <Image
+  60 │               src={article.profiles?.avatar_url || "/placeholder-user.jpg"}
+  61 │               alt={article.profiles?.name}
+  62 │               width={40}
+  63 │               height={40}
+  64 │               className="rounded-full"
+  65 │             />
+  66 │             <div>
+  67 │               <div className="font-medium group-hover:text-primary">
+  68 │                 {article.profiles?.name}
+  69 │               </div>
+  70 │               <div className="text-sm text-gray-500">
+  71 │                 {article.profiles?.headline}
+  72 │               </div>
+  73 │             </div>
+  74 │           </Link>
+  75 │         </div>
+  76 │ 
+  77 │         {article.cover_image && (
+  78 │           <div className="relative aspect-[2/1] mb-8">
+  79 │             <Image
+  80 │               src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/article-covers/${article.cover_image}`}
+  81 │               alt={article.title}
+  82 │               fill
+  83 │               className="object-cover rounded-lg"
+  84 │             />
+  85 │           </div>
+  86 │         )}
+  87 │ 
+  88 │         <div className="flex items-center text-sm text-gray-500 gap-3">
+  89 │           <span>
+  90 │             {formatDistanceToNow(new Date(article.published_at), { addSuffix: true })}
+  91 │           </span>
+  92 │           <span>·</span>
+  93 │           <span>{article.read_time || "5"} min read</span>
+  94 │         </div>
+  95 │       </header>
+  96 │ 
+  97 │       <div 
+  98 │         className="prose prose-lg max-w-none"
+  99 │         dangerouslySetInnerHTML={{ __html: article.content }}
+ 100 │       />
+ 101 │     </article>
+ 102 │   );
+ 103 │ }
+ 104 │ "use client";
+ 105 │ 
+ 106 │ import { useEffect, useState } from "react";
+     ·                     ────┬───
+     ·                         ╰── `useState` redefined here
+ 107 │ import { useParams } from "next/navigation";
+ 108 │ import { supabase } from "@/lib/supabase";
+ 109 │ import { Button } from "@/components/ui/button";
+     ╰────
+
+  × the name `useParams` is defined multiple times
+     ╭─[/home/runner/workspace/app/articles/[id]/page.tsx:2:1]
+   2 │ "use client";
+   3 │ 
+   4 │ import { useEffect, useState } from "react";
+   5 │ import { useParams } from "next/navigation";
+     ·          ────┬────
+     ·              ╰── previous definition of `useParams` here
+   6 │ import Image from "next/image";
+   7 │ import Link from "next/link";
+   8 │ import { formatDistanceToNow } from "date-fns";
+   9 │ import { supabase } from "@/lib/supabase";
+  10 │ import { Skeleton } from "@/components/ui/skeleton";
+  11 │ 
+  12 │ export default function ArticlePage() {
+  13 │   const { id } = useParams();
+  14 │   const [article, setArticle] = useState<any>(null);
+  15 │   const [loading, setLoading] = useState(true);
+  16 │ 
+  17 │   useEffect(() => {
+  18 │     async function fetchArticle() {
+  19 │       try {
+  20 │         const { data, error } = await supabase
+  21 │           .from("articles_with_author")
+  22 │           .select("*")
+  23 │           .eq("id", id)
+  24 │           .single();
+  25 │ 
+  26 │         if (error) throw error;
+  27 │         if (data) setArticle(data);
+  28 │       } catch (error) {
+  29 │         console.error("Error fetching article:", error);
+  30 │       } finally {
+  31 │         setLoading(false);
+  32 │       }
+  33 │     }
+  34 │ 
+  35 │     fetchArticle();
+  36 │   }, [id]);
+  37 │ 
+  38 │   if (loading) {
+  39 │     return (
+  40 │       <div className="max-w-3xl mx-auto px-4 py-8">
+  41 │         <Skeleton className="h-12 w-3/4 mb-4" />
+  42 │         <Skeleton className="h-6 w-48 mb-8" />
+  43 │         <Skeleton className="h-96 w-full" />
+  44 │       </div>
+  45 │     );
+  46 │   }
+  47 │ 
+  48 │   if (!article) {
+  49 │     return <div>Article not found</div>;
+  50 │   }
+  51 │ 
+  52 │   return (
+  53 │     <article className="max-w-3xl mx-auto px-4 py-8">
+  54 │       <header className="mb-8">
+  55 │         <h1 className="text-4xl font-bold mb-4">{article.title}</h1>
+  56 │         
+  57 │         <div className="flex items-center gap-4 mb-6">
+  58 │           <Link href={`/profile/${article.profiles?.username}`} className="flex items-center gap-3 group">
+  59 │             <Image
+  60 │               src={article.profiles?.avatar_url || "/placeholder-user.jpg"}
+  61 │               alt={article.profiles?.name}
+  62 │               width={40}
+  63 │               height={40}
+  64 │               className="rounded-full"
+  65 │             />
+  66 │             <div>
+  67 │               <div className="font-medium group-hover:text-primary">
+  68 │                 {article.profiles?.name}
+  69 │               </div>
+  70 │               <div className="text-sm text-gray-500">
+  71 │                 {article.profiles?.headline}
+  72 │               </div>
+  73 │             </div>
+  74 │           </Link>
+  75 │         </div>
+  76 │ 
+  77 │         {article.cover_image && (
+  78 │           <div className="relative aspect-[2/1] mb-8">
+  79 │             <Image
+  80 │               src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/article-covers/${article.cover_image}`}
+  81 │               alt={article.title}
+  82 │               fill
+  83 │               className="object-cover rounded-lg"
+  84 │             />
+  85 │           </div>
+  86 │         )}
+  87 │ 
+  88 │         <div className="flex items-center text-sm text-gray-500 gap-3">
+  89 │           <span>
+  90 │             {formatDistanceToNow(new Date(article.published_at), { addSuffix: true })}
+  91 │           </span>
+  92 │           <span>·</span>
+  93 │           <span>{article.read_time || "5"} min read</span>
+  94 │         </div>
+  95 │       </header>
+  96 │ 
+  97 │       <div 
+  98 │         className="prose prose-lg max-w-none"
+  99 │         dangerouslySetInnerHTML={{ __html: article.content }}
+ 100 │       />
+ 101 │     </article>
+ 102 │   );
+ 103 │ }
+ 104 │ "use client";
+ 105 │ 
+ 106 │ import { useEffect, useState } from "react";
+ 107 │ import { useParams } from "next/navigation";
+     ·          ────┬────
+     ·              ╰── `useParams` redefined here
+ 108 │ import { supabase } from "@/lib/supabase";
+ 109 │ import { Button } from "@/components/ui/button";
+ 110 │ import { Textarea } from "@/components/ui/textarea";
+     ╰────
+
+  × the name `supabase` is defined multiple times
+     ╭─[/home/runner/workspace/app/articles/[id]/page.tsx:6:1]
+   6 │ import Image from "next/image";
+   7 │ import Link from "next/link";
+   8 │ import { formatDistanceToNow } from "date-fns";
+   9 │ import { supabase } from "@/lib/supabase";
+     ·          ────┬───
+     ·              ╰── previous definition of `supabase` here
+  10 │ import { Skeleton } from "@/components/ui/skeleton";
+  11 │ 
+  12 │ export default function ArticlePage() {
+  13 │   const { id } = useParams();
+  14 │   const [article, setArticle] = useState<any>(null);
+  15 │   const [loading, setLoading] = useState(true);
+  16 │ 
+  17 │   useEffect(() => {
+  18 │     async function fetchArticle() {
+  19 │       try {
+  20 │         const { data, error } = await supabase
+  21 │           .from("articles_with_author")
+  22 │           .select("*")
+  23 │           .eq("id", id)
+  24 │           .single();
+  25 │ 
+  26 │         if (error) throw error;
+  27 │         if (data) setArticle(data);
+  28 │       } catch (error) {
+  29 │         console.error("Error fetching article:", error);
+  30 │       } finally {
+  31 │         setLoading(false);
+  32 │       }
+  33 │     }
+  34 │ 
+  35 │     fetchArticle();
+  36 │   }, [id]);
+  37 │ 
+  38 │   if (loading) {
+  39 │     return (
+  40 │       <div className="max-w-3xl mx-auto px-4 py-8">
+  41 │         <Skeleton className="h-12 w-3/4 mb-4" />
+  42 │         <Skeleton className="h-6 w-48 mb-8" />
+  43 │         <Skeleton className="h-96 w-full" />
+  44 │       </div>
+  45 │     );
+  46 │   }
+  47 │ 
+  48 │   if (!article) {
+  49 │     return <div>Article not found</div>;
+  50 │   }
+  51 │ 
+  52 │   return (
+  53 │     <article className="max-w-3xl mx-auto px-4 py-8">
+  54 │       <header className="mb-8">
+  55 │         <h1 className="text-4xl font-bold mb-4">{article.title}</h1>
+  56 │         
+  57 │         <div className="flex items-center gap-4 mb-6">
+  58 │           <Link href={`/profile/${article.profiles?.username}`} className="flex items-center gap-3 group">
+  59 │             <Image
+  60 │               src={article.profiles?.avatar_url || "/placeholder-user.jpg"}
+  61 │               alt={article.profiles?.name}
+  62 │               width={40}
+  63 │               height={40}
+  64 │               className="rounded-full"
+  65 │             />
+  66 │             <div>
+  67 │               <div className="font-medium group-hover:text-primary">
+  68 │                 {article.profiles?.name}
+  69 │               </div>
+  70 │               <div className="text-sm text-gray-500">
+  71 │                 {article.profiles?.headline}
+  72 │               </div>
+  73 │             </div>
+  74 │           </Link>
+  75 │         </div>
+  76 │ 
+  77 │         {article.cover_image && (
+  78 │           <div className="relative aspect-[2/1] mb-8">
+  79 │             <Image
+  80 │               src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/article-covers/${article.cover_image}`}
+  81 │               alt={article.title}
+  82 │               fill
+  83 │               className="object-cover rounded-lg"
+  84 │             />
+  85 │           </div>
+  86 │         )}
+  87 │ 
+  88 │         <div className="flex items-center text-sm text-gray-500 gap-3">
+  89 │           <span>
+  90 │             {formatDistanceToNow(new Date(article.published_at), { addSuffix: true })}
+  91 │           </span>
+  92 │           <span>·</span>
+  93 │           <span>{article.read_time || "5"} min read</span>
+  94 │         </div>
+  95 │       </header>
+  96 │ 
+  97 │       <div 
+  98 │         className="prose prose-lg max-w-none"
+  99 │         dangerouslySetInnerHTML={{ __html: article.content }}
+ 100 │       />
+ 101 │     </article>
+ 102 │   );
+ 103 │ }
+ 104 │ "use client";
+ 105 │ 
+ 106 │ import { useEffect, useState } from "react";
+ 107 │ import { useParams } from "next/navigation";
+ 108 │ import { supabase } from "@/lib/supabase";
+     ·          ────┬───
+     ·              ╰── `supabase` redefined here
+ 109 │ import { Button } from "@/components/ui/button";
+ 110 │ import { Textarea } from "@/components/ui/textarea";
+ 111 │ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+     ╰────
+
+  × the name `formatDistanceToNow` is defined multiple times
+     ╭─[/home/runner/workspace/app/articles/[id]/page.tsx:5:1]
+   5 │ import { useParams } from "next/navigation";
+   6 │ import Image from "next/image";
+   7 │ import Link from "next/link";
+   8 │ import { formatDistanceToNow } from "date-fns";
+     ·          ─────────┬─────────
+     ·                   ╰── previous definition of `formatDistanceToNow` here
+   9 │ import { supabase } from "@/lib/supabase";
+  10 │ import { Skeleton } from "@/components/ui/skeleton";
+  11 │ 
+  12 │ export default function ArticlePage() {
+  13 │   const { id } = useParams();
+  14 │   const [article, setArticle] = useState<any>(null);
+  15 │   const [loading, setLoading] = useState(true);
+  16 │ 
+  17 │   useEffect(() => {
+  18 │     async function fetchArticle() {
+  19 │       try {
+  20 │         const { data, error } = await supabase
+  21 │           .from("articles_with_author")
+  22 │           .select("*")
+  23 │           .eq("id", id)
+  24 │           .single();
+  25 │ 
+  26 │         if (error) throw error;
+  27 │         if (data) setArticle(data);
+  28 │       } catch (error) {
+  29 │         console.error("Error fetching article:", error);
+  30 │       } finally {
+  31 │         setLoading(false);
+  32 │       }
+  33 │     }
+  34 │ 
+  35 │     fetchArticle();
+  36 │   }, [id]);
+  37 │ 
+  38 │   if (loading) {
+  39 │     return (
+  40 │       <div className="max-w-3xl mx-auto px-4 py-8">
+  41 │         <Skeleton className="h-12 w-3/4 mb-4" />
+  42 │         <Skeleton className="h-6 w-48 mb-8" />
+  43 │         <Skeleton className="h-96 w-full" />
+  44 │       </div>
+  45 │     );
+  46 │   }
+  47 │ 
+  48 │   if (!article) {
+  49 │     return <div>Article not found</div>;
+  50 │   }
+  51 │ 
+  52 │   return (
+  53 │     <article className="max-w-3xl mx-auto px-4 py-8">
+  54 │       <header className="mb-8">
+  55 │         <h1 className="text-4xl font-bold mb-4">{article.title}</h1>
+  56 │         
+  57 │         <div className="flex items-center gap-4 mb-6">
+  58 │           <Link href={`/profile/${article.profiles?.username}`} className="flex items-center gap-3 group">
+  59 │             <Image
+  60 │               src={article.profiles?.avatar_url || "/placeholder-user.jpg"}
+  61 │               alt={article.profiles?.name}
+  62 │               width={40}
+  63 │               height={40}
+  64 │               className="rounded-full"
+  65 │             />
+  66 │             <div>
+  67 │               <div className="font-medium group-hover:text-primary">
+  68 │                 {article.profiles?.name}
+  69 │               </div>
+  70 │               <div className="text-sm text-gray-500">
+  71 │                 {article.profiles?.headline}
+  72 │               </div>
+  73 │             </div>
+  74 │           </Link>
+  75 │         </div>
+  76 │ 
+  77 │         {article.cover_image && (
+  78 │           <div className="relative aspect-[2/1] mb-8">
+  79 │             <Image
+  80 │               src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/article-covers/${article.cover_image}`}
+  81 │               alt={article.title}
+  82 │               fill
+  83 │               className="object-cover rounded-lg"
+  84 │             />
+  85 │           </div>
+  86 │         )}
+  87 │ 
+  88 │         <div className="flex items-center text-sm text-gray-500 gap-3">
+  89 │           <span>
+  90 │             {formatDistanceToNow(new Date(article.published_at), { addSuffix: true })}
+  91 │           </span>
+  92 │           <span>·</span>
+  93 │           <span>{article.read_time || "5"} min read</span>
+  94 │         </div>
+  95 │       </header>
+  96 │ 
+  97 │       <div 
+  98 │         className="prose prose-lg max-w-none"
+  99 │         dangerouslySetInnerHTML={{ __html: article.content }}
+ 100 │       />
+ 101 │     </article>
+ 102 │   );
+ 103 │ }
+ 104 │ "use client";
+ 105 │ 
+ 106 │ import { useEffect, useState } from "react";
+ 107 │ import { useParams } from "next/navigation";
+ 108 │ import { supabase } from "@/lib/supabase";
+ 109 │ import { Button } from "@/components/ui/button";
+ 110 │ import { Textarea } from "@/components/ui/textarea";
+ 111 │ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+ 112 │ import { formatDistanceToNow } from "date-fns";
+     ·          ─────────┬─────────
+     ·                   ╰── `formatDistanceToNow` redefined here
+ 113 │ 
+ 114 │ export default function ArticlePage() {
+ 115 │   const { id } = useParams();
+     ╰────
+
+  × the name `ArticlePage` is defined multiple times
+     ╭─[/home/runner/workspace/app/articles/[id]/page.tsx:9:1]
+   9 │ import { supabase } from "@/lib/supabase";
+  10 │ import { Skeleton } from "@/components/ui/skeleton";
+  11 │ 
+  12 │ export default function ArticlePage() {
+     ·                         ─────┬─────
+     ·                              ╰── previous definition of `ArticlePage` here
+  13 │   const { id } = useParams();
+  14 │   const [article, setArticle] = useState<any>(null);
+  15 │   const [loading, setLoading] = useState(true);
+  16 │ 
+  17 │   useEffect(() => {
+  18 │     async function fetchArticle() {
+  19 │       try {
+  20 │         const { data, error } = await supabase
+  21 │           .from("articles_with_author")
+  22 │           .select("*")
+  23 │           .eq("id", id)
+  24 │           .single();
+  25 │ 
+  26 │         if (error) throw error;
+  27 │         if (data) setArticle(data);
+  28 │       } catch (error) {
+  29 │         console.error("Error fetching article:", error);
+  30 │       } finally {
+  31 │         setLoading(false);
+  32 │       }
+  33 │     }
+  34 │ 
+  35 │     fetchArticle();
+  36 │   }, [id]);
+  37 │ 
+  38 │   if (loading) {
+  39 │     return (
+  40 │       <div className="max-w-3xl mx-auto px-4 py-8">
+  41 │         <Skeleton className="h-12 w-3/4 mb-4" />
+  42 │         <Skeleton className="h-6 w-48 mb-8" />
+  43 │         <Skeleton className="h-96 w-full" />
+  44 │       </div>
+  45 │     );
+  46 │   }
+  47 │ 
+  48 │   if (!article) {
+  49 │     return <div>Article not found</div>;
+  50 │   }
+  51 │ 
+  52 │   return (
+  53 │     <article className="max-w-3xl mx-auto px-4 py-8">
+  54 │       <header className="mb-8">
+  55 │         <h1 className="text-4xl font-bold mb-4">{article.title}</h1>
+  56 │         
+  57 │         <div className="flex items-center gap-4 mb-6">
+  58 │           <Link href={`/profile/${article.profiles?.username}`} className="flex items-center gap-3 group">
+  59 │             <Image
+  60 │               src={article.profiles?.avatar_url || "/placeholder-user.jpg"}
+  61 │               alt={article.profiles?.name}
+  62 │               width={40}
+  63 │               height={40}
+  64 │               className="rounded-full"
+  65 │             />
+  66 │             <div>
+  67 │               <div className="font-medium group-hover:text-primary">
+  68 │                 {article.profiles?.name}
+  69 │               </div>
+  70 │               <div className="text-sm text-gray-500">
+  71 │                 {article.profiles?.headline}
+  72 │               </div>
+  73 │             </div>
+  74 │           </Link>
+  75 │         </div>
+  76 │ 
+  77 │         {article.cover_image && (
+  78 │           <div className="relative aspect-[2/1] mb-8">
+  79 │             <Image
+  80 │               src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/article-covers/${article.cover_image}`}
+  81 │               alt={article.title}
+  82 │               fill
+  83 │               className="object-cover rounded-lg"
+  84 │             />
+  85 │           </div>
+  86 │         )}
+  87 │ 
+  88 │         <div className="flex items-center text-sm text-gray-500 gap-3">
+  89 │           <span>
+  90 │             {formatDistanceToNow(new Date(article.published_at), { addSuffix: true })}
+  91 │           </span>
+  92 │           <span>·</span>
+  93 │           <span>{article.read_time || "5"} min read</span>
+  94 │         </div>
+  95 │       </header>
+  96 │ 
+  97 │       <div 
+  98 │         className="prose prose-lg max-w-none"
+  99 │         dangerouslySetInnerHTML={{ __html: article.content }}
+ 100 │       />
+ 101 │     </article>
+ 102 │   );
+ 103 │ }
+ 104 │ "use client";
+ 105 │ 
+ 106 │ import { useEffect, useState } from "react";
+ 107 │ import { useParams } from "next/navigation";
+ 108 │ import { supabase } from "@/lib/supabase";
+ 109 │ import { Button } from "@/components/ui/button";
+ 110 │ import { Textarea } from "@/components/ui/textarea";
+ 111 │ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+ 112 │ import { formatDistanceToNow } from "date-fns";
+ 113 │ 
+ 114 │ export default function ArticlePage() {
+     ·                         ─────┬─────
+     ·                              ╰── `ArticlePage` redefined here
+ 115 │   const { id } = useParams();
+ 116 │   const [article, setArticle] = useState(null);
+ 117 │   const [comments, setComments] = useState([]);
+     ╰────
+
+  × the name `default` is exported multiple times
+     ╭─[/home/runner/workspace/app/articles/[id]/page.tsx:9:1]
+   9 │     import { supabase } from "@/lib/supabase";
+  10 │     import { Skeleton } from "@/components/ui/skeleton";
+  11 │     
+  12 │ ╭─▶ export default function ArticlePage() {
+  13 │ │     const { id } = useParams();
+  14 │ │     const [article, setArticle] = useState<any>(null);
+  15 │ │     const [loading, setLoading] = useState(true);
+  16 │ │   
+  17 │ │     useEffect(() => {
+  18 │ │       async function fetchArticle() {
+  19 │ │         try {
+  20 │ │           const { data, error } = await supabase
+  21 │ │             .from("articles_with_author")
+  22 │ │             .select("*")
+  23 │ │             .eq("id", id)
+  24 │ │             .single();
+  25 │ │   
+  26 │ │           if (error) throw error;
+  27 │ │           if (data) setArticle(data);
+  28 │ │         } catch (error) {
+  29 │ │           console.error("Error fetching article:", error);
+  30 │ │         } finally {
+  31 │ │           setLoading(false);
+  32 │ │         }
+  33 │ │       }
+  34 │ │   
+  35 │ │       fetchArticle();
+  36 │ │     }, [id]);
+  37 │ │   
+  38 │ │     if (loading) {
+  39 │ │       return (
+  40 │ │         <div className="max-w-3xl mx-auto px-4 py-8">
+  41 │ │           <Skeleton className="h-12 w-3/4 mb-4" />
+  42 │ │           <Skeleton className="h-6 w-48 mb-8" />
+  43 │ │           <Skeleton className="h-96 w-full" />
+  44 │ │         </div>
+  45 │ │       );
+  46 │ │     }
+  47 │ │   
+  48 │ │     if (!article) {
+  49 │ │       return <div>Article not found</div>;
+  50 │ │     }
+  51 │ │   
+  52 │ │     return (
+  53 │ │       <article className="max-w-3xl mx-auto px-4 py-8">
+  54 │ │         <header className="mb-8">
+  55 │ │           <h1 className="text-4xl font-bold mb-4">{article.title}</h1>
+  56 │ │           
+  57 │ │           <div className="flex items-center gap-4 mb-6">
+  58 │ │             <Link href={`/profile/${article.profiles?.username}`} className="flex items-center gap-3 group">
+  59 │ │               <Image
+  60 │ │                 src={article.profiles?.avatar_url || "/placeholder-user.jpg"}
+  61 │ │                 alt={article.profiles?.name}
+  62 │ │                 width={40}
+  63 │ │                 height={40}
+  64 │ │                 className="rounded-full"
+  65 │ │               />
+  66 │ │               <div>
+  67 │ │                 <div className="font-medium group-hover:text-primary">
+  68 │ │                   {article.profiles?.name}
+  69 │ │                 </div>
+  70 │ │                 <div className="text-sm text-gray-500">
+  71 │ │                   {article.profiles?.headline}
+  72 │ │                 </div>
+  73 │ │               </div>
+  74 │ │             </Link>
+  75 │ │           </div>
+  76 │ │   
+  77 │ │           {article.cover_image && (
+  78 │ │             <div className="relative aspect-[2/1] mb-8">
+  79 │ │               <Image
+  80 │ │                 src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/article-covers/${article.cover_image}`}
+  81 │ │                 alt={article.title}
+  82 │ │                 fill
+  83 │ │                 className="object-cover rounded-lg"
+  84 │ │               />
+  85 │ │             </div>
+  86 │ │           )}
+  87 │ │   
+  88 │ │           <div className="flex items-center text-sm text-gray-500 gap-3">
+  89 │ │             <span>
+  90 │ │               {formatDistanceToNow(new Date(article.published_at), { addSuffix: true })}
+  91 │ │             </span>
+  92 │ │             <span>·</span>
+  93 │ │             <span>{article.read_time || "5"} min read</span>
+  94 │ │           </div>
+  95 │ │         </header>
+  96 │ │   
+  97 │ │         <div 
+  98 │ │           className="prose prose-lg max-w-none"
+  99 │ │           dangerouslySetInnerHTML={{ __html: article.content }}
+ 100 │ │         />
+ 101 │ │       </article>
+ 102 │ │     );
+ 103 │ ├─▶ }
+     · ╰──── previous exported here
+ 104 │     "use client";
+ 105 │     
+ 106 │     import { useEffect, useState } from "react";
+ 107 │     import { useParams } from "next/navigation";
+ 108 │     import { supabase } from "@/lib/supabase";
+ 109 │     import { Button } from "@/components/ui/button";
+ 110 │     import { Textarea } from "@/components/ui/textarea";
+ 111 │     import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+ 112 │     import { formatDistanceToNow } from "date-fns";
+ 113 │     
+ 114 │ ╭─▶ export default function ArticlePage() {
+ 115 │ │     const { id } = useParams();
+ 116 │ │     const [article, setArticle] = useState(null);
+ 117 │ │     const [comments, setComments] = useState([]);
+ 118 │ │     const [newComment, setNewComment] = useState("");
+ 119 │ │     const [user, setUser] = useState(null);
+ 120 │ │   
+ 121 │ │     useEffect(() => {
+ 122 │ │       const fetchArticle = async () => {
+ 123 │ │         const { data: article } = await supabase
+ 124 │ │           .from("articles_with_author")
+ 125 │ │           .select("*")
+ 126 │ │           .eq("id", id)
+ 127 │ │           .single();
+ 128 │ │         setArticle(article);
+ 129 │ │       };
+ 130 │ │   
+ 131 │ │       const fetchComments = async () => {
+ 132 │ │         const { data: comments } = await supabase
+ 133 │ │           .from("comments")
+ 134 │ │           .select(`
+ 135 │ │             *,
+ 136 │ │             profiles:profiles(*)
+ 137 │ │           `)
+ 138 │ │           .eq("article_id", id)
+ 139 │ │           .order("created_at", { ascending: false });
+ 140 │ │         setComments(comments || []);
+ 141 │ │       };
+ 142 │ │   
+ 143 │ │       const getUser = async () => {
+ 144 │ │         const { data: { session } } = await supabase.auth.getSession();
+ 145 │ │         setUser(session?.user || null);
+ 146 │ │       };
+ 147 │ │   
+ 148 │ │       fetchArticle();
+ 149 │ │       fetchComments();
+ 150 │ │       getUser();
+ 151 │ │     }, [id]);
+ 152 │ │   
+ 153 │ │     const handleSubmitComment = async (e) => {
+ 154 │ │       e.preventDefault();
+ 155 │ │       if (!newComment.trim() || !user) return;
+ 156 │ │   
+ 157 │ │       const { data, error } = await supabase
+ 158 │ │         .from("comments")
+ 159 │ │         .insert({
+ 160 │ │           article_id: id,
+ 161 │ │           user_id: user.id,
+ 162 │ │           content: newComment.trim()
+ 163 │ │         })
+ 164 │ │         .select(`
+ 165 │ │           *,
+ 166 │ │           profiles:profiles(*)
+ 167 │ │         `)
+ 168 │ │         .single();
+ 169 │ │   
+ 170 │ │       if (!error && data) {
+ 171 │ │         setComments([data, ...comments]);
+ 172 │ │         setNewComment("");
+ 173 │ │       }
+ 174 │ │     };
+ 175 │ │   
+ 176 │ │     if (!article) return <div>Loading...</div>;
+ 177 │ │   
+ 178 │ │     return (
+ 179 │ │       <div className="max-w-4xl mx-auto px-4 py-8">
+ 180 │ │         {/* Existing article content */}
+ 181 │ │         
+ 182 │ │         {/* Comments section */}
+ 183 │ │         <div className="mt-12 border-t pt-8">
+ 184 │ │           <h2 className="text-2xl font-bold mb-6">Comments ({comments.length})</h2>
+ 185 │ │           
+ 186 │ │           {user ? (
+ 187 │ │             <form onSubmit={handleSubmitComment} className="mb-8">
+ 188 │ │               <Textarea
+ 189 │ │                 value={newComment}
+ 190 │ │                 onChange={(e) => setNewComment(e.target.value)}
+ 191 │ │                 placeholder="Write a comment..."
+ 192 │ │                 className="mb-4"
+ 193 │ │               />
+ 194 │ │               <Button type="submit">Post Comment</Button>
+ 195 │ │             </form>
+ 196 │ │           ) : (
+ 197 │ │             <p className="mb-8 text-muted-foreground">Please sign in to comment.</p>
+ 198 │ │           )}
+ 199 │ │   
+ 200 │ │           <div className="space-y-6">
+ 201 │ │             {comments.map((comment) => (
+ 202 │ │               <div key={comment.id} className="flex gap-4">
+ 203 │ │                 <Avatar>
+ 204 │ │                   <AvatarImage src={comment.profiles?.avatar_url} />
+ 205 │ │                   <AvatarFallback>
+ 206 │ │                     {comment.profiles?.name?.substring(0, 2)}
+ 207 │ │                   </AvatarFallback>
+ 208 │ │                 </Avatar>
+ 209 │ │                 <div>
+ 210 │ │                   <div className="flex items-center gap-2 mb-1">
+ 211 │ │                     <span className="font-medium">{comment.profiles?.name}</span>
+ 212 │ │                     <span className="text-sm text-muted-foreground">
+ 213 │ │                       {formatDistanceToNow(new Date(comment.created_at), { addSuffix: true })}
+ 214 │ │                     </span>
+ 215 │ │                   </div>
+ 216 │ │                   <p className="text-gray-700">{comment.content}</p>
+ 217 │ │                 </div>
+ 218 │ │               </div>
+ 219 │ │             ))}
+ 220 │ │           </div>
+ 221 │ │         </div>
+ 222 │ │       </div>
+ 223 │ │     );
+ 224 │ ├─▶ }
+     · ╰──── exported more than once
+     ╰────
+
+Error: 
+  ☞ Exported identifiers must be unique
+
+  × The "use client" directive must be placed before other expressions. Move it to the top of the file to resolve this issue.
+     ╭─[/home/runner/workspace/app/articles/[id]/page.tsx:101:1]
+ 101 │     </article>
+ 102 │   );
+ 103 │ }
+ 104 │ "use client";
+     · ─────────────
+ 105 │ 
+ 106 │ import { useEffect, useState } from "react";
+ 107 │ import { useParams } from "next/navigation";
+     ╰────
+This error occurred during the build process and can only be dismissed by fixing the error.

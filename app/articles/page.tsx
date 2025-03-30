@@ -45,7 +45,7 @@ export default function ArticlesPage() {
   ];
 
   return (
-    <div className="max-w-screen-xl mx-auto px-4 py-4">
+    <div className="container py-6">
       {/* Top Navigation */}
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center space-x-6 overflow-x-auto pb-2">
