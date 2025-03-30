@@ -18,6 +18,7 @@ export default function ArticlePage() {
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState("");
   const [user, setUser] = useState(null);
+  const [claps, setClaps] = useState(0); // Added state for claps
 
   useEffect(() => {
     async function fetchData() {
@@ -35,6 +36,9 @@ export default function ArticlePage() {
         setArticle(articleResponse.data);
         setComments(commentsResponse.data || []);
         setUser(userResponse.data.session?.user || null);
+        //Added to fetch claps count.  This needs a claps table in your database.  Adjust accordingly.
+        const clapsResponse = await supabase.from('claps').select('count(*)').eq('article_id', id).single();
+        setClaps(clapsResponse.data.count || 0);
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {
@@ -65,6 +69,18 @@ export default function ArticlePage() {
     }
   };
 
+  const handleClap = async () => {
+    //Implement clap logic here.  This needs a claps table in your database. Adjust accordingly.
+    if (!user) return;
+    const {data, error} = await supabase
+      .from('claps')
+      .insert({article_id: id, user_id: user.id})
+      .single();
+    if(!error && data) {
+      setClaps(claps + 1);
+    }
+  }
+
   if (loading) {
     return (
       <div className="max-w-3xl mx-auto px-4 py-8">
@@ -84,27 +100,50 @@ export default function ArticlePage() {
       <article className="mb-12">
         <header className="mb-8">
           <h1 className="text-4xl font-bold mb-4">{article.title}</h1>
-
-          <div className="flex items-center gap-4 mb-6">
-            <Link href={`/profile/${article.profiles?.username}`} className="flex items-center gap-3 group">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
               <Image
                 src={article.profiles?.avatar_url || "/placeholder-user.jpg"}
                 alt={article.profiles?.name}
-                width={40}
-                height={40}
+                width={48}
+                height={48}
                 className="rounded-full"
               />
-              <div>
-                <div className="font-medium group-hover:text-primary">
-                  {article.profiles?.name}
+              <div className="flex gap-2 items-center">
+                <div>
+                  <div className="font-medium">{article.profiles?.name}</div>
+                  <div className="text-sm text-gray-500 flex items-center gap-2">
+                    <span>{formatDistanceToNow(new Date(article.published_at), { addSuffix: true })}</span>
+                    <span>·</span>
+                    <span>{article.read_time || "5"} min read</span>
+                  </div>
                 </div>
-                <div className="text-sm text-gray-500">
-                  {article.profiles?.headline}
-                </div>
+                <Button variant="ghost" className="ml-2">Follow</Button>
               </div>
-            </Link>
-          </div>
+            </div>
 
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <Button variant="ghost" size="icon" onClick={handleClap}>
+                  <span className="sr-only">Clap</span>
+                  👏
+                </Button>
+                <span className="text-sm text-gray-500">{claps}</span>
+              </div>
+              <Button variant="ghost" size="icon">
+                <span className="sr-only">Comments</span>
+                💬
+              </Button>
+              <Button variant="ghost" size="icon">
+                <span className="sr-only">Share</span>
+                📤
+              </Button>
+              <Button variant="ghost" size="icon">
+                <span className="sr-only">More options</span>
+                •••
+              </Button>
+            </div>
+          </div>
           {article.cover_image && (
             <div className="relative aspect-[2/1] mb-8">
               <Image
@@ -115,13 +154,8 @@ export default function ArticlePage() {
               />
             </div>
           )}
-
           <div className="flex items-center text-sm text-gray-500 gap-3">
-            <span>
-              {formatDistanceToNow(new Date(article.published_at), { addSuffix: true })}
-            </span>
-            <span>·</span>
-            <span>{article.read_time || "5"} min read</span>
+            {/*This section was moved from below the image to here*/}
           </div>
         </header>
 
