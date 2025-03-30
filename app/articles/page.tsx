@@ -98,11 +98,11 @@ export default function ArticlesPage() {
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
                       <Image
-                        src={article.profiles?.avatar_url ? article.profiles.avatar_url : "/placeholder-user.jpg"}
+                        src={article.profiles?.avatar_url ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/avatars/${article.profiles.avatar_url}` : "/placeholder-user.jpg"}
                         alt={article.profiles?.name || "Author"}
                         width={24}
                         height={24}
-                        className="aspect-square h-full w-full object-cover rounded-full"
+                        className="rounded-full"
                       />
                       <span className="text-sm font-medium">{article.profiles?.name}</span>
                     </div>
@@ -158,11 +158,11 @@ export default function ArticlesPage() {
                   >
                     <div className="flex items-start gap-3">
                       <Image
-                        src={article.profiles?.avatar_url ? article.profiles.avatar_url : "/placeholder-user.jpg"}
+                        src={article.profiles?.avatar_url || "/placeholder-user.jpg"}
                         alt={article.profiles?.name}
                         width={24}
                         height={24}
-                        className="aspect-square h-full w-full object-cover rounded-full mt-1"
+                        className="rounded-full mt-1"
                       />
                       <div>
                         <span className="text-sm font-medium block mb-1">{article.profiles?.name}</span>
