@@ -158,7 +158,7 @@ export default function ArticlesPage() {
                   >
                     <div className="flex items-start gap-3">
                       <Image
-                        src={article.profiles?.avatar_url || "/placeholder-user.jpg"}
+                        src={article.profiles?.avatar_url ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/avatars/${article.profiles.avatar_url}` : "/placeholder-user.jpg"}
                         alt={article.profiles?.name}
                         width={24}
                         height={24}
