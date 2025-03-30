@@ -49,6 +49,10 @@ export default function ArticlesPage() {
           </Link>
         </Button>
       </div>
+      
+      <div className="mb-8">
+        <SearchArticles />
+      </div>
 
       {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

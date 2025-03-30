@@ -60,6 +60,27 @@ export function ArticleEditor({ initialContent = "", initialTitle = "", articleI
     try {
       setSaving(true);
       const content = editor.getHTML();
+      
+      // Save as draft
+      const { data, error } = await supabase
+        .from('articles')
+        .upsert({
+          id: articleId,
+          title,
+          content,
+          author_id: user?.id,
+          published: false,
+          updated_at: new Date().toISOString(),
+        }, {
+          onConflict: 'id'
+        });
+
+      if (error) throw error;
+      
+      toast({
+        title: "Draft saved",
+        description: "Your changes have been saved automatically",
+      });
 
       if (articleId) {
         const { error } = await supabase
