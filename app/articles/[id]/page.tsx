@@ -99,29 +99,29 @@ export default function ArticlePage() {
     <div className="max-w-4xl mx-auto px-4 py-8">
       <article className="mb-12">
         <header className="mb-8">
-          <h1 className="text-4xl font-bold mb-4">{article.title}</h1>
-          <div className="flex items-center gap-4 mb-6">
-            <div className="flex items-center gap-3">
-              <div className="relative w-12 h-12">
-                <Image
-                  src={article.profiles?.avatar_url || "/placeholder-user.jpg"}
-                  alt={article.profiles?.name}
-                  fill
-                  className="rounded-full object-cover"
-                  sizes="48px"
-                />
-              </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="font-medium">{article.profiles?.name}</span>
-                  <Button variant="link" className="text-gray-600 px-1 h-auto">Follow</Button>
-                </div>
-                <div className="text-gray-600">
-                  <span>{article.read_time || "5"} min read</span>
-                  <span className="mx-1">·</span>
-                  <span>{formatDistanceToNow(new Date(article.published_at), { addSuffix: true })}</span>
-                </div>
-              </div>
+          <h1 className="text-4xl font-bold mb-6">{article.title}</h1>
+          <div className="flex items-center gap-3 mb-4">
+            <div className="relative w-10 h-10">
+              <Image
+                src={article.profiles?.avatar_url || "/placeholder-user.jpg"}
+                alt={article.profiles?.name}
+                fill
+                className="rounded-full object-cover"
+                sizes="40px"
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="font-medium">{article.profiles?.name}</span>
+              <Button variant="ghost" className="text-neutral-500 px-0 h-auto hover:text-neutral-900">
+                Follow
+              </Button>
+            </div>
+          </div>
+          <div className="flex items-center text-neutral-500 text-sm gap-2">
+            <span>{article.read_time || "5"} min read</span>
+            <span>·</span>
+            <span>{formatDistanceToNow(new Date(article.published_at), { addSuffix: true })}</span>
+          </div>
             </div>
 
             <div className="flex items-center gap-4">
