@@ -47,7 +47,7 @@ export default function ArticlesPage() {
   ];
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
+    <div className="container py-8">
       {/* Header with tabs */}
       <div className="border-b mb-8 overflow-x-auto">
         <div className="flex space-x-6 min-w-max">
