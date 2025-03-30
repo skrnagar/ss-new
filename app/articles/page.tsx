@@ -162,7 +162,7 @@ export default function ArticlesPage() {
                         alt={article.profiles?.name}
                         width={24}
                         height={24}
-                        className="rounded-full mt-1"
+                        className="aspect-square h-full w-full object-cover rounded-full mt-1"
                       />
                       <div>
                         <span className="text-sm font-medium block mb-1">{article.profiles?.name}</span>
