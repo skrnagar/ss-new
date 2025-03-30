@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -98,14 +97,16 @@ export default function ArticlesPage() {
                 >
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
-                      <Image
-                        src={article.profiles?.avatar_url || "/placeholder-user.jpg"}
-                        alt={article.profiles?.name}
-                        width={24}
-                        height={24}
-                        className="rounded-full"
-                      />
-                      <span className="text-sm">{article.profiles?.name}</span>
+                      <Link href={`/profile/${article.profiles?.username}`} className="flex items-center gap-2 hover:text-primary">
+                        <Image
+                          src={article.profiles?.avatar_url || "/placeholder-user.jpg"}
+                          alt={article.profiles?.name}
+                          width={24}
+                          height={24}
+                          className="rounded-full"
+                        />
+                        <span className="text-sm font-medium">{article.profiles?.name}</span>
+                      </Link>
                     </div>
                     <h2 className="text-xl font-bold mb-1 group-hover:text-primary">
                       {article.title}
