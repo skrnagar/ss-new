@@ -101,3 +101,124 @@ export default function ArticlePage() {
     </article>
   );
 }
+"use client";
+
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
+import { supabase } from "@/lib/supabase";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { formatDistanceToNow } from "date-fns";
+
+export default function ArticlePage() {
+  const { id } = useParams();
+  const [article, setArticle] = useState(null);
+  const [comments, setComments] = useState([]);
+  const [newComment, setNewComment] = useState("");
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const fetchArticle = async () => {
+      const { data: article } = await supabase
+        .from("articles_with_author")
+        .select("*")
+        .eq("id", id)
+        .single();
+      setArticle(article);
+    };
+
+    const fetchComments = async () => {
+      const { data: comments } = await supabase
+        .from("comments")
+        .select(`
+          *,
+          profiles:profiles(*)
+        `)
+        .eq("article_id", id)
+        .order("created_at", { ascending: false });
+      setComments(comments || []);
+    };
+
+    const getUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setUser(session?.user || null);
+    };
+
+    fetchArticle();
+    fetchComments();
+    getUser();
+  }, [id]);
+
+  const handleSubmitComment = async (e) => {
+    e.preventDefault();
+    if (!newComment.trim() || !user) return;
+
+    const { data, error } = await supabase
+      .from("comments")
+      .insert({
+        article_id: id,
+        user_id: user.id,
+        content: newComment.trim()
+      })
+      .select(`
+        *,
+        profiles:profiles(*)
+      `)
+      .single();
+
+    if (!error && data) {
+      setComments([data, ...comments]);
+      setNewComment("");
+    }
+  };
+
+  if (!article) return <div>Loading...</div>;
+
+  return (
+    <div className="max-w-4xl mx-auto px-4 py-8">
+      {/* Existing article content */}
+      
+      {/* Comments section */}
+      <div className="mt-12 border-t pt-8">
+        <h2 className="text-2xl font-bold mb-6">Comments ({comments.length})</h2>
+        
+        {user ? (
+          <form onSubmit={handleSubmitComment} className="mb-8">
+            <Textarea
+              value={newComment}
+              onChange={(e) => setNewComment(e.target.value)}
+              placeholder="Write a comment..."
+              className="mb-4"
+            />
+            <Button type="submit">Post Comment</Button>
+          </form>
+        ) : (
+          <p className="mb-8 text-muted-foreground">Please sign in to comment.</p>
+        )}
+
+        <div className="space-y-6">
+          {comments.map((comment) => (
+            <div key={comment.id} className="flex gap-4">
+              <Avatar>
+                <AvatarImage src={comment.profiles?.avatar_url} />
+                <AvatarFallback>
+                  {comment.profiles?.name?.substring(0, 2)}
+                </AvatarFallback>
+              </Avatar>
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="font-medium">{comment.profiles?.name}</span>
+                  <span className="text-sm text-muted-foreground">
+                    {formatDistanceToNow(new Date(comment.created_at), { addSuffix: true })}
+                  </span>
+                </div>
+                <p className="text-gray-700">{comment.content}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
