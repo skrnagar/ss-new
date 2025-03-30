@@ -8,6 +8,7 @@ import { Plus } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { supabase } from "@/lib/supabase";
 import { Skeleton } from "@/components/ui/skeleton";
+import { SearchArticles } from "@/components/search-articles";
 
 export default function ArticlesPage() {
   const [articles, setArticles] = useState([]);
