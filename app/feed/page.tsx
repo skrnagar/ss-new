@@ -20,6 +20,8 @@ import { Search, User } from "lucide-react";
 import { PostTrigger } from "@/components/post-trigger";
 
 
+import { Clock } from "lucide-react";
+
 const PostItem = dynamic(() => import("@/components/post-item").then((mod) => mod.default), {
   ssr: false,
   loading: () => (
