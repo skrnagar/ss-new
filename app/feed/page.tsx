@@ -90,12 +90,14 @@ export default function FeedPage() {
 
   return (
     <div className="container py-6">
-      <div className="grid grid-cols-12 gap-6">
+      <div className="grid grid-cols-11 gap-6">
         {/* Left Sidebar */}
         <div className="col-span-2 hidden lg:block space-y-4">
           {userProfile && (
-            <div className="rounded-lg bg-white p-3 shadow-sm hover:shadow-md transition-shadow">
+            <div className="transition-shadow">
               <Link href={`/profile/${userProfile.id}`} className="block">
+                <Card>
+                  <CardContent className="pt-6">
                 <div className="flex flex-col items-center">
                   <Image
                     src={userProfile.avatar_url || "/placeholder-user.jpg"}
@@ -111,28 +113,42 @@ export default function FeedPage() {
                     </p>
                   )}
                 </div>
+                    </CardContent>
+                      </Card>
               </Link>
             </div>
           )}
-
-          <nav className="space-y-1">
-            <Link href="/network/connections" className="flex items-center gap-2 rounded-md p-2 text-gray-700 hover:bg-gray-100">
-              <Users className="h-5 w-5" />
-              <span>My Connections</span>
-            </Link>
-            <Link href="/network/professionals" className="flex items-center gap-2 rounded-md p-2 text-gray-700 hover:bg-gray-100">
-              <Search className="h-5 w-5" />
-              <span>Explore People</span>
-            </Link>
-            <Link href="/groups" className="flex items-center gap-2 rounded-md p-2 text-gray-700 hover:bg-gray-100">
-              <Users className="h-5 w-5" />
-              <span>Groups</span>
-            </Link>
-            <Link href="/events" className="flex items-center gap-2 rounded-md p-2 text-gray-700 hover:bg-gray-100">
-              <Calendar className="h-5 w-5" />
-              <span>Events</span>
-            </Link>
-          </nav>
+                
+          <Card>
+            <CardContent className="pt-6">
+              <div className="space-y-4">
+                <Link href="/network" className="flex items-center gap-3 hover:text-primary">
+                  <Users className="h-5 w-5" />
+                  <div>
+                    <h3 className="font-medium">My Connections</h3>
+                  </div>
+                </Link>
+                <Link href="/network/professionals" className="flex items-center gap-3 hover:text-primary">
+                  <Search className="h-5 w-5" />
+                  <div>
+                    <h3 className="font-medium">Explore People</h3>
+                  </div>
+                </Link>
+                <Link href="/groups" className="flex items-center gap-3 hover:text-primary">
+                  <Users className="h-5 w-5" />
+                  <div>
+                    <h3 className="font-medium">Groups</h3>
+                  </div>
+                </Link>
+                <Link href="/events" className="flex items-center gap-3 hover:text-primary">
+                  <Calendar className="h-5 w-5" />
+                  <div>
+                    <h3 className="font-medium">Events</h3>
+                  </div>
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Main Content */}
@@ -155,49 +171,7 @@ export default function FeedPage() {
 
         {/* Right sidebar */}
         <div className="col-span-3 hidden lg:block space-y-6">
-          <Card>
-            <CardContent className="pt-6">
-              {authLoading ? (
-                <div className="flex flex-col items-center text-center mb-4">
-                  <Skeleton className="h-16 w-16 rounded-full mb-3" />
-                  <Skeleton className="h-5 w-36 mb-2" />
-                  <Skeleton className="h-4 w-48 mb-4" />
-                  <Skeleton className="h-9 w-full rounded-md" />
-                </div>
-              ) : userProfile ? (
-                <div className="flex flex-col items-center text-center mb-4">
-                  <Avatar className="h-16 w-16 mb-3">
-                    <AvatarImage
-                      src={userProfile.avatar_url || ""}
-                      alt={userProfile.full_name || "User"}
-                    />
-                    <AvatarFallback>
-                      <User className="h-8 w-8" />
-                    </AvatarFallback>
-                  </Avatar>
-                  <h4 className="font-medium">{userProfile.full_name}</h4>
-                  <p className="text-sm text-muted-foreground">
-                    {userProfile.headline || "No headline"}
-                  </p>
-
-                  <Button
-                    className="w-full mt-3"
-                    variant="outline"
-                    onClick={() => router.push(`/profile/${userProfile.username}`)}
-                  >
-                    View Profile
-                  </Button>
-                </div>
-              ) : (
-                <div className="text-center py-4">
-                  <p className="text-muted-foreground mb-3">
-                    Sign in to access your profile and all features
-                  </p>
-                  <Button onClick={() => router.push("/auth/login")}>Sign In</Button>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+        
 
           <Card>
             <CardContent className="pt-6">
@@ -335,43 +309,7 @@ export default function FeedPage() {
           </Card>
 
           {/* Network Navigation Card */}
-          <Card>
-            <CardContent className="pt-6">
-              <div className="space-y-4">
-                <Link href="/network" className="flex items-center gap-3 hover:text-primary">
-                  <Users className="h-5 w-5" />
-                  <div>
-                    <h3 className="font-medium">My Connections</h3>
-                    <p className="text-sm text-muted-foreground">Manage your professional network</p>
-                  </div>
-                </Link>
-
-                <Link href="/network/professionals" className="flex items-center gap-3 hover:text-primary">
-                  <Search className="h-5 w-5" />
-                  <div>
-                    <h3 className="font-medium">Explore People</h3>
-                    <p className="text-sm text-muted-foreground">Find ESG & EHS professionals</p>
-                  </div>
-                </Link>
-
-                <Link href="/groups" className="flex items-center gap-3 hover:text-primary">
-                  <Users className="h-5 w-5" />
-                  <div>
-                    <h3 className="font-medium">Groups</h3>
-                    <p className="text-sm text-muted-foreground">Join specialized professional groups</p>
-                  </div>
-                </Link>
-
-                <Link href="/events" className="flex items-center gap-3 hover:text-primary">
-                  <Calendar className="h-5 w-5" />
-                  <div>
-                    <h3 className="font-medium">Events</h3>
-                    <p className="text-sm text-muted-foreground">Discover industry events and conferences</p>
-                  </div>
-                </Link>
-              </div>
-            </CardContent>
-          </Card>
+          
         </div>
       </div>
     </div>

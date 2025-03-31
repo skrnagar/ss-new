@@ -24,7 +24,7 @@ export function PostTrigger() {
 
   return (
     <>
-      <Card className="md:rounded-lg rounded-none border-x-0 md:border-x">
+      <Card className="md:rounded-lg rounded-none border-x-0 md:border-x mb-6">
         <CardContent className="pt-4 md:pt-6 px-4 md:px-6">
           <div className="flex items-center gap-3">
             <Avatar className="h-8 w-8 md:h-10 md:w-10">
