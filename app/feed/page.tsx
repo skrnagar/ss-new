@@ -1,53 +1,24 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useAuth } from "@/contexts/auth-context";
+import dynamic from "next/dynamic";
+import Link from "next/link";
+import { BookmarkIcon, Calendar, Newspaper, Users } from "lucide-react";
+import Image from "next/image";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
-  Card,
-  CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
-import { useAuth } from "@/contexts/auth-context";
-import { supabase } from "@/lib/supabase";
-import { Calendar, Clock, Search, User, Users } from "lucide-react";
-import dynamic from "next/dynamic";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { Suspense, useEffect, useState } from "react";
-import { unstable_serialize } from "swr";
-
-// Import dynamically to avoid SSR issues - properly resolving to component functions
+import { Search, User } from "lucide-react";
 import { PostTrigger } from "@/components/post-trigger";
 
-const PostCreator = dynamic(
-  () => import("@/components/post-creator").then((mod) => mod.PostCreator),
-  {
-    ssr: false,
-    loading: () => (
-      <Card>
-        <CardContent className="pt-6">
-          <div className="flex items-start gap-4">
-            <Skeleton className="h-10 w-10 rounded-full" />
-            <div className="flex-1 space-y-4">
-              <Skeleton className="h-20 w-full rounded-md" />
-              <div className="flex justify-between">
-                <div className="flex gap-2">
-                  <Skeleton className="h-8 w-20 rounded-md" />
-                  <Skeleton className="h-8 w-20 rounded-md" />
-                  <Skeleton className="h-8 w-20 rounded-md" />
-                </div>
-                <Skeleton className="h-8 w-16 rounded-md" />
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    ),
-  }
-);
 
 const PostItem = dynamic(() => import("@/components/post-item").then((mod) => mod.default), {
   ssr: false,
@@ -85,7 +56,6 @@ export default function FeedPage() {
   const { user, profile: userProfile, isLoading: authLoading, session } = useAuth();
   const router = useRouter();
 
-  // Initial data fetch on mount
   useEffect(() => {
     let mounted = true;
 
@@ -132,8 +102,7 @@ export default function FeedPage() {
     return () => {
       mounted = false;
     };
-
-    // Subscribe to post changes in realtime
+        // Subscribe to post changes in realtime
     const postsSubscription = supabase
       .channel("public:posts")
       .on(
@@ -147,8 +116,8 @@ export default function FeedPage() {
           if (payload.eventType === "INSERT") {
             // Immediately fetch new post with user data
             const { data: newPostWithUser } = await supabase
-            .from("posts")
-            .select(`
+              .from("posts")
+              .select(`
             *,
             profile:user_id (
               id,
@@ -159,24 +128,25 @@ export default function FeedPage() {
               company
             )
           `)
-            .eq("id", payload.new.id)
-            .single();
+              .eq("id", payload.new.id)
+              .single();
 
-          if (newPostWithUser) {
-            setPosts((prevPosts) => {
-              // Ensure no duplicates
-              const existingPost = prevPosts.find(p => p.id === newPostWithUser.id);
-              if (existingPost) {
-                return prevPosts;
-              }
-              return [newPostWithUser, ...prevPosts];
-            });
+            if (newPostWithUser) {
+              setPosts((prevPosts) => {
+                // Ensure no duplicates
+                const existingPost = prevPosts.find(p => p.id === newPostWithUser.id);
+                if (existingPost) {
+                  return prevPosts;
+                }
+                return [newPostWithUser, ...prevPosts];
+              });
+            }
+          } else if (payload.eventType === "DELETE") {
+            // Remove deleted posts immediately
+            setPosts(prevPosts => prevPosts.filter(post => post.id !== payload.old.id));
           }
-        } else if (payload.eventType === "DELETE") {
-          // Remove deleted posts immediately
-          setPosts(prevPosts => prevPosts.filter(post => post.id !== payload.old.id));
         }
-      })
+      )
       .subscribe();
 
     return () => {
@@ -185,54 +155,67 @@ export default function FeedPage() {
   }, [router]);
 
   return (
-    <div className="container py-8 min-h-screen flex flex-col">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 flex-grow">
-        <div className="md:col-span-2 space-y-6 mx-auto w-full max-w-2xl">
-          {/* Post Trigger */}
-          <PostTrigger />
+    <div className="container py-6">
+      <div className="grid grid-cols-12 gap-6">
+        {/* Left Sidebar */}
+        <div className="col-span-2 space-y-6">
+          {userProfile && (
+            <div className="rounded-lg bg-white p-4 shadow-sm">
+              <div className="text-center">
+                <Image
+                  src={userProfile.avatar_url || "/placeholder-user.jpg"}
+                  alt={userProfile.full_name || "User"}
+                  width={80}
+                  height={80}
+                  className="mx-auto mb-3 rounded-full"
+                />
+                <h3 className="font-semibold">{userProfile.full_name || "User"}</h3>
+                <p className="text-sm text-gray-500">{userProfile.location || ""}</p>
+                <p className="text-xs text-gray-500 mt-1">{userProfile.company || ""}</p>
+              </div>
+            </div>
+          )}
 
-          {/* Posts list */}
+          <nav className="space-y-1">
+            <Link href="/saved" className="flex items-center gap-2 rounded-md p-2 text-gray-700 hover:bg-gray-100">
+              <BookmarkIcon className="h-5 w-5" />
+              <span>Saved items</span>
+            </Link>
+            <Link href="/groups" className="flex items-center gap-2 rounded-md p-2 text-gray-700 hover:bg-gray-100">
+              <Users className="h-5 w-5" />
+              <span>Groups</span>
+            </Link>
+            <Link href="/events" className="flex items-center gap-2 rounded-md p-2 text-gray-700 hover:bg-gray-100">
+              <Calendar className="h-5 w-5" />
+              <span>Events</span>
+            </Link>
+            <Link href="/newsletters" className="flex items-center gap-2 rounded-md p-2 text-gray-700 hover:bg-gray-100">
+              <Newspaper className="h-5 w-5" />
+              <span>Newsletters</span>
+            </Link>
+          </nav>
+        </div>
+
+        {/* Main Content */}
+        <div className="col-span-7">
+          <PostTrigger/>
           {postsLoading ? (
-            // Loading skeletons
-            Array(3)
-              .fill(0)
-              .map((_, index) => (
-                <Card key={index} className="mb-4">
-                  <CardContent className="pt-6">
-                    <div className="flex items-start gap-3 mb-4">
-                      <Skeleton className="h-10 w-10 rounded-full" />
-                      <div className="space-y-2">
-                        <Skeleton className="h-4 w-[120px]" />
-                        <Skeleton className="h-3 w-[160px]" />
-                      </div>
-                    </div>
-                    <div className="space-y-2 mb-4">
-                      <Skeleton className="h-4 w-full" />
-                      <Skeleton className="h-4 w-full" />
-                      <Skeleton className="h-4 w-3/4" />
-                    </div>
-                    <Skeleton className="h-[200px] w-full rounded-md" />
-                  </CardContent>
-                </Card>
-              ))
-          ) : posts.length > 0 ? (
-            posts.map((post) => (
-              <div key={post.id}>{post && <PostItem post={post} currentUser={userProfile} />}</div>
-            ))
+            <div className="space-y-4">
+              {[1, 2, 3].map((i) => (
+                <PostItem key={i} />
+              ))}
+            </div>
           ) : (
-            <Card>
-              <CardContent className="py-12 text-center">
-                <p className="text-xl font-medium mb-2">No posts yet</p>
-                <p className="text-muted-foreground">
-                  Be the first to share something with the community!
-                </p>
-              </CardContent>
-            </Card>
+            <div className="space-y-4">
+              {posts.map((post) => (
+                <PostItem key={post.id} post={post} />
+              ))}
+            </div>
           )}
         </div>
 
         {/* Right sidebar */}
-        <div className="hidden md:block space-y-6">
+        <div className="col-span-3 space-y-6">
           <Card>
             <CardContent className="pt-6">
               {authLoading ? (
