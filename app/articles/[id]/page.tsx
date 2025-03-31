@@ -18,7 +18,7 @@ export default function ArticlePage() {
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState("");
   const [user, setUser] = useState(null);
-  const [claps, setClaps] = useState(0); // Added state for claps
+  const [claps, setClaps] = useState(0);
 
   useEffect(() => {
     async function fetchData() {
@@ -33,12 +33,13 @@ export default function ArticlePage() {
         ]);
 
         if (articleResponse.error) throw articleResponse.error;
+        if (commentsResponse.error) throw commentsResponse.error;
+
         setArticle(articleResponse.data);
         setComments(commentsResponse.data || []);
-        setUser(userResponse.data.session?.user || null);
-        //Added to fetch claps count.  This needs a claps table in your database.  Adjust accordingly.
-        const clapsResponse = await supabase.from('claps').select('count(*)').eq('article_id', id).single();
-        setClaps(clapsResponse.data.count || 0);
+        if (userResponse.data.session?.user) {
+          setUser(userResponse.data.session.user);
+        }
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {
@@ -48,38 +49,6 @@ export default function ArticlePage() {
 
     fetchData();
   }, [id]);
-
-  const handleSubmitComment = async (e) => {
-    e.preventDefault();
-    if (!newComment.trim() || !user) return;
-
-    const { data, error } = await supabase
-      .from("comments")
-      .insert({
-        article_id: id,
-        user_id: user.id,
-        content: newComment.trim()
-      })
-      .select(`*, profiles:profiles(*)`)
-      .single();
-
-    if (!error && data) {
-      setComments([data, ...comments]);
-      setNewComment("");
-    }
-  };
-
-  const handleClap = async () => {
-    //Implement clap logic here.  This needs a claps table in your database. Adjust accordingly.
-    if (!user) return;
-    const {data, error} = await supabase
-      .from('claps')
-      .insert({article_id: id, user_id: user.id})
-      .single();
-    if(!error && data) {
-      setClaps(claps + 1);
-    }
-  }
 
   if (loading) {
     return (
@@ -122,90 +91,20 @@ export default function ArticlePage() {
             <span>·</span>
             <span>{formatDistanceToNow(new Date(article.published_at), { addSuffix: true })}</span>
           </div>
-            </div>
-
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
-                <Button variant="ghost" size="icon" onClick={handleClap}>
-                  <span className="sr-only">Clap</span>
-                  👏
-                </Button>
-                <span className="text-sm text-gray-500">{claps}</span>
-              </div>
-              <Button variant="ghost" size="icon">
-                <span className="sr-only">Comments</span>
-                💬
-              </Button>
-              <Button variant="ghost" size="icon">
-                <span className="sr-only">Share</span>
-                📤
-              </Button>
-              <Button variant="ghost" size="icon">
-                <span className="sr-only">More options</span>
-                •••
-              </Button>
-            </div>
-          </div>
-          {article.cover_image && (
-            <div className="relative aspect-[2/1] mb-8">
-              <Image
-                src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/article-covers/${article.cover_image}`}
-                alt={article.title}
-                fill
-                className="object-cover rounded-lg"
-              />
-            </div>
-          )}
-          <div className="flex items-center text-sm text-gray-500 gap-3">
-            {/*This section was moved from below the image to here*/}
-          </div>
         </header>
-
-        <div 
-          className="prose prose-lg max-w-none"
-          dangerouslySetInnerHTML={{ __html: article.content }}
-        />
-      </article>
-
-      <div className="border-t pt-8">
-        <h2 className="text-2xl font-bold mb-6">Comments ({comments.length})</h2>
-
-        {user ? (
-          <form onSubmit={handleSubmitComment} className="mb-8">
-            <Textarea
-              value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
-              placeholder="Write a comment..."
-              className="mb-4"
+        {article.cover_image && (
+          <div className="relative w-full h-[400px] mb-8">
+            <Image
+              src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/article-covers/${article.cover_image}`}
+              alt={article.title}
+              fill
+              className="object-cover rounded-lg"
+              sizes="(max-width: 768px) 100vw, 768px"
             />
-            <Button type="submit">Post Comment</Button>
-          </form>
-        ) : (
-          <p className="mb-8 text-muted-foreground">Please sign in to comment.</p>
+          </div>
         )}
-
-        <div className="space-y-6">
-          {comments.map((comment) => (
-            <div key={comment.id} className="flex gap-4">
-              <Avatar>
-                <AvatarImage src={comment.profiles?.avatar_url} />
-                <AvatarFallback>
-                  {comment.profiles?.name?.substring(0, 2)}
-                </AvatarFallback>
-              </Avatar>
-              <div>
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="font-medium">{comment.profiles?.name}</span>
-                  <span className="text-sm text-muted-foreground">
-                    {formatDistanceToNow(new Date(comment.created_at), { addSuffix: true })}
-                  </span>
-                </div>
-                <p className="text-gray-700">{comment.content}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+        <div className="prose prose-lg max-w-none" dangerouslySetInnerHTML={{ __html: article.content }} />
+      </article>
     </div>
   );
 }
