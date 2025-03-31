@@ -9,18 +9,19 @@ import { supabase } from "@/lib/supabase";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Share2, MoreHorizontal, Bookmark, Heart, MessageCircle } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"; // Retained from original
-import { Textarea } from "@/components/ui/textarea"; // Retained from original
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Textarea } from "@/components/ui/textarea";
 
 
 export default function ArticlePage() {
   const { id } = useParams();
   const [article, setArticle] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [comments, setComments] = useState([]); // Retained from original
-  const [newComment, setNewComment] = useState(""); // Retained from original
-  const [user, setUser] = useState(null); // Retained from original
+  const [comments, setComments] = useState([]);
+  const [newComment, setNewComment] = useState("");
+  const [user, setUser] = useState(null);
   const [claps, setClaps] = useState(0);
+  const [isAuthor, setIsAuthor] = useState(false); // Added state for author check
 
 
   useEffect(() => {
@@ -44,7 +45,8 @@ export default function ArticlePage() {
         setArticle(articleResponse.data);
         setComments(commentsResponse.data || []);
         setUser(userResponse.data.session?.user || null);
-        setClaps(articleResponse.data.claps || 0); // Simplified clap fetching
+        setClaps(articleResponse.data.claps || 0);
+        setIsAuthor(userResponse.data.session?.user?.id === articleResponse.data?.author_id); //Check if user is author
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {
@@ -55,7 +57,7 @@ export default function ArticlePage() {
     fetchData();
   }, [id]);
 
-  const handleSubmitComment = async (e) => { // Retained from original
+  const handleSubmitComment = async (e) => {
     e.preventDefault();
     if (!newComment.trim() || !user) return;
 
@@ -142,6 +144,11 @@ export default function ArticlePage() {
               <Button variant="ghost" size="sm">
                 <Share2 className="h-5 w-5" />
               </Button>
+              {isAuthor && ( // Added conditional rendering for Edit button
+                <Button variant="ghost" size="sm" asChild>
+                  <Link href={`/articles/${article.id}/edit`}>Edit</Link>
+                </Button>
+              )}
               <Button variant="ghost" size="sm">
                 <MoreHorizontal className="h-5 w-5" />
               </Button>
@@ -165,7 +172,7 @@ export default function ArticlePage() {
         </div>
       </article>
 
-      <div className="border-t pt-8"> {/*Comment Section Retained from Original*/}
+      <div className="border-t pt-8">
         <h2 className="text-2xl font-bold mb-6">Comments ({comments.length})</h2>
 
         {user ? (
