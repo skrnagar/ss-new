@@ -1,13 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useAuth } from "@/contexts/auth-context";
+import { Search, BookmarkIcon, Users, Calendar, Newspaper } from "lucide-react";
+import { PostTrigger } from "@/components/post-trigger";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useAuth } from "@/contexts/auth-context";
-import dynamic from "next/dynamic";
 import Link from "next/link";
-import { BookmarkIcon, Calendar, Newspaper, Users } from "lucide-react";
+import { useRouter } from "next/navigation";
+import dynamic from "next/dynamic";
 import Image from "next/image";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -16,11 +17,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Search, User } from "lucide-react";
-import { PostTrigger } from "@/components/post-trigger";
-
-
 import { Clock } from "lucide-react";
+import { User } from "lucide-react";
+
 
 const PostItem = dynamic(() => import("@/components/post-item").then((mod) => mod.default), {
   ssr: false,
@@ -53,9 +52,10 @@ export default function FeedPage() {
     author_id: string;
     updated_at?: string;
   }
+
   const [posts, setPosts] = useState<Post[]>([]);
   const [postsLoading, setPostsLoading] = useState(true);
-  const { user, profile: userProfile, isLoading: authLoading, session } = useAuth();
+  const { user, profile: userProfile, isLoading: authLoading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
@@ -63,35 +63,19 @@ export default function FeedPage() {
 
     async function fetchPosts() {
       try {
-        setPostsLoading(true);
-
-        // Fetch posts with user information and proper ordering
+        const { supabase } = await import('@/lib/supabase');
         const { data, error } = await supabase
-          .from("posts")
-          .select(`
-            *,
-            profile:user_id (
-              id,
-              username,
-              full_name,
-              avatar_url,
-              position,
-              company
-            )
-          `)
-          .order("created_at", { ascending: false })
-          .limit(20);
+          .from('posts')
+          .select('*, profile:profiles(*)')
+          .order('created_at', { ascending: false });
 
-        if (error) {
-          throw error;
-        }
-
-        if (data && mounted) {
-          setPosts(data);
+        if (error) throw error;
+        if (mounted) {
+          setPosts(data || []);
+          setPostsLoading(false);
         }
       } catch (error) {
-        console.error("Error fetching data:", error);
-      } finally {
+        console.error('Error fetching posts:', error);
         if (mounted) {
           setPostsLoading(false);
         }
@@ -99,68 +83,16 @@ export default function FeedPage() {
     }
 
     fetchPosts();
-
-    // Cleanup function
     return () => {
       mounted = false;
     };
-        // Subscribe to post changes in realtime
-    const postsSubscription = supabase
-      .channel("public:posts")
-      .on(
-        "postgres_changes",
-        {
-          event: "*", // Listen to all changes
-          schema: "public",
-          table: "posts",
-        },
-        async (payload) => {
-          if (payload.eventType === "INSERT") {
-            // Immediately fetch new post with user data
-            const { data: newPostWithUser } = await supabase
-              .from("posts")
-              .select(`
-            *,
-            profile:user_id (
-              id,
-              username,
-              full_name,
-              avatar_url,
-              position,
-              company
-            )
-          `)
-              .eq("id", payload.new.id)
-              .single();
-
-            if (newPostWithUser) {
-              setPosts((prevPosts) => {
-                // Ensure no duplicates
-                const existingPost = prevPosts.find(p => p.id === newPostWithUser.id);
-                if (existingPost) {
-                  return prevPosts;
-                }
-                return [newPostWithUser, ...prevPosts];
-              });
-            }
-          } else if (payload.eventType === "DELETE") {
-            // Remove deleted posts immediately
-            setPosts(prevPosts => prevPosts.filter(post => post.id !== payload.old.id));
-          }
-        }
-      )
-      .subscribe();
-
-    return () => {
-      postsSubscription.unsubscribe();
-    };
-  }, [router]);
+  }, []);
 
   return (
     <div className="container py-6">
       <div className="grid grid-cols-12 gap-6">
         {/* Left Sidebar */}
-        <div className="col-span-2 space-y-6">
+        <div className="col-span-3 hidden lg:block space-y-6">
           {userProfile && (
             <div className="rounded-lg bg-white p-4 shadow-sm">
               <div className="text-center">
@@ -199,25 +131,25 @@ export default function FeedPage() {
         </div>
 
         {/* Main Content */}
-        <div className="col-span-7">
+        <div className="col-span-12 lg:col-span-6">
           <PostTrigger/>
           {postsLoading ? (
             <div className="space-y-4">
               {[1, 2, 3].map((i) => (
-                <PostItem key={i} />
+                <PostItem key={i} post={{}} currentUser={null} />
               ))}
             </div>
           ) : (
             <div className="space-y-4">
               {posts.map((post) => (
-                <PostItem key={post.id} post={post} />
+                <PostItem key={post.id} post={post} currentUser={user} />
               ))}
             </div>
           )}
         </div>
 
         {/* Right sidebar */}
-        <div className="col-span-3 space-y-6">
+        <div className="col-span-3 hidden lg:block space-y-6">
           <Card>
             <CardContent className="pt-6">
               {authLoading ? (
