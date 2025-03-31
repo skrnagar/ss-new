@@ -109,16 +109,16 @@ export default function ArticlePage() {
 
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
             <div className="flex items-center gap-3">
-              <Link href={`/profile/${article.profiles?.username}`} className="flex items-center gap-3 hover:opacity-80">
+              <Link href={`/profile/${article.author_id}`} className="flex items-center gap-3 hover:opacity-80">
                 <Image
-                  src={article.profiles?.avatar_url || "/placeholder-user.jpg"}
-                  alt={article.profiles?.name}
+                  src={article.author_avatar || "/placeholder-user.jpg"}
+                  alt={article.author_name}
                   width={48}
                   height={48}
                   className="rounded-full"
                 />
                 <div>
-                  <h2 className="font-semibold text-gray-900">{article.profiles?.name}</h2>
+                  <h2 className="font-semibold text-gray-900">{article.author_name}</h2>
                   <div className="text-sm text-gray-600 flex items-center gap-2">
                     <span>{formatDistanceToNow(new Date(article.published_at), { addSuffix: true })}</span>
                     <span>·</span>
