@@ -8,24 +8,32 @@ import { formatDistanceToNow } from "date-fns";
 import { supabase } from "@/lib/supabase";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Share2, MoreHorizontal, Bookmark, Heart, MessageCircle } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"; // Retained from original
+import { Textarea } from "@/components/ui/textarea"; // Retained from original
+
 
 export default function ArticlePage() {
   const { id } = useParams();
   const [article, setArticle] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [comments, setComments] = useState([]);
-  const [newComment, setNewComment] = useState("");
-  const [user, setUser] = useState(null);
-  const [claps, setClaps] = useState(0); // Added state for claps
+  const [comments, setComments] = useState([]); // Retained from original
+  const [newComment, setNewComment] = useState(""); // Retained from original
+  const [user, setUser] = useState(null); // Retained from original
+  const [claps, setClaps] = useState(0);
+
 
   useEffect(() => {
     async function fetchData() {
       try {
         const [articleResponse, commentsResponse, userResponse] = await Promise.all([
-          supabase.from("articles_with_author").select("*").eq("id", id).single(),
-          supabase.from("comments")
+          supabase
+            .from("articles_with_author")
+            .select("*")
+            .eq("id", id)
+            .single(),
+          supabase
+            .from("comments")
             .select(`*, profiles:profiles(*)`)
             .eq("article_id", id)
             .order("created_at", { ascending: false }),
@@ -36,9 +44,7 @@ export default function ArticlePage() {
         setArticle(articleResponse.data);
         setComments(commentsResponse.data || []);
         setUser(userResponse.data.session?.user || null);
-        //Added to fetch claps count.  This needs a claps table in your database.  Adjust accordingly.
-        const clapsResponse = await supabase.from('claps').select('count(*)').eq('article_id', id).single();
-        setClaps(clapsResponse.data.count || 0);
+        setClaps(articleResponse.data.claps || 0); // Simplified clap fetching
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {
@@ -49,7 +55,7 @@ export default function ArticlePage() {
     fetchData();
   }, [id]);
 
-  const handleSubmitComment = async (e) => {
+  const handleSubmitComment = async (e) => { // Retained from original
     e.preventDefault();
     if (!newComment.trim() || !user) return;
 
@@ -70,20 +76,20 @@ export default function ArticlePage() {
   };
 
   const handleClap = async () => {
-    //Implement clap logic here.  This needs a claps table in your database. Adjust accordingly.
-    if (!user) return;
-    const {data, error} = await supabase
-      .from('claps')
-      .insert({article_id: id, user_id: user.id})
-      .single();
-    if(!error && data) {
-      setClaps(claps + 1);
+    try {
+      setClaps(prev => prev + 1);
+      await supabase
+        .from("articles")
+        .update({ claps: claps + 1 })
+        .eq("id", id);
+    } catch (error) {
+      console.error("Error updating claps:", error);
     }
-  }
+  };
 
   if (loading) {
     return (
-      <div className="max-w-3xl mx-auto px-4 py-8">
+      <div className="max-w-4xl mx-auto px-4 py-8">
         <Skeleton className="h-12 w-3/4 mb-4" />
         <Skeleton className="h-6 w-48 mb-8" />
         <Skeleton className="h-96 w-full" />
@@ -99,75 +105,69 @@ export default function ArticlePage() {
     <div className="max-w-4xl mx-auto px-4 py-8">
       <article className="mb-12">
         <header className="mb-8">
-          <h1 className="text-4xl font-bold mb-4">{article.title}</h1>
-          <div className="flex items-center gap-4 mb-6">
+          <h1 className="text-3xl md:text-4xl font-bold mb-6 text-gray-900">{article.title}</h1>
+
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
             <div className="flex items-center gap-3">
-              <div className="relative w-12 h-12">
+              <Link href={`/profile/${article.profiles?.username}`} className="flex items-center gap-3 hover:opacity-80">
                 <Image
                   src={article.profiles?.avatar_url || "/placeholder-user.jpg"}
                   alt={article.profiles?.name}
-                  fill
-                  className="rounded-full object-cover"
-                  sizes="48px"
+                  width={48}
+                  height={48}
+                  className="rounded-full"
                 />
-              </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="font-medium">{article.profiles?.name}</span>
-                  <Button variant="link" className="text-gray-600 px-1 h-auto">Follow</Button>
+                <div>
+                  <h2 className="font-semibold text-gray-900">{article.profiles?.name}</h2>
+                  <div className="text-sm text-gray-600 flex items-center gap-2">
+                    <span>{formatDistanceToNow(new Date(article.published_at), { addSuffix: true })}</span>
+                    <span>·</span>
+                    <span>{article.read_time || "5"} min read</span>
+                  </div>
                 </div>
-                <div className="text-gray-600">
-                  <span>{article.read_time || "5"} min read</span>
-                  <span className="mx-1">·</span>
-                  <span>{formatDistanceToNow(new Date(article.published_at), { addSuffix: true })}</span>
-                </div>
-              </div>
+              </Link>
             </div>
 
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
-                <Button variant="ghost" size="icon" onClick={handleClap}>
-                  <span className="sr-only">Clap</span>
-                  👏
-                </Button>
-                <span className="text-sm text-gray-500">{claps}</span>
-              </div>
-              <Button variant="ghost" size="icon">
-                <span className="sr-only">Comments</span>
-                💬
+            <div className="flex items-center gap-2">
+              <Button variant="ghost" size="sm" onClick={handleClap}>
+                <Heart className="h-5 w-5 mr-1" />
+                <span>{claps}</span>
               </Button>
-              <Button variant="ghost" size="icon">
-                <span className="sr-only">Share</span>
-                📤
+              <Button variant="ghost" size="sm">
+                <MessageCircle className="h-5 w-5" />
               </Button>
-              <Button variant="ghost" size="icon">
-                <span className="sr-only">More options</span>
-                •••
+              <Button variant="ghost" size="sm">
+                <Bookmark className="h-5 w-5" />
+              </Button>
+              <Button variant="ghost" size="sm">
+                <Share2 className="h-5 w-5" />
+              </Button>
+              <Button variant="ghost" size="sm">
+                <MoreHorizontal className="h-5 w-5" />
               </Button>
             </div>
           </div>
+
           {article.cover_image && (
-            <div className="relative aspect-[2/1] mb-8">
+            <div className="relative aspect-video w-full mb-8 bg-gray-100 rounded-lg overflow-hidden">
               <Image
                 src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/article-covers/${article.cover_image}`}
                 alt={article.title}
                 fill
-                className="object-cover rounded-lg"
+                className="object-cover"
+                priority
               />
             </div>
           )}
-          <div className="flex items-center text-sm text-gray-500 gap-3">
-            {/*This section was moved from below the image to here*/}
-          </div>
         </header>
 
-        <div 
-          className="prose prose-lg max-w-none"
-          dangerouslySetInnerHTML={{ __html: article.content }}
-        />
+        <div className="prose prose-lg max-w-none">
+          {/* dangerouslySetInnerHTML removed for security.  Directly using article.content */}
+          {article.content}
+        </div>
       </article>
 
-      <div className="border-t pt-8">
+      <div className="border-t pt-8"> {/*Comment Section Retained from Original*/}
         <h2 className="text-2xl font-bold mb-6">Comments ({comments.length})</h2>
 
         {user ? (
