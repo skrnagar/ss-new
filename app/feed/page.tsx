@@ -116,9 +116,13 @@ export default function FeedPage() {
           )}
 
           <nav className="space-y-1">
-            <Link href="/saved" className="flex items-center gap-2 rounded-md p-2 text-gray-700 hover:bg-gray-100">
-              <BookmarkIcon className="h-5 w-5" />
-              <span>Saved items</span>
+            <Link href="/network/connections" className="flex items-center gap-2 rounded-md p-2 text-gray-700 hover:bg-gray-100">
+              <Users className="h-5 w-5" />
+              <span>My Connections</span>
+            </Link>
+            <Link href="/network/professionals" className="flex items-center gap-2 rounded-md p-2 text-gray-700 hover:bg-gray-100">
+              <Search className="h-5 w-5" />
+              <span>Explore People</span>
             </Link>
             <Link href="/groups" className="flex items-center gap-2 rounded-md p-2 text-gray-700 hover:bg-gray-100">
               <Users className="h-5 w-5" />
@@ -127,10 +131,6 @@ export default function FeedPage() {
             <Link href="/events" className="flex items-center gap-2 rounded-md p-2 text-gray-700 hover:bg-gray-100">
               <Calendar className="h-5 w-5" />
               <span>Events</span>
-            </Link>
-            <Link href="/newsletters" className="flex items-center gap-2 rounded-md p-2 text-gray-700 hover:bg-gray-100">
-              <Newspaper className="h-5 w-5" />
-              <span>Newsletters</span>
             </Link>
           </nav>
         </div>
