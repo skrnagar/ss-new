@@ -112,7 +112,7 @@ export default function ArticlesPage() {
                       {article.title}
                     </h2>
                     <p className="text-gray-600 line-clamp-2 mb-2">
-                      {article.excerpt || article.content?.substring(0, 160)}
+                      {article.excerpt || article.content?.replace(/<[^>]*>/g, '').substring(0, 160)}
                     </p>
                     <div className="flex items-center text-sm text-gray-500">
                       <span>
