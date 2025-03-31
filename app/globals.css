@@ -8,6 +8,10 @@
   .animate-delayed {
     animation-delay: 200ms;
   }
+
+  svg {
+    stroke-width: 1.25;
+  }
 }
 
 :root {
