@@ -92,21 +92,26 @@ export default function FeedPage() {
     <div className="container py-6">
       <div className="grid grid-cols-12 gap-6">
         {/* Left Sidebar */}
-        <div className="col-span-3 hidden lg:block space-y-6">
+        <div className="col-span-2 hidden lg:block space-y-4">
           {userProfile && (
-            <div className="rounded-lg bg-white p-4 shadow-sm">
-              <div className="text-center">
-                <Image
-                  src={userProfile.avatar_url || "/placeholder-user.jpg"}
-                  alt={userProfile.full_name || "User"}
-                  width={80}
-                  height={80}
-                  className="mx-auto mb-3 rounded-full"
-                />
-                <h3 className="font-semibold">{userProfile.full_name || "User"}</h3>
-                <p className="text-sm text-gray-500">{userProfile.location || ""}</p>
-                <p className="text-xs text-gray-500 mt-1">{userProfile.company || ""}</p>
-              </div>
+            <div className="rounded-lg bg-white p-3 shadow-sm hover:shadow-md transition-shadow">
+              <Link href={`/profile/${userProfile.id}`} className="block">
+                <div className="flex flex-col items-center">
+                  <Image
+                    src={userProfile.avatar_url || "/placeholder-user.jpg"}
+                    alt={userProfile.full_name || "User"}
+                    width={60}
+                    height={60}
+                    className="rounded-full hover:opacity-90 transition-opacity"
+                  />
+                  <h3 className="font-semibold text-sm mt-2">{userProfile.full_name || "User"}</h3>
+                  {userProfile.headline && (
+                    <p className="text-xs text-gray-500 text-center line-clamp-2 mt-1">
+                      {userProfile.headline}
+                    </p>
+                  )}
+                </div>
+              </Link>
             </div>
           )}
 
