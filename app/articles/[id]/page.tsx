@@ -161,9 +161,7 @@ export default function ArticlePage() {
           )}
         </header>
 
-        <div className="prose prose-lg max-w-none">
-          {/* dangerouslySetInnerHTML removed for security.  Directly using article.content */}
-          {article.content}
+        <div className="prose prose-lg max-w-none" dangerouslySetInnerHTML={{ __html: article.content }}>
         </div>
       </article>
 
