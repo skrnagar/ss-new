@@ -1,17 +1,59 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import Image from "next/image";
-import Link from "next/link";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/auth-context";
+import { Search, BookmarkIcon, Users, Calendar, Newspaper } from "lucide-react";
+import { PostTrigger } from "@/components/post-trigger";
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Search, Users } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import dynamic from "next/dynamic";
+import Image from "next/image";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import {
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Clock } from "lucide-react";
+import { User } from "lucide-react";
+
+
+const PostItem = dynamic(() => import("@/components/post-item").then((mod) => mod.default), {
+  ssr: false,
+  loading: () => (
+    <Card>
+      <CardContent className="pt-6">
+        <div className="flex items-start gap-3 mb-4">
+          <Skeleton className="h-10 w-10 rounded-full" />
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-[120px]" />
+            <Skeleton className="h-3 w-[160px]" />
+          </div>
+        </div>
+        <div className="space-y-2 mb-4">
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-3/4" />
+        </div>
+        <Skeleton className="h-[200px] w-full rounded-md" />
+      </CardContent>
+    </Card>
+  ),
+});
 
 export default function FeedPage() {
-  const [posts, setPosts] = useState([]);
+  interface Post {
+    id: string;
+    content: string;
+    created_at: string;
+    author_id: string;
+    updated_at?: string;
+  }
+
+  const [posts, setPosts] = useState<Post[]>([]);
   const [postsLoading, setPostsLoading] = useState(true);
   const { user, profile: userProfile, isLoading: authLoading } = useAuth();
   const router = useRouter();
@@ -28,12 +70,12 @@ export default function FeedPage() {
           .order('created_at', { ascending: false });
 
         if (error) throw error;
-        if (mounted && data) {
-          setPosts(data);
+        if (mounted) {
+          setPosts(data || []);
+          setPostsLoading(false);
         }
       } catch (error) {
         console.error('Error fetching posts:', error);
-      } finally {
         if (mounted) {
           setPostsLoading(false);
         }
@@ -43,7 +85,7 @@ export default function FeedPage() {
     fetchPosts();
     return () => {
       mounted = false;
-    }
+    };
   }, []);
 
   return (
@@ -72,49 +114,72 @@ export default function FeedPage() {
               </Link>
             </div>
           )}
-          {/* Navigation items removed */}
+
+          <nav className="space-y-1">
+            <Link href="/network/connections" className="flex items-center gap-2 rounded-md p-2 text-gray-700 hover:bg-gray-100">
+              <Users className="h-5 w-5" />
+              <span>My Connections</span>
+            </Link>
+            <Link href="/network/professionals" className="flex items-center gap-2 rounded-md p-2 text-gray-700 hover:bg-gray-100">
+              <Search className="h-5 w-5" />
+              <span>Explore People</span>
+            </Link>
+            <Link href="/groups" className="flex items-center gap-2 rounded-md p-2 text-gray-700 hover:bg-gray-100">
+              <Users className="h-5 w-5" />
+              <span>Groups</span>
+            </Link>
+            <Link href="/events" className="flex items-center gap-2 rounded-md p-2 text-gray-700 hover:bg-gray-100">
+              <Calendar className="h-5 w-5" />
+              <span>Events</span>
+            </Link>
+          </nav>
         </div>
 
         {/* Main Content */}
-        <div className="col-span-7">
+        <div className="col-span-12 lg:col-span-6">
+          <PostTrigger/>
           {postsLoading ? (
             <div className="space-y-4">
               {[1, 2, 3].map((i) => (
-                <Card key={i}>
-                  <CardContent className="pt-6">
-                    <div className="animate-pulse">
-                      <div className="flex items-center space-x-4">
-                        <div className="h-12 w-12 rounded-full bg-gray-200" />
-                        <div className="space-y-2">
-                          <div className="h-4 w-[200px] bg-gray-200 rounded" />
-                          <div className="h-3 w-[150px] bg-gray-200 rounded" />
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                <PostItem key={i} post={{}} currentUser={null} />
               ))}
             </div>
           ) : (
             <div className="space-y-4">
-              {posts.map((post: any) => (
-                <Card key={post.id}>
-                  <CardContent className="pt-6">
-                    <p>{post.content}</p>
-                  </CardContent>
-                </Card>
+              {posts.map((post) => (
+                <PostItem key={post.id} post={post} currentUser={user} />
               ))}
             </div>
           )}
         </div>
 
         {/* Right sidebar */}
-        <div className="col-span-3 hidden lg:block">
+        <div className="col-span-3 hidden lg:block space-y-6">
           <Card>
             <CardContent className="pt-6">
-              {userProfile ? (
-                <div>
-                  <h3 className="font-semibold mb-2">Your Profile</h3>
+              {authLoading ? (
+                <div className="flex flex-col items-center text-center mb-4">
+                  <Skeleton className="h-16 w-16 rounded-full mb-3" />
+                  <Skeleton className="h-5 w-36 mb-2" />
+                  <Skeleton className="h-4 w-48 mb-4" />
+                  <Skeleton className="h-9 w-full rounded-md" />
+                </div>
+              ) : userProfile ? (
+                <div className="flex flex-col items-center text-center mb-4">
+                  <Avatar className="h-16 w-16 mb-3">
+                    <AvatarImage
+                      src={userProfile.avatar_url || ""}
+                      alt={userProfile.full_name || "User"}
+                    />
+                    <AvatarFallback>
+                      <User className="h-8 w-8" />
+                    </AvatarFallback>
+                  </Avatar>
+                  <h4 className="font-medium">{userProfile.full_name}</h4>
+                  <p className="text-sm text-muted-foreground">
+                    {userProfile.headline || "No headline"}
+                  </p>
+
                   <Button
                     className="w-full mt-3"
                     variant="outline"
