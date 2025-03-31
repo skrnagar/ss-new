@@ -46,7 +46,7 @@ export function PostTrigger() {
               </Button>
             </div>
             
-            <div className="flex justify-between items-center border-t pt-3">
+            <div className="hidden md:flex justify-between items-center border-t pt-3">
               <Button variant="ghost" className="flex-1" onClick={() => setOpen(true)}>
                 <Image className="h-5 w-5 mr-2" />
                 Photo
