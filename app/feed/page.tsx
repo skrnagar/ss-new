@@ -115,24 +115,7 @@ export default function FeedPage() {
             </div>
           )}
 
-          <nav className="space-y-1">
-            <Link href="/network/connections" className="flex items-center gap-2 rounded-md p-2 text-gray-700 hover:bg-gray-100">
-              <Users className="h-5 w-5" />
-              <span>My Connections</span>
-            </Link>
-            <Link href="/network/professionals" className="flex items-center gap-2 rounded-md p-2 text-gray-700 hover:bg-gray-100">
-              <Search className="h-5 w-5" />
-              <span>Explore People</span>
-            </Link>
-            <Link href="/groups" className="flex items-center gap-2 rounded-md p-2 text-gray-700 hover:bg-gray-100">
-              <Users className="h-5 w-5" />
-              <span>Groups</span>
-            </Link>
-            <Link href="/events" className="flex items-center gap-2 rounded-md p-2 text-gray-700 hover:bg-gray-100">
-              <Calendar className="h-5 w-5" />
-              <span>Events</span>
-            </Link>
-          </nav>
+          {/* Navigation items removed */}
         </div>
 
         {/* Main Content */}
@@ -153,32 +136,7 @@ export default function FeedPage() {
           )}
         </div>
 
-        {/* Right sidebar */}
-        <div className="col-span-3 hidden lg:block space-y-6">
-          <Card>
-            <CardContent className="pt-6">
-              {authLoading ? (
-                <div className="flex flex-col items-center text-center mb-4">
-                  <Skeleton className="h-16 w-16 rounded-full mb-3" />
-                  <Skeleton className="h-5 w-36 mb-2" />
-                  <Skeleton className="h-4 w-48 mb-4" />
-                  <Skeleton className="h-9 w-full rounded-md" />
-                </div>
-              ) : userProfile ? (
-                <div className="flex flex-col items-center text-center mb-4">
-                  <Avatar className="h-16 w-16 mb-3">
-                    <AvatarImage
-                      src={userProfile.avatar_url || ""}
-                      alt={userProfile.full_name || "User"}
-                    />
-                    <AvatarFallback>
-                      <User className="h-8 w-8" />
-                    </AvatarFallback>
-                  </Avatar>
-                  <h4 className="font-medium">{userProfile.full_name}</h4>
-                  <p className="text-sm text-muted-foreground">
-                    {userProfile.headline || "No headline"}
-                  </p>
+        {/* Right sidebar removed */}
 
                   <Button
                     className="w-full mt-3"
