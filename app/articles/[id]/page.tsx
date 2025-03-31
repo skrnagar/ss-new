@@ -11,10 +11,18 @@ import { Button } from "@/components/ui/button";
 import { Share2, MoreHorizontal, Bookmark, Heart, MessageCircle } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Textarea } from "@/components/ui/textarea";
+import { useRouter } from "next/navigation";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 
 export default function ArticlePage() {
   const { id } = useParams();
+  const router = useRouter();
   const [article, setArticle] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [comments, setComments] = useState([]);
@@ -144,14 +152,45 @@ export default function ArticlePage() {
               <Button variant="ghost" size="sm">
                 <Share2 className="h-5 w-5" />
               </Button>
-              {isAuthor && ( // Added conditional rendering for Edit button
-                <Button variant="ghost" size="sm" asChild>
-                  <Link href={`/articles/${article.id}/edit`}>Edit</Link>
+              {isAuthor && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="sm">
+                      <MoreHorizontal className="h-5 w-5" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <DropdownMenuItem asChild>
+                      <Link href={`/articles/${article.id}/edit`}>Edit article</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      className="text-red-600"
+                      onClick={async () => {
+                        if (window.confirm('Are you sure you want to delete this article?')) {
+                          try {
+                            const { error } = await supabase
+                              .from('articles')
+                              .delete()
+                              .eq('id', article.id);
+                            
+                            if (error) throw error;
+                            router.push('/articles');
+                          } catch (error) {
+                            console.error('Error deleting article:', error);
+                          }
+                        }
+                      }}
+                    >
+                      Delete article
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
+              {!isAuthor && (
+                <Button variant="ghost" size="sm">
+                  <MoreHorizontal className="h-5 w-5" />
                 </Button>
               )}
-              <Button variant="ghost" size="sm">
-                <MoreHorizontal className="h-5 w-5" />
-              </Button>
             </div>
           </div>
 
