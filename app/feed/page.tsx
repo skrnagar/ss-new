@@ -54,9 +54,75 @@ export default function FeedPage() {
   }
 
   const [posts, setPosts] = useState<Post[]>([]);
+  const [events, setEvents] = useState<any[]>([]);
+  const [suggestions, setSuggestions] = useState<any[]>([]);
   const [postsLoading, setPostsLoading] = useState(true);
   const { user, profile: userProfile, isLoading: authLoading } = useAuth();
   const router = useRouter();
+
+  const fetchEvents = async () => {
+    try {
+      const { data: eventData } = await supabase
+        .from('events')
+        .select('*')
+        .eq('is_public', true)
+        .gte('start_date', new Date().toISOString())
+        .order('start_date', { ascending: true })
+        .limit(2);
+      
+      setEvents(eventData || []);
+    } catch (error) {
+      console.error('Error fetching events:', error);
+    }
+  };
+
+  const fetchSuggestions = async () => {
+    if (!user) return;
+    try {
+      // Get existing connections to exclude them
+      const { data: connections } = await supabase
+        .from('connections')
+        .select('connected_user_id')
+        .eq('user_id', user.id);
+
+      const connectedIds = connections?.map(c => c.connected_user_id) || [];
+      connectedIds.push(user.id); // Add current user to excluded list
+
+      // Get suggested profiles
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('*')
+        .not('id', 'in', `(${connectedIds.join(',')})`)
+        .limit(3);
+
+      setSuggestions(profiles || []);
+    } catch (error) {
+      console.error('Error fetching suggestions:', error);
+    }
+  };
+
+  const handleConnect = async (profileId: string) => {
+    if (!user) return;
+    try {
+      await supabase
+        .from('connections')
+        .insert([
+          { user_id: user.id, connected_user_id: profileId, status: 'pending' }
+        ]);
+      
+      // Refresh suggestions after connecting
+      fetchSuggestions();
+    } catch (error) {
+      console.error('Error sending connection request:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchEvents();
+    if (user) {
+      fetchSuggestions();
+    }
+  }, [user]);
 
   useEffect(() => {
     let mounted = true;
@@ -198,30 +264,22 @@ export default function FeedPage() {
                 </div>
               ) : (
                 <div className="space-y-3">
-                  <div className="border rounded-md p-3">
-                    <div className="flex items-center gap-2 mb-1">
-                      <Clock className="h-4 w-4 text-primary" />
-                      <span className="text-sm font-medium">Tomorrow, 3:00 PM</span>
+                  {events.slice(0, 2).map((event) => (
+                    <div key={event.id} className="border rounded-md p-3">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Clock className="h-4 w-4 text-primary" />
+                        <span className="text-sm font-medium">
+                          {format(new Date(event.start_date), "MMM d, h:mm a")}
+                        </span>
+                      </div>
+                      <h4 className="font-medium">{event.title}</h4>
+                      <p className="text-sm text-muted-foreground line-clamp-1">
+                        {event.description}
+                      </p>
                     </div>
-                    <h4 className="font-medium">ESG Reporting Best Practices</h4>
-                    <p className="text-sm text-muted-foreground">
-                      Join industry experts for a webinar on ESG reporting standards
-                    </p>
-                  </div>
-
-                  <div className="border rounded-md p-3">
-                    <div className="flex items-center gap-2 mb-1">
-                      <Clock className="h-4 w-4 text-primary" />
-                      <span className="text-sm font-medium">May 15, 2:00 PM</span>
-                    </div>
-                    <h4 className="font-medium">Workplace Safety Forum</h4>
-                    <p className="text-sm text-muted-foreground">
-                      Virtual panel discussion on improving safety culture
-                    </p>
-                  </div>
-
-                  <Button variant="link" className="px-0">
-                    See all events
+                  ))}
+                  <Button variant="link" className="px-0" asChild>
+                    <Link href="/events">See all events</Link>
                   </Button>
                 </div>
               )}
@@ -245,63 +303,36 @@ export default function FeedPage() {
                       <Skeleton className="h-8 w-16 rounded-md" />
                     </div>
                   ))}
-                  <Skeleton className="h-4 w-32" />
                 </div>
               ) : (
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Avatar className="h-8 w-8">
-                        <AvatarFallback>JP</AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <p className="text-sm font-medium">James Peterson</p>
-                        <p className="text-xs text-muted-foreground">
-                          Safety Director at Construct Co.
-                        </p>
+                  {suggestions.slice(0, 3).map((profile) => (
+                    <div key={profile.id} className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Avatar className="h-8 w-8">
+                          <AvatarImage src={profile.avatar_url} />
+                          <AvatarFallback>
+                            {profile.full_name?.substring(0, 2)}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <p className="text-sm font-medium">{profile.full_name}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {profile.headline}
+                          </p>
+                        </div>
                       </div>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => handleConnect(profile.id)}
+                      >
+                        Connect
+                      </Button>
                     </div>
-                    <Button variant="outline" size="sm">
-                      Connect
-                    </Button>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Avatar className="h-8 w-8">
-                        <AvatarFallback>MJ</AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <p className="text-sm font-medium">Maria Johnson</p>
-                        <p className="text-xs text-muted-foreground">
-                          ESG Analyst at Green Metrics
-                        </p>
-                      </div>
-                    </div>
-                    <Button variant="outline" size="sm">
-                      Connect
-                    </Button>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Avatar className="h-8 w-8">
-                        <AvatarFallback>RL</AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <p className="text-sm font-medium">Robert Lee</p>
-                        <p className="text-xs text-muted-foreground">
-                          EHS Manager at Industrial Tech
-                        </p>
-                      </div>
-                    </div>
-                    <Button variant="outline" size="sm">
-                      Connect
-                    </Button>
-                  </div>
-
-                  <Button variant="link" className="px-0">
-                    See more suggestions
+                  ))}
+                  <Button variant="link" className="px-0" asChild>
+                    <Link href="/network">See more suggestions</Link>
                   </Button>
                 </div>
               )}
