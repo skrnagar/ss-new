@@ -13,7 +13,7 @@ import dynamic from "next/dynamic";
 import Image from "next/image";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { useInView } from "react-intersection-observer";
+import { useIntersectionObserver } from "@/hooks/use-intersection-observer";
 import { useToast } from "@/hooks/use-toast";
 
 const POSTS_PER_PAGE = 10;
