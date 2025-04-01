@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useState } from "react";
@@ -89,31 +90,6 @@ export default function FeedPage() {
         .select('connected_user_id')
         .eq('user_id', user.id)
         .eq('status', 'accepted');
-
-      const connectedIds = connections?.map(c => c.connected_user_id) || [];
-      connectedIds.push(user.id); // Add current user to excluded list
-
-      // Get suggested profiles
-      const { data: profiles } = await supabase
-        .from('profiles')
-        .select('*')
-        .not('id', 'in', `(${connectedIds.join(',')})`)
-        .limit(3);
-
-      setSuggestions(profiles || []);
-    } catch (error) {
-      console.error('Error fetching suggestions:', error);
-    }
-  };
-
-  const fetchSuggestions = async () => {
-    if (!user) return;
-    try {
-      // Get existing connections to exclude them
-      const { data: connections } = await supabase
-        .from('connections')
-        .select('connected_user_id')
-        .eq('user_id', user.id);
 
       const connectedIds = connections?.map(c => c.connected_user_id) || [];
       connectedIds.push(user.id); // Add current user to excluded list
@@ -269,8 +245,6 @@ export default function FeedPage() {
 
         {/* Right sidebar */}
         <div className="col-span-3 hidden lg:block space-y-6">
-        
-
           <Card>
             <CardContent className="pt-6">
               <h3 className="font-semibold mb-3">Upcoming Events</h3>
@@ -382,9 +356,6 @@ export default function FeedPage() {
               )}
             </CardContent>
           </Card>
-
-          {/* Network Navigation Card */}
-          
         </div>
       </div>
     </div>
