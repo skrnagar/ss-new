@@ -451,6 +451,9 @@ const PostItem = memo(function PostItem({ post, currentUser }: PostItemProps) {
     }
   };
 
+  if (!post?.profile) {
+    return null; // Don't render anything while loading
+  }
 
   return (
     <Card>
