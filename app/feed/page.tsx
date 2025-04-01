@@ -92,7 +92,7 @@ export default function FeedPage() {
     <div className="container py-6">
       <div className="grid grid-cols-11 gap-6">
         {/* Left Sidebar */}
-        <div className="col-span-2 hidden lg:block space-y-4">
+        <div className="col-span-2 hidden lg:block space-y-6">
           {userProfile && (
             <div className="transition-shadow">
               <Link href={`/profile/${userProfile.id}`} className="block">
