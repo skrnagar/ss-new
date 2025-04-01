@@ -1,5 +1,7 @@
 "use client";
 
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { useInView } from "react-intersection-observer";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/contexts/auth-context";
@@ -20,9 +22,10 @@ import {
 } from "@/components/ui/card";
 import { Clock } from "lucide-react";
 import { User } from "lucide-react";
+import { PostItem } from "@/components/post-item";
+import { getPaginationQuery } from "@/lib/pagination-utils";
 
-
-const PostItem = dynamic(() => import("@/components/post-item").then((mod) => mod.default), {
+const PostItemDynamic = dynamic(() => import("@/components/post-item").then((mod) => mod.default), {
   ssr: false,
   loading: () => (
     <Card>
@@ -60,6 +63,43 @@ export default function FeedPage() {
   const [postsLoading, setPostsLoading] = useState(true);
   const { user, profile: userProfile, isLoading: authLoading } = useAuth();
   const router = useRouter();
+  const { ref, inView } = useInView();
+
+  const {
+    data,
+    error,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    status,
+  } = useInfiniteQuery({
+    queryKey: ["posts"],
+    queryFn: async ({ pageParam = null }) => {
+      const pagination = getPaginationQuery({ cursor: pageParam, limit: 10 });
+
+      const { data, error } = await supabase
+        .from("posts")
+        .select(`
+          *,
+          profiles:profiles(*)
+        `)
+        .order("created_at", { ascending: false })
+        .limit(pagination.limit);
+
+      if (error) throw error;
+      return data;
+    },
+    getNextPageParam: (lastPage) => {
+      if (!lastPage || lastPage.length === 0) return null;
+      return lastPage[lastPage.length - 1]?.created_at;
+    },
+  });
+
+  useEffect(() => {
+    if (inView && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [inView, fetchNextPage, hasNextPage, isFetchingNextPage]);
 
   const fetchEvents = async () => {
     try {
@@ -70,7 +110,7 @@ export default function FeedPage() {
         .gte('start_date', new Date().toISOString())
         .order('start_date', { ascending: true })
         .limit(2);
-      
+
       setEvents(eventData || []);
     } catch (error) {
       console.error('Error fetching events:', error);
@@ -110,7 +150,7 @@ export default function FeedPage() {
         .insert([
           { user_id: user.id, connected_user_id: profileId, status: 'pending' }
         ]);
-      
+
       // Refresh suggestions after connecting
       fetchSuggestions();
     } catch (error) {
@@ -125,35 +165,9 @@ export default function FeedPage() {
     }
   }, [user]);
 
-  useEffect(() => {
-    let mounted = true;
 
-    async function fetchPosts() {
-      try {
-        const { supabase } = await import('@/lib/supabase');
-        const { data, error } = await supabase
-          .from('posts')
-          .select('*, profile:profiles(*)')
-          .order('created_at', { ascending: false });
-
-        if (error) throw error;
-        if (mounted) {
-          setPosts(data || []);
-          setPostsLoading(false);
-        }
-      } catch (error) {
-        console.error('Error fetching posts:', error);
-        if (mounted) {
-          setPostsLoading(false);
-        }
-      }
-    }
-
-    fetchPosts();
-    return () => {
-      mounted = false;
-    };
-  }, []);
+  if (status === "loading") return <div>Loading...</div>;
+  if (status === "error") return <div>Error: {error.message}</div>;
 
   return (
     <div className="container py-6">
@@ -165,27 +179,27 @@ export default function FeedPage() {
               <Link href={`/profile/${userProfile.id}`} className="block">
                 <Card>
                   <CardContent className="pt-6">
-                <div className="flex flex-col items-center">
-                  <Image
-                    src={userProfile.avatar_url || "/placeholder-user.jpg"}
-                    alt={userProfile.full_name || "User"}
-                    width={60}
-                    height={60}
-                    className="rounded-full hover:opacity-90 transition-opacity"
-                  />
-                  <h3 className="font-semibold text-sm mt-2">{userProfile.full_name || "User"}</h3>
-                  {userProfile.headline && (
-                    <p className="text-xs text-gray-500 text-center line-clamp-2 mt-1">
-                      {userProfile.headline}
-                    </p>
-                  )}
-                </div>
-                    </CardContent>
-                      </Card>
+                    <div className="flex flex-col items-center">
+                      <Image
+                        src={userProfile.avatar_url || "/placeholder-user.jpg"}
+                        alt={userProfile.full_name || "User"}
+                        width={60}
+                        height={60}
+                        className="rounded-full hover:opacity-90 transition-opacity"
+                      />
+                      <h3 className="font-semibold text-sm mt-2">{userProfile.full_name || "User"}</h3>
+                      {userProfile.headline && (
+                        <p className="text-xs text-gray-500 text-center line-clamp-2 mt-1">
+                          {userProfile.headline}
+                        </p>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
               </Link>
             </div>
           )}
-                
+
           <Card>
             <CardContent className="pt-6">
               <div className="space-y-4">
@@ -221,24 +235,21 @@ export default function FeedPage() {
         {/* Main Content */}
         <div className="col-span-12 lg:col-span-6">
           <PostTrigger/>
-          {postsLoading ? (
-            <div className="space-y-4">
-              {[1, 2, 3].map((i) => (
-                <PostItem key={i} post={{}} currentUser={null} />
-              ))}
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {posts.map((post) => (
-                <PostItem key={post.id} post={post} currentUser={user} />
-              ))}
-            </div>
-          )}
+          <div className="space-y-6">
+            {data.pages.map((page, i) => (
+              <div key={i}>
+                {page.map((post) => (
+                  <PostItem key={post.id} post={post} currentUser={user} />
+                ))}
+              </div>
+            ))}
+          </div>
+          <div ref={ref} className="h-10" />
         </div>
 
         {/* Right sidebar */}
         <div className="col-span-3 hidden lg:block space-y-6">
-        
+
 
           <Card>
             <CardContent className="pt-6">
@@ -328,8 +339,8 @@ export default function FeedPage() {
                           </p>
                         </div>
                       </div>
-                      <Button 
-                        variant="outline" 
+                      <Button
+                        variant="outline"
                         size="sm"
                         onClick={() => handleConnect(profile.id)}
                       >
@@ -353,7 +364,7 @@ export default function FeedPage() {
           </Card>
 
           {/* Network Navigation Card */}
-          
+
         </div>
       </div>
     </div>

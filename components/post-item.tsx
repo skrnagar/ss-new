@@ -89,6 +89,26 @@ const PostItem = memo(function PostItem({ post, currentUser }: PostItemProps) {
     fetchComments();
   }, [post.id, currentUser?.id]);
 
+  useEffect(() => {
+    const channel = supabase
+      .channel(`post_${post.id}`)
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'posts',
+        filter: `id=eq.${post.id}`
+      }, (payload) => {
+        // Handle real-time updates
+        console.log('Change received!', payload);
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [post.id]);
+
+
   const getInitials = (name: string) => {
     if (!name) return "U";
     return name

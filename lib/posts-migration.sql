@@ -64,3 +64,8 @@ BEGIN;
       AND auth.uid() = owner
     );
 COMMIT;
+-- Add indexes for better performance
+CREATE INDEX IF NOT EXISTS posts_created_at_idx ON posts(created_at DESC);
+CREATE INDEX IF NOT EXISTS posts_user_id_idx ON posts(user_id);
+CREATE INDEX IF NOT EXISTS posts_likes_count_idx ON posts(likes_count DESC);
+CREATE INDEX IF NOT EXISTS posts_comments_count_idx ON posts(comments_count DESC);
