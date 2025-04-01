@@ -40,6 +40,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { memo, useCallback } from "react";
+import { supabase } from "@/lib/supabase";
 
 // Memoize the Navbar component to prevent unnecessary re-renders
 export const Navbar = memo(function Navbar() {
