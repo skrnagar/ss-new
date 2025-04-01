@@ -262,6 +262,7 @@ export const Navbar = memo(function Navbar() {
                     <Avatar className="h-10 w-10">
                       <AvatarImage
                         src={
+                          user?.profile?.avatar_url || 
                           user?.user_metadata?.avatar_url ||
                           user?.user_metadata?.picture ||
                           "/placeholder-user.jpg"
