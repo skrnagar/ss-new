@@ -21,7 +21,7 @@ import {
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
-import { useAuth } from "@/contexts/auth-context";
+import { useAuthStore } from "@/lib/stores/auth-store";
 import { useMobile } from "@/hooks/use-mobile";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -47,7 +47,7 @@ export const Navbar = memo(function Navbar() {
   const router = useRouter();
   const { toast } = useToast();
   const isMobile = useMobile();
-  const { user, isLoading } = useAuth();
+  const { user, isLoading } = useAuthStore();
 
   // Memoize handler functions to prevent recreation on every render
   const handleSignOut = useCallback(async () => {
