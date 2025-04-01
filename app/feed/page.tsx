@@ -362,6 +362,8 @@ const fetchEvents = async () => {
     }
   };
 
+  const { user } = useAuth();
+
   useEffect(() => {
     const loadData = async () => {
       await fetchEvents();
