@@ -261,10 +261,12 @@ export const Navbar = memo(function Navbar() {
                   <Button variant="ghost" className="relative h-8 w-8 md:h-10 md:w-10 rounded-full">
                     <Avatar className="h-8 w-8 md:h-10 md:w-10">
                       <AvatarImage
-                        src={user?.profile?.avatar_url || ""}
-                        alt={user?.profile?.full_name || "User"}
+                        src={user?.profile?.avatar_url || user?.user_metadata?.avatar_url || ""}
+                        alt={user?.profile?.full_name || user?.user_metadata?.full_name || "User"}
                       />
-                      <AvatarFallback>{getInitials(user?.profile?.full_name || "")}</AvatarFallback>
+                      <AvatarFallback>
+                        {getInitials(user?.profile?.full_name || user?.user_metadata?.full_name || "")}
+                      </AvatarFallback>
                     </Avatar>
                   </Button>
                 </DropdownMenuTrigger>
