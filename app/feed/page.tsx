@@ -41,10 +41,14 @@ const PostItem = dynamic(() => import("@/components/post-item").then((mod) => mo
   ),
 });
 
+"use client";
+
 export default function FeedPage() {
   const [posts, setPosts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [hasMore, setHasMore] = useState(true);
+  const [events, setEvents] = useState<any[]>([]);
+  const [suggestions, setSuggestions] = useState<any[]>([]);
   const lastPostRef = useRef<string | null>(null);
   const { user, profile: userProfile } = useAuth();
   const router = useRouter();
