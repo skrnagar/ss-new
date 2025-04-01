@@ -363,8 +363,11 @@ const fetchEvents = async () => {
   };
 
   useEffect(() => {
-    fetchEvents();
-    if (user?.id) {
-      fetchSuggestions();
-    }
-  }, [user?.id, fetchEvents, fetchSuggestions]);
+    const loadData = async () => {
+      await fetchEvents();
+      if (user?.id) {
+        await fetchSuggestions();
+      }
+    };
+    loadData();
+  }, [user, fetchEvents, fetchSuggestions]);
