@@ -2,9 +2,9 @@
 -- Create a function to calculate post score
 CREATE OR REPLACE FUNCTION calculate_post_score(
   post_id UUID,
-  created_at TIMESTAMP,
-  like_count INT,
-  comment_count INT
+  created_at TIMESTAMPTZ,
+  like_count BIGINT,
+  comment_count BIGINT
 ) RETURNS FLOAT AS $$
 DECLARE
   time_decay FLOAT;
@@ -27,17 +27,18 @@ CREATE INDEX IF NOT EXISTS idx_likes_post_id ON likes(post_id);
 CREATE INDEX IF NOT EXISTS idx_comments_post_id ON comments(post_id);
 
 -- Create a materialized view for post scores that can be refreshed periodically
-CREATE MATERIALIZED VIEW IF NOT EXISTS post_scores AS
+DROP MATERIALIZED VIEW IF EXISTS post_scores;
+CREATE MATERIALIZED VIEW post_scores AS
 SELECT 
   p.id,
   p.created_at,
-  (SELECT COUNT(*) FROM likes l WHERE l.post_id = p.id) as like_count,
-  (SELECT COUNT(*) FROM comments c WHERE c.post_id = p.id) as comment_count,
+  CAST(COALESCE((SELECT COUNT(*) FROM likes l WHERE l.post_id = p.id), 0) AS BIGINT) as like_count,
+  CAST(COALESCE((SELECT COUNT(*) FROM comments c WHERE c.post_id = p.id), 0) AS BIGINT) as comment_count,
   calculate_post_score(
     p.id, 
     p.created_at,
-    (SELECT COUNT(*) FROM likes l WHERE l.post_id = p.id),
-    (SELECT COUNT(*) FROM comments c WHERE c.post_id = p.id)
+    CAST(COALESCE((SELECT COUNT(*) FROM likes l WHERE l.post_id = p.id), 0) AS BIGINT),
+    CAST(COALESCE((SELECT COUNT(*) FROM comments c WHERE c.post_id = p.id), 0) AS BIGINT)
   ) as score
 FROM posts p;
 
@@ -54,6 +55,10 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- Create triggers to refresh scores when posts, likes, or comments change
+DROP TRIGGER IF EXISTS refresh_post_scores_insert_post ON posts;
+DROP TRIGGER IF EXISTS refresh_post_scores_insert_like ON likes;
+DROP TRIGGER IF EXISTS refresh_post_scores_insert_comment ON comments;
+
 CREATE TRIGGER refresh_post_scores_insert_post
 AFTER INSERT ON posts
 FOR EACH STATEMENT
