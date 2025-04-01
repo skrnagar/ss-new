@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/contexts/auth-context";
 import { Search, BookmarkIcon, Users, Calendar, Newspaper } from "lucide-react";
 import { PostTrigger } from "@/components/post-trigger";
@@ -244,32 +245,30 @@ export default function FeedPage() {
               <h3 className="font-semibold mb-3">Upcoming Events</h3>
               {authLoading ? (
                 <div className="space-y-3">
-                  <div className="border rounded-md p-3">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Skeleton className="h-4 w-4 rounded-full" />
-                      <Skeleton className="h-4 w-32" />
+                  {[1, 2].map((_, i) => (
+                    <div key={i} className="border rounded-md p-3">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Skeleton className="h-4 w-4 rounded-full" />
+                        <Skeleton className="h-4 w-32" />
+                      </div>
+                      <Skeleton className="h-5 w-3/4 mb-2" />
+                      <Skeleton className="h-4 w-full" />
                     </div>
-                    <Skeleton className="h-5 w-3/4 mb-2" />
-                    <Skeleton className="h-4 w-full" />
-                  </div>
-                  <div className="border rounded-md p-3">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Skeleton className="h-4 w-4 rounded-full" />
-                      <Skeleton className="h-4 w-32" />
-                    </div>
-                    <Skeleton className="h-5 w-3/4 mb-2" />
-                    <Skeleton className="h-4 w-full" />
-                  </div>
-                  <Skeleton className="h-4 w-24" />
+                  ))}
                 </div>
-              ) : (
+              ) : events.length > 0 ? (
                 <div className="space-y-3">
                   {events.slice(0, 2).map((event) => (
                     <div key={event.id} className="border rounded-md p-3">
                       <div className="flex items-center gap-2 mb-1">
                         <Clock className="h-4 w-4 text-primary" />
                         <span className="text-sm font-medium">
-                          {format(new Date(event.start_date), "MMM d, h:mm a")}
+                          {new Date(event.start_date).toLocaleDateString('en-US', {
+                            month: 'short',
+                            day: 'numeric',
+                            hour: 'numeric',
+                            minute: '2-digit'
+                          })}
                         </span>
                       </div>
                       <h4 className="font-medium">{event.title}</h4>
@@ -280,6 +279,13 @@ export default function FeedPage() {
                   ))}
                   <Button variant="link" className="px-0" asChild>
                     <Link href="/events">See all events</Link>
+                  </Button>
+                </div>
+              ) : (
+                <div className="text-center py-4">
+                  <p className="text-sm text-muted-foreground">No upcoming events</p>
+                  <Button variant="link" className="mt-2" asChild>
+                    <Link href="/events">Browse all events</Link>
                   </Button>
                 </div>
               )}
@@ -304,7 +310,7 @@ export default function FeedPage() {
                     </div>
                   ))}
                 </div>
-              ) : (
+              ) : suggestions.length > 0 ? (
                 <div className="space-y-4">
                   {suggestions.slice(0, 3).map((profile) => (
                     <div key={profile.id} className="flex items-center justify-between">
@@ -333,6 +339,13 @@ export default function FeedPage() {
                   ))}
                   <Button variant="link" className="px-0" asChild>
                     <Link href="/network">See more suggestions</Link>
+                  </Button>
+                </div>
+              ) : (
+                <div className="text-center py-4">
+                  <p className="text-sm text-muted-foreground">No suggestions available</p>
+                  <Button variant="link" className="mt-2" asChild>
+                    <Link href="/network">Browse all professionals</Link>
                   </Button>
                 </div>
               )}
