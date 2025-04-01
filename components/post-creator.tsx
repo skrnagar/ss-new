@@ -29,9 +29,9 @@ interface PostCreatorProps {
 
 export function PostCreator({ isDialog = false, onSuccess }: PostCreatorProps) {
   const { user, profile: authProfile } = useAuth();
-  const activeProfile = userProfile || authProfile;
+  const activeProfile = authProfile;
 
-  if (isLoading) {
+  if (!activeProfile) {
     return (
       <Card>
         <CardContent className="pt-6">
