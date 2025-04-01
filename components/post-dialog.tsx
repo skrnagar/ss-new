@@ -32,7 +32,7 @@ export function PostDialog({ open, onOpenChange }: PostDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] p-0">
+      <DialogContent className="fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] w-[95%] sm:w-[90%] max-w-[800px] p-0">
         <DialogHeader className="p-4 border-b">
           <DialogTitle className="text-xl font-semibold">Create a post</DialogTitle>
         </DialogHeader>

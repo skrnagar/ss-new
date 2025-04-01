@@ -258,7 +258,7 @@ export function PostCreator({ isDialog = false, onSuccess }: PostCreatorProps) {
               placeholder={`What's on your mind, ${activeProfile?.full_name?.split(" ")[0] || "User"}?`}
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              className="min-h-[80px] md:min-h-[120px] resize-none text-sm md:text-base"
+              className="min-h-[120px] md:min-h-[180px] resize-none text-sm md:text-base"
             />
 
             {attachmentPreview && (
