@@ -51,8 +51,11 @@ export const Navbar = memo(function Navbar() {
   // Memoize handler functions to prevent recreation on every render
   const handleSignOut = useCallback(async () => {
     try {
-      await supabase.auth.signOut();
-      
+      // First sign out from Supabase client
+      const { error: signOutError } = await supabase.auth.signOut();
+      if (signOutError) throw signOutError;
+
+      // Then call server endpoint to clear cookies
       const response = await fetch("/api/auth/signout", {
         method: "POST",
         headers: {
@@ -68,8 +71,9 @@ export const Navbar = memo(function Navbar() {
         title: "Signed out successfully",
       });
 
-      // Refresh the page to reset all client state
-      window.location.href = "/";
+      // Use router.push with replace to prevent back navigation
+      router.push("/");
+      router.refresh();
       
     } catch (error) {
       console.error("Sign out error:", error);
@@ -79,7 +83,7 @@ export const Navbar = memo(function Navbar() {
         variant: "destructive",
       });
     }
-  }, [toast]);
+  }, [router, toast]);
 
   const getInitials = useCallback((name: string): string => {
     if (!name) return "U";
