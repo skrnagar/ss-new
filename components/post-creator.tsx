@@ -141,26 +141,6 @@ export function PostCreator({ isDialog = false, onSuccess }: PostCreatorProps) {
 
     setIsSubmitting(true);
 
-    // Create optimistic post
-    const optimisticPost = {
-      id: `temp-${Date.now()}`,
-      content: content.trim(),
-      created_at: new Date().toISOString(),
-      user_id: activeProfile?.id,
-      profile: activeProfile,
-      likes: [],
-      comments: []
-    };
-
-    // Optimistically update UI
-    const channel = supabase.channel('optimistic-posts');
-    channel.send({
-      type: 'broadcast',
-      event: 'post',
-      payload: optimisticPost
-    });
-
-
     try {
       let imageUrl = null;
       let videoUrl = null;
@@ -263,7 +243,7 @@ export function PostCreator({ isDialog = false, onSuccess }: PostCreatorProps) {
   };
 
   return (
-
+  
         <div className="flex items-start gap-3 md:gap-4">
           {/* <Avatar className="h-8 w-8 md:h-10 md:w-10">
             <AvatarImage
@@ -373,6 +353,6 @@ export function PostCreator({ isDialog = false, onSuccess }: PostCreatorProps) {
             </div>
           </div>
         </div>
-
+  
   );
 }

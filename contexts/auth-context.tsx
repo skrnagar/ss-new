@@ -30,15 +30,24 @@ const AuthContext = createContext<AuthContextType>({
   refreshProfile: async () => {},
 });
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
+export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [authState, setAuthState] = useState<{
     user: User | null;
     profile: Profile | null;
-    session: Session | null;
-  }>({ user: null, profile: null, session: null });
+  }>({ user: null, profile: null });
 
+  const memoizedAuthValue = useMemo(() => ({
+    user: authState.user,
+    profile: authState.profile,
+    isLoading: !authState.user && !authState.profile,
+    isAuthenticated: !!authState.user
+  }), [authState]);
+
+  // Function to fetch profile data
   const fetchProfile = async (userId: string) => {
     try {
+      console.log("Fetching profile for user ID:", userId);
+
       const { data, error } = await supabase
         .from("profiles")
         .select("id, username, full_name, avatar_url, headline, position, company")
@@ -47,9 +56,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (error) {
         console.error("Error fetching profile:", error);
+        console.error("Error code:", error.code, "Message:", error.message);
         return null;
       }
 
+      console.log("Profile data retrieved:", data ? "success" : "not found");
       return data;
     } catch (error) {
       console.error("Exception in fetchProfile:", error);
@@ -57,59 +68,71 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  // Function to refresh profile data
   const refreshProfile = async () => {
-    if (!authState.user) return;
-    const profileData = await fetchProfile(authState.user.id);
+    if (!memoizedAuthValue.user) return;
+
+    const profileData = await fetchProfile(memoizedAuthValue.user.id);
     setAuthState((prev) => ({ ...prev, profile: profileData }));
   };
 
   useEffect(() => {
+    // Initialize auth state
     const initAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setAuthState((prev) => ({ ...prev, user: session?.user || null, session }));
+      try {
+        console.log("Initializing auth state...");
+        // Get initial session
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
 
-      if (session?.user) {
-        const profileData = await fetchProfile(session.user.id);
-        setAuthState((prev) => ({ ...prev, profile: profileData }));
+        console.log("Session loaded:", !!session);
+        setAuthState((prev) => ({ ...prev, user: session?.user || null, session }));
+
+        // Fetch profile if user exists
+        if (session?.user) {
+          console.log("User found in session, fetching profile...");
+          const profileData = await fetchProfile(session.user.id);
+          console.log("Profile loaded:", !!profileData);
+          setAuthState((prev) => ({ ...prev, profile: profileData }));
+        } else {
+          console.log("No user in session");
+        }
+      } catch (error) {
+        console.error("Error initializing auth:", error);
       }
     };
 
     initAuth();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+    // Set up auth state change listener
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log("Auth state changed:", event, session?.user?.id);
       setAuthState((prev) => ({ ...prev, session, user: session?.user || null }));
 
+      // Fetch profile if user exists
       if (session?.user) {
         const profileData = await fetchProfile(session.user.id);
+        console.log("Profile data fetched:", profileData ? "found" : "not found");
         setAuthState((prev) => ({ ...prev, profile: profileData }));
       } else {
         setAuthState((prev) => ({ ...prev, profile: null }));
       }
     });
 
+    // Cleanup subscription
     return () => {
       subscription.unsubscribe();
     };
   }, []);
 
-  const value = useMemo(() => ({
-    ...authState,
-    isLoading: !authState.user && !authState.profile,
-    isAuthenticated: !!authState.user,
-    refreshProfile,
-  }), [authState]);
-
   return (
-    <AuthContext.Provider value={value}>
+    <AuthContext.Provider value={{ ...memoizedAuthValue, refreshProfile }}>
       {children}
     </AuthContext.Provider>
   );
-}
+};
 
-export function useAuth() {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
-  return context;
-}
+export const useAuth = () => useContext(AuthContext);

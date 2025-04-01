@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/contexts/auth-context";
 import { Search, BookmarkIcon, Users, Calendar, Newspaper } from "lucide-react";
@@ -13,10 +13,14 @@ import dynamic from "next/dynamic";
 import Image from "next/image";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { useIntersectionObserver } from "@/hooks/use-intersection-observer";
-import { useToast } from "@/hooks/use-toast";
+import {
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Clock } from "lucide-react";
+import { User } from "lucide-react";
 
-const POSTS_PER_PAGE = 10;
 
 const PostItem = dynamic(() => import("@/components/post-item").then((mod) => mod.default), {
   ssr: false,
@@ -42,93 +46,114 @@ const PostItem = dynamic(() => import("@/components/post-item").then((mod) => mo
 });
 
 export default function FeedPage() {
-  const [posts, setPosts] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [hasMore, setHasMore] = useState(true);
+  interface Post {
+    id: string;
+    content: string;
+    created_at: string;
+    author_id: string;
+    updated_at?: string;
+  }
+
+  const [posts, setPosts] = useState<Post[]>([]);
   const [events, setEvents] = useState<any[]>([]);
   const [suggestions, setSuggestions] = useState<any[]>([]);
-  const lastPostRef = useRef<string | null>(null);
-  const { user, profile: userProfile } = useAuth();
+  const [postsLoading, setPostsLoading] = useState(true);
+  const { user, profile: userProfile, isLoading: authLoading } = useAuth();
   const router = useRouter();
-  const { toast } = useToast();
-  const { ref, inView } = useIntersectionObserver();
 
-  const fetchPosts = useCallback(async (cursor?: string) => {
+  const fetchEvents = async () => {
     try {
-      let query = supabase
-        .from('posts')
-        .select(`
-          *,
-          profiles:user_id(*),
-          likes:likes(count),
-          comments:comments(count)
-        `)
-        .order('created_at', { ascending: false })
-        .limit(POSTS_PER_PAGE);
-
-      if (cursor) {
-        query = query.lt('created_at', cursor);
-      }
-
-      const { data, error } = await query;
-
-      if (error) throw error;
-
-      if (data) {
-        setPosts(prev => cursor ? [...prev, ...data] : data);
-        setHasMore(data.length === POSTS_PER_PAGE);
-        lastPostRef.current = data[data.length - 1]?.created_at || null;
-      }
+      const { data: eventData } = await supabase
+        .from('events')
+        .select('*')
+        .eq('is_public', true)
+        .gte('start_date', new Date().toISOString())
+        .order('start_date', { ascending: true })
+        .limit(2);
+      
+      setEvents(eventData || []);
     } catch (error) {
-      console.error('Error fetching posts:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load posts",
-        variant: "destructive"
-      });
-    } finally {
-      setLoading(false);
+      console.error('Error fetching events:', error);
     }
-  }, [toast]);
+  };
 
-  const loadMore = useCallback(() => {
-    if (hasMore && !loading && lastPostRef.current) {
-      fetchPosts(lastPostRef.current);
+  const fetchSuggestions = async () => {
+    if (!user) return;
+    try {
+      // Get existing connections to exclude them
+      const { data: connections } = await supabase
+        .from('connections')
+        .select('connected_user_id')
+        .eq('user_id', user.id);
+
+      const connectedIds = connections?.map(c => c.connected_user_id) || [];
+      connectedIds.push(user.id); // Add current user to excluded list
+
+      // Get suggested profiles
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('*')
+        .not('id', 'in', `(${connectedIds.join(',')})`)
+        .limit(3);
+
+      setSuggestions(profiles || []);
+    } catch (error) {
+      console.error('Error fetching suggestions:', error);
     }
-  }, [fetchPosts, hasMore, loading]);
+  };
+
+  const handleConnect = async (profileId: string) => {
+    if (!user) return;
+    try {
+      await supabase
+        .from('connections')
+        .insert([
+          { user_id: user.id, connected_user_id: profileId, status: 'pending' }
+        ]);
+      
+      // Refresh suggestions after connecting
+      fetchSuggestions();
+    } catch (error) {
+      console.error('Error sending connection request:', error);
+    }
+  };
 
   useEffect(() => {
-    fetchPosts();
+    fetchEvents();
+    if (user) {
+      fetchSuggestions();
+    }
+  }, [user]);
 
-    const subscription = supabase
-      .channel('public:posts')
-      .on('postgres_changes', { 
-        event: '*', 
-        schema: 'public', 
-        table: 'posts' 
-      }, (payload) => {
-        if (payload.eventType === 'INSERT') {
-          setPosts(prev => [payload.new, ...prev]);
-        } else if (payload.eventType === 'DELETE') {
-          setPosts(prev => prev.filter(post => post.id !== payload.old.id));
-        } else if (payload.eventType === 'UPDATE') {
-          setPosts(prev => prev.map(post => 
-            post.id === payload.new.id ? { ...post, ...payload.new } : post
-          ));
+  useEffect(() => {
+    let mounted = true;
+
+    async function fetchPosts() {
+      try {
+        const { supabase } = await import('@/lib/supabase');
+        const { data, error } = await supabase
+          .from('posts')
+          .select('*, profile:profiles(*)')
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        if (mounted) {
+          setPosts(data || []);
+          setPostsLoading(false);
         }
-      })
-      .subscribe();
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [fetchPosts]);
-
-  useEffect(() => {
-    if (inView) {
-      loadMore();
+      } catch (error) {
+        console.error('Error fetching posts:', error);
+        if (mounted) {
+          setPostsLoading(false);
+        }
+      }
     }
-  }, [inView, loadMore]);
+
+    fetchPosts();
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   return (
     <div className="container py-6">
@@ -140,27 +165,27 @@ export default function FeedPage() {
               <Link href={`/profile/${userProfile.id}`} className="block">
                 <Card>
                   <CardContent className="pt-6">
-                    <div className="flex flex-col items-center">
-                      <Image
-                        src={userProfile.avatar_url || "/placeholder-user.jpg"}
-                        alt={userProfile.full_name || "User"}
-                        width={60}
-                        height={60}
-                        className="rounded-full hover:opacity-90 transition-opacity"
-                      />
-                      <h3 className="font-semibold text-sm mt-2">{userProfile.full_name || "User"}</h3>
-                      {userProfile.headline && (
-                        <p className="text-xs text-gray-500 text-center line-clamp-2 mt-1">
-                          {userProfile.headline}
-                        </p>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
+                <div className="flex flex-col items-center">
+                  <Image
+                    src={userProfile.avatar_url || "/placeholder-user.jpg"}
+                    alt={userProfile.full_name || "User"}
+                    width={60}
+                    height={60}
+                    className="rounded-full hover:opacity-90 transition-opacity"
+                  />
+                  <h3 className="font-semibold text-sm mt-2">{userProfile.full_name || "User"}</h3>
+                  {userProfile.headline && (
+                    <p className="text-xs text-gray-500 text-center line-clamp-2 mt-1">
+                      {userProfile.headline}
+                    </p>
+                  )}
+                </div>
+                    </CardContent>
+                      </Card>
               </Link>
             </div>
           )}
-
+                
           <Card>
             <CardContent className="pt-6">
               <div className="space-y-4">
@@ -195,39 +220,48 @@ export default function FeedPage() {
 
         {/* Main Content */}
         <div className="col-span-12 lg:col-span-6">
-          <PostTrigger />
-          <div className="space-y-4">
-            {posts.map((post, i) => {
-              if (i === posts.length - 1) {
-                return (
-                  <div key={post.id} ref={ref}>
-                    <PostItem post={post} currentUser={user} />
-                  </div>
-                );
-              }
-              return <PostItem key={post.id} post={post} currentUser={user} />;
-            })}
-            {loading && (
-              <div className="space-y-4">
-                {[1, 2, 3].map((i) => (
-                  <PostItem key={i} post={{}} currentUser={null} />
-                ))}
-              </div>
-            )}
-          </div>
+          <PostTrigger/>
+          {postsLoading ? (
+            <div className="space-y-4">
+              {[1, 2, 3].map((i) => (
+                <PostItem key={i} post={{}} currentUser={null} />
+              ))}
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {posts.map((post) => (
+                <PostItem key={post.id} post={post} currentUser={user} />
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Right sidebar */}
         <div className="col-span-3 hidden lg:block space-y-6">
+        
+
           <Card>
             <CardContent className="pt-6">
               <h3 className="font-semibold mb-3">Upcoming Events</h3>
-              {events.length > 0 ? (
+              {authLoading ? (
+                <div className="space-y-3">
+                  {[1, 2].map((_, i) => (
+                    <div key={i} className="border rounded-md p-3">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Skeleton className="h-4 w-4 rounded-full" />
+                        <Skeleton className="h-4 w-32" />
+                      </div>
+                      <Skeleton className="h-5 w-3/4 mb-2" />
+                      <Skeleton className="h-4 w-full" />
+                    </div>
+                  ))}
+                </div>
+              ) : events.length > 0 ? (
                 <div className="space-y-3">
                   {events.slice(0, 2).map((event) => (
                     <div key={event.id} className="border rounded-md p-3">
                       <div className="flex items-center gap-2 mb-1">
-                        <Calendar className="h-4 w-4 text-primary" />
+                        <Clock className="h-4 w-4 text-primary" />
                         <span className="text-sm font-medium">
                           {new Date(event.start_date).toLocaleDateString('en-US', {
                             month: 'short',
@@ -261,7 +295,22 @@ export default function FeedPage() {
           <Card>
             <CardContent className="pt-6">
               <h3 className="font-semibold mb-3">Suggested Connections</h3>
-              {suggestions.length > 0 ? (
+              {authLoading ? (
+                <div className="space-y-4">
+                  {[1, 2, 3].map((_, index) => (
+                    <div key={index} className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Skeleton className="h-8 w-8 rounded-full" />
+                        <div>
+                          <Skeleton className="h-4 w-24 mb-1" />
+                          <Skeleton className="h-3 w-36" />
+                        </div>
+                      </div>
+                      <Skeleton className="h-8 w-16 rounded-md" />
+                    </div>
+                  ))}
+                </div>
+              ) : suggestions.length > 0 ? (
                 <div className="space-y-4">
                   {suggestions.slice(0, 3).map((profile) => (
                     <div key={profile.id} className="flex items-center justify-between">
@@ -302,74 +351,11 @@ export default function FeedPage() {
               )}
             </CardContent>
           </Card>
+
+          {/* Network Navigation Card */}
+          
         </div>
       </div>
     </div>
   );
 }
-
-const fetchEvents = async () => {
-    try {
-      const { data: eventData } = await supabase
-        .from('events')
-        .select('*')
-        .eq('is_public', true)
-        .gte('start_date', new Date().toISOString())
-        .order('start_date', { ascending: true })
-        .limit(2);
-      
-      setEvents(eventData || []);
-    } catch (error) {
-      console.error('Error fetching events:', error);
-    }
-  };
-
-  const fetchSuggestions = async () => {
-    if (!user) return;
-    try {
-      const { data: connections } = await supabase
-        .from('connections')
-        .select('connected_user_id')
-        .eq('user_id', user.id);
-
-      const connectedIds = connections?.map(c => c.connected_user_id) || [];
-      connectedIds.push(user.id); 
-
-      const { data: profiles } = await supabase
-        .from('profiles')
-        .select('*')
-        .not('id', 'in', `(${connectedIds.join(',')})`)
-        .limit(3);
-
-      setSuggestions(profiles || []);
-    } catch (error) {
-      console.error('Error fetching suggestions:', error);
-    }
-  };
-
-  const handleConnect = async (profileId: string) => {
-    if (!user) return;
-    try {
-      await supabase
-        .from('connections')
-        .insert([
-          { user_id: user.id, connected_user_id: profileId, status: 'pending' }
-        ]);
-      
-      fetchSuggestions();
-    } catch (error) {
-      console.error('Error sending connection request:', error);
-    }
-  };
-
-  const { user } = useAuth();
-
-  useEffect(() => {
-    const loadData = async () => {
-      await fetchEvents();
-      await fetchSuggestions();
-    };
-    if (user?.id) {
-      loadData();
-    }
-  }, [user?.id, fetchEvents, fetchSuggestions]);
