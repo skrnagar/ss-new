@@ -271,8 +271,11 @@ export const Navbar = memo(function Navbar() {
                 <DropdownMenuContent className="w-56" align="end" forceMount>
                   <DropdownMenuLabel className="font-normal">
                     <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium leading-none">{user?.user_metadata?.full_name || getUserName()}</p>
+                      <p className="text-sm font-medium leading-none">{user?.profile?.full_name || user?.user_metadata?.full_name || getUserName()}</p>
                       <p className="text-xs leading-none text-muted-foreground">{user?.email}</p>
+                      {user?.profile?.headline && (
+                        <p className="text-xs leading-none text-muted-foreground mt-1">{user.profile.headline}</p>
+                      )}
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
