@@ -364,7 +364,7 @@ const fetchEvents = async () => {
 
   useEffect(() => {
     fetchEvents();
-    if (user) {
+    if (user?.id) {
       fetchSuggestions();
     }
-  }, [user]);
+  }, [user?.id, fetchEvents, fetchSuggestions]);
