@@ -45,7 +45,7 @@ export default async function Home() {
             <source src="/ssbg.mp4" type="video/mp4" />
           </video>
         </div>
-        <div className="container relative z-10">
+        <div className="container relative">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             <div>
               <h1 className="text-4xl leading-20 md:text-5xl font-bold mb-6 text-black/89">

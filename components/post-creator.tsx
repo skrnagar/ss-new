@@ -243,22 +243,21 @@ export function PostCreator({ isDialog = false, onSuccess }: PostCreatorProps) {
   };
 
   return (
-    <Card className="md:rounded-lg rounded-none border-x-0 md:border-x">
-      <CardContent className="pt-4 md:pt-6 px-4 md:px-6">
+  
         <div className="flex items-start gap-3 md:gap-4">
-          <Avatar className="h-8 w-8 md:h-10 md:w-10">
+          {/* <Avatar className="h-8 w-8 md:h-10 md:w-10">
             <AvatarImage
               src={activeProfile?.avatar_url || ""}
               alt={activeProfile?.full_name || "User"}
             />
             <AvatarFallback>{getInitials(activeProfile?.full_name || "")}</AvatarFallback>
-          </Avatar>
-          <div className="flex-1 space-y-3 md:space-y-4">
+          </Avatar> */}
+          <div className="flex-1 space-y-3 mt-3 md:space-y-4">
             <Textarea
               placeholder={`What's on your mind, ${activeProfile?.full_name?.split(" ")[0] || "User"}?`}
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              className="min-h-[120px] md:min-h-[180px] resize-none text-sm md:text-base"
+              className="min-h-[120px] md:min-h-[250px] resize-none text-sm md:text-base"
             />
 
             {attachmentPreview && (
@@ -341,10 +340,10 @@ export function PostCreator({ isDialog = false, onSuccess }: PostCreatorProps) {
                 />
               </div>
 
-              <Button size="sm" onClick={handleSubmit} disabled={isSubmitting}>
+              <Button size="lg" onClick={handleSubmit} disabled={isSubmitting}>
                 {isSubmitting ? (
                   <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    <Loader2 className="h-4 w-8 mr-2 animate-spin" />
                     Posting...
                   </>
                 ) : (
@@ -354,7 +353,6 @@ export function PostCreator({ isDialog = false, onSuccess }: PostCreatorProps) {
             </div>
           </div>
         </div>
-      </CardContent>
-    </Card>
+  
   );
 }
