@@ -1,6 +1,6 @@
 "use client";
 
-import { useAuthStore } from "@/lib/stores/auth-store";
+import { useAuth } from "@/contexts/auth-context";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
@@ -9,7 +9,7 @@ type ProtectedRouteProps = {
 };
 
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const { user, isLoading } = useAuthStore();
+  const { user, isLoading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {

@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -64,39 +63,42 @@ export default function FeedPage() {
 
   const fetchEvents = async () => {
     try {
-      const { data: eventData, error } = await supabase
+      const { data: eventData } = await supabase
         .from('events')
-        .select(`
-          *,
-          profiles(*)
-        `)
-        .order('created_at', { ascending: false })
-        .limit(3);
+        .select('*')
+        .eq('is_public', true)
+        .gte('start_date', new Date().toISOString())
+        .order('start_date', { ascending: true })
+        .limit(2);
       
-      if (error) throw error;
       setEvents(eventData || []);
     } catch (error) {
       console.error('Error fetching events:', error);
-      setEvents([]);
     }
   };
 
   const fetchSuggestions = async () => {
     if (!user) return;
     try {
-      // Get suggested profiles directly
-      const { data: profiles, error: profilesError } = await supabase
+      // Get existing connections to exclude them
+      const { data: connections } = await supabase
+        .from('connections')
+        .select('connected_user_id')
+        .eq('user_id', user.id);
+
+      const connectedIds = connections?.map(c => c.connected_user_id) || [];
+      connectedIds.push(user.id); // Add current user to excluded list
+
+      // Get suggested profiles
+      const { data: profiles } = await supabase
         .from('profiles')
         .select('*')
-        .neq('id', user.id)
-        .order('created_at', { ascending: false })
+        .not('id', 'in', `(${connectedIds.join(',')})`)
         .limit(3);
 
-      if (profilesError) throw profilesError;
       setSuggestions(profiles || []);
     } catch (error) {
       console.error('Error fetching suggestions:', error);
-      setSuggestions([]);
     }
   };
 
@@ -117,13 +119,11 @@ export default function FeedPage() {
   };
 
   useEffect(() => {
-    if (!authLoading) {
-      fetchEvents();
-      if (user) {
-        fetchSuggestions();
-      }
+    fetchEvents();
+    if (user) {
+      fetchSuggestions();
     }
-  }, [user, authLoading]);
+  }, [user]);
 
   useEffect(() => {
     let mounted = true;
@@ -238,6 +238,8 @@ export default function FeedPage() {
 
         {/* Right sidebar */}
         <div className="col-span-3 hidden lg:block space-y-6">
+        
+
           <Card>
             <CardContent className="pt-6">
               <h3 className="font-semibold mb-3">Upcoming Events</h3>
@@ -349,6 +351,9 @@ export default function FeedPage() {
               )}
             </CardContent>
           </Card>
+
+          {/* Network Navigation Card */}
+          
         </div>
       </div>
     </div>
