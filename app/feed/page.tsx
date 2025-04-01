@@ -41,8 +41,6 @@ const PostItem = dynamic(() => import("@/components/post-item").then((mod) => mo
   ),
 });
 
-"use client";
-
 export default function FeedPage() {
   const [posts, setPosts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -53,7 +51,7 @@ export default function FeedPage() {
   const { user, profile: userProfile } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
-  const { ref, inView } = useInView();
+  const { ref, inView } = useIntersectionObserver();
 
   const fetchPosts = useCallback(async (cursor?: string) => {
     try {
@@ -102,7 +100,6 @@ export default function FeedPage() {
   useEffect(() => {
     fetchPosts();
 
-    // Set up realtime subscription
     const subscription = supabase
       .channel('public:posts')
       .on('postgres_changes', { 
@@ -225,25 +222,12 @@ export default function FeedPage() {
           <Card>
             <CardContent className="pt-6">
               <h3 className="font-semibold mb-3">Upcoming Events</h3>
-              { /*authLoading ? (
-                <div className="space-y-3">
-                  {[1, 2].map((_, i) => (
-                    <div key={i} className="border rounded-md p-3">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Skeleton className="h-4 w-4 rounded-full" />
-                        <Skeleton className="h-4 w-32" />
-                      </div>
-                      <Skeleton className="h-5 w-3/4 mb-2" />
-                      <Skeleton className="h-4 w-full" />
-                    </div>
-                  ))}
-                </div>
-              ) : */ }events.length > 0 ? (
+              {events.length > 0 ? (
                 <div className="space-y-3">
                   {events.slice(0, 2).map((event) => (
                     <div key={event.id} className="border rounded-md p-3">
                       <div className="flex items-center gap-2 mb-1">
-                        <Clock className="h-4 w-4 text-primary" />
+                        <Calendar className="h-4 w-4 text-primary" />
                         <span className="text-sm font-medium">
                           {new Date(event.start_date).toLocaleDateString('en-US', {
                             month: 'short',
@@ -277,22 +261,7 @@ export default function FeedPage() {
           <Card>
             <CardContent className="pt-6">
               <h3 className="font-semibold mb-3">Suggested Connections</h3>
-              {/*authLoading ? (
-                <div className="space-y-4">
-                  {[1, 2, 3].map((_, index) => (
-                    <div key={index} className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Skeleton className="h-8 w-8 rounded-full" />
-                        <div>
-                          <Skeleton className="h-4 w-24 mb-1" />
-                          <Skeleton className="h-3 w-36" />
-                        </div>
-                      </div>
-                      <Skeleton className="h-8 w-16 rounded-md" />
-                    </div>
-                  ))}
-                </div>
-              ) : */}suggestions.length > 0 ? (
+              {suggestions.length > 0 ? (
                 <div className="space-y-4">
                   {suggestions.slice(0, 3).map((profile) => (
                     <div key={profile.id} className="flex items-center justify-between">
@@ -358,16 +327,14 @@ const fetchEvents = async () => {
   const fetchSuggestions = async () => {
     if (!user) return;
     try {
-      // Get existing connections to exclude them
       const { data: connections } = await supabase
         .from('connections')
         .select('connected_user_id')
         .eq('user_id', user.id);
 
       const connectedIds = connections?.map(c => c.connected_user_id) || [];
-      connectedIds.push(user.id); // Add current user to excluded list
+      connectedIds.push(user.id); 
 
-      // Get suggested profiles
       const { data: profiles } = await supabase
         .from('profiles')
         .select('*')
@@ -389,15 +356,11 @@ const fetchEvents = async () => {
           { user_id: user.id, connected_user_id: profileId, status: 'pending' }
         ]);
       
-      // Refresh suggestions after connecting
       fetchSuggestions();
     } catch (error) {
       console.error('Error sending connection request:', error);
     }
   };
-
-  const [events, setEvents] = useState<any[]>([]);
-  const [suggestions, setSuggestions] = useState<any[]>([]);
 
   useEffect(() => {
     fetchEvents();
