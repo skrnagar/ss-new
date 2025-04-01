@@ -1,7 +1,6 @@
 import type React from "react";
 import "./globals.css";
 import { Footer } from "@/components/footer";
-import { AuthProvider } from "@/contexts/auth-context";
 import type { Metadata } from "next";
 import dynamic from "next/dynamic";
 import { Manrope, Poppins } from "next/font/google";
@@ -105,7 +104,6 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${poppins.className} ${manrope.className}`}>
-        <AuthProvider>
           <div className="flex flex-col min-h-screen">
             <Suspense
               fallback={
@@ -132,7 +130,6 @@ export default function RootLayout({
               <MobileNav />
             </div>
           </div>
-        </AuthProvider>
       </body>
     </html>
   );

@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
-import { useAuth } from "@/contexts/auth-context";
+import { useAuthStore } from "@/lib/stores/auth-store";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabase";
 import { FileText, Image, Loader2, Paperclip, Video, X } from "lucide-react";
@@ -28,8 +28,7 @@ interface PostCreatorProps {
 }
 
 export function PostCreator({ isDialog = false, onSuccess }: PostCreatorProps) {
-  const { user, profile: authProfile } = useAuth();
-  const activeProfile = authProfile;
+  const { user, profile: activeProfile } = useAuthStore();
 
   if (!activeProfile) {
     return (
