@@ -22,15 +22,12 @@ type Profile = {
   [key: string]: any;
 };
 
-export function PostCreator({ 
-  userProfile,
-  isLoading = false,
-  isDialog = false
-}: { 
-  userProfile?: Profile | null;
-  isLoading?: boolean;
+interface PostCreatorProps {
   isDialog?: boolean;
-}) {
+  onSuccess?: () => void;
+}
+
+export function PostCreator({ isDialog = false, onSuccess }: PostCreatorProps) {
   const { user, profile: authProfile } = useAuth();
   const activeProfile = userProfile || authProfile;
 
@@ -232,6 +229,7 @@ export function PostCreator({
 
       // Refresh feed to show new post
       router.refresh();
+      onSuccess?.();
     } catch (error) {
       console.error("Error creating post:", error);
       toast({
