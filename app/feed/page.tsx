@@ -68,12 +68,10 @@ export default function FeedPage() {
         .from('events')
         .select(`
           *,
-          profile:profiles(*)
+          profiles(*)
         `)
-        .eq('is_public', true)
-        .gte('start_date', new Date().toISOString())
-        .order('start_date', { ascending: true })
-        .limit(2);
+        .order('created_at', { ascending: false })
+        .limit(3);
       
       if (error) throw error;
       setEvents(eventData || []);
@@ -86,22 +84,12 @@ export default function FeedPage() {
   const fetchSuggestions = async () => {
     if (!user) return;
     try {
-      // Get existing connections to exclude them
-      const { data: connections, error: connectionsError } = await supabase
-        .from('connections')
-        .select('connected_user_id')
-        .eq('user_id', user.id)
-        .eq('status', 'accepted');
-
-      if (connectionsError) throw connectionsError;
-
-      const connectedIds = [...(connections?.map(c => c.connected_user_id) || []), user.id];
-
-      // Get suggested profiles with a simpler query if no connections exist
+      // Get suggested profiles directly
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
         .select('*')
         .neq('id', user.id)
+        .order('created_at', { ascending: false })
         .limit(3);
 
       if (profilesError) throw profilesError;
