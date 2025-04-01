@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/contexts/auth-context";
 import { Search, BookmarkIcon, Users, Calendar, Newspaper } from "lucide-react";
@@ -13,14 +13,10 @@ import dynamic from "next/dynamic";
 import Image from "next/image";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import {
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Clock } from "lucide-react";
-import { User } from "lucide-react";
+import { useInView } from "react-intersection-observer";
+import { useToast } from "@/hooks/use-toast";
 
+const POSTS_PER_PAGE = 10;
 
 const PostItem = dynamic(() => import("@/components/post-item").then((mod) => mod.default), {
   ssr: false,
@@ -46,22 +42,300 @@ const PostItem = dynamic(() => import("@/components/post-item").then((mod) => mo
 });
 
 export default function FeedPage() {
-  interface Post {
-    id: string;
-    content: string;
-    created_at: string;
-    author_id: string;
-    updated_at?: string;
-  }
-
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [events, setEvents] = useState<any[]>([]);
-  const [suggestions, setSuggestions] = useState<any[]>([]);
-  const [postsLoading, setPostsLoading] = useState(true);
-  const { user, profile: userProfile, isLoading: authLoading } = useAuth();
+  const [posts, setPosts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [hasMore, setHasMore] = useState(true);
+  const lastPostRef = useRef<string | null>(null);
+  const { user, profile: userProfile } = useAuth();
   const router = useRouter();
+  const { toast } = useToast();
+  const { ref, inView } = useInView();
 
-  const fetchEvents = async () => {
+  const fetchPosts = useCallback(async (cursor?: string) => {
+    try {
+      let query = supabase
+        .from('posts')
+        .select(`
+          *,
+          profiles:user_id(*),
+          likes:likes(count),
+          comments:comments(count)
+        `)
+        .order('created_at', { ascending: false })
+        .limit(POSTS_PER_PAGE);
+
+      if (cursor) {
+        query = query.lt('created_at', cursor);
+      }
+
+      const { data, error } = await query;
+
+      if (error) throw error;
+
+      if (data) {
+        setPosts(prev => cursor ? [...prev, ...data] : data);
+        setHasMore(data.length === POSTS_PER_PAGE);
+        lastPostRef.current = data[data.length - 1]?.created_at || null;
+      }
+    } catch (error) {
+      console.error('Error fetching posts:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load posts",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  }, [toast]);
+
+  const loadMore = useCallback(() => {
+    if (hasMore && !loading && lastPostRef.current) {
+      fetchPosts(lastPostRef.current);
+    }
+  }, [fetchPosts, hasMore, loading]);
+
+  useEffect(() => {
+    fetchPosts();
+
+    // Set up realtime subscription
+    const subscription = supabase
+      .channel('public:posts')
+      .on('postgres_changes', { 
+        event: '*', 
+        schema: 'public', 
+        table: 'posts' 
+      }, (payload) => {
+        if (payload.eventType === 'INSERT') {
+          setPosts(prev => [payload.new, ...prev]);
+        } else if (payload.eventType === 'DELETE') {
+          setPosts(prev => prev.filter(post => post.id !== payload.old.id));
+        } else if (payload.eventType === 'UPDATE') {
+          setPosts(prev => prev.map(post => 
+            post.id === payload.new.id ? { ...post, ...payload.new } : post
+          ));
+        }
+      })
+      .subscribe();
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [fetchPosts]);
+
+  useEffect(() => {
+    if (inView) {
+      loadMore();
+    }
+  }, [inView, loadMore]);
+
+  return (
+    <div className="container py-6">
+      <div className="grid grid-cols-11 gap-6">
+        {/* Left Sidebar */}
+        <div className="col-span-2 hidden lg:block space-y-6">
+          {userProfile && (
+            <div className="transition-shadow">
+              <Link href={`/profile/${userProfile.id}`} className="block">
+                <Card>
+                  <CardContent className="pt-6">
+                    <div className="flex flex-col items-center">
+                      <Image
+                        src={userProfile.avatar_url || "/placeholder-user.jpg"}
+                        alt={userProfile.full_name || "User"}
+                        width={60}
+                        height={60}
+                        className="rounded-full hover:opacity-90 transition-opacity"
+                      />
+                      <h3 className="font-semibold text-sm mt-2">{userProfile.full_name || "User"}</h3>
+                      {userProfile.headline && (
+                        <p className="text-xs text-gray-500 text-center line-clamp-2 mt-1">
+                          {userProfile.headline}
+                        </p>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+            </div>
+          )}
+
+          <Card>
+            <CardContent className="pt-6">
+              <div className="space-y-4">
+                <Link href="/network" className="flex items-center gap-3 hover:text-primary">
+                  <Users className="h-5 w-5" />
+                  <div>
+                    <h3 className="font-medium">My Connections</h3>
+                  </div>
+                </Link>
+                <Link href="/network/professionals" className="flex items-center gap-3 hover:text-primary">
+                  <Search className="h-5 w-5" />
+                  <div>
+                    <h3 className="font-medium">Explore People</h3>
+                  </div>
+                </Link>
+                <Link href="/groups" className="flex items-center gap-3 hover:text-primary">
+                  <Users className="h-5 w-5" />
+                  <div>
+                    <h3 className="font-medium">Groups</h3>
+                  </div>
+                </Link>
+                <Link href="/events" className="flex items-center gap-3 hover:text-primary">
+                  <Calendar className="h-5 w-5" />
+                  <div>
+                    <h3 className="font-medium">Events</h3>
+                  </div>
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Main Content */}
+        <div className="col-span-12 lg:col-span-6">
+          <PostTrigger />
+          <div className="space-y-4">
+            {posts.map((post, i) => {
+              if (i === posts.length - 1) {
+                return (
+                  <div key={post.id} ref={ref}>
+                    <PostItem post={post} currentUser={user} />
+                  </div>
+                );
+              }
+              return <PostItem key={post.id} post={post} currentUser={user} />;
+            })}
+            {loading && (
+              <div className="space-y-4">
+                {[1, 2, 3].map((i) => (
+                  <PostItem key={i} post={{}} currentUser={null} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Right sidebar */}
+        <div className="col-span-3 hidden lg:block space-y-6">
+          <Card>
+            <CardContent className="pt-6">
+              <h3 className="font-semibold mb-3">Upcoming Events</h3>
+              { /*authLoading ? (
+                <div className="space-y-3">
+                  {[1, 2].map((_, i) => (
+                    <div key={i} className="border rounded-md p-3">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Skeleton className="h-4 w-4 rounded-full" />
+                        <Skeleton className="h-4 w-32" />
+                      </div>
+                      <Skeleton className="h-5 w-3/4 mb-2" />
+                      <Skeleton className="h-4 w-full" />
+                    </div>
+                  ))}
+                </div>
+              ) : */ }events.length > 0 ? (
+                <div className="space-y-3">
+                  {events.slice(0, 2).map((event) => (
+                    <div key={event.id} className="border rounded-md p-3">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Clock className="h-4 w-4 text-primary" />
+                        <span className="text-sm font-medium">
+                          {new Date(event.start_date).toLocaleDateString('en-US', {
+                            month: 'short',
+                            day: 'numeric',
+                            hour: 'numeric',
+                            minute: '2-digit'
+                          })}
+                        </span>
+                      </div>
+                      <h4 className="font-medium">{event.title}</h4>
+                      <p className="text-sm text-muted-foreground line-clamp-1">
+                        {event.description}
+                      </p>
+                    </div>
+                  ))}
+                  <Button variant="link" className="px-0" asChild>
+                    <Link href="/events">See all events</Link>
+                  </Button>
+                </div>
+              ) : (
+                <div className="text-center py-4">
+                  <p className="text-sm text-muted-foreground">No upcoming events</p>
+                  <Button variant="link" className="mt-2" asChild>
+                    <Link href="/events">Browse all events</Link>
+                  </Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="pt-6">
+              <h3 className="font-semibold mb-3">Suggested Connections</h3>
+              {/*authLoading ? (
+                <div className="space-y-4">
+                  {[1, 2, 3].map((_, index) => (
+                    <div key={index} className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Skeleton className="h-8 w-8 rounded-full" />
+                        <div>
+                          <Skeleton className="h-4 w-24 mb-1" />
+                          <Skeleton className="h-3 w-36" />
+                        </div>
+                      </div>
+                      <Skeleton className="h-8 w-16 rounded-md" />
+                    </div>
+                  ))}
+                </div>
+              ) : */}suggestions.length > 0 ? (
+                <div className="space-y-4">
+                  {suggestions.slice(0, 3).map((profile) => (
+                    <div key={profile.id} className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Avatar className="h-8 w-8">
+                          <AvatarImage src={profile.avatar_url} />
+                          <AvatarFallback>
+                            {profile.full_name?.substring(0, 2)}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <p className="text-sm font-medium">{profile.full_name}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {profile.headline}
+                          </p>
+                        </div>
+                      </div>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => handleConnect(profile.id)}
+                      >
+                        Connect
+                      </Button>
+                    </div>
+                  ))}
+                  <Button variant="link" className="px-0" asChild>
+                    <Link href="/network">See more suggestions</Link>
+                  </Button>
+                </div>
+              ) : (
+                <div className="text-center py-4">
+                  <p className="text-sm text-muted-foreground">No suggestions available</p>
+                  <Button variant="link" className="mt-2" asChild>
+                    <Link href="/network">Browse all professionals</Link>
+                  </Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const fetchEvents = async () => {
     try {
       const { data: eventData } = await supabase
         .from('events')
@@ -118,244 +392,12 @@ export default function FeedPage() {
     }
   };
 
+  const [events, setEvents] = useState<any[]>([]);
+  const [suggestions, setSuggestions] = useState<any[]>([]);
+
   useEffect(() => {
     fetchEvents();
     if (user) {
       fetchSuggestions();
     }
   }, [user]);
-
-  useEffect(() => {
-    let mounted = true;
-
-    async function fetchPosts() {
-      try {
-        const { supabase } = await import('@/lib/supabase');
-        const { data, error } = await supabase
-          .from('posts')
-          .select('*, profile:profiles(*)')
-          .order('created_at', { ascending: false });
-
-        if (error) throw error;
-        if (mounted) {
-          setPosts(data || []);
-          setPostsLoading(false);
-        }
-      } catch (error) {
-        console.error('Error fetching posts:', error);
-        if (mounted) {
-          setPostsLoading(false);
-        }
-      }
-    }
-
-    fetchPosts();
-    return () => {
-      mounted = false;
-    };
-  }, []);
-
-  return (
-    <div className="container py-6">
-      <div className="grid grid-cols-11 gap-6">
-        {/* Left Sidebar */}
-        <div className="col-span-2 hidden lg:block space-y-6">
-          {userProfile && (
-            <div className="transition-shadow">
-              <Link href={`/profile/${userProfile.id}`} className="block">
-                <Card>
-                  <CardContent className="pt-6">
-                <div className="flex flex-col items-center">
-                  <Image
-                    src={userProfile.avatar_url || "/placeholder-user.jpg"}
-                    alt={userProfile.full_name || "User"}
-                    width={60}
-                    height={60}
-                    className="rounded-full hover:opacity-90 transition-opacity"
-                  />
-                  <h3 className="font-semibold text-sm mt-2">{userProfile.full_name || "User"}</h3>
-                  {userProfile.headline && (
-                    <p className="text-xs text-gray-500 text-center line-clamp-2 mt-1">
-                      {userProfile.headline}
-                    </p>
-                  )}
-                </div>
-                    </CardContent>
-                      </Card>
-              </Link>
-            </div>
-          )}
-                
-          <Card>
-            <CardContent className="pt-6">
-              <div className="space-y-4">
-                <Link href="/network" className="flex items-center gap-3 hover:text-primary">
-                  <Users className="h-5 w-5" />
-                  <div>
-                    <h3 className="font-medium">My Connections</h3>
-                  </div>
-                </Link>
-                <Link href="/network/professionals" className="flex items-center gap-3 hover:text-primary">
-                  <Search className="h-5 w-5" />
-                  <div>
-                    <h3 className="font-medium">Explore People</h3>
-                  </div>
-                </Link>
-                <Link href="/groups" className="flex items-center gap-3 hover:text-primary">
-                  <Users className="h-5 w-5" />
-                  <div>
-                    <h3 className="font-medium">Groups</h3>
-                  </div>
-                </Link>
-                <Link href="/events" className="flex items-center gap-3 hover:text-primary">
-                  <Calendar className="h-5 w-5" />
-                  <div>
-                    <h3 className="font-medium">Events</h3>
-                  </div>
-                </Link>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Main Content */}
-        <div className="col-span-12 lg:col-span-6">
-          <PostTrigger/>
-          {postsLoading ? (
-            <div className="space-y-4">
-              {[1, 2, 3].map((i) => (
-                <PostItem key={i} post={{}} currentUser={null} />
-              ))}
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {posts.map((post) => (
-                <PostItem key={post.id} post={post} currentUser={user} />
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Right sidebar */}
-        <div className="col-span-3 hidden lg:block space-y-6">
-        
-
-          <Card>
-            <CardContent className="pt-6">
-              <h3 className="font-semibold mb-3">Upcoming Events</h3>
-              {authLoading ? (
-                <div className="space-y-3">
-                  {[1, 2].map((_, i) => (
-                    <div key={i} className="border rounded-md p-3">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Skeleton className="h-4 w-4 rounded-full" />
-                        <Skeleton className="h-4 w-32" />
-                      </div>
-                      <Skeleton className="h-5 w-3/4 mb-2" />
-                      <Skeleton className="h-4 w-full" />
-                    </div>
-                  ))}
-                </div>
-              ) : events.length > 0 ? (
-                <div className="space-y-3">
-                  {events.slice(0, 2).map((event) => (
-                    <div key={event.id} className="border rounded-md p-3">
-                      <div className="flex items-center gap-2 mb-1">
-                        <Clock className="h-4 w-4 text-primary" />
-                        <span className="text-sm font-medium">
-                          {new Date(event.start_date).toLocaleDateString('en-US', {
-                            month: 'short',
-                            day: 'numeric',
-                            hour: 'numeric',
-                            minute: '2-digit'
-                          })}
-                        </span>
-                      </div>
-                      <h4 className="font-medium">{event.title}</h4>
-                      <p className="text-sm text-muted-foreground line-clamp-1">
-                        {event.description}
-                      </p>
-                    </div>
-                  ))}
-                  <Button variant="link" className="px-0" asChild>
-                    <Link href="/events">See all events</Link>
-                  </Button>
-                </div>
-              ) : (
-                <div className="text-center py-4">
-                  <p className="text-sm text-muted-foreground">No upcoming events</p>
-                  <Button variant="link" className="mt-2" asChild>
-                    <Link href="/events">Browse all events</Link>
-                  </Button>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="pt-6">
-              <h3 className="font-semibold mb-3">Suggested Connections</h3>
-              {authLoading ? (
-                <div className="space-y-4">
-                  {[1, 2, 3].map((_, index) => (
-                    <div key={index} className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Skeleton className="h-8 w-8 rounded-full" />
-                        <div>
-                          <Skeleton className="h-4 w-24 mb-1" />
-                          <Skeleton className="h-3 w-36" />
-                        </div>
-                      </div>
-                      <Skeleton className="h-8 w-16 rounded-md" />
-                    </div>
-                  ))}
-                </div>
-              ) : suggestions.length > 0 ? (
-                <div className="space-y-4">
-                  {suggestions.slice(0, 3).map((profile) => (
-                    <div key={profile.id} className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Avatar className="h-8 w-8">
-                          <AvatarImage src={profile.avatar_url} />
-                          <AvatarFallback>
-                            {profile.full_name?.substring(0, 2)}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <p className="text-sm font-medium">{profile.full_name}</p>
-                          <p className="text-xs text-muted-foreground">
-                            {profile.headline}
-                          </p>
-                        </div>
-                      </div>
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => handleConnect(profile.id)}
-                      >
-                        Connect
-                      </Button>
-                    </div>
-                  ))}
-                  <Button variant="link" className="px-0" asChild>
-                    <Link href="/network">See more suggestions</Link>
-                  </Button>
-                </div>
-              ) : (
-                <div className="text-center py-4">
-                  <p className="text-sm text-muted-foreground">No suggestions available</p>
-                  <Button variant="link" className="mt-2" asChild>
-                    <Link href="/network">Browse all professionals</Link>
-                  </Button>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Network Navigation Card */}
-          
-        </div>
-      </div>
-    </div>
-  );
-}
