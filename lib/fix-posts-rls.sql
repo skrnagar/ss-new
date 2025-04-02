@@ -26,10 +26,27 @@ GRANT USAGE ON SCHEMA public TO postgres, anon, authenticated, service_role;
 GRANT ALL ON ALL TABLES IN SCHEMA public TO postgres, anon, authenticated, service_role;
 GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO postgres, anon, authenticated, service_role;
 
--- Grant permissions for materialized view
-GRANT ALL ON post_scores TO authenticated;
-GRANT SELECT ON post_scores TO anon;
+-- Drop and recreate materialized view with proper permissions
+DROP MATERIALIZED VIEW IF EXISTS post_scores;
+CREATE MATERIALIZED VIEW post_scores AS
+SELECT 
+    p.id as post_id,
+    p.user_id,
+    COALESCE(l.like_count, 0) as like_count,
+    COALESCE(c.comment_count, 0) as comment_count
+FROM posts p
+LEFT JOIN (
+    SELECT post_id, COUNT(*) as like_count 
+    FROM likes 
+    GROUP BY post_id
+) l ON p.id = l.post_id
+LEFT JOIN (
+    SELECT post_id, COUNT(*) as comment_count 
+    FROM comments 
+    GROUP BY post_id
+) c ON p.id = c.post_id;
 
--- Ensure materialized view can be refreshed
-ALTER MATERIALIZED VIEW IF EXISTS post_scores OWNER TO postgres;
-GRANT ALL ON post_scores TO postgres;
+-- Grant permissions for materialized view
+ALTER MATERIALIZED VIEW post_scores OWNER TO postgres;
+GRANT SELECT ON post_scores TO authenticated;
+GRANT SELECT ON post_scores TO anon;
