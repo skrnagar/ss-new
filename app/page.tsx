@@ -27,9 +27,10 @@ export default async function Home() {
     data: { session },
   } = await supabase.auth.getSession();
 
-  if (session) {
-    redirect("/feed");
-  }
+  // Force redirect if there's a session or code parameter
+if (session || searchParams?.code) {
+  redirect("/feed");
+}
   return (
     <div className="flex flex-col min-h-screen">
       {/* Hero Section */}

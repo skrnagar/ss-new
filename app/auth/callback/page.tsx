@@ -44,9 +44,9 @@ export default function AuthCallbackPage() {
 
         // Force a hard redirect to clear any OAuth state
         if (profile?.username) {
-          window.location.href = "/feed";
+          router.replace("/feed");
         } else {
-          window.location.href = "/profile/setup";
+          router.replace("/profile/setup");
         }
       } catch (err) {
         console.error("Unexpected error:", err);
