@@ -7,9 +7,9 @@ REVOKE ALL ON post_scores FROM anon;
 DROP MATERIALIZED VIEW IF EXISTS post_scores CASCADE;
 
 -- Drop any related triggers if they exist
-DROP TRIGGER IF EXISTS update_post_scores ON posts;
-DROP TRIGGER IF EXISTS update_post_scores ON likes;
-DROP TRIGGER IF EXISTS update_post_scores ON comments;
+DROP TRIGGER IF EXISTS update_post_scores ON posts CASCADE;
+DROP TRIGGER IF EXISTS update_post_scores ON likes CASCADE;
+DROP TRIGGER IF EXISTS update_post_scores ON comments CASCADE;
 
--- Drop any related functions if they exist
-DROP FUNCTION IF EXISTS refresh_post_scores();
+-- Drop the function with CASCADE to handle dependencies
+DROP FUNCTION IF EXISTS refresh_post_scores() CASCADE;
