@@ -204,14 +204,16 @@ export function PostCreator({ isDialog = false, onSuccess }: PostCreatorProps) {
       // Create post in database
       const { data: post, error: postError } = await supabase
         .from("posts")
-        .insert({
+        .insert([{
           user_id: activeProfile?.id,
           content: content.trim(),
           image_url: imageUrl,
           video_url: videoUrl,
           document_url: documentUrl,
-        })
-        .select();
+          created_at: new Date().toISOString(),
+        }])
+        .select('*')
+        .single();
 
       if (postError) {
         throw postError;
