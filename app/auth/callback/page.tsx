@@ -1,65 +1,56 @@
+
 "use client";
 
 import { supabase } from "@/lib/supabase";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function AuthCallbackPage() {
   const router = useRouter();
-  const [_status, setStatus] = useState("Processing authentication...");
+  const [status, setStatus] = useState("Processing authentication...");
 
   useEffect(() => {
-    // This code only runs on the client side
     const handleAuthCallback = async () => {
       try {
         setStatus("Verifying authentication...");
-        console.log("Auth callback: Processing authentication");
-
-        const { data, error } = await supabase.auth.getSession();
+        const { data: { session }, error } = await supabase.auth.getSession();
 
         if (error) {
           console.error("Error during auth callback:", error);
           setStatus("Authentication failed. Redirecting...");
-          router.push("/auth/login?error=Authentication failed");
+          router.replace("/auth/login?error=Authentication failed");
           return;
         }
 
-        if (!data.session) {
+        if (!session) {
           console.error("No session found in auth callback");
           setStatus("No session found. Redirecting...");
-          router.push("/auth/login?error=No session found");
+          router.replace("/auth/login?error=No session found");
           return;
         }
 
-        console.log("Auth callback: Session verified, checking profile");
         setStatus("Checking profile...");
 
         // Check if user has a profile
         const { data: profile, error: profileError } = await supabase
           .from("profiles")
-          .select("*")
-          .eq("id", data.session.user.id)
+          .select("username")
+          .eq("id", session.user.id)
           .single();
 
         if (profileError && profileError.code !== "PGRST116") {
           console.error("Error fetching profile:", profileError);
         }
 
-        // Redirect based on profile existence
-        if (profile) {
-          console.log("Auth callback: Profile found, redirecting to feed");
-          setStatus("Profile found. Redirecting to feed...");
-          router.push("/feed");
+        // Force a hard redirect to clear any OAuth state
+        if (profile?.username) {
+          window.location.href = "/feed";
         } else {
-          console.log("Auth callback: No profile found, redirecting to profile setup");
-          setStatus("Profile setup needed. Redirecting...");
-          router.push("/profile/setup");
+          window.location.href = "/profile/setup";
         }
       } catch (err) {
         console.error("Unexpected error:", err);
-        setStatus("Unexpected error. Redirecting...");
-        router.push("/auth/login?error=Unexpected error");
+        window.location.href = "/auth/login?error=Unexpected error";
       }
     };
 
@@ -69,7 +60,7 @@ export default function AuthCallbackPage() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center">
       <div className="text-center">
-        <p className="text-lg mb-4">We are setting up your account. This may take a few moments.</p>
+        <p className="text-lg mb-4">{status}</p>
         <div className="animate-pulse inline-block rounded-full bg-primary/10 p-4">
           <div className="h-8 w-8 rounded-full border-2 border-primary border-t-transparent animate-spin" />
         </div>
