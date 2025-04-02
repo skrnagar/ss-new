@@ -53,7 +53,8 @@ export default function NetworkPage() {
       const { data: existingConnection } = await supabase
         .from("connections")
         .select()
-        .or(`and(user_id.eq.${user?.id},connected_user_id.eq.${profileId}),and(user_id.eq.${profileId},connected_user_id.eq.${user?.id})`)
+        .or(`user_id.eq.${user?.id},user_id.eq.${profileId}`)
+        .or(`connected_user_id.eq.${profileId},connected_user_id.eq.${user?.id}`)
         .single();
 
       if (existingConnection) {
