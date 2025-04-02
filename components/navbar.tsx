@@ -337,7 +337,7 @@ export const Navbar = memo(function Navbar() {
             <div>
              
                 <div className="flex items-center gap-2">
-                  <Button asChild variant="ghost">
+                  <Button asChild variant="outline" className="bg-white text-black ">
                     <Link href="/auth/login">Log in</Link>
                   </Button>
                   <Button asChild className="bg-primary text-white hover:bg-primary/90">

@@ -70,7 +70,7 @@ export default async function Home() {
               <Image
                 src="/medium-shot-people-working-together.jpg"
                 alt="Safety Shaper Platform"
-                width={500}
+                width={700}
                 height={400}
                 className="rounded-lg shadow-2xl"
               />
@@ -215,26 +215,29 @@ export default async function Home() {
       </section>
 
       {/* Statistics Section */}
-      <section className="py-16 bg-muted/50 border-y">
+      <section className="py-16 ">
         <div className="container">
+          <div className=" bg-muted border rounded-lg py-16 ">
+
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
             <div className="p-6 rounded-lg hover:bg-background/80 transition-colors">
-              <div className="text-5xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent animate-in slide-in-from-bottom duration-700 mb-3">10K+</div>
+              <div className="text-5xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent animate-in slide-in-from-bottom duration-700 mb-3">100K+</div>
               <p className="text-muted-foreground font-medium">ESG & EHS Professionals</p>
             </div>
             <div className="p-6 rounded-lg hover:bg-background/80 transition-colors">
-              <div className="text-5xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent animate-in slide-in-from-bottom duration-700 mb-3">500+</div>
+              <div className="text-5xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent animate-in slide-in-from-bottom duration-700 mb-3">1500+</div>
               <p className="text-muted-foreground font-medium">Leading Companies</p>
             </div>
             <div className="p-6 rounded-lg hover:bg-background/80 transition-colors">
-              <div className="text-5xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent animate-in slide-in-from-bottom duration-700 mb-3">50+</div>
+              <div className="text-5xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent animate-in slide-in-from-bottom duration-700 mb-3">500+</div>
               <p className="text-muted-foreground font-medium">Specialized Groups</p>
             </div>
             <div className="p-6 rounded-lg hover:bg-background/80 transition-colors">
-              <div className="text-5xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent animate-in slide-in-from-bottom duration-700 mb-3">200+</div>
+              <div className="text-5xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent animate-in slide-in-from-bottom duration-700 mb-3">3000+</div>
               <p className="text-muted-foreground font-medium">Knowledge Resources</p>
             </div>
           </div>
+             </div>
         </div>
       </section>
 
@@ -389,7 +392,7 @@ export default async function Home() {
             Join thousands of professionals shaping a safer and more sustainable future.
           </p>
           <div className="flex justify-center gap-4">
-            <Button asChild size="lg" variant="secondary">
+            <Button asChild size="lg" variant="outline" className="bg-white text-black ">
               <Link href="/auth/login">Join Now</Link>
             </Button>
             <Button
