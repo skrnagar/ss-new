@@ -25,3 +25,6 @@ ON posts FOR DELETE USING (auth.uid() = user_id);
 GRANT ALL ON posts TO authenticated;
 GRANT ALL ON post_scores TO authenticated;
 GRANT USAGE ON ALL SEQUENCES IN SCHEMA public TO authenticated;
+
+-- Ensure access to materialized view
+ALTER MATERIALIZED VIEW IF EXISTS post_scores OWNER TO authenticated;
