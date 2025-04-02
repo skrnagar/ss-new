@@ -102,7 +102,7 @@ export const Navbar = memo(function Navbar() {
         <div className="flex items-center gap-4">
           <Link href="/" className="flex items-center" prefetch={true}>
             <Image
-              src="/safterlogo.png"
+              src="/safetyshaper_logo.png"
               alt="Safety Shaper Logo"
               width={65}
               height={30}
