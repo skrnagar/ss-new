@@ -25,7 +25,11 @@ ON posts FOR DELETE USING (auth.uid() = user_id);
 GRANT USAGE ON SCHEMA public TO postgres, anon, authenticated, service_role;
 GRANT ALL ON ALL TABLES IN SCHEMA public TO postgres, anon, authenticated, service_role;
 GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO postgres, anon, authenticated, service_role;
-GRANT ALL ON post_scores TO authenticated;
 
--- Ensure access to materialized view
-ALTER MATERIALIZED VIEW IF EXISTS post_scores OWNER TO authenticated;
+-- Grant permissions for materialized view
+GRANT ALL ON post_scores TO authenticated;
+GRANT SELECT ON post_scores TO anon;
+
+-- Ensure materialized view can be refreshed
+ALTER MATERIALIZED VIEW IF EXISTS post_scores OWNER TO postgres;
+GRANT ALL ON post_scores TO postgres;
