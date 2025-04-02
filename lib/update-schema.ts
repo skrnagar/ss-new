@@ -37,6 +37,31 @@ const updateSchema = async () => {
     } else {
       console.error("Error accessing profiles table:", error.message);
     }
+
+
+    console.log("Updating posts table RLS policy...");
+    const rlsUpdateSQL = `
+      -- Drop existing policies
+      DROP POLICY IF EXISTS "Enable read access for all users" ON posts;
+      DROP POLICY IF EXISTS "Enable insert for authenticated users only" ON posts;
+
+      -- Create new policies
+      CREATE POLICY "Enable read access for all users" ON posts FOR SELECT USING (true);
+      CREATE POLICY "Enable insert for authenticated users only" ON posts FOR INSERT TO authenticated WITH CHECK (auth.uid() = user_id);
+
+      -- Grant necessary permissions on materialized view
+      GRANT SELECT, INSERT ON post_scores TO authenticated;
+      GRANT USAGE ON ALL SEQUENCES IN SCHEMA public TO authenticated;
+    `;
+
+    const { error: rlsError } = await supabase.rpc("exec_sql", { sql: rlsUpdateSQL });
+    if (rlsError) {
+      console.error("Error updating RLS policy:", rlsError.message);
+    } else {
+      console.log("RLS policy updated successfully");
+    }
+
+
   } catch (error) {
     console.error("Error updating schema:", error);
   }
