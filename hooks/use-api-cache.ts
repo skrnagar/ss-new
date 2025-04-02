@@ -2,16 +2,21 @@
 import useSWR from 'swr';
 import { supabase } from '@/lib/supabase';
 
-const fetcher = async (url: string) => {
-  const response = await supabase.from(url).select('*');
-  return response.data;
+const fetcher = async (key: string) => {
+  const { data, error } = await supabase
+    .from(key)
+    .select('*, profile:profiles(*)')
+    .order('created_at', { ascending: false });
+    
+  if (error) throw error;
+  return data;
 };
 
 export function useApiCache<T>(key: string, options = {}) {
   const { data, error, mutate } = useSWR<T>(key, fetcher, {
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-    dedupingInterval: 60000,
+    revalidateOnFocus: true,
+    revalidateOnReconnect: true,
+    refreshInterval: 30000, // Refresh every 30 seconds
     ...options
   });
 

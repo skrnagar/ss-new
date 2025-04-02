@@ -125,35 +125,23 @@ export default function FeedPage() {
     }
   }, [user]);
 
+  const { data: postsData, error: postsError, mutate: mutatePosts } = useApiCache('posts');
+
   useEffect(() => {
-    let mounted = true;
-
-    async function fetchPosts() {
-      try {
-        const { supabase } = await import('@/lib/supabase');
-        const { data, error } = await supabase
-          .from('posts')
-          .select('*, profile:profiles(*)')
-          .order('created_at', { ascending: false });
-
-        if (error) throw error;
-        if (mounted) {
-          setPosts(data || []);
-          setPostsLoading(false);
-        }
-      } catch (error) {
-        console.error('Error fetching posts:', error);
-        if (mounted) {
-          setPostsLoading(false);
-        }
-      }
+    if (postsData) {
+      setPosts(postsData);
+      setPostsLoading(false);
     }
+    if (postsError) {
+      console.error('Error fetching posts:', postsError);
+      setPostsLoading(false);
+    }
+  }, [postsData, postsError]);
 
-    fetchPosts();
-    return () => {
-      mounted = false;
-    };
-  }, []);
+  // Refresh data when component mounts or when user navigates back to the page
+  useEffect(() => {
+    mutatePosts();
+  }, [mutatePosts]);
 
   return (
     <div className="container py-6">
