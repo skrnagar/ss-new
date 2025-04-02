@@ -20,7 +20,11 @@ import { redirect } from "next/navigation";
 import { AuthButtons } from "./components/auth-buttons";
 import { HeroAuthButtons } from "./components/hero-auth-buttons";
 
-export default async function Home() {
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: { [key: string]: string | string[] | undefined };
+}) {
   // Check if user is authenticated and redirect to feed
   const supabase = createLegacyClient();
   const {
@@ -28,9 +32,9 @@ export default async function Home() {
   } = await supabase.auth.getSession();
 
   // Force redirect if there's a session or code parameter
-if (session || searchParams?.code) {
-  redirect("/feed");
-}
+  if (session || searchParams?.code) {
+    redirect("/feed");
+  }
   return (
     <div className="flex flex-col min-h-screen">
       {/* Hero Section */}
