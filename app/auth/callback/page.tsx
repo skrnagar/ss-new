@@ -41,11 +41,11 @@ export default function AuthCallbackPage() {
           console.error("Error fetching profile:", profileError);
         }
 
-        // Force a hard redirect to clear any OAuth state
+        // Force a hard redirect to clear any OAuth state and ensure proper navigation
         if (profile?.username) {
-          window.location.href = "/feed";
+          window.location.href = `${window.location.origin}/feed`;
         } else {
-          window.location.href = "/profile/setup";
+          window.location.href = `${window.location.origin}/profile/setup`;
         }
       } catch (err) {
         console.error("Unexpected error:", err);
