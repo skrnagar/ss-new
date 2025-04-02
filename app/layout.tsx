@@ -55,7 +55,13 @@ export const metadata: Metadata = {
     "Connect with ESG and EHS professionals, share knowledge, find jobs, and manage compliance.",
   generator: "v0.dev",
   icons: {
-    icon: '/favicon.ico',
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/favicon.ico', sizes: '32x32' },
+      { url: '/favicon.ico', sizes: '16x16' },
+    ],
+    shortcut: '/favicon.ico',
+    apple: '/favicon.ico',
   },
 };
 
