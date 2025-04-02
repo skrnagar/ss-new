@@ -242,6 +242,100 @@ export default async function Home() {
         </div>
       </section>
 
+      {/* Collaborative Articles Section */}
+      <section className="py-16 bg-background">
+        <div className="container">
+          <div className="flex flex-col md:flex-row justify-between items-start mb-8">
+            <div className="max-w-2xl">
+              <h2 className="text-3xl font-bold mb-4">Explore Collaborative Articles</h2>
+              <p className="text-muted-foreground text-lg">
+                Join industry experts in creating and improving articles on key ESG & EHS topics. Share your expertise and learn from others.
+              </p>
+            </div>
+            <Button asChild variant="outline" className="mt-4 md:mt-0">
+              <Link href="/articles">View All Articles</Link>
+            </Button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="group">
+              <Link href="/articles/esg-compliance" className="block p-6 rounded-xl border bg-card hover:shadow-lg transition-all">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="flex -space-x-2">
+                    <Avatar className="border-2 border-background">
+                      <AvatarImage src="/placeholder-user.jpg" alt="Contributor" />
+                      <AvatarFallback>CN</AvatarFallback>
+                    </Avatar>
+                    <Avatar className="border-2 border-background">
+                      <AvatarImage src="/placeholder-user.jpg" alt="Contributor" />
+                      <AvatarFallback>JD</AvatarFallback>
+                    </Avatar>
+                  </div>
+                  <span className="text-sm text-muted-foreground">125+ contributors</span>
+                </div>
+                <h3 className="text-xl font-semibold mb-2 group-hover:text-primary">ESG Compliance & Reporting</h3>
+                <p className="text-muted-foreground mb-4">Best practices and frameworks for ESG compliance, reporting standards, and implementation strategies.</p>
+                <div className="flex flex-wrap gap-2">
+                  <Badge variant="secondary">ESG</Badge>
+                  <Badge variant="secondary">Compliance</Badge>
+                  <Badge variant="secondary">Reporting</Badge>
+                </div>
+              </Link>
+            </div>
+
+            <div className="group">
+              <Link href="/articles/sustainability" className="block p-6 rounded-xl border bg-card hover:shadow-lg transition-all">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="flex -space-x-2">
+                    <Avatar className="border-2 border-background">
+                      <AvatarImage src="/placeholder-user.jpg" alt="Contributor" />
+                      <AvatarFallback>RK</AvatarFallback>
+                    </Avatar>
+                    <Avatar className="border-2 border-background">
+                      <AvatarImage src="/placeholder-user.jpg" alt="Contributor" />
+                      <AvatarFallback>AM</AvatarFallback>
+                    </Avatar>
+                  </div>
+                  <span className="text-sm text-muted-foreground">98+ contributors</span>
+                </div>
+                <h3 className="text-xl font-semibold mb-2 group-hover:text-primary">Sustainable Operations</h3>
+                <p className="text-muted-foreground mb-4">Implementing sustainable practices in operations, reducing environmental impact, and promoting circular economy.</p>
+                <div className="flex flex-wrap gap-2">
+                  <Badge variant="secondary">Sustainability</Badge>
+                  <Badge variant="secondary">Operations</Badge>
+                  <Badge variant="secondary">Environment</Badge>
+                </div>
+              </Link>
+            </div>
+
+            <div className="group">
+              <Link href="/articles/safety-culture" className="block p-6 rounded-xl border bg-card hover:shadow-lg transition-all">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="flex -space-x-2">
+                    <Avatar className="border-2 border-background">
+                      <AvatarImage src="/placeholder-user.jpg" alt="Contributor" />
+                      <AvatarFallback>SP</AvatarFallback>
+                    </Avatar>
+                    <Avatar className="border-2 border-background">
+                      <AvatarImage src="/placeholder-user.jpg" alt="Contributor" />
+                      <AvatarFallback>LM</AvatarFallback>
+                    </Avatar>
+                  </div>
+                  <span className="text-sm text-muted-foreground">150+ contributors</span>
+                </div>
+                <h3 className="text-xl font-semibold mb-2 group-hover:text-primary">Building Safety Culture</h3>
+                <p className="text-muted-foreground mb-4">Creating and maintaining a strong safety culture, employee engagement, and behavioral safety approaches.</p>
+                <div className="flex flex-wrap gap-2">
+                  <Badge variant="secondary">Safety</Badge>
+                  <Badge variant="secondary">Culture</Badge>
+                  <Badge variant="secondary">Leadership</Badge>
+                </div>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Areas Section */}
       <section className="py-16 bg-background">
         <div className="container">
