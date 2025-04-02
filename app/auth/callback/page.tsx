@@ -1,3 +1,4 @@
+
 "use client";
 
 import { supabase } from "@/lib/supabase";
@@ -6,55 +7,50 @@ import { useEffect, useState } from "react";
 
 export default function AuthCallbackPage() {
   const router = useRouter();
-  const [status, setStatus] = useState("Processing authentication...");
+  const [status, setStatus] = useState("Setting up your account...");
 
   useEffect(() => {
     const handleAuthCallback = async () => {
       try {
-        setStatus("Verifying authentication...");
         const { data: { session }, error } = await supabase.auth.getSession();
 
         if (error) {
-          console.error("Error during auth callback:", error);
-          setStatus("Authentication failed. Redirecting...");
-          router.replace("/auth/login?error=Authentication failed");
+          console.error("Auth callback error:", error);
+          window.location.href = "/auth/login?error=Authentication failed";
           return;
         }
 
         if (!session) {
-          console.error("No session found in auth callback");
-          setStatus("No session found. Redirecting...");
-          router.replace("/auth/login?error=No session found");
+          console.error("No session found");
+          window.location.href = "/auth/login?error=No session found";
           return;
         }
-
-        setStatus("Checking profile...");
 
         // Check if user has a profile
         const { data: profile, error: profileError } = await supabase
           .from("profiles")
-          .select("username")
+          .select("username, full_name")
           .eq("id", session.user.id)
           .single();
 
         if (profileError && profileError.code !== "PGRST116") {
-          console.error("Error fetching profile:", profileError);
+          console.error("Profile fetch error:", profileError);
         }
 
-        // Force a hard redirect to clear any OAuth state and ensure proper navigation
-        if (profile?.username) {
-          window.location.href = `${window.location.origin}/feed`;
+        // Immediate redirect based on profile status
+        if (!profile || !profile.username) {
+          window.location.href = "/profile/setup";
         } else {
-          window.location.href = `${window.location.origin}/profile/setup`;
+          window.location.href = "/feed";
         }
       } catch (err) {
-        console.error("Unexpected error:", err);
+        console.error("Callback error:", err);
         window.location.href = "/auth/login?error=Unexpected error";
       }
     };
 
     handleAuthCallback();
-  }, [router]);
+  }, []);
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center">
