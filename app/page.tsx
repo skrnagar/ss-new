@@ -215,24 +215,24 @@ export default async function Home() {
       </section>
 
       {/* Statistics Section */}
-      <section className="py-16 bg-muted">
+      <section className="py-16 bg-muted/50 border-y">
         <div className="container">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-            <div>
-              <div className="text-4xl font-bold text-primary mb-2">10K+</div>
-              <p className="text-muted-foreground">Professionals</p>
+            <div className="p-6 rounded-lg hover:bg-background/80 transition-colors">
+              <div className="text-5xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent animate-in slide-in-from-bottom duration-700 mb-3">10K+</div>
+              <p className="text-muted-foreground font-medium">ESG & EHS Professionals</p>
             </div>
-            <div>
-              <div className="text-4xl font-bold text-primary mb-2">500+</div>
-              <p className="text-muted-foreground">Companies</p>
+            <div className="p-6 rounded-lg hover:bg-background/80 transition-colors">
+              <div className="text-5xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent animate-in slide-in-from-bottom duration-700 mb-3">500+</div>
+              <p className="text-muted-foreground font-medium">Leading Companies</p>
             </div>
-            <div>
-              <div className="text-4xl font-bold text-primary mb-2">50+</div>
-              <p className="text-muted-foreground">Industry Groups</p>
+            <div className="p-6 rounded-lg hover:bg-background/80 transition-colors">
+              <div className="text-5xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent animate-in slide-in-from-bottom duration-700 mb-3">50+</div>
+              <p className="text-muted-foreground font-medium">Specialized Groups</p>
             </div>
-            <div>
-              <div className="text-4xl font-bold text-primary mb-2">200+</div>
-              <p className="text-muted-foreground">Resources</p>
+            <div className="p-6 rounded-lg hover:bg-background/80 transition-colors">
+              <div className="text-5xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent animate-in slide-in-from-bottom duration-700 mb-3">200+</div>
+              <p className="text-muted-foreground font-medium">Knowledge Resources</p>
             </div>
           </div>
         </div>
