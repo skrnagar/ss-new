@@ -183,7 +183,7 @@ export default function LoginPage() {
       <div className="mx-auto flex w-full flex-col space-y-6 sm:w-[350px] md:w-[500px]">
         <div className="flex flex-col space-y-2 text-center">
           <div className="mx-auto mb-4">
-            <Image src="/slogos.png" alt="Safety Shaper Logo" width={70} height={80} />
+            {/* <Image src="/slogos.png" alt="Safety Shaper Logo" width={70} height={80} /> */}
           </div>
           <h1 className="text-2xl font-semibold tracking-tight">Welcome to Safety Shaper</h1>
           <p className="text-sm text-muted-foreground">
