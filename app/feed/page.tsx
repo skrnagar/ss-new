@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { useApiCache } from "@/hooks/use-api-cache";
 import { useAuth } from "@/contexts/auth-context";
 import { Search, BookmarkIcon, Users, Calendar, Newspaper } from "lucide-react";
 import { PostTrigger } from "@/components/post-trigger";
