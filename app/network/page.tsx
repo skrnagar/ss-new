@@ -49,6 +49,18 @@ export default function NetworkPage() {
 
   const handleConnect = async (profileId: string) => {
     try {
+      // Check if connection already exists
+      const { data: existingConnection } = await supabase
+        .from("connections")
+        .select()
+        .or(`and(user_id.eq.${user?.id},connected_user_id.eq.${profileId}),and(user_id.eq.${profileId},connected_user_id.eq.${user?.id})`)
+        .single();
+
+      if (existingConnection) {
+        console.log("Connection already exists");
+        return;
+      }
+
       const { error } = await supabase
         .from("connections")
         .insert([{ user_id: user?.id, connected_user_id: profileId, status: "pending" }]);
