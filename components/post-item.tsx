@@ -419,6 +419,12 @@ const PostItem = memo(function PostItem({ post, currentUser }: PostItemProps) {
     return `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/post-images/${imageUrl}`;
   };
 
+  const isImageUrl = (url: string | null): boolean => {
+    if (!url) return false;
+    const ext = url.split('.').pop()?.toLowerCase();
+    return ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext || '');
+  };
+
   const uploadMedia = async (file: File) => {
     const fileExt = file.name.split('.').pop()?.toLowerCase();
     const contentType = fileExt === 'png' ? 'image/png' :
@@ -524,53 +530,44 @@ const PostItem = memo(function PostItem({ post, currentUser }: PostItemProps) {
             </div>
           )}
 
-          {/* Image attachment */}
-          {post.image_url && (
-            <div className="mt-3 rounded-md overflow-hidden">
-              <div className="relative w-full max-h-[500px]" style={{ aspectRatio: "16/9" }}>
-                <Image
-                  src={getStorageUrl(post.image_url) || '/placeholder.jpg'}
-                  alt="Post attachment"
-                  width={800}
-                  height={450}
-                  style={{ objectFit: "cover", width: "100%", height: "auto" }}
-                  className="rounded-md"
-                  loading="lazy"
-                  quality={80}
-                  onError={(e) => {
-                    const target = e.target as HTMLImageElement;
-                    target.src = '/placeholder.jpg';
-                  }}
-                />
-              </div>
+          {/* Image or Document attachment */}
+          {(post.image_url || post.document_url) && (
+            <div className="mt-3">
+              {isImageUrl(getStorageUrl(post.image_url)) ? (
+                <div className="mt-3 rounded-md overflow-hidden">
+                  <div className="relative w-full max-h-[500px]" style={{ aspectRatio: "16/9" }}>
+                    <Image
+                      src={getStorageUrl(post.image_url) || '/placeholder.jpg'}
+                      alt="Post attachment"
+                      width={800}
+                      height={450}
+                      style={{ objectFit: "cover", width: "100%", height: "auto" }}
+                      className="rounded-md"
+                      loading="lazy"
+                      quality={80}
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.src = '/placeholder.jpg';
+                      }}
+                    />
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2 p-4 bg-muted rounded-lg">
+                  <FileText className="h-5 w-5" />
+                  <a href={getStorageUrl(post.document_url)} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
+                    View Document
+                  </a>
+                </div>
+              )}
             </div>
           )}
+
 
           {/* Video attachment */}
           {post.video_url && (
             <div className="mt-3 rounded-md overflow-hidden">
               <video src={post.video_url} controls className="w-full" poster="/placeholder.jpg" />
-            </div>
-          )}
-
-          {/* Document attachment */}
-          {post.document_url && (
-            <div className="mt-3">
-              <a
-                href={post.document_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 p-3 rounded-md border bg-muted/30 hover:bg-muted/50 transition-colors"
-              >
-                <FileText className="h-5 w-5 text-primary" />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate">Document Attachment</p>
-                  <p className="text-xs text-muted-foreground">Click to view or download</p>
-                </div>
-                <Button size="sm" variant="outline">
-                  Open
-                </Button>
-              </a>
             </div>
           )}
         </div>
