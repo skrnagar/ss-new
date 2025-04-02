@@ -1,8 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
-import { useApiCache } from "@/hooks/use-api-cache";
 import { useAuth } from "@/contexts/auth-context";
 import { Search, BookmarkIcon, Users, Calendar, Newspaper } from "lucide-react";
 import { PostTrigger } from "@/components/post-trigger";
@@ -56,9 +55,42 @@ export default function FeedPage() {
   }
 
   const [posts, setPosts] = useState<Post[]>([]);
+  const [postsLoading, setPostsLoading] = useState(true);
+  const [lastCursor, setLastCursor] = useState<string | null>(null);
+  const [hasMore, setHasMore] = useState(true);
+
+  const POSTS_PER_PAGE = 10;
+
+  const fetchPosts = async (cursor: string | null = null) => {
+    try {
+      let query = supabase
+        .from('posts')
+        .select('*, profile:profiles(*)')
+        .order('created_at', { ascending: false })
+        .limit(POSTS_PER_PAGE);
+
+      if (cursor) {
+        query = query.lt('created_at', cursor);
+      }
+
+      const { data, error } = await query;
+
+      if (error) throw error;
+
+      const newPosts = data || [];
+      setPosts(prev => cursor ? [...prev, ...newPosts] : newPosts);
+      setHasMore(newPosts.length === POSTS_PER_PAGE);
+      setLastCursor(newPosts[newPosts.length - 1]?.created_at || null);
+
+    } catch (error) {
+      console.error('Error fetching posts:', error);
+    } finally {
+      setPostsLoading(false);
+    }
+  };
+
   const [events, setEvents] = useState<any[]>([]);
   const [suggestions, setSuggestions] = useState<any[]>([]);
-  const [postsLoading, setPostsLoading] = useState(true);
   const { user, profile: userProfile, isLoading: authLoading } = useAuth();
   const router = useRouter();
 
@@ -71,7 +103,7 @@ export default function FeedPage() {
         .gte('start_date', new Date().toISOString())
         .order('start_date', { ascending: true })
         .limit(2);
-      
+
       setEvents(eventData || []);
     } catch (error) {
       console.error('Error fetching events:', error);
@@ -111,7 +143,7 @@ export default function FeedPage() {
         .insert([
           { user_id: user.id, connected_user_id: profileId, status: 'pending' }
         ]);
-      
+
       // Refresh suggestions after connecting
       fetchSuggestions();
     } catch (error) {
@@ -126,23 +158,27 @@ export default function FeedPage() {
     }
   }, [user]);
 
-  const { data: postsData, error: postsError, mutate: mutatePosts } = useApiCache('posts');
 
   useEffect(() => {
-    if (postsData) {
-      setPosts(postsData);
-      setPostsLoading(false);
-    }
-    if (postsError) {
-      console.error('Error fetching posts:', postsError);
-      setPostsLoading(false);
-    }
-  }, [postsData, postsError]);
+    fetchPosts();
+  }, []);
 
-  // Refresh data when component mounts or when user navigates back to the page
-  useEffect(() => {
-    mutatePosts();
-  }, [mutatePosts]);
+  // Intersection Observer for infinite scroll
+  const observerRef = useRef<IntersectionObserver>();
+  const lastPostRef = useCallback((node: HTMLElement | null) => {
+    if (postsLoading) return;
+
+    if (observerRef.current) observerRef.current.disconnect();
+
+    observerRef.current = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting && hasMore) {
+        fetchPosts(lastCursor);
+      }
+    });
+
+    if (node) observerRef.current.observe(node);
+  }, [postsLoading, hasMore, lastCursor]);
+
 
   return (
     <div className="container py-6">
@@ -174,7 +210,7 @@ export default function FeedPage() {
               </Link>
             </div>
           )}
-                
+
           <Card>
             <CardContent className="pt-6">
               <div className="space-y-4">
@@ -218,8 +254,10 @@ export default function FeedPage() {
             </div>
           ) : (
             <div className="space-y-4">
-              {posts.map((post) => (
-                <PostItem key={post.id} post={post} currentUser={user} />
+              {posts.map((post, index) => (
+                <div ref={index === posts.length -1 ? lastPostRef : null} key={post.id}>
+                  <PostItem key={post.id} post={post} currentUser={user} />
+                </div>
               ))}
             </div>
           )}
@@ -227,7 +265,7 @@ export default function FeedPage() {
 
         {/* Right sidebar */}
         <div className="col-span-3 hidden lg:block space-y-6">
-        
+
 
           <Card>
             <CardContent className="pt-6">
@@ -342,7 +380,7 @@ export default function FeedPage() {
           </Card>
 
           {/* Network Navigation Card */}
-          
+
         </div>
       </div>
     </div>

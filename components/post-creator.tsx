@@ -11,7 +11,10 @@ import { supabase } from "@/lib/supabase";
 import { FileText, Image, Loader2, Paperclip, Video, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import type * as React from "react";
-import { useRef, useState } from "react";
+import { useRef, useState, useCallback } from "react";
+import debounce from 'lodash.debounce';
+import imageCompression from 'browser-image-compression';
+
 
 // Define Profile type based on what's in auth context
 type Profile = {
@@ -55,12 +58,42 @@ export function PostCreator({ isDialog = false, onSuccess }: PostCreatorProps) {
   }
   const [content, setContent] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isCompressing, setIsCompressing] = useState(false);
   const [attachmentType, setAttachmentType] = useState<"image" | "video" | "document" | null>(null);
   const [attachmentFile, setAttachmentFile] = useState<File | null>(null);
   const [attachmentPreview, setAttachmentPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   const router = useRouter();
+
+  // Debounce content updates
+  const debouncedSetContent = useCallback(
+    debounce((value: string) => {
+      setContent(value);
+    }, 300),
+    []
+  );
+
+  // Compress image before upload
+  const compressImage = async (file: File): Promise<File> => {
+    if (!file.type.startsWith('image/')) return file;
+
+    setIsCompressing(true);
+    try {
+      const options = {
+        maxSizeMB: 1,
+        maxWidthOrHeight: 1920,
+        useWebWorker: true
+      };
+      const compressedFile = await imageCompression(file, options);
+      return new File([compressedFile], file.name, { type: file.type });
+    } catch (error) {
+      console.error('Error compressing image:', error);
+      return file;
+    } finally {
+      setIsCompressing(false);
+    }
+  };
 
   const getInitials = (name: string) => {
     if (!name) return "U";
@@ -85,7 +118,7 @@ export function PostCreator({ isDialog = false, onSuccess }: PostCreatorProps) {
     }, 100);
   };
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     console.log("File input changed:", event.target.files);
     const file = event.target.files?.[0];
     if (!file) {
@@ -105,7 +138,8 @@ export function PostCreator({ isDialog = false, onSuccess }: PostCreatorProps) {
       return;
     }
 
-    setAttachmentFile(file);
+    const compressedFile = await compressImage(file);
+    setAttachmentFile(compressedFile);
 
     // Create preview for images
     if (attachmentType === "image") {
@@ -113,10 +147,10 @@ export function PostCreator({ isDialog = false, onSuccess }: PostCreatorProps) {
       reader.onload = (e) => {
         setAttachmentPreview(e.target?.result as string);
       };
-      reader.readAsDataURL(file);
+      reader.readAsDataURL(compressedFile);
     } else {
       // For non-images, just show the filename
-      setAttachmentPreview(file.name);
+      setAttachmentPreview(compressedFile.name);
     }
   };
 
@@ -245,20 +279,12 @@ export function PostCreator({ isDialog = false, onSuccess }: PostCreatorProps) {
   };
 
   return (
-  
         <div className="flex items-start gap-3 md:gap-4">
-          {/* <Avatar className="h-8 w-8 md:h-10 md:w-10">
-            <AvatarImage
-              src={activeProfile?.avatar_url || ""}
-              alt={activeProfile?.full_name || "User"}
-            />
-            <AvatarFallback>{getInitials(activeProfile?.full_name || "")}</AvatarFallback>
-          </Avatar> */}
           <div className="flex-1 space-y-3 mt-3 md:space-y-4">
             <Textarea
               placeholder={`What's on your mind, ${activeProfile?.full_name?.split(" ")[0] || "User"}?`}
               value={content}
-              onChange={(e) => setContent(e.target.value)}
+              onChange={(e) => debouncedSetContent(e.target.value)}
               className="min-h-[120px] md:min-h-[250px] resize-none text-sm md:text-base"
             />
 
@@ -342,11 +368,11 @@ export function PostCreator({ isDialog = false, onSuccess }: PostCreatorProps) {
                 />
               </div>
 
-              <Button size="lg" onClick={handleSubmit} disabled={isSubmitting}>
-                {isSubmitting ? (
+              <Button size="lg" onClick={handleSubmit} disabled={isSubmitting || isCompressing}>
+                {isSubmitting || isCompressing ? (
                   <>
                     <Loader2 className="h-4 w-8 mr-2 animate-spin" />
-                    Posting...
+                    {isCompressing ? "Compressing..." : "Posting..."}
                   </>
                 ) : (
                   <>Post</>
@@ -355,6 +381,6 @@ export function PostCreator({ isDialog = false, onSuccess }: PostCreatorProps) {
             </div>
           </div>
         </div>
-  
+
   );
 }
