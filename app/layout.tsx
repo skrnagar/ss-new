@@ -56,12 +56,19 @@ export const metadata: Metadata = {
   generator: "v0.dev",
   icons: {
     icon: [
-      { url: '/favicon.ico', sizes: 'any' },
-      { url: '/favicon.ico', sizes: '32x32' },
-      { url: '/favicon.ico', sizes: '16x16' },
+      {
+        url: '/favicon.ico',
+        sizes: 'any',
+        type: 'image/x-icon',
+      },
+      {
+        url: '/icon.png',
+        type: 'image/png',
+        sizes: '32x32',
+      },
     ],
-    shortcut: '/favicon.ico',
-    apple: '/favicon.ico',
+    shortcut: { url: '/favicon.ico', type: 'image/x-icon' },
+    apple: { url: '/apple-icon.png', type: 'image/png' },
   },
 };
 
