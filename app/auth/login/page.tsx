@@ -87,8 +87,8 @@ export default function LoginPage() {
         description: "Redirecting to your dashboard...",
       });
 
-      // Redirect to feed page after successful login using router.push instead of window.location
-      router.push("/feed");
+      // Redirect to feed page after successful login
+      router.replace("/feed");
     } catch (_error) {
       toast({
         title: "An error occurred",
