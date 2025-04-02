@@ -220,18 +220,18 @@ export default async function Home() {
       {/* Statistics Section */}
       <section className="py-16 ">
         <div className="container">
-          <div className=" bg-muted border rounded-lg py-16 ">
+          <div className="bg-sky-50 border rounded-lg py-16 ">
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-            <div className="p-6 rounded-lg hover:bg-background/80 transition-colors">
+            <div className="p-6 rounded-lg transition-colors">
               <div className="text-5xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent animate-in slide-in-from-bottom duration-700 mb-3">100K+</div>
               <p className="text-muted-foreground font-medium">ESG & EHS Professionals</p>
             </div>
-            <div className="p-6 rounded-lg hover:bg-background/80 transition-colors">
+            <div className="p-6 rounded-lg transition-colors">
               <div className="text-5xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent animate-in slide-in-from-bottom duration-700 mb-3">1500+</div>
               <p className="text-muted-foreground font-medium">Leading Companies</p>
             </div>
-            <div className="p-6 rounded-lg hover:bg-background/80 transition-colors">
+            <div className="p-6 rounded-lg transition-colors">
               <div className="text-5xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent animate-in slide-in-from-bottom duration-700 mb-3">500+</div>
               <p className="text-muted-foreground font-medium">Specialized Groups</p>
             </div>
@@ -261,7 +261,7 @@ export default async function Home() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <div className="group">
-              <Link href="/articles/esg-compliance" className="block p-6 rounded-xl border bg-card hover:shadow-lg transition-all">
+              <Link href="/articles" className="block p-6 rounded-xl border bg-card hover:shadow-lg transition-all">
                 <div className="flex items-center gap-2 mb-4">
                   <div className="flex -space-x-2">
                     <Avatar className="border-2 border-background">
@@ -278,15 +278,15 @@ export default async function Home() {
                 <h3 className="text-xl font-semibold mb-2 group-hover:text-primary">ESG Compliance & Reporting</h3>
                 <p className="text-muted-foreground mb-4">Best practices and frameworks for ESG compliance, reporting standards, and implementation strategies.</p>
                 <div className="flex flex-wrap gap-2">
-                  <Badge variant="secondary">ESG</Badge>
-                  <Badge variant="secondary">Compliance</Badge>
+                  <Badge >ESG</Badge>
+                  <Badge variant="primary">Compliance</Badge>
                   <Badge variant="secondary">Reporting</Badge>
                 </div>
               </Link>
             </div>
 
             <div className="group">
-              <Link href="/articles/sustainability" className="block p-6 rounded-xl border bg-card hover:shadow-lg transition-all">
+              <Link href="/articles" className="block p-6 rounded-xl border bg-card hover:shadow-lg transition-all">
                 <div className="flex items-center gap-2 mb-4">
                   <div className="flex -space-x-2">
                     <Avatar className="border-2 border-background">
@@ -303,15 +303,15 @@ export default async function Home() {
                 <h3 className="text-xl font-semibold mb-2 group-hover:text-primary">Sustainable Operations</h3>
                 <p className="text-muted-foreground mb-4">Implementing sustainable practices in operations, reducing environmental impact, and promoting circular economy.</p>
                 <div className="flex flex-wrap gap-2">
-                  <Badge variant="secondary">Sustainability</Badge>
+                  <Badge variant="primary">Sustainability</Badge>
                   <Badge variant="secondary">Operations</Badge>
-                  <Badge variant="secondary">Environment</Badge>
+                  <Badge variant="primary">Environment</Badge>
                 </div>
               </Link>
             </div>
 
             <div className="group">
-              <Link href="/articles/safety-culture" className="block p-6 rounded-xl border bg-card hover:shadow-lg transition-all">
+              <Link href="/articles" className="block p-6 rounded-xl border bg-card hover:shadow-lg transition-all">
                 <div className="flex items-center gap-2 mb-4">
                   <div className="flex -space-x-2">
                     <Avatar className="border-2 border-background">
@@ -329,8 +329,8 @@ export default async function Home() {
                 <p className="text-muted-foreground mb-4">Creating and maintaining a strong safety culture, employee engagement, and behavioral safety approaches.</p>
                 <div className="flex flex-wrap gap-2">
                   <Badge variant="secondary">Safety</Badge>
-                  <Badge variant="secondary">Culture</Badge>
-                  <Badge variant="secondary">Leadership</Badge>
+                  <Badge >Culture</Badge>
+                  <Badge variant="primary">Leadership</Badge>
                 </div>
               </Link>
             </div>
