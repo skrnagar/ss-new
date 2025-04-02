@@ -54,6 +54,9 @@ export const metadata: Metadata = {
   description:
     "Connect with ESG and EHS professionals, share knowledge, find jobs, and manage compliance.",
   generator: "v0.dev",
+  icons: {
+    icon: '/favicon.ico',
+  },
 };
 
 //New MobileNav Component
