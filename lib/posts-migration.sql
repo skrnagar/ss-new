@@ -7,11 +7,6 @@ DROP POLICY IF EXISTS "Users can create their own posts" ON posts;
 DROP POLICY IF EXISTS "Users can update their own posts" ON posts;
 DROP POLICY IF EXISTS "Users can delete their own posts" ON posts;
 
--- Add likes_count and comments_count columns if they don't exist
-ALTER TABLE posts 
-ADD COLUMN IF NOT EXISTS likes_count INTEGER DEFAULT 0,
-ADD COLUMN IF NOT EXISTS comments_count INTEGER DEFAULT 0;
-
 -- Create new policies with correct user_id check
 CREATE POLICY "Posts are viewable by everyone" 
 ON posts FOR SELECT USING (true);
@@ -69,9 +64,3 @@ BEGIN;
       AND auth.uid() = owner
     );
 COMMIT;
-
--- Add indexes for better performance
-CREATE INDEX IF NOT EXISTS posts_created_at_idx ON posts(created_at DESC);
-CREATE INDEX IF NOT EXISTS posts_user_id_idx ON posts(user_id);
-CREATE INDEX IF NOT EXISTS posts_likes_count_idx ON posts(likes_count DESC);
-CREATE INDEX IF NOT EXISTS posts_comments_count_idx ON posts(comments_count DESC);

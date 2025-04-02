@@ -5,7 +5,6 @@ import { AuthProvider } from "@/contexts/auth-context";
 import type { Metadata } from "next";
 import dynamic from "next/dynamic";
 import { Manrope, Poppins } from "next/font/google";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Home, Users, PlusSquare, BookOpen, GraduationCap } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
@@ -98,8 +97,6 @@ const MobileNav = () => {
 };
 
 
-const queryClient = new QueryClient();
-
 export default function RootLayout({
   children,
 }: {
@@ -108,8 +105,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${poppins.className} ${manrope.className}`}>
-        <QueryClientProvider client={queryClient}>
-          <AuthProvider>
+        <AuthProvider>
           <div className="flex flex-col min-h-screen">
             <Suspense
               fallback={
@@ -137,7 +133,6 @@ export default function RootLayout({
             </div>
           </div>
         </AuthProvider>
-        </QueryClientProvider>
       </body>
     </html>
   );
