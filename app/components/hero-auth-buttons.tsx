@@ -44,8 +44,6 @@ export function HeroAuthButtons() {
       
       router.push('/feed');
     } catch (error) {
-
-    if (error) {
       toast({
         title: "Login failed",
         description: error.message,
