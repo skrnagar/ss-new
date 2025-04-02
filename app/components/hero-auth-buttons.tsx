@@ -1,17 +1,47 @@
+
 "use client";
 
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase";
+import { useToast } from "@/hooks/use-toast";
 
 export function HeroAuthButtons() {
   const router = useRouter();
+  const { toast } = useToast();
 
-  const handleGoogleSignIn = () => {
-    window.location.href = "/auth/login?provider=google";
+  const handleGoogleSignIn = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
+
+    if (error) {
+      toast({
+        title: "Login failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
   };
 
-  const handleLinkedInSignIn = () => {
-    window.location.href = "/auth/login?provider=linkedin";
+  const handleLinkedInSignIn = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "linkedin_oidc",
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
+
+    if (error) {
+      toast({
+        title: "Login failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
   };
 
   return (
