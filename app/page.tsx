@@ -56,14 +56,15 @@ export default async function Home() {
                 professionals to share knowledge, advance your career, and shape a safer future.
               </p>
               <div className="flex flex-col w-full ">
-                <div className="mt-4 w-full">
-                  <AuthButtons />
-                </div>
-
                 <div className="mt-6">
                   {/* Import the client component with the auth buttons */}
                   <HeroAuthButtons />
                 </div>
+                <div className="mt-4 w-full">
+                  <AuthButtons />
+                </div>
+
+              
               </div>
             </div>
             <div className="hidden md:block">
