@@ -338,13 +338,10 @@ export const Navbar = memo(function Navbar() {
               {!isLoading && (
                 <div className="flex items-center gap-2">
                   <Button asChild variant="ghost">
-                    <Link href="/auth/login">Sign In</Link>
-                  </Button>
-                  <Button asChild variant="outline">
-                    <Link href="/auth/login?tab=register">Join Now</Link>
+                    <Link href="/auth/login">Log in</Link>
                   </Button>
                   <Button asChild className="bg-primary text-white hover:bg-primary/90">
-                    <Link href="/auth/register">Sign Up</Link>
+                    <Link href="/auth/register">Get Started</Link>
                   </Button>
                 </div>
               )}
