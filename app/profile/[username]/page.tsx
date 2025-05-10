@@ -85,9 +85,11 @@ export default async function ProfilePage({ params }: { params: { username: stri
                     </Button>
                   ) : (
                     <>
-                      <Button className="flex-1">
-                        <MessageSquare className="h-4 w-4 mr-2" />
-                        Message
+                      <Button className="flex-1" asChild>
+                        <Link href={`/messages/${profile.id}`}>
+                          <MessageSquare className="h-4 w-4 mr-2" />
+                          Message
+                        </Link>
                       </Button>
                       <ConnectButton userId={session.user.id} profileId={profile.id} />
                     </>
