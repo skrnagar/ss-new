@@ -1,14 +1,17 @@
 
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function CreatePostPage() {
   const router = useRouter();
   
   useEffect(() => {
-    router.push("/feed");
+    // Trigger post dialog open and redirect back to feed
+    const createPostEvent = new CustomEvent('openPostDialog');
+    window.dispatchEvent(createPostEvent);
+    router.push('/feed');
   }, [router]);
 
   return null;
