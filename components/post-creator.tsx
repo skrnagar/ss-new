@@ -256,28 +256,38 @@ export function PostCreator({ isDialog = false, onSuccess }: PostCreatorProps) {
         onSuccess(optimisticPost);
       }
 
-      // Create post in database
-      const { data: post, error: postError } = await supabase
-        .from("posts")
-        .insert([postData])
-        .select('*, profiles(*)')
-        .single();
+      try {
+        // Create post in database
+        const { data: post, error: postError } = await supabase
+          .from("posts")
+          .insert([postData])
+          .select('*, profiles(*)')
+          .single();
 
-      if (postError) {
-        // Revert on error
-        setContent(originalContent);
-        throw postError;
+        if (postError) {
+          // Revert on error
+          setContent(originalContent);
+          throw postError;
+        }
+
+        // Success toast with better UX
+        toast({
+          title: "Post created",
+          description: "Your post has been published",
+          duration: 3000
+        });
+
+        // Navigate back to feed after successful post
+        router.push('/feed');
+      } catch (error) {
+        console.error("Error creating post:", error);
+        setIsSubmitting(false); // Reset submitting state on error
+        toast({
+          title: "Error creating post",
+          description: "Please try again",
+          variant: "destructive"
+        });
       }
-
-      // Success toast with better UX
-      toast({
-        title: "Post created",
-        description: "Your post has been published",
-        duration: 3000
-      });
-
-      // Navigate back to feed
-      router.replace('/feed');
     } catch (error) {
       console.error("Error creating post:", error);
       toast({
