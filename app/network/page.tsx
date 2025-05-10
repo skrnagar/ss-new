@@ -75,9 +75,21 @@ export default function NetworkPage() {
   };
 
   const [connectionRequests, setConnectionRequests] = useState<any[]>([]);
+  const [sentRequests, setSentRequests] = useState<any[]>([]);
 
   useEffect(() => {
     if (user) {
+      // Fetch sent connection requests
+      supabase
+        .from("connections")
+        .select("*, profile:profiles!connections_connected_user_id_fkey(*)")
+        .eq("user_id", user.id)
+        .eq("status", "pending")
+        .then(({ data, error }) => {
+          if (!error && data) {
+            setSentRequests(data);
+          }
+        });
       // Fetch connection requests
       supabase
         .from("connections")
@@ -91,6 +103,37 @@ export default function NetworkPage() {
         });
     }
   }, [user]);
+
+  const handleCancelRequest = async (connectionId: string) => {
+    try {
+      const { error } = await supabase
+        .from("connections")
+        .delete()
+        .eq("id", connectionId)
+        .eq("user_id", user?.id);
+
+      if (error) throw error;
+
+      setSentRequests(sentRequests.filter(request => request.id !== connectionId));
+    } catch (error) {
+      console.error("Error canceling connection request:", error);
+    }
+  };
+
+  const handleRejectConnection = async (connectionId: string) => {
+    try {
+      const { error } = await supabase
+        .from("connections")
+        .delete()
+        .eq("id", connectionId);
+
+      if (!error) {
+        setConnectionRequests(prev => prev.filter(req => req.id !== connectionId));
+      }
+    } catch (error) {
+      console.error("Error rejecting connection:", error);
+    }
+  };
 
   const handleAcceptConnection = async (connectionId: string) => {
     const { error } = await supabase
@@ -173,7 +216,42 @@ export default function NetworkPage() {
 
         {/* Main Content */}
         <div className="md:col-span-3 space-y-6">
-          {/* Connection Requests */}
+          {/* Sent Connection Requests */}
+          <Card>
+            <CardContent className="p-6">
+              <h2 className="text-lg font-semibold mb-4">Sent Connection Requests</h2>
+              {loading ? (
+                <div className="text-center py-4">Loading...</div>
+              ) : (
+                <div className="space-y-4">
+                  {sentRequests.map((request) => (
+                    <div
+                      key={request.id}
+                      className="flex items-center justify-between p-4 border rounded-lg"
+                    >
+                      <div className="flex items-center gap-3">
+                        <Avatar className="h-10 w-10">
+                          <AvatarImage src={request.profile.avatar_url} />
+                          <AvatarFallback>
+                            {request.profile.full_name?.substring(0, 2)}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <h3 className="font-medium">{request.profile.full_name}</h3>
+                          <p className="text-sm text-muted-foreground">
+                            {request.profile.headline}
+                          </p>
+                        </div>
+                      </div>
+                      <Button variant="secondary" disabled>Pending</Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Received Connection Requests */}
           <Card>
             <CardContent className="p-6">
               <h2 className="text-lg font-semibold mb-4">Connection Requests</h2>
@@ -198,7 +276,10 @@ export default function NetworkPage() {
                           </p>
                         </div>
                       </div>
-                      <Button onClick={() => handleAcceptConnection(request.id)}>Accept</Button>
+                      <div className="flex gap-2">
+                        <Button onClick={() => handleAcceptConnection(request.id)}>Accept</Button>
+                        <Button variant="outline" onClick={() => handleRejectConnection(request.id)}>Reject</Button>
+                      </div>
                     </div>
                   ))}
                 </div>
