@@ -26,7 +26,7 @@ USING (EXISTS (
 
 CREATE POLICY "Users can create conversations"
 ON conversations FOR INSERT
-WITH CHECK (true);
+WITH CHECK (auth.uid() IS NOT NULL);
 
 -- Clear participant policies
 CREATE POLICY "Users can view participants"
