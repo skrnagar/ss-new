@@ -29,8 +29,9 @@ export default function NetworkPage() {
 
   const fetchRequests = async () => {
     try {
+      console.log("Fetching connection requests...");
       // Fetch received connection requests
-      const { data: receivedRequests } = await supabase
+      const { data: receivedRequests, error: receivedError } = await supabase
         .from("connections")
         .select("*, profile:profiles(*)")
         .eq("connected_user_id", user?.id)
@@ -43,6 +44,13 @@ export default function NetworkPage() {
         .eq("user_id", user?.id)
         .eq("status", "pending");
 
+      if (receivedError) {
+        console.error("Error fetching received requests:", receivedError);
+      }
+      
+      console.log("Received requests:", receivedRequests);
+      console.log("Sent requests:", sentConnectionRequests);
+      
       setConnectionRequests(receivedRequests || []);
       setSentRequests(sentConnectionRequests || []);
     } catch (error) {
