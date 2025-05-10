@@ -63,7 +63,7 @@ WITH CHECK (
   sender_id = auth.uid() AND
   EXISTS (
     SELECT 1 FROM conversation_participants
-    WHERE conversation_participants.conversation_id = NEW.conversation_id
+    WHERE conversation_participants.conversation_id = conversation_id
     AND conversation_participants.profile_id = auth.uid()
   )
 );
