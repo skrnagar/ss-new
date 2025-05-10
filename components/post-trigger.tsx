@@ -14,6 +14,12 @@ export function PostTrigger() {
   const [open, setOpen] = useState(false);
   const { profile } = useAuth();
 
+  useEffect(() => {
+    const handleOpenDialog = () => setOpen(true);
+    window.addEventListener('openPostDialog', handleOpenDialog);
+    return () => window.removeEventListener('openPostDialog', handleOpenDialog);
+  }, []);
+
   const getInitials = (name: string) => {
     if (!name) return "U";
     return name
