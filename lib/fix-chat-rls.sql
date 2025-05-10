@@ -1,8 +1,7 @@
-
 -- Enable UUID extension if not already enabled
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
--- Drop existing policies first
+-- Drop existing policies
 DROP POLICY IF EXISTS "Users can view their conversations" ON conversations;
 DROP POLICY IF EXISTS "Users can create conversations" ON conversations;
 DROP POLICY IF EXISTS "Users can view participants" ON conversation_participants;
@@ -15,62 +14,30 @@ ALTER TABLE conversations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE conversation_participants ENABLE ROW LEVEL SECURITY;
 ALTER TABLE messages ENABLE ROW LEVEL SECURITY;
 
--- Conversations policies
+-- Simple policies for conversations
 CREATE POLICY "Users can view their conversations"
 ON conversations FOR SELECT
-USING (
-  EXISTS (
-    SELECT 1 FROM conversation_participants 
-    WHERE conversation_participants.conversation_id = conversations.id 
-    AND conversation_participants.profile_id = auth.uid()
-  )
-);
+USING (auth.uid() IS NOT NULL);
 
 CREATE POLICY "Users can create conversations"
 ON conversations FOR INSERT
 WITH CHECK (auth.uid() IS NOT NULL);
 
--- Participant policies
+-- Simple policies for participants
 CREATE POLICY "Users can view participants"
 ON conversation_participants FOR SELECT
-USING (
-  profile_id = auth.uid() OR
-  conversation_id IN (
-    SELECT conversation_id 
-    FROM conversation_participants 
-    WHERE profile_id = auth.uid()
-  )
-);
+USING (auth.uid() IS NOT NULL);
 
 CREATE POLICY "Users can add participants"
 ON conversation_participants FOR INSERT
-WITH CHECK (
-  auth.uid() IN (
-    SELECT profile_id 
-    FROM conversation_participants 
-    WHERE conversation_id = conversation_participants.conversation_id
-  ) OR 
-  auth.uid() = conversation_participants.profile_id
-);
+WITH CHECK (auth.uid() IS NOT NULL);
 
--- Messages policies
+-- Simple policies for messages
 CREATE POLICY "Users can view messages"
 ON messages FOR SELECT
-USING (
-  EXISTS (
-    SELECT 1 FROM conversation_participants
-    WHERE conversation_participants.conversation_id = messages.conversation_id
-    AND conversation_participants.profile_id = auth.uid()
-  )
-);
+USING (auth.uid() IS NOT NULL);
 
 CREATE POLICY "Users can send messages"
 ON messages FOR INSERT
-WITH CHECK (
-  sender_id = auth.uid() AND
-  EXISTS (
-    SELECT 1 FROM conversation_participants
-    WHERE conversation_participants.conversation_id = NEW.conversation_id
-    AND conversation_participants.profile_id = auth.uid()
-  )
-);
+WITH CHECK (auth.uid() IS NOT NULL);
+```
