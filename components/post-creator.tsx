@@ -229,7 +229,7 @@ export function PostCreator({ isDialog = false, onSuccess }: PostCreatorProps) {
         }
       }
 
-      const newPost = {
+      const postData = {
         user_id: activeProfile?.id,
         content: content.trim(),
         image_url: imageUrl,
@@ -241,7 +241,7 @@ export function PostCreator({ isDialog = false, onSuccess }: PostCreatorProps) {
       // Create post in database
       const { data: post, error: postError } = await supabase
         .from("posts")
-        .insert([newPost])
+        .insert([postData])
         .select('*, profiles(*)')
         .single();
 
@@ -250,7 +250,7 @@ export function PostCreator({ isDialog = false, onSuccess }: PostCreatorProps) {
       }
 
       // Add post optimistically to the UI
-      const newPost = {
+      const optimisticPost = {
         ...post,
         profile: activeProfile,
         created_at: new Date().toISOString()
@@ -269,7 +269,7 @@ export function PostCreator({ isDialog = false, onSuccess }: PostCreatorProps) {
 
       // Call onSuccess with the new post data for immediate UI update
       if (onSuccess) {
-        onSuccess(newPost);
+        onSuccess(optimisticPost);
       }
 
       // Navigate back to feed with optimistic update
