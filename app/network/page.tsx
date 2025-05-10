@@ -4,6 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useAuth } from "@/contexts/auth-context";
+import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabase";
 import { Calendar, Newspaper, Users } from "lucide-react";
 import Link from "next/link";
@@ -11,6 +12,7 @@ import { useEffect, useState } from "react";
 
 export default function NetworkPage() {
   const { user } = useAuth();
+  const { toast } = useToast();
   const [connections, setConnections] = useState<any[]>([]);
   const [suggestions, setSuggestions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -31,11 +33,28 @@ export default function NetworkPage() {
         .select("*, profile:profiles(*)")
         .eq("user_id", user.id);
 
-      // Fetch connection suggestions
+      // Fetch existing connection IDs (both directions)
+      const { data: existingConnections } = await supabase
+        .from("connections")
+        .select("connected_user_id, user_id")
+        .or(`user_id.eq.${user.id},connected_user_id.eq.${user.id}`);
+
+      // Get all user IDs that are connected or have pending requests
+      const connectedUserIds = existingConnections?.reduce((acc: string[], conn) => {
+        if (conn.user_id === user.id) {
+          acc.push(conn.connected_user_id);
+        } else {
+          acc.push(conn.user_id);
+        }
+        return acc;
+      }, []) || [];
+
+      // Fetch connection suggestions excluding connected users
       const { data: suggestionData } = await supabase
         .from("profiles")
         .select("*")
         .neq("id", user.id)
+        .not("id", "in", `(${connectedUserIds.join(",")})`)
         .limit(5);
 
       setConnections(connectionData || []);
@@ -58,7 +77,10 @@ export default function NetworkPage() {
         .single();
 
       if (existingConnection) {
-        console.log("Connection already exists");
+        toast({
+          title: "Connection exists",
+          description: "You are already connected or have a pending request with this user",
+        });
         return;
       }
 
