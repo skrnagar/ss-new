@@ -1,4 +1,3 @@
-
 -- Enable UUID extension if not already enabled
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
@@ -16,7 +15,7 @@ CREATE TABLE IF NOT EXISTS conversation_participants (
   profile_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
   last_read_at TIMESTAMPTZ,
   is_archived BOOLEAN DEFAULT false,
-  created_at TIMESTAMPTZ DEFAULT NOW(),
+  created_at TIMESTAMSTPTZ DEFAULT NOW(),
   UNIQUE(conversation_id, profile_id)
 );
 
@@ -47,12 +46,12 @@ ALTER TABLE conversation_participants ENABLE ROW LEVEL SECURITY;
 ALTER TABLE messages ENABLE ROW LEVEL SECURITY;
 
 -- RLS policies
-CREATE POLICY "Users can view their conversations"
+CREATE POLICY IF NOT EXISTS "Users can view their conversations"
 ON conversations FOR SELECT
 USING (
   EXISTS (
     SELECT 1 FROM conversation_participants 
-    WHERE conversation_id = id AND profile_id = auth.uid()
+    WHERE conversation_participants.conversation_id = id AND profile_id = auth.uid()
   )
 );
 
