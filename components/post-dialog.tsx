@@ -1,6 +1,8 @@
 
 "use client";
 
+import { useEffect } from "react";
+
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -19,6 +21,13 @@ interface PostDialogProps {
 
 export function PostDialog({ open, onOpenChange }: PostDialogProps) {
   const { profile } = useAuth();
+
+  // Add event listener to handle mobile nav post click
+  useEffect(() => {
+    const handleOpenDialog = () => onOpenChange(true);
+    window.addEventListener('openPostDialog', handleOpenDialog);
+    return () => window.removeEventListener('openPostDialog', handleOpenDialog);
+  }, [onOpenChange]);
 
   const getInitials = (name: string) => {
     if (!name) return "U";
