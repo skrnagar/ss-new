@@ -63,9 +63,28 @@ export default function FeedPage() {
 
   const fetchPosts = async (cursor: string | null = null) => {
     try {
+      setPostsLoading(true);
+      
       let query = supabase
         .from('posts')
-        .select('*, profile:profiles(*)')
+        .select(`
+          id,
+          content,
+          image_url,
+          video_url,
+          document_url,
+          created_at,
+          user_id,
+          profile:profiles(
+            id, 
+            username,
+            full_name,
+            avatar_url,
+            headline,
+            position,
+            company
+          )
+        `)
         .order('created_at', { ascending: false })
         .limit(POSTS_PER_PAGE);
 
@@ -73,7 +92,7 @@ export default function FeedPage() {
         query = query.lt('created_at', cursor);
       }
 
-      const { data, error } = await query;
+      const { data: newPosts, error } = await query;
 
       if (error) throw error;
 

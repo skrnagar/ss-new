@@ -19,6 +19,9 @@ interface PostDialogProps {
 
 export function PostDialog({ open, onOpenChange }: PostDialogProps) {
   const { profile } = useAuth();
+  
+  // Optimize dialog mounting
+  if (!open) return null;
 
   const getInitials = (name: string) => {
     if (!name) return "U";

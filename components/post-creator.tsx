@@ -249,10 +249,18 @@ export function PostCreator({ isDialog = false, onSuccess }: PostCreatorProps) {
         throw postError;
       }
 
-      // Success
+      // Add post optimistically to the UI
+      const newPost = {
+        ...post,
+        profile: activeProfile,
+        created_at: new Date().toISOString()
+      };
+
+      // Success toast with better UX
       toast({
         title: "Post created",
-        description: "Your post has been published successfully",
+        description: "Your post has been published",
+        duration: 3000
       });
 
       // Reset form
@@ -261,13 +269,11 @@ export function PostCreator({ isDialog = false, onSuccess }: PostCreatorProps) {
 
       // Call onSuccess with the new post data for immediate UI update
       if (onSuccess) {
-        onSuccess();
+        onSuccess(newPost);
       }
 
-      // Navigate to feed page and refresh data
-      router.push('/feed').then(() => {
-        router.refresh();
-      });
+      // Navigate back to feed with optimistic update
+      router.push('/feed');
     } catch (error) {
       console.error("Error creating post:", error);
       toast({
