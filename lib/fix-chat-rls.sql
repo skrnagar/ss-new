@@ -1,61 +1,71 @@
 
--- Enable UUID extension if not already enabled
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-
 -- Drop existing policies
 DROP POLICY IF EXISTS "Users can view their conversations" ON conversations;
 DROP POLICY IF EXISTS "Users can create conversations" ON conversations;
 DROP POLICY IF EXISTS "Users can view participants" ON conversation_participants;
-DROP POLICY IF EXISTS "Users can add participants" ON conversation_participants;
+DROP POLICY IF EXISTS "Users can join conversations" ON conversation_participants;
 DROP POLICY IF EXISTS "Users can view messages" ON messages;
 DROP POLICY IF EXISTS "Users can send messages" ON messages;
+DROP POLICY IF EXISTS "Users can update seen status" ON messages;
 
 -- Enable RLS
 ALTER TABLE conversations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE conversation_participants ENABLE ROW LEVEL SECURITY;
 ALTER TABLE messages ENABLE ROW LEVEL SECURITY;
 
--- Simple policies for conversations
-CREATE POLICY "Users can view their conversations"
-ON conversations FOR SELECT
+-- Simple policies for conversation_participants
+CREATE POLICY "Users can view participants"
+ON conversation_participants FOR SELECT
 USING (
-  EXISTS (
-    SELECT 1 FROM conversation_participants
-    WHERE conversation_participants.conversation_id = conversations.id
-    AND conversation_participants.profile_id = auth.uid()
+  profile_id = auth.uid() OR
+  conversation_id IN (
+    SELECT conversation_id
+    FROM conversation_participants
+    WHERE profile_id = auth.uid()
   )
 );
 
-CREATE POLICY "Users can create conversations"
-ON conversations FOR INSERT
-WITH CHECK (auth.uid() IS NOT NULL);
+CREATE POLICY "Users can join conversations"
+ON conversation_participants FOR INSERT
+WITH CHECK (profile_id = auth.uid());
 
--- Simple policies for participants
-CREATE POLICY "Users can view participants"
-ON conversation_participants FOR SELECT
-USING (auth.uid() IN (
-  SELECT profile_id 
-  FROM conversation_participants cp2
-  WHERE cp2.conversation_id = conversation_participants.conversation_id
+-- Simple policies for conversations
+CREATE POLICY "Users can view conversations"
+ON conversations FOR SELECT
+USING (id IN (
+  SELECT conversation_id
+  FROM conversation_participants
+  WHERE profile_id = auth.uid()
 ));
 
-CREATE POLICY "Users can add participants"
-ON conversation_participants FOR INSERT
-WITH CHECK (auth.uid() IS NOT NULL);
+CREATE POLICY "Users can create conversations"
+ON conversations FOR INSERT
+WITH CHECK (created_by = auth.uid());
 
 -- Simple policies for messages
 CREATE POLICY "Users can view messages"
 ON messages FOR SELECT
-USING (
-  EXISTS (
-    SELECT 1 FROM conversation_participants
-    WHERE conversation_participants.conversation_id = messages.conversation_id
-    AND conversation_participants.profile_id = auth.uid()
-  )
-);
+USING (conversation_id IN (
+  SELECT conversation_id
+  FROM conversation_participants
+  WHERE profile_id = auth.uid()
+));
 
 CREATE POLICY "Users can send messages"
 ON messages FOR INSERT
 WITH CHECK (
-  sender_id = auth.uid()
+  sender_id = auth.uid() AND
+  conversation_id IN (
+    SELECT conversation_id
+    FROM conversation_participants
+    WHERE profile_id = auth.uid()
+  )
 );
+
+CREATE POLICY "Users can update seen status"
+ON messages FOR UPDATE
+USING (conversation_id IN (
+  SELECT conversation_id
+  FROM conversation_participants
+  WHERE profile_id = auth.uid()
+));
