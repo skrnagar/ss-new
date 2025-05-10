@@ -15,37 +15,62 @@ ALTER TABLE conversations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE conversation_participants ENABLE ROW LEVEL SECURITY;
 ALTER TABLE messages ENABLE ROW LEVEL SECURITY;
 
--- Clear conversations policies
+-- Conversations policies
 CREATE POLICY "Users can view their conversations"
 ON conversations FOR SELECT
-USING (EXISTS (
-  SELECT 1 FROM conversation_participants 
-  WHERE conversation_id = id 
-  AND profile_id = auth.uid()
-));
+USING (
+  EXISTS (
+    SELECT 1 FROM conversation_participants 
+    WHERE conversation_participants.conversation_id = conversations.id 
+    AND conversation_participants.profile_id = auth.uid()
+  )
+);
 
 CREATE POLICY "Users can create conversations"
 ON conversations FOR INSERT
 WITH CHECK (auth.uid() IS NOT NULL);
 
--- Clear participant policies
+-- Participant policies
 CREATE POLICY "Users can view participants"
 ON conversation_participants FOR SELECT
-USING (true);
+USING (
+  profile_id = auth.uid() OR
+  conversation_id IN (
+    SELECT conversation_id 
+    FROM conversation_participants 
+    WHERE profile_id = auth.uid()
+  )
+);
 
 CREATE POLICY "Users can add participants"
 ON conversation_participants FOR INSERT
-WITH CHECK (true);
+WITH CHECK (
+  auth.uid() IN (
+    SELECT profile_id 
+    FROM conversation_participants 
+    WHERE conversation_id = NEW.conversation_id
+  ) OR 
+  auth.uid() = NEW.profile_id
+);
 
--- Clear messages policies
+-- Messages policies
 CREATE POLICY "Users can view messages"
 ON messages FOR SELECT
-USING (EXISTS (
-  SELECT 1 FROM conversation_participants cp
-  WHERE cp.conversation_id = conversation_id
-  AND cp.profile_id = auth.uid()
-));
+USING (
+  EXISTS (
+    SELECT 1 FROM conversation_participants
+    WHERE conversation_participants.conversation_id = messages.conversation_id
+    AND conversation_participants.profile_id = auth.uid()
+  )
+);
 
 CREATE POLICY "Users can send messages"
 ON messages FOR INSERT
-WITH CHECK (sender_id = auth.uid());
+WITH CHECK (
+  sender_id = auth.uid() AND
+  EXISTS (
+    SELECT 1 FROM conversation_participants
+    WHERE conversation_participants.conversation_id = NEW.conversation_id
+    AND conversation_participants.profile_id = auth.uid()
+  )
+);
