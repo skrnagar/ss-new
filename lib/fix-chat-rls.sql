@@ -48,9 +48,9 @@ WITH CHECK (
   auth.uid() IN (
     SELECT profile_id 
     FROM conversation_participants 
-    WHERE conversation_id = NEW.conversation_id
+    WHERE conversation_id = conversation_participants.conversation_id
   ) OR 
-  auth.uid() = NEW.profile_id
+  auth.uid() = conversation_participants.profile_id
 );
 
 -- Messages policies
