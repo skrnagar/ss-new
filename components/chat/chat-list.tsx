@@ -153,6 +153,7 @@ export function ChatList() {
               variant="outline"
               size="icon"
               onClick={() => setIsModalOpen(true)}
+              className="hover:bg-muted"
             >
               <Plus className="h-4 w-4" />
             </Button>
@@ -160,7 +161,7 @@ export function ChatList() {
           <div className="relative">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Search messages..."
+              placeholder="Search conversations..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-8"
@@ -207,9 +208,13 @@ export function ChatList() {
                 </div>
               </Button>
             ))
-          ) : (
+          ) : searchQuery ? (
             <div className="p-4 text-center text-muted-foreground">
               No conversations found
+            </div>
+          ) : (
+            <div className="p-4 text-center text-muted-foreground">
+              No messages yet
             </div>
           )}
         </ScrollArea>
@@ -223,9 +228,15 @@ export function ChatList() {
             currentUserId={user?.id || ""}
           />
         ) : (
-          <div className="flex h-full items-center justify-center flex-col gap-4">
-            <MessageCircle className="h-12 w-12 text-muted-foreground" />
-            <p className="text-muted-foreground">Select a conversation or start a new one</p>
+          <div className="flex h-full items-center justify-center flex-col gap-4 text-muted-foreground">
+            <MessageCircle className="h-12 w-12" />
+            <div className="text-center">
+              <p className="font-medium">Your messages</p>
+              <p className="text-sm">Send private messages to other professionals</p>
+            </div>
+            <Button variant="outline" onClick={() => setIsModalOpen(true)}>
+              Start a conversation
+            </Button>
           </div>
         )}
       </div>
