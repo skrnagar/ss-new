@@ -23,14 +23,9 @@ export function MobileNav() {
     },
     {
       label: "Post",
-      href: "#",
+      href: "/posts/create",
       icon: PlusSquare,
-      isActive: () => false,
-      onClick: () => {
-        const createPostEvent = new CustomEvent('openPostDialog');
-        window.dispatchEvent(createPostEvent);
-        return false;
-      }
+      isActive: (path: string) => path === "/posts/create"
     },
     {
       label: "Knowledge",
