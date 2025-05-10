@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -13,12 +13,6 @@ import { Image, FileVideo, FileText, BookOpen } from "lucide-react";
 export function PostTrigger() {
   const [open, setOpen] = useState(false);
   const { profile } = useAuth();
-
-  useEffect(() => {
-    const handleOpenDialog = () => setOpen(true);
-    window.addEventListener('openPostDialog', handleOpenDialog);
-    return () => window.removeEventListener('openPostDialog', handleOpenDialog);
-  }, []);
 
   const getInitials = (name: string) => {
     if (!name) return "U";

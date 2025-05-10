@@ -23,14 +23,9 @@ export function MobileNav() {
     },
     {
       label: "Post",
-      href: "#",
+      href: "/posts/create",
       icon: PlusSquare,
-      isActive: () => false,
-      onClick: () => {
-        const createPostEvent = new CustomEvent('openPostDialog');
-        window.dispatchEvent(createPostEvent);
-        return false;
-      }
+      isActive: (path: string) => path === "/posts/create"
     },
     {
       label: "Knowledge",
@@ -55,11 +50,11 @@ export function MobileNav() {
             const isActive = item.isActive(pathname);
 
             return (
-              <button
+              <Link
                 key={item.href}
-                onClick={item.onClick || (() => {})}
+                href={item.href}
                 className={cn(
-                  "flex flex-col items-center justify-center relative transition-colors w-full",
+                  "flex flex-col items-center justify-center relative transition-colors",
                   isActive 
                     ? "text-primary font-medium" 
                     : "text-gray-500 hover:text-primary"
@@ -70,7 +65,7 @@ export function MobileNav() {
                 {isActive && (
                   <span className="absolute -top-0.5 left-1/2 w-1 h-1 bg-primary rounded-full transform -translate-x-1/2" />
                 )}
-              </button>
+              </Link>
             );
           })}
         </div>
