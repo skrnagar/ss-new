@@ -14,6 +14,29 @@ export default function ConnectionsPage() {
   const [connections, setConnections] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [pendingRequests, setPendingRequests] = useState<any[]>([]);
+  const [sortBy, setSortBy] = useState<'recent' | 'name'>('recent');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showMutualConnections, setShowMutualConnections] = useState(false);
+  const [selectedMutualConnections, setSelectedMutualConnections] = useState<any[]>([]);
+
+  const sortedAndFilteredConnections = connections
+    .filter(conn => 
+      conn.profile.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      conn.profile.headline?.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+    .sort((a, b) => {
+      if (sortBy === 'recent') {
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      }
+      return a.profile.full_name.localeCompare(b.profile.full_name);
+    });
+
+  const handleShowMutualConnections = async (profileId: string) => {
+    // Fetch mutual connections
+    const mutuals = await fetchMutualConnections(profileId);
+    setSelectedMutualConnections(mutuals);
+    setShowMutualConnections(true);
+  };
 
   useEffect(() => {
     if (user) {
