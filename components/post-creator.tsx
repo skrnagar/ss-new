@@ -282,8 +282,8 @@ export function PostCreator({ isDialog = false, onSuccess }: PostCreatorProps) {
   };
 
   return (
-        <div className="flex items-start gap-3 md:gap-4">
-          <div className="flex-1 space-y-3 mt-3 md:space-y-4">
+        <div className="flex flex-col gap-3">
+          <div className="flex-1 space-y-3">
             <Textarea
               placeholder={`What's on your mind, ${activeProfile?.full_name?.split(" ")[0] || "User"}?`}
               value={content}
@@ -371,7 +371,12 @@ export function PostCreator({ isDialog = false, onSuccess }: PostCreatorProps) {
                 />
               </div>
 
-              <Button size="lg" onClick={handleSubmit} disabled={isSubmitting || isCompressing}>
+              <Button 
+                size="lg" 
+                onClick={handleSubmit} 
+                disabled={isSubmitting || isCompressing}
+                className="w-full md:w-auto"
+              >
                 {isSubmitting || isCompressing ? (
                   <>
                     <Loader2 className="h-4 w-8 mr-2 animate-spin" />
