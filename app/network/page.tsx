@@ -45,7 +45,7 @@ export default function NetworkPage() {
         .from("connections")
         .select(`
           *,
-          profile:profiles!connections_connected_user_id_fkey(*)
+          connected_profile:profiles!connections_connected_user_id_fkey(*)
         `)
         .eq("user_id", user?.id)
         .eq("status", "pending");
@@ -53,10 +53,10 @@ export default function NetworkPage() {
       if (receivedError) {
         console.error("Error fetching received requests:", receivedError);
       }
-      
+
       console.log("Received requests:", receivedRequests);
       console.log("Sent requests:", sentConnectionRequests);
-      
+
       setConnectionRequests(receivedRequests || []);
       setSentRequests(sentConnectionRequests || []);
     } catch (error) {
@@ -308,15 +308,15 @@ export default function NetworkPage() {
                     >
                       <div className="flex items-center gap-3">
                         <Avatar className="h-10 w-10">
-                          <AvatarImage src={request.profile.avatar_url} />
+                          <AvatarImage src={request.connected_profile.avatar_url} />
                           <AvatarFallback>
-                            {request.profile.full_name?.substring(0, 2)}
+                            {request.connected_profile.full_name?.substring(0, 2)}
                           </AvatarFallback>
                         </Avatar>
                         <div>
-                          <h3 className="font-medium">{request.profile.full_name}</h3>
+                          <h3 className="font-medium">{request.connected_profile.full_name}</h3>
                           <p className="text-sm text-muted-foreground">
-                            {request.profile.headline}
+                            {request.connected_profile.headline}
                           </p>
                         </div>
                       </div>
