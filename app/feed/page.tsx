@@ -161,6 +161,21 @@ export default function FeedPage() {
 
   useEffect(() => {
     fetchPosts();
+    // Set up real-time subscription for new posts
+    const postsSubscription = supabase
+      .channel('public:posts')
+      .on('postgres_changes', { 
+        event: '*', 
+        schema: 'public', 
+        table: 'posts' 
+      }, () => {
+        fetchPosts(); // Refresh posts when changes occur
+      })
+      .subscribe();
+
+    return () => {
+      postsSubscription.unsubscribe();
+    };
   }, []);
 
   // Intersection Observer for infinite scroll

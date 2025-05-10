@@ -183,7 +183,6 @@ export function PostCreator({ isDialog = false, onSuccess }: PostCreatorProps) {
       // Upload attachment if any
       if (attachmentFile) {
         const fileExt = attachmentFile.name.split(".").pop();
-        // Ensure activeProfile exists before accessing its id
         const fileName = `${activeProfile?.id || "user"}-${Date.now()}.${fileExt}`;
         let bucket = "";
 
@@ -195,14 +194,11 @@ export function PostCreator({ isDialog = false, onSuccess }: PostCreatorProps) {
           bucket = "post-documents";
         }
 
-        console.log(`Uploading to ${bucket} bucket with file name: ${fileName}`);
-
         // Check if bucket exists first
         const { data: buckets } = await supabase.storage.listBuckets();
         const bucketExists = buckets?.some((b) => b.name === bucket);
 
         if (!bucketExists) {
-          console.log(`Bucket ${bucket} doesn't exist, creating it...`);
           await supabase.storage.createBucket(bucket, {
             public: true,
           });
@@ -213,15 +209,13 @@ export function PostCreator({ isDialog = false, onSuccess }: PostCreatorProps) {
           .upload(fileName, attachmentFile, {
             cacheControl: "3600",
             upsert: false,
-            contentType: attachmentFile.type // Preserve original file type
+            contentType: attachmentFile.type
           });
 
         if (uploadError) {
-          console.error("Upload error:", uploadError);
           throw uploadError;
         }
 
-        // Get public URL
         const {
           data: { publicUrl },
         } = supabase.storage.from(bucket).getPublicUrl(fileName);
@@ -235,18 +229,20 @@ export function PostCreator({ isDialog = false, onSuccess }: PostCreatorProps) {
         }
       }
 
+      const newPost = {
+        user_id: activeProfile?.id,
+        content: content.trim(),
+        image_url: imageUrl,
+        video_url: videoUrl,
+        document_url: documentUrl,
+        created_at: new Date().toISOString(),
+      };
+
       // Create post in database
       const { data: post, error: postError } = await supabase
         .from("posts")
-        .insert([{
-          user_id: activeProfile?.id,
-          content: content.trim(),
-          image_url: imageUrl,
-          video_url: videoUrl,
-          document_url: documentUrl,
-          created_at: new Date().toISOString(),
-        }])
-        .select('*')
+        .insert([newPost])
+        .select('*, profiles(*)')
         .single();
 
       if (postError) {
@@ -263,9 +259,16 @@ export function PostCreator({ isDialog = false, onSuccess }: PostCreatorProps) {
       setContent("");
       clearAttachment();
 
-      // Refresh feed to show new post
+      // Call onSuccess with the new post data for immediate UI update
+      if (onSuccess) {
+        onSuccess();
+      }
+
+      // Force a hard refresh of the feed data
       router.refresh();
-      onSuccess?.();
+
+      // Navigate to feed page to show new post
+      router.push('/feed');
     } catch (error) {
       console.error("Error creating post:", error);
       toast({
