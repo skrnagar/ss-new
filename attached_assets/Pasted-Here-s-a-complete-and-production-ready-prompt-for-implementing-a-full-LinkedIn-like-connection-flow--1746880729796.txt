@@ -1,0 +1,189 @@
+Here’s a complete and production-ready prompt for implementing a full LinkedIn-like connection flow, including UX enhancements and backend logic. It ensures that the flow from sending a request to accepting, rejecting, and reflecting connections is clear, consistent, and user-friendly.
+
+⸻
+
+🔗 Full User Connection Flow — Like LinkedIn
+
+📌 Objective:
+
+Implement a bi-directional connection feature where:
+	•	Any user can send a request to another user.
+	•	Receiver can accept or reject.
+	•	Both users see each other as “Connected” once accepted.
+	•	Profiles and the network page reflect the current status (Pending, Connected, etc.).
+	•	Edge cases like duplicate or reversed requests are handled.
+
+⸻
+
+🧩 Key Features & Steps
+
+1. Send Connection Request
+
+Trigger: User clicks “Connect” on another user’s profile or suggestions.
+
+Frontend:
+	•	Show “Connect” button on profiles.
+	•	After sending, change to “Pending”.
+	•	Option to “Withdraw Request”.
+
+Backend:
+	•	POST /connections/request
+	•	Input: { fromUserId, toUserId }
+	•	Logic:
+	•	Prevent sending to self.
+	•	Prevent duplicate pending or accepted requests in both directions.
+	•	If reverse request exists (B → A is pending), auto-accept.
+	•	Else, create new record with status: 'pending'.
+
+UX Tip: Show toast “Request Sent”.
+
+⸻
+
+2. Auto-Accept Reverse Request (Smart Connect)
+
+Scenario: If User A sends a request to User B, but User B had already sent a pending request to A.
+
+Logic:
+	•	Detect existing pending request (toUser → fromUser).
+	•	Instead of creating a new record, update the reverse one to accepted.
+	•	Establish mutual connection instantly.
+
+UX: Show “You’re now connected!” without needing manual approval.
+
+⸻
+
+3. See Pending Requests (Sent and Received)
+
+Endpoints:
+	•	GET /connections/requests/incoming?userId=...
+	•	GET /connections/requests/sent?userId=...
+
+Frontend:
+	•	Tab UI:
+	•	Received Requests: List of people who sent requests to you with “Accept” / “Reject”.
+	•	Sent Requests: List with “Withdraw”.
+
+UX Tip: Show profile preview, mutual connections, and quick action buttons.
+
+⸻
+
+4. Accept / Reject Connection Request
+
+Trigger: User clicks “Accept” or “Reject” on incoming request.
+
+Endpoint:
+	•	POST /connections/respond
+	•	Input: { requestId, action: 'accept' | 'reject' }
+
+Backend Logic:
+	•	On accept:
+	•	Update status to accepted.
+	•	Now both users are connected.
+	•	On reject:
+	•	Update status to rejected or delete record.
+	•	Requester sees “Rejected” or button returns to “Connect”.
+
+UX Tip: After acceptance, show “You’re now connected with [User]!” and show new “Message” button.
+
+⸻
+
+5. My Connections Page
+
+Endpoint: GET /connections?userId=...
+
+Logic:
+	•	Fetch all status: 'accepted' connections where user is from_user_id or to_user_id.
+
+Frontend:
+	•	Show grid/list of all connections.
+	•	Add mutual connections count.
+	•	Provide a “Message” and “Remove Connection” option.
+
+⸻
+
+6. Profile View — Show Connection Status
+
+Frontend States (based on status):
+	•	No interaction yet → Show “Connect”
+	•	Request sent (pending) → Show “Pending”
+	•	Request received → Show “Accept / Reject”
+	•	Already connected → Show “Connected”
+	•	Rejected → Show “Connect” (allow resending after some time, optional)
+
+UX Tip: Always indicate status clearly and provide instant feedback.
+
+⸻
+
+7. Withdraw Connection Request
+
+Trigger: User clicks “Withdraw” from sent request list.
+
+Endpoint: DELETE /connections/request/:id
+
+Logic:
+	•	Only if request is still pending.
+	•	Remove the request.
+
+UX Tip: Show undo option for 5 seconds.
+
+⸻
+
+8. Mutual Connections
+
+Endpoint: GET /connections/mutual?userId=A&otherUserId=B
+
+Logic:
+	•	Get list of users connected to both A and B.
+	•	Optional for profile suggestion relevance.
+
+Frontend:
+	•	Show “X mutual connections” on profile card.
+
+⸻
+
+9. Remove Connection (Unfriend)
+
+Trigger: From “My Connections” page.
+
+Endpoint: DELETE /connections/remove
+	•	Input: { userA, userB }
+
+Logic:
+	•	Delete accepted connection in either direction.
+
+UX Tip: Ask for confirmation: “Are you sure you want to remove this connection?”
+
+⸻
+
+🗃️ Suggested DB Schema
+
+TABLE: connections
+- id (UUID)
+- from_user_id (FK)
+- to_user_id (FK)
+- status (enum: pending, accepted, rejected)
+- created_at
+- updated_at
+
+Make sure to:
+	•	Add unique constraint on (from_user_id, to_user_id)
+	•	Use compound query to check reversed records
+
+⸻
+
+✅ UX Enhancements Checklist
+
+Feature	Status
+Smart auto-accept	✅
+Request status on profile	✅
+Clear toast notifications	✅
+Tabs for requests	✅
+Mutual connections	✅
+Confirmation before actions	✅
+Undo withdraw	✅
+
+
+
+⸻
+
+Would you like a React + Supabase / Next.js 14 App Router implementation for this logic?
