@@ -70,12 +70,30 @@ export default function NetworkPage() {
     try {
       setLoading(true);
 
-      // Fetch accepted connections
-      const { data: connectionData } = await supabase
-        .from("connections")
-        .select("*, profile:profiles(*)")
-        .eq("user_id", user.id)
-        .eq("status", "accepted");
+      // Fetch both sent and received accepted connections
+      const [sentConnections, receivedConnections] = await Promise.all([
+        supabase
+          .from("connections")
+          .select("*, profile:profiles!connections_connected_user_id_fkey(*)")
+          .eq("user_id", user.id)
+          .eq("status", "accepted"),
+        supabase
+          .from("connections")
+          .select("*, profile:profiles!connections_user_id_fkey(*)")
+          .eq("connected_user_id", user.id)
+          .eq("status", "accepted")
+      ]);
+
+      const allConnections = [
+        ...(sentConnections.data || []),
+        ...(receivedConnections.data || [])
+      ];
+      
+      // Format connections to have consistent profile structure
+      const formattedConnections = allConnections.map(conn => ({
+        ...conn,
+        profile: conn.user_id === user.id ? conn.profile : conn.profile
+      }));
 
       // Get all connected user IDs (both accepted and pending)
       const { data: allConnections } = await supabase
@@ -103,7 +121,7 @@ export default function NetworkPage() {
         .not("id", "in", `(${excludeIds.join(",")})`)
         .limit(5);
 
-      setConnections(connectionData || []);
+      setConnections(formattedConnections || []);
       setSuggestions(suggestionData || []);
     } catch (error) {
       console.error("Error fetching network data:", error);
