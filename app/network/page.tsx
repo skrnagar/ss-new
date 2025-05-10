@@ -33,14 +33,20 @@ export default function NetworkPage() {
       // Fetch received connection requests
       const { data: receivedRequests, error: receivedError } = await supabase
         .from("connections")
-        .select("*, profile:profiles(*)")
+        .select(`
+          *,
+          profile:profiles!connections_user_id_fkey(*)
+        `)
         .eq("connected_user_id", user?.id)
         .eq("status", "pending");
 
       // Fetch sent connection requests
       const { data: sentConnectionRequests } = await supabase
         .from("connections")
-        .select("*, profile:profiles!connections_connected_user_id_fkey(*)")
+        .select(`
+          *,
+          profile:profiles!connections_connected_user_id_fkey(*)
+        `)
         .eq("user_id", user?.id)
         .eq("status", "pending");
 
