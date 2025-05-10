@@ -238,6 +238,24 @@ export function PostCreator({ isDialog = false, onSuccess }: PostCreatorProps) {
         created_at: new Date().toISOString(),
       };
 
+      // Reset form early for better UX
+      const originalContent = content;
+      setContent("");
+      clearAttachment();
+
+      // Create optimistic post first
+      const tempId = crypto.randomUUID();
+      const optimisticPost = {
+        id: tempId,
+        ...postData,
+        profile: activeProfile
+      };
+
+      // Call onSuccess early with optimistic data
+      if (onSuccess) {
+        onSuccess(optimisticPost);
+      }
+
       // Create post in database
       const { data: post, error: postError } = await supabase
         .from("posts")
@@ -246,15 +264,10 @@ export function PostCreator({ isDialog = false, onSuccess }: PostCreatorProps) {
         .single();
 
       if (postError) {
+        // Revert on error
+        setContent(originalContent);
         throw postError;
       }
-
-      // Add post optimistically to the UI
-      const optimisticPost = {
-        ...post,
-        profile: activeProfile,
-        created_at: new Date().toISOString()
-      };
 
       // Success toast with better UX
       toast({
@@ -263,17 +276,8 @@ export function PostCreator({ isDialog = false, onSuccess }: PostCreatorProps) {
         duration: 3000
       });
 
-      // Reset form
-      setContent("");
-      clearAttachment();
-
-      // Call onSuccess with the new post data for immediate UI update
-      if (onSuccess) {
-        onSuccess(optimisticPost);
-      }
-
-      // Navigate back to feed with optimistic update
-      router.push('/feed');
+      // Navigate back to feed
+      router.replace('/feed');
     } catch (error) {
       console.error("Error creating post:", error);
       toast({

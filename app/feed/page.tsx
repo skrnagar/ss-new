@@ -187,8 +187,19 @@ export default function FeedPage() {
         event: '*', 
         schema: 'public', 
         table: 'posts' 
-      }, () => {
-        fetchPosts(); // Refresh posts when changes occur
+      }, (payload) => {
+        if (payload.eventType === 'INSERT') {
+          // Add new post to the top
+          setPosts(prevPosts => [payload.new, ...prevPosts]);
+        } else if (payload.eventType === 'DELETE') {
+          // Remove deleted post
+          setPosts(prevPosts => prevPosts.filter(p => p.id !== payload.old.id));
+        } else if (payload.eventType === 'UPDATE') {
+          // Update modified post
+          setPosts(prevPosts => prevPosts.map(p => 
+            p.id === payload.new.id ? payload.new : p
+          ));
+        }
       })
       .subscribe();
 
