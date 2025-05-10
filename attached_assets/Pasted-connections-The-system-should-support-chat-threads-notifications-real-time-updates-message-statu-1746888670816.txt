@@ -1,0 +1,74 @@
+connections. The system should support chat threads, notifications, real-time updates, message status (seen/unseen), and a clean inbox interface.
+
+⸻
+
+🧩 Core Features & Flow
+
+1. Start New Conversation
+	•	Users can only message users they are connected with.
+	•	From another user’s profile or “My Connections” page, show a “Message” button.
+	•	Clicking it opens a chat window or inbox thread, creating a new conversation if it doesn’t already exist.
+
+2. Inbox / Message Center
+	•	Central place to view all conversations.
+	•	Each conversation entry should show:
+	•	User name & photo
+	•	Latest message preview
+	•	Timestamp of last message
+	•	Message read status (unread bolded, read normal)
+	•	Conversations should be sorted by most recent activity.
+
+3. Real-Time Chat View
+	•	Inside the conversation view:
+	•	Show the full message thread between both users.
+	•	Support text, emoji, and optionally images or attachments.
+	•	Each message should show sender, time sent, and read receipt (e.g., single tick = sent, double tick = read).
+	•	If the recipient is online, show “Active now” or “Typing…”.
+
+4. Send Messages
+	•	Input field at the bottom with:
+	•	Send button
+	•	Optionally: Emoji picker, file upload, voice note (future enhancement)
+	•	On pressing send:
+	•	The message should appear instantly in the conversation thread.
+	•	Deliver to the receiver in real-time if online.
+
+5. Message Read Status
+	•	When a recipient opens a message:
+	•	Update message status from “sent” to “seen”.
+	•	Optionally show “Seen” below last message.
+	•	Display small indicators for message status (✔️ = sent, 👁️ = read).
+
+6. Notifications
+	•	When a new message is received:
+	•	Show a real-time notification (toast/pop-up or bell icon badge).
+	•	Update unread count in the message icon on the navbar.
+	•	Allow push/browser notifications for real-time alerting (optional).
+
+7. Unread Messages and Badges
+	•	Clearly distinguish unread messages in inbox.
+	•	Show unread message count on message icon in navbar.
+	•	If the user opens the chat, mark messages as read.
+
+8. Delete or Archive Conversations (Optional)
+	•	Allow users to archive or delete conversations from their inbox.
+	•	Archived chats can be moved to a separate tab or restored later.
+
+9. Block or Report User (Optional Enhancement)
+	•	Add a small menu in chat to block/report users for spam or harassment.
+	•	Once blocked, messaging should be disabled in both directions.
+
+⸻
+
+📱 UX & Interface Expectations
+	•	Inbox UI:
+	•	Clean layout, similar to LinkedIn or Messenger.
+	•	Search bar to find conversations by name.
+	•	Tabs like: “All”, “Unread”, “Archived” (optional).
+	•	Chat Thread UI:
+	•	Bubble-style messages (sent vs. received).
+	•	Sticky top bar with user’s name, online status, and back button.
+	•	Smooth scroll and auto-scroll to latest message.
+	•	Responsive Design:
+	•	Optimized for desktop and mobile.
+	•	Mobile view should slide into conversation and back to inbox like an app.
