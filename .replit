@@ -29,4 +29,4 @@ author = 21644387
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "npm run dev"
+args = "NODE_ENV=development PORT=3000 npm run dev"

@@ -1,5 +1,16 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  async rewrites() {
+    return [
+      {
+        source: '/:path*',
+        destination: '/:path*',
+      },
+    ];
+  },
+  webSocket: true,
+  hostname: '0.0.0.0',
+  port: process.env.PORT || 3000,
   images: {
     remotePatterns: [
       {
