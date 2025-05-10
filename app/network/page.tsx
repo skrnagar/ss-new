@@ -40,86 +40,77 @@ export default function NetworkPage() {
         .eq("connected_user_id", user?.id)
         .eq("status", "pending");
 
+      if (receivedError) throw receivedError;
+
       // Fetch sent connection requests
-      const { data: sentConnectionRequests } = await supabase
+      const { data: sentRequests, error: sentError } = await supabase
         .from("connections")
         .select(`
           *,
-          connected_profile:profiles!connections_connected_user_id_fkey(*)
+          profile:profiles!connected_user_id(*)
         `)
         .eq("user_id", user?.id)
         .eq("status", "pending");
 
-      if (receivedError) {
-        console.error("Error fetching received requests:", receivedError);
-      }
+      if (sentError) throw sentError;
 
       console.log("Received requests:", receivedRequests);
-      console.log("Sent requests:", sentConnectionRequests);
+      console.log("Sent requests:", sentRequests);
 
       setConnectionRequests(receivedRequests || []);
-      setSentRequests(sentConnectionRequests || []);
+      setSentRequests(sentRequests || []);
     } catch (error) {
       console.error("Error fetching requests:", error);
     }
   };
 
   const fetchNetworkData = async () => {
-    if (!user) return;
-
     try {
-      setLoading(true);
-
-      // Fetch both sent and received accepted connections
-      const [sentConnections, receivedConnections] = await Promise.all([
+      // Get all connections where user is either the sender or receiver
+      const [sentResponse, receivedResponse] = await Promise.all([
         supabase
           .from("connections")
-          .select("*, profile:profiles!connections_connected_user_id_fkey(*)")
-          .eq("user_id", user.id)
+          .select(`
+            *,
+            profile:profiles!connected_user_id(*)
+          `)
+          .eq("user_id", user?.id)
           .eq("status", "accepted"),
         supabase
           .from("connections")
-          .select("*, profile:profiles!connections_user_id_fkey(*)")
-          .eq("connected_user_id", user.id)
+          .select(`
+            *,
+            profile:profiles!connections_user_id_fkey(*)
+          `)
+          .eq("connected_user_id", user?.id)
           .eq("status", "accepted")
       ]);
 
-      const combinedConnections = [
-        ...(sentConnections.data || []),
-        ...(receivedConnections.data || [])
+      const sentConnections = sentResponse.data || [];
+      const receivedConnections = receivedResponse.data || [];
+
+      const mergedConnections = [
+        ...sentConnections,
+        ...receivedConnections
       ];
-      
+
       // Format connections to have consistent profile structure
-      const formattedConnections = combinedConnections.map(conn => ({
+      const formattedConnections = mergedConnections.map(conn => ({
         ...conn,
-        profile: conn.user_id === user.id ? conn.profile : conn.profile
+        profile: conn.user_id === user?.id ? conn.profile : conn.profile
       }));
 
-      // Get all connected user IDs (both accepted and pending)
-      const { data: allConnectionIds } = await supabase
-        .from("connections")
-        .select("connected_user_id, user_id, status")
-        .or(`user_id.eq.${user.id},connected_user_id.eq.${user.id}`);
+      // Get all connected user IDs to exclude from suggestions
+      const connectedUserIds = formattedConnections.map(conn => 
+        conn.user_id === user?.id ? conn.connected_user_id : conn.user_id
+      );
 
-      // Extract all user IDs that should be excluded from suggestions
-      const excludeIds = allConnectionIds?.reduce((acc: string[], conn) => {
-        if (conn.user_id === user.id) {
-          acc.push(conn.connected_user_id);
-        } else {
-          acc.push(conn.user_id);
-        }
-        return acc;
-      }, []) || [];
-
-      // Add current user's ID to exclude list
-      excludeIds.push(user.id);
-
-      // Fetch suggestions excluding connected users and pending requests
+      // Get suggestions (users not connected)
       const { data: suggestionData } = await supabase
         .from("profiles")
         .select("*")
-        .not("id", "in", `(${excludeIds.join(",")})`)
-        .limit(5);
+        .neq("id", user?.id)
+        .not("id", "in", connectedUserIds.length > 0 ? `(${connectedUserIds.join(",")})` : "(0)");
 
       setConnections(formattedConnections || []);
       setSuggestions(suggestionData || []);
@@ -179,14 +170,11 @@ export default function NetworkPage() {
 
       toast({
         title: "Connection accepted",
-        description: "You are now connected",
+        description: "You are now connected!",
       });
 
-      // Refresh both network data and requests
-      await Promise.all([
-        fetchNetworkData(),
-        fetchRequests()
-      ]);
+      fetchNetworkData();
+      fetchRequests();
     } catch (error) {
       console.error("Error accepting connection:", error);
       toast({
@@ -329,15 +317,15 @@ export default function NetworkPage() {
                     >
                       <div className="flex items-center gap-3">
                         <Avatar className="h-10 w-10">
-                          <AvatarImage src={request.connected_profile.avatar_url} />
+                          <AvatarImage src={request.profile.avatar_url} />
                           <AvatarFallback>
-                            {request.connected_profile.full_name?.substring(0, 2)}
+                            {request.profile.full_name?.substring(0, 2)}
                           </AvatarFallback>
                         </Avatar>
                         <div>
-                          <h3 className="font-medium">{request.connected_profile.full_name}</h3>
+                          <h3 className="font-medium">{request.profile.full_name}</h3>
                           <p className="text-sm text-muted-foreground">
-                            {request.connected_profile.headline}
+                            {request.profile.headline}
                           </p>
                         </div>
                       </div>
