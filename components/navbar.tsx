@@ -73,7 +73,7 @@ export const Navbar = memo(function Navbar() {
 
       // Force page reload to clear all client state
       window.location.href = "/";
-      
+
     } catch (error) {
       console.error("Sign out error:", error);
       // Still redirect on error to ensure user is logged out
@@ -244,7 +244,7 @@ export const Navbar = memo(function Navbar() {
                     </Button>
                   </Link>
                   <Link href="/messages">
-                    <Button variant="ghost" size="icon" aria-label="Messages">
+                    <Button variant="ghost" size="icon" aria-label="Messages" className="relative">
                       <MessageCircle className="h-5 w-5" />
                     </Button>
                   </Link>
@@ -335,7 +335,7 @@ export const Navbar = memo(function Navbar() {
             </div>
           ) : (
             <div>
-             
+
                 <div className="flex items-center gap-2">
                   <Button asChild variant="outline" className="bg-white text-black ">
                     <Link href="/auth/login">Log in</Link>
@@ -344,7 +344,7 @@ export const Navbar = memo(function Navbar() {
                     <Link href="/auth/register">Sign Up</Link>
                   </Button>
                 </div>
-              
+
             </div>
           )}
         </div>

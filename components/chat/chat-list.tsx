@@ -11,7 +11,7 @@ import { UserSearchModal } from "./user-search-modal";
 import { ChatWindow } from "@/components/chat/chat-window";
 import { supabase } from "@/lib/supabase";
 import { format } from "date-fns";
-import { Search, Plus } from "lucide-react";
+import { Search, Plus, MessageCircle } from "lucide-react";
 
 interface Conversation {
   id: string;
@@ -35,43 +35,45 @@ export function ChatList() {
   const { user } = useAuth();
 
   useEffect(() => {
-    const fetchConversations = async () => {
-      if (!user) return;
-      
-      const { data, error } = await supabase
-        .from("conversations")
-        .select(`
-          id,
-          messages!messages_conversation_id_fkey (
-            content,
-            created_at,
-            seen,
-            sender_id
-          ),
-          conversation_participants!conversation_participants_conversation_id_fkey (
-            profiles!conversation_participants_profile_id_fkey (
-              id,
-              full_name,
-              avatar_url
-            )
-          )
-        `)
-        .order('created_at', { ascending: false });
-
-      if (!error && data) {
-        const formattedConversations = data.map((conv) => ({
-          id: conv.id,
-          participants: conv.conversation_participants
-            .map((p) => p.profiles)
-            .filter((p) => p.id !== user.id),
-          last_message: conv.messages[0],
-        }));
-        setConversations(formattedConversations);
-      }
-    };
-
+    if (!user) return;
     fetchConversations();
+    subscribeToUpdates();
+  }, [user?.id]);
 
+  const fetchConversations = async () => {
+    const { data, error } = await supabase
+      .from("conversations")
+      .select(`
+        id,
+        messages (
+          content,
+          created_at,
+          seen,
+          sender_id
+        ),
+        conversation_participants!inner (
+          profiles!inner (
+            id,
+            full_name,
+            avatar_url
+          )
+        )
+      `)
+      .order('created_at', { ascending: false });
+
+    if (!error && data) {
+      const formattedConversations = data.map((conv) => ({
+        id: conv.id,
+        participants: conv.conversation_participants
+          .map((p) => p.profiles)
+          .filter((p) => p.id !== user?.id),
+        last_message: conv.messages[0],
+      }));
+      setConversations(formattedConversations);
+    }
+  };
+
+  const subscribeToUpdates = () => {
     const subscription = supabase
       .channel("conversations_changes")
       .on("postgres_changes", { 
@@ -86,7 +88,48 @@ export function ChatList() {
     return () => {
       subscription.unsubscribe();
     };
-  }, [user?.id]);
+  };
+
+  const startNewConversation = async (userId: string) => {
+    if (!user) return;
+    
+    const { data: existing } = await supabase
+      .from("conversations")
+      .select("id")
+      .eq("type", "direct")
+      .contains("participant_ids", [user.id, userId]);
+
+    if (existing && existing.length > 0) {
+      setSelectedConversation(existing[0].id);
+      return;
+    }
+
+    const { data, error } = await supabase
+      .from("conversations")
+      .insert({
+        type: "direct",
+        participant_ids: [user.id, userId],
+        created_by: user.id
+      })
+      .select()
+      .single();
+
+    if (data && !error) {
+      await Promise.all([
+        supabase.from("conversation_participants").insert({
+          conversation_id: data.id,
+          profile_id: user.id,
+        }),
+        supabase.from("conversation_participants").insert({
+          conversation_id: data.id,
+          profile_id: userId,
+        }),
+      ]);
+
+      setSelectedConversation(data.id);
+      fetchConversations();
+    }
+  };
 
   const filteredConversations = conversations.filter((conv) =>
     conv.participants.some((p) =>
@@ -101,29 +144,30 @@ export function ChatList() {
     : null;
 
   return (
-    <div className="flex h-[calc(100vh-4rem)]">
-      <div className="w-[320px] border-r flex flex-col bg-white">
-        <div className="p-4 border-b space-y-4">
-          <div className="flex items-center justify-between">
+    <div className="flex h-[calc(100vh-4rem)] bg-white">
+      <div className="w-[320px] border-r flex flex-col">
+        <div className="p-4 border-b">
+          <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold">Messages</h2>
             <Button 
-              variant="ghost" 
+              variant="outline"
               size="icon"
               onClick={() => setIsModalOpen(true)}
             >
-              <Plus className="h-5 w-5" />
+              <Plus className="h-4 w-4" />
             </Button>
           </div>
           <div className="relative">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Search conversations..."
+              placeholder="Search messages..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-8"
             />
           </div>
         </div>
+        
         <ScrollArea className="flex-1">
           {filteredConversations.length > 0 ? (
             filteredConversations.map((conversation) => (
@@ -143,7 +187,7 @@ export function ChatList() {
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex-1 space-y-1 overflow-hidden">
-                    <p className={`${!conversation.last_message?.seen ? "font-semibold" : ""}`}>
+                    <p className="font-medium">
                       {conversation.participants[0].full_name}
                     </p>
                     {conversation.last_message && (
@@ -179,8 +223,9 @@ export function ChatList() {
             currentUserId={user?.id || ""}
           />
         ) : (
-          <div className="flex h-full items-center justify-center">
-            <p className="text-muted-foreground">Select a conversation to start chatting</p>
+          <div className="flex h-full items-center justify-center flex-col gap-4">
+            <MessageCircle className="h-12 w-12 text-muted-foreground" />
+            <p className="text-muted-foreground">Select a conversation or start a new one</p>
           </div>
         )}
       </div>
@@ -188,10 +233,7 @@ export function ChatList() {
       <UserSearchModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        onStartConversation={(userId) => {
-          // Handle starting new conversation
-          setIsModalOpen(false);
-        }}
+        onStartConversation={startNewConversation}
       />
     </div>
   );
