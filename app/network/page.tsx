@@ -84,25 +84,25 @@ export default function NetworkPage() {
           .eq("status", "accepted")
       ]);
 
-      const allConnections = [
+      const combinedConnections = [
         ...(sentConnections.data || []),
         ...(receivedConnections.data || [])
       ];
       
       // Format connections to have consistent profile structure
-      const formattedConnections = allConnections.map(conn => ({
+      const formattedConnections = combinedConnections.map(conn => ({
         ...conn,
         profile: conn.user_id === user.id ? conn.profile : conn.profile
       }));
 
       // Get all connected user IDs (both accepted and pending)
-      const { data: allConnections } = await supabase
+      const { data: allConnectionIds } = await supabase
         .from("connections")
         .select("connected_user_id, user_id, status")
         .or(`user_id.eq.${user.id},connected_user_id.eq.${user.id}`);
 
       // Extract all user IDs that should be excluded from suggestions
-      const excludeIds = allConnections?.reduce((acc: string[], conn) => {
+      const excludeIds = allConnectionIds?.reduce((acc: string[], conn) => {
         if (conn.user_id === user.id) {
           acc.push(conn.connected_user_id);
         } else {
