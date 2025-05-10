@@ -264,11 +264,10 @@ export function PostCreator({ isDialog = false, onSuccess }: PostCreatorProps) {
         onSuccess();
       }
 
-      // Force a hard refresh of the feed data
-      router.refresh();
-
-      // Navigate to feed page to show new post
-      router.push('/feed');
+      // Navigate to feed page and refresh data
+      router.push('/feed').then(() => {
+        router.refresh();
+      });
     } catch (error) {
       console.error("Error creating post:", error);
       toast({
