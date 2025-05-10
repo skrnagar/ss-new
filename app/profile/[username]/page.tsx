@@ -88,7 +88,45 @@ export default async function ProfilePage({ params }: { params: { username: stri
                         <MessageSquare className="h-4 w-4 mr-2" />
                         Message
                       </Button>
-                      <Button variant="outline" className="flex-1">
+                      <Button 
+                        variant="outline" 
+                        className="flex-1"
+                        onClick={async () => {
+                          try {
+                            const { error } = await supabase
+                              .from('connections')
+                              .insert([{ 
+                                user_id: session.user.id, 
+                                connected_user_id: profile.id, 
+                                status: 'pending' 
+                              }]);
+
+                            if (error) {
+                              if (error.code === '23505') {
+                                toast({
+                                  title: "Already connected",
+                                  description: "You already have a connection or pending request with this user",
+                                });
+                              } else {
+                                throw error;
+                              }
+                              return;
+                            }
+
+                            toast({
+                              title: "Connection request sent",
+                              description: "Your connection request has been sent successfully",
+                            });
+                          } catch (error) {
+                            console.error('Error sending connection request:', error);
+                            toast({
+                              title: "Error",
+                              description: "Failed to send connection request",
+                              variant: "destructive",
+                            });
+                          }
+                        }}
+                      >
                         <UserPlus className="h-4 w-4 mr-2" />
                         Connect
                       </Button>
