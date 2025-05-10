@@ -11,6 +11,7 @@ export function ConnectButton({ userId, profileId }: { userId: string; profileId
   const { toast } = useToast();
   const [status, setStatus] = useState<'none' | 'pending' | 'accepted' | 'loading'>('loading');
   const [connectionId, setConnectionId] = useState<string | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
     checkConnectionStatus();
@@ -18,10 +19,12 @@ export function ConnectButton({ userId, profileId }: { userId: string; profileId
 
   const checkConnectionStatus = async () => {
     try {
-      const { data: connections } = await supabase
+      const { data: connections, error } = await supabase
         .from('connections')
         .select('id, status')
         .or(`and(user_id.eq.${userId},connected_user_id.eq.${profileId}),and(user_id.eq.${profileId},connected_user_id.eq.${userId})`);
+
+      if (error) throw error;
 
       if (connections && connections.length > 0) {
         setStatus(connections[0].status as 'pending' | 'accepted');
@@ -31,26 +34,29 @@ export function ConnectButton({ userId, profileId }: { userId: string; profileId
       }
     } catch (error) {
       console.error('Error checking connection status:', error);
+      toast({
+        title: "Error",
+        description: "Could not check connection status",
+        variant: "destructive"
+      });
       setStatus('none');
     }
   };
 
   const handleConnect = async () => {
+    if (isProcessing) return;
+    
+    setIsProcessing(true);
     try {
-      setStatus('loading');
       const { error } = await supabase
         .from('connections')
-        .insert([{ 
-          user_id: userId, 
-          connected_user_id: profileId, 
-          status: 'pending' 
-        }]);
+        .insert([{ user_id: userId, connected_user_id: profileId, status: 'pending' }]);
 
       if (error) {
         if (error.code === '23505') {
           toast({
             title: "Already connected",
-            description: "You already have a connection or pending request with this user",
+            description: "You already have a pending or accepted connection",
           });
         } else {
           throw error;
@@ -59,27 +65,28 @@ export function ConnectButton({ userId, profileId }: { userId: string; profileId
       }
 
       toast({
-        title: "Connection request sent",
-        description: "Your connection request has been sent successfully",
+        title: "Request sent",
+        description: "Connection request sent successfully",
       });
       
-      checkConnectionStatus();
+      await checkConnectionStatus();
     } catch (error) {
       console.error('Error sending connection request:', error);
       toast({
         title: "Error",
         description: "Failed to send connection request",
-        variant: "destructive",
+        variant: "destructive"
       });
-      setStatus('none');
+    } finally {
+      setIsProcessing(false);
     }
   };
 
   const handleRemoveConnection = async () => {
-    if (!connectionId) return;
+    if (!connectionId || isProcessing) return;
     
+    setIsProcessing(true);
     try {
-      setStatus('loading');
       const { error } = await supabase
         .from('connections')
         .delete()
@@ -92,49 +99,45 @@ export function ConnectButton({ userId, profileId }: { userId: string; profileId
         description: "Connection has been removed successfully",
       });
       
-      setStatus('none');
-      setConnectionId(null);
+      await checkConnectionStatus();
     } catch (error) {
       console.error('Error removing connection:', error);
       toast({
         title: "Error",
         description: "Failed to remove connection",
-        variant: "destructive",
+        variant: "destructive"
       });
-      checkConnectionStatus();
+    } finally {
+      setIsProcessing(false);
     }
   };
 
   if (status === 'loading') {
-    return (
-      <Button variant="outline" className="flex-1" disabled>
-        Loading...
-      </Button>
-    );
+    return <Button variant="outline" disabled>Loading...</Button>;
   }
 
   if (status === 'accepted') {
     return (
-      <Button variant="outline" className="flex-1" onClick={handleRemoveConnection}>
-        <UserCheck className="h-4 w-4 mr-2" />
-        Connected
+      <Button variant="outline" onClick={handleRemoveConnection} disabled={isProcessing}>
+        <UserMinus className="h-4 w-4 mr-2" />
+        {isProcessing ? 'Removing...' : 'Connected'}
       </Button>
     );
   }
 
   if (status === 'pending') {
     return (
-      <Button variant="outline" className="flex-1" disabled>
-        <UserClock className="h-4 w-4 mr-2" />
+      <Button variant="outline" disabled>
+        <UserCheck className="h-4 w-4 mr-2" />
         Pending
       </Button>
     );
   }
 
   return (
-    <Button variant="outline" className="flex-1" onClick={handleConnect}>
+    <Button onClick={handleConnect} disabled={isProcessing}>
       <UserPlus className="h-4 w-4 mr-2" />
-      Connect
+      {isProcessing ? 'Connecting...' : 'Connect'}
     </Button>
   );
 }

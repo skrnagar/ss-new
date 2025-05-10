@@ -28,39 +28,54 @@ export default function NetworkPage() {
   }, [user]);
 
   const fetchRequests = async () => {
+    if (!user?.id) return;
+    
     try {
-      console.log("Fetching connection requests...");
-      // Fetch received connection requests
-      const { data: receivedRequests, error: receivedError } = await supabase
-        .from("connections")
-        .select(`
-          *,
-          profile:profiles!connections_user_id_fkey(*)
-        `)
-        .eq("connected_user_id", user?.id)
-        .eq("status", "pending");
+      // Fetch both received and sent requests in parallel
+      const [receivedResponse, sentResponse] = await Promise.all([
+        supabase
+          .from("connections")
+          .select(`
+            *,
+            profile:profiles!connections_user_id_fkey(
+              id, 
+              full_name, 
+              headline, 
+              avatar_url,
+              username
+            )
+          `)
+          .eq("connected_user_id", user.id)
+          .eq("status", "pending"),
+          
+        supabase
+          .from("connections")
+          .select(`
+            *,
+            profile:profiles!connections_connected_user_id_fkey(
+              id, 
+              full_name, 
+              headline, 
+              avatar_url,
+              username
+            )
+          `)
+          .eq("user_id", user.id)
+          .eq("status", "pending")
+      ]);
 
-      if (receivedError) throw receivedError;
+      if (receivedResponse.error) throw receivedResponse.error;
+      if (sentResponse.error) throw sentResponse.error;
 
-      // Fetch sent connection requests
-      const { data: sentRequests, error: sentError } = await supabase
-        .from("connections")
-        .select(`
-          *,
-          profile:profiles!connected_user_id(*)
-        `)
-        .eq("user_id", user?.id)
-        .eq("status", "pending");
-
-      if (sentError) throw sentError;
-
-      console.log("Received requests:", receivedRequests);
-      console.log("Sent requests:", sentRequests);
-
-      setConnectionRequests(receivedRequests || []);
-      setSentRequests(sentRequests || []);
+      setConnectionRequests(receivedResponse.data || []);
+      setSentRequests(sentResponse.data || []);
     } catch (error) {
       console.error("Error fetching requests:", error);
+      toast({
+        title: "Error fetching requests",
+        description: "Please try again later",
+        variant: "destructive"
+      });
     }
   };
 

@@ -23,20 +23,58 @@ export default function ConnectionsPage() {
   }, [user]);
 
   const fetchConnections = async () => {
+    if (!user?.id) return;
+    
     try {
-      const { data: connectionData, error } = await supabase
-        .from("connections")
-        .select(`
-          *,
-          profile:profiles!connected_user_id(*)
-        `)
-        .eq("user_id", user?.id)
-        .eq("status", "accepted");
+      // Fetch both sent and received connections in parallel for completeness
+      const [sentConnections, receivedConnections] = await Promise.all([
+        supabase
+          .from("connections")
+          .select(`
+            *,
+            profile:profiles!connections_connected_user_id_fkey(
+              id,
+              full_name,
+              headline,
+              avatar_url,
+              username
+            )
+          `)
+          .eq("user_id", user.id)
+          .eq("status", "accepted"),
+          
+        supabase
+          .from("connections")
+          .select(`
+            *,
+            profile:profiles!connections_user_id_fkey(
+              id,
+              full_name,
+              headline,
+              avatar_url,
+              username
+            )
+          `)
+          .eq("connected_user_id", user.id)
+          .eq("status", "accepted")
+      ]);
 
-      if (error) throw error;
-      setConnections(connectionData || []);
+      if (sentConnections.error) throw sentConnections.error;
+      if (receivedConnections.error) throw receivedConnections.error;
+
+      const allConnections = [
+        ...(sentConnections.data || []),
+        ...(receivedConnections.data || [])
+      ];
+
+      setConnections(allConnections);
     } catch (error) {
       console.error("Error fetching connections:", error);
+      toast({
+        title: "Error fetching connections",
+        description: "Please try again later",
+        variant: "destructive"
+      });
     } finally {
       setLoading(false);
     }
