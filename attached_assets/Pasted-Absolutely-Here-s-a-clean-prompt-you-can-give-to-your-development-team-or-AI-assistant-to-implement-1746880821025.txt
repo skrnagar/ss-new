@@ -1,0 +1,68 @@
+Absolutely! Here’s a clean prompt you can give to your development team or AI assistant to implement a LinkedIn-style user connection feature, without any queries or code, fully focused on the flow, features, and UX.
+
+⸻
+
+✅ Prompt: Build LinkedIn-Like User Connection System
+
+⸻
+
+Goal:
+Design and implement a complete user connection feature like LinkedIn, where users can send, receive, accept, reject, and manage connection requests. The system should reflect connection status in real-time across profiles, feeds, and network pages to improve social engagement.
+
+⸻
+
+🔄 Full Connection Flow
+	1.	Send Connection Request
+	•	Allow any user to send a connection request from another user’s profile or suggested list.
+	•	After sending, the button should change to “Pending”.
+	•	Show a confirmation toast and option to withdraw the request.
+	2.	Smart Auto-Accept
+	•	If a reverse request already exists (i.e., the target user has sent a pending request), auto-accept the connection and update both users’ connection lists instantly.
+	•	Notify both users that they’re now connected.
+	3.	Incoming Requests Page
+	•	Provide a section where users can see all received connection requests.
+	•	Each request should include the requester’s name, profile picture, mutual connections, and buttons to Accept or Reject.
+	•	Accepting adds both users to each other’s connections.
+	•	Rejecting removes the request and optionally shows a “Rejected” label.
+	4.	Sent Requests Page
+	•	Display all connection requests the user has sent that are still pending.
+	•	Allow users to withdraw a request.
+	•	Show status like “Pending” and a “Withdraw” button.
+	5.	Connection Status on Profile
+	•	On viewing another user’s profile, dynamically show:
+	•	“Connect” if no request exists.
+	•	“Pending” if request sent.
+	•	“Accept/Reject” if incoming request.
+	•	“Connected” if already accepted.
+	•	Optionally show “Remove Connection” for existing connections.
+	6.	My Connections Page
+	•	List all users who are currently connected.
+	•	Include name, photo, mutual connections, and a “Remove Connection” button.
+	•	Allow sorting or filtering by recent connections.
+	7.	Mutual Connections Display
+	•	Show mutual connections count on profile cards and network suggestions.
+	•	Clicking it should open a list of mutual contacts.
+	8.	Withdraw Request
+	•	Allow users to withdraw sent requests as long as they haven’t been accepted.
+	•	Prompt confirmation before withdrawal.
+	•	Optionally show an undo option for a few seconds.
+	9.	Remove Connection
+	•	Let users remove existing connections from their network page or another user’s profile.
+	•	Confirm action before proceeding and show a “Removed successfully” toast.
+	10.	Notifications & UX Enhancements
+	•	Notify users in real-time when a connection is accepted.
+	•	Use clear labels and buttons for every action (e.g., Connect, Pending, Accept, Reject, Remove).
+	•	Show feedback messages for all actions (e.g., “Request Sent”, “Now Connected”, “Request Withdrawn”).
+	•	Add skeleton loaders and instant UI feedback for better experience.
+
+⸻
+
+🎯 Success Criteria
+	•	Connection logic should be bi-directional and reflected instantly.
+	•	Profiles and network pages should show real-time status updates.
+	•	The system should be clean, intuitive, and frictionless to encourage networking.
+	•	All edge cases (e.g., duplicate requests, reverse requests, request rejection) must be handled gracefully.
+
+⸻
+
+Would you like me to write the frontend and backend implementation plan for this next?
