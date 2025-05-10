@@ -63,28 +63,9 @@ export default function FeedPage() {
 
   const fetchPosts = async (cursor: string | null = null) => {
     try {
-      setPostsLoading(true);
-      
       let query = supabase
         .from('posts')
-        .select(`
-          id,
-          content,
-          image_url,
-          video_url,
-          document_url,
-          created_at,
-          user_id,
-          profile:profiles(
-            id, 
-            username,
-            full_name,
-            avatar_url,
-            headline,
-            position,
-            company
-          )
-        `)
+        .select('*, profile:profiles(*)')
         .order('created_at', { ascending: false })
         .limit(POSTS_PER_PAGE);
 
@@ -187,19 +168,8 @@ export default function FeedPage() {
         event: '*', 
         schema: 'public', 
         table: 'posts' 
-      }, (payload) => {
-        if (payload.eventType === 'INSERT') {
-          // Add new post to the top
-          setPosts(prevPosts => [payload.new, ...prevPosts]);
-        } else if (payload.eventType === 'DELETE') {
-          // Remove deleted post
-          setPosts(prevPosts => prevPosts.filter(p => p.id !== payload.old.id));
-        } else if (payload.eventType === 'UPDATE') {
-          // Update modified post
-          setPosts(prevPosts => prevPosts.map(p => 
-            p.id === payload.new.id ? payload.new : p
-          ));
-        }
+      }, () => {
+        fetchPosts(); // Refresh posts when changes occur
       })
       .subscribe();
 

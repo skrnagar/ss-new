@@ -229,7 +229,7 @@ export function PostCreator({ isDialog = false, onSuccess }: PostCreatorProps) {
         }
       }
 
-      const postData = {
+      const newPost = {
         user_id: activeProfile?.id,
         content: content.trim(),
         image_url: imageUrl,
@@ -238,56 +238,36 @@ export function PostCreator({ isDialog = false, onSuccess }: PostCreatorProps) {
         created_at: new Date().toISOString(),
       };
 
-      // Reset form early for better UX
-      const originalContent = content;
+      // Create post in database
+      const { data: post, error: postError } = await supabase
+        .from("posts")
+        .insert([newPost])
+        .select('*, profiles(*)')
+        .single();
+
+      if (postError) {
+        throw postError;
+      }
+
+      // Success
+      toast({
+        title: "Post created",
+        description: "Your post has been published successfully",
+      });
+
+      // Reset form
       setContent("");
       clearAttachment();
 
-      // Create optimistic post first
-      const tempId = crypto.randomUUID();
-      const optimisticPost = {
-        id: tempId,
-        ...postData,
-        profile: activeProfile
-      };
-
-      // Call onSuccess early with optimistic data
+      // Call onSuccess with the new post data for immediate UI update
       if (onSuccess) {
-        onSuccess(optimisticPost);
+        onSuccess();
       }
 
-      try {
-        // Create post in database
-        const { data: post, error: postError } = await supabase
-          .from("posts")
-          .insert([postData])
-          .select('*, profiles(*)')
-          .single();
-
-        if (postError) {
-          // Revert on error
-          setContent(originalContent);
-          throw postError;
-        }
-
-        // Success toast with better UX
-        toast({
-          title: "Post created",
-          description: "Your post has been published",
-          duration: 3000
-        });
-
-        // Navigate back to feed after successful post
-        router.push('/feed');
-      } catch (error) {
-        console.error("Error creating post:", error);
-        setIsSubmitting(false); // Reset submitting state on error
-        toast({
-          title: "Error creating post",
-          description: "Please try again",
-          variant: "destructive"
-        });
-      }
+      // Navigate to feed page and refresh data
+      router.push('/feed').then(() => {
+        router.refresh();
+      });
     } catch (error) {
       console.error("Error creating post:", error);
       toast({
