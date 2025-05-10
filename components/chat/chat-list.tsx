@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useState } from "react";
@@ -22,7 +23,7 @@ interface Conversation {
   last_message?: {
     content: string;
     created_at: string;
-    is_read: boolean;
+    seen: boolean;
   };
 }
 
@@ -41,7 +42,7 @@ export function ChatList() {
           messages:messages(
             content,
             created_at,
-            is_read,
+            seen,
             sender_id
           ),
           participants:conversation_participants(
@@ -68,7 +69,6 @@ export function ChatList() {
 
     fetchConversations();
 
-    // Subscribe to new messages
     const subscription = supabase
       .channel("conversations")
       .on("postgres_changes", {
@@ -100,7 +100,7 @@ export function ChatList() {
 
   return (
     <div className="flex h-[calc(100vh-4rem)]">
-      <div className="w-80 border-r flex flex-col">
+      <div className="w-80 border-r flex flex-col bg-white">
         <div className="p-4 border-b space-y-4">
           <UserSearchModal />
           <div className="relative">
@@ -118,18 +118,20 @@ export function ChatList() {
             <Button
               key={conversation.id}
               variant="ghost"
-              className="w-full justify-start p-4 h-auto"
+              className={`w-full justify-start p-4 h-auto ${
+                selectedConversation === conversation.id ? "bg-muted" : ""
+              }`}
               onClick={() => setSelectedConversation(conversation.id)}
             >
-              <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-4 w-full">
                 <Avatar>
                   <AvatarImage src={conversation.participants[0].avatar_url} />
                   <AvatarFallback>
                     {conversation.participants[0].full_name[0]}
                   </AvatarFallback>
                 </Avatar>
-                <div className="flex-1 space-y-1">
-                  <p className={conversation.last_message?.is_read ? "" : "font-bold"}>
+                <div className="flex-1 space-y-1 overflow-hidden">
+                  <p className={conversation.last_message?.seen ? "" : "font-semibold"}>
                     {conversation.participants[0].full_name}
                   </p>
                   {conversation.last_message && (
@@ -137,7 +139,7 @@ export function ChatList() {
                       <p className="text-sm text-muted-foreground truncate">
                         {conversation.last_message.content}
                       </p>
-                      <span className="text-xs text-muted-foreground">
+                      <span className="text-xs text-muted-foreground whitespace-nowrap ml-2">
                         {format(
                           new Date(conversation.last_message.created_at),
                           "HH:mm"

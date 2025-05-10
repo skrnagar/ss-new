@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useRef, useState } from "react";
@@ -15,8 +16,8 @@ interface Message {
   content: string;
   sender_id: string;
   created_at: string;
-  is_read: boolean;
-  read_at: string | null;
+  seen: boolean;
+  seen_at: string | null;
 }
 
 interface Profile {
@@ -52,11 +53,22 @@ export function ChatWindow({ conversationId, otherUser, currentUserId }: ChatWin
       }
 
       setMessages(data || []);
+      scrollToBottom();
+      
+      // Mark messages as seen
+      const unseenMessages = data?.filter(
+        (msg) => !msg.seen && msg.sender_id !== currentUserId
+      );
+      
+      if (unseenMessages?.length) {
+        await Promise.all(
+          unseenMessages.map((msg) => markAsRead(msg.id))
+        );
+      }
     };
 
     fetchMessages();
 
-    // Subscribe to new messages
     const subscription = supabase
       .channel(`conversation:${conversationId}`)
       .on("postgres_changes", {
@@ -69,13 +81,17 @@ export function ChatWindow({ conversationId, otherUser, currentUserId }: ChatWin
         const newMessage = payload.new as Message;
         setMessages((prev) => [...prev, newMessage]);
         scrollToBottom();
+        
+        if (newMessage.sender_id !== currentUserId) {
+          markAsRead(newMessage.id);
+        }
       })
       .subscribe();
 
     return () => {
       subscription.unsubscribe();
     };
-  }, [conversationId]);
+  }, [conversationId, currentUserId]);
 
   const scrollToBottom = () => {
     if (scrollRef.current) {
@@ -85,7 +101,7 @@ export function ChatWindow({ conversationId, otherUser, currentUserId }: ChatWin
 
   const sendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newMessage.trim()) return;
+    if (!newMessage.trim() || isLoading) return;
 
     setIsLoading(true);
     const { error } = await supabase.from("messages").insert({
@@ -105,19 +121,20 @@ export function ChatWindow({ conversationId, otherUser, currentUserId }: ChatWin
   const markAsRead = async (messageId: string) => {
     await supabase
       .from("messages")
-      .update({ is_read: true, read_at: new Date().toISOString() })
+      .update({ seen: true, seen_at: new Date().toISOString() })
       .eq("id", messageId);
   };
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="flex items-center space-x-4 p-4 border-b">
-        <Avatar>
+    <div className="flex flex-col h-full bg-white">
+      <div className="flex items-center space-x-4 p-4 border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
+        <Avatar className="h-10 w-10">
           <AvatarImage src={otherUser.avatar_url} />
           <AvatarFallback>{otherUser.full_name[0]}</AvatarFallback>
         </Avatar>
         <div>
-          <h3 className="font-medium">{otherUser.full_name}</h3>
+          <h3 className="font-semibold">{otherUser.full_name}</h3>
+          <p className="text-sm text-muted-foreground">Active now</p>
         </div>
       </div>
 
@@ -137,14 +154,14 @@ export function ChatWindow({ conversationId, otherUser, currentUserId }: ChatWin
                     : "bg-muted"
                 }`}
               >
-                <p>{message.content}</p>
+                <p className="break-words">{message.content}</p>
                 <div className="flex items-center justify-end space-x-1 mt-1">
                   <span className="text-xs opacity-70">
                     {format(new Date(message.created_at), "HH:mm")}
                   </span>
                   {message.sender_id === currentUserId && (
                     <span>
-                      {message.is_read ? (
+                      {message.seen ? (
                         <CheckCheck className="h-4 w-4" />
                       ) : (
                         <Check className="h-4 w-4" />
@@ -159,16 +176,18 @@ export function ChatWindow({ conversationId, otherUser, currentUserId }: ChatWin
         </div>
       </ScrollArea>
 
-      <form onSubmit={sendMessage} className="p-4 border-t">
+      <form onSubmit={sendMessage} className="p-4 border-t bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
         <div className="flex space-x-2">
           <Input
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             placeholder="Type a message..."
             disabled={isLoading}
+            className="flex-1"
           />
-          <Button type="submit" disabled={isLoading}>
+          <Button type="submit" disabled={isLoading || !newMessage.trim()}>
             <Send className="h-4 w-4" />
+            <span className="sr-only">Send message</span>
           </Button>
         </div>
       </form>
