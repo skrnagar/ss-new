@@ -17,7 +17,7 @@ interface UserSearchModalProps {
   onSelectUser: (conversationId: string, userId: string) => void;
 }
 
-export default function UserSearchModal({
+export function UserSearchModal({
   open,
   onOpenChange,
   onSelectUser,

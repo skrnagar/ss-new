@@ -30,7 +30,7 @@ interface Conversation {
   };
 }
 
-export default function ChatList() {
+export function ChatList() {
   const { user } = useAuth();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeConversation, setActiveConversation] = useState<string | null>(null);

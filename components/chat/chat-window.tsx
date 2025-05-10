@@ -30,7 +30,7 @@ interface ChatWindowProps {
   onClose: () => void;
 }
 
-export default function ChatWindow({ conversationId, recipientId, onClose }: ChatWindowProps) {
+export function ChatWindow({ conversationId, recipientId, onClose }: ChatWindowProps) {
   const { user } = useAuth();
   const { toast } = useToast();
   const [messages, setMessages] = useState<Message[]>([]);
