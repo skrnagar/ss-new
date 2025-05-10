@@ -6,12 +6,24 @@ import { UserCheck, UserMinus, UserPlus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabase";
 import { useEffect, useState } from "react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 export function ConnectButton({ userId, profileId }: { userId: string; profileId: string }) {
   const { toast } = useToast();
   const [status, setStatus] = useState<'none' | 'pending' | 'accepted' | 'loading'>('loading');
   const [connectionId, setConnectionId] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
 
   useEffect(() => {
     checkConnectionStatus();
@@ -21,7 +33,7 @@ export function ConnectButton({ userId, profileId }: { userId: string; profileId
     try {
       const { data: connections, error } = await supabase
         .from('connections')
-        .select('id, status')
+        .select('id, status, user_id')
         .or(`and(user_id.eq.${userId},connected_user_id.eq.${profileId}),and(user_id.eq.${profileId},connected_user_id.eq.${userId})`);
 
       if (error) throw error;
@@ -48,26 +60,51 @@ export function ConnectButton({ userId, profileId }: { userId: string; profileId
     
     setIsProcessing(true);
     try {
-      const { error } = await supabase
+      // Check for reverse request first
+      const { data: reverseRequest } = await supabase
         .from('connections')
-        .insert([{ user_id: userId, connected_user_id: profileId, status: 'pending' }]);
+        .select('id, status')
+        .eq('user_id', profileId)
+        .eq('connected_user_id', userId)
+        .eq('status', 'pending')
+        .single();
 
-      if (error) {
-        if (error.code === '23505') {
-          toast({
-            title: "Already connected",
-            description: "You already have a pending or accepted connection",
-          });
-        } else {
-          throw error;
+      if (reverseRequest) {
+        // Auto-accept the reverse request
+        const { error: updateError } = await supabase
+          .from('connections')
+          .update({ status: 'accepted' })
+          .eq('id', reverseRequest.id);
+
+        if (updateError) throw updateError;
+
+        toast({
+          title: "Connected!",
+          description: "You are now connected with this user",
+        });
+      } else {
+        // Create new request
+        const { error } = await supabase
+          .from('connections')
+          .insert([{ user_id: userId, connected_user_id: profileId, status: 'pending' }]);
+
+        if (error) {
+          if (error.code === '23505') {
+            toast({
+              title: "Already connected",
+              description: "You already have a pending or accepted connection",
+            });
+          } else {
+            throw error;
+          }
+          return;
         }
-        return;
-      }
 
-      toast({
-        title: "Request sent",
-        description: "Connection request sent successfully",
-      });
+        toast({
+          title: "Request sent",
+          description: "Connection request sent successfully",
+        });
+      }
       
       await checkConnectionStatus();
     } catch (error) {
@@ -75,6 +112,37 @@ export function ConnectButton({ userId, profileId }: { userId: string; profileId
       toast({
         title: "Error",
         description: "Failed to send connection request",
+        variant: "destructive"
+      });
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleWithdrawRequest = async () => {
+    if (!connectionId || isProcessing) return;
+    
+    setIsProcessing(true);
+    try {
+      const { error } = await supabase
+        .from('connections')
+        .delete()
+        .eq('id', connectionId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Request withdrawn",
+        description: "Connection request has been withdrawn",
+      });
+      
+      await checkConnectionStatus();
+      setShowConfirmDialog(false);
+    } catch (error) {
+      console.error('Error withdrawing request:', error);
+      toast({
+        title: "Error",
+        description: "Failed to withdraw request",
         variant: "destructive"
       });
     } finally {
@@ -100,6 +168,7 @@ export function ConnectButton({ userId, profileId }: { userId: string; profileId
       });
       
       await checkConnectionStatus();
+      setShowConfirmDialog(false);
     } catch (error) {
       console.error('Error removing connection:', error);
       toast({
@@ -118,19 +187,55 @@ export function ConnectButton({ userId, profileId }: { userId: string; profileId
 
   if (status === 'accepted') {
     return (
-      <Button variant="outline" onClick={handleRemoveConnection} disabled={isProcessing}>
-        <UserMinus className="h-4 w-4 mr-2" />
-        {isProcessing ? 'Removing...' : 'Connected'}
-      </Button>
+      <AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+        <AlertDialogTrigger asChild>
+          <Button variant="outline">
+            <UserCheck className="h-4 w-4 mr-2" />
+            Connected
+          </Button>
+        </AlertDialogTrigger>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remove Connection</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to remove this connection? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleRemoveConnection} disabled={isProcessing}>
+              {isProcessing ? "Removing..." : "Remove"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     );
   }
 
   if (status === 'pending') {
     return (
-      <Button variant="outline" disabled>
-        <UserCheck className="h-4 w-4 mr-2" />
-        Pending
-      </Button>
+      <AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+        <AlertDialogTrigger asChild>
+          <Button variant="outline">
+            <UserMinus className="h-4 w-4 mr-2" />
+            Pending
+          </Button>
+        </AlertDialogTrigger>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Withdraw Request</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to withdraw this connection request?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleWithdrawRequest} disabled={isProcessing}>
+              {isProcessing ? "Withdrawing..." : "Withdraw"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     );
   }
 

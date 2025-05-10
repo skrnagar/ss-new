@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -9,6 +10,7 @@ import { supabase } from "@/lib/supabase";
 import { Calendar, Newspaper, Users } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function NetworkPage() {
   const { user } = useAuth();
@@ -17,8 +19,8 @@ export default function NetworkPage() {
   const [suggestions, setSuggestions] = useState<any[]>([]);
   const [connectionRequests, setConnectionRequests] = useState<any[]>([]);
   const [sentRequests, setSentRequests] = useState<any[]>([]);
+  const [mutualConnections, setMutualConnections] = useState<{[key: string]: number}>({});
   const [loading, setLoading] = useState(true);
-  const [connectLoading, setConnectLoading] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -27,11 +29,39 @@ export default function NetworkPage() {
     }
   }, [user]);
 
+  const fetchMutualConnections = async (profileId: string, connections: any[]) => {
+    try {
+      // Get the user's connections
+      const userConnectionIds = connections.map(conn => 
+        conn.user_id === user?.id ? conn.connected_user_id : conn.user_id
+      );
+
+      // Get the target user's connections
+      const { data: targetConnections } = await supabase
+        .from('connections')
+        .select('user_id, connected_user_id')
+        .or(`user_id.eq.${profileId},connected_user_id.eq.${profileId}`)
+        .eq('status', 'accepted');
+
+      if (!targetConnections) return 0;
+
+      const targetConnectionIds = targetConnections.map(conn => 
+        conn.user_id === profileId ? conn.connected_user_id : conn.user_id
+      );
+
+      // Count mutual connections
+      const mutual = userConnectionIds.filter(id => targetConnectionIds.includes(id));
+      return mutual.length;
+    } catch (error) {
+      console.error('Error calculating mutual connections:', error);
+      return 0;
+    }
+  };
+
   const fetchRequests = async () => {
     if (!user?.id) return;
     
     try {
-      // Fetch both received and sent requests in parallel
       const [receivedResponse, sentResponse] = await Promise.all([
         supabase
           .from("connections")
@@ -87,7 +117,7 @@ export default function NetworkPage() {
           .from("connections")
           .select(`
             *,
-            profile:profiles!connected_user_id(*)
+            profile:profiles!connections_connected_user_id_fkey(*)
           `)
           .eq("user_id", user?.id)
           .eq("status", "accepted"),
@@ -104,23 +134,22 @@ export default function NetworkPage() {
       const sentConnections = sentResponse.data || [];
       const receivedConnections = receivedResponse.data || [];
 
-      const mergedConnections = [
+      const allConnections = [
         ...sentConnections,
         ...receivedConnections
       ];
-
+      
       // Format connections to have consistent profile structure
-      const formattedConnections = mergedConnections.map(conn => ({
+      const formattedConnections = allConnections.map(conn => ({
         ...conn,
         profile: conn.user_id === user?.id ? conn.profile : conn.profile
       }));
 
-      // Get all connected user IDs to exclude from suggestions
+      // Get suggestions (users not connected)
       const connectedUserIds = formattedConnections.map(conn => 
         conn.user_id === user?.id ? conn.connected_user_id : conn.user_id
       );
 
-      // Get suggestions (users not connected)
       const { data: suggestionData } = await supabase
         .from("profiles")
         .select("*")
@@ -129,48 +158,22 @@ export default function NetworkPage() {
 
       setConnections(formattedConnections || []);
       setSuggestions(suggestionData || []);
+
+      // Calculate mutual connections for suggestions
+      const mutualCounts: {[key: string]: number} = {};
+      for (const suggestion of (suggestionData || [])) {
+        mutualCounts[suggestion.id] = await fetchMutualConnections(suggestion.id, formattedConnections);
+      }
+      setMutualConnections(mutualCounts);
     } catch (error) {
       console.error("Error fetching network data:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleConnect = async (profileId: string) => {
-    setConnectLoading(true);
-    try {
-      const { error } = await supabase
-        .from("connections")
-        .insert([{ user_id: user?.id, connected_user_id: profileId, status: "pending" }]);
-
-      if (error) {
-        if (error.code === "23505") { // Unique constraint violation
-          toast({
-            title: "Already connected",
-            description: "You already have a connection or pending request with this user",
-          });
-        } else {
-          throw error;
-        }
-        return;
-      }
-
-      toast({
-        title: "Request sent",
-        description: "Connection request sent successfully",
-      });
-
-      fetchNetworkData();
-      fetchRequests();
-    } catch (error) {
-      console.error("Error sending connection request:", error);
       toast({
         title: "Error",
-        description: "Failed to send connection request",
-        variant: "destructive",
+        description: "Failed to fetch network data",
+        variant: "destructive"
       });
     } finally {
-      setConnectLoading(false);
+      setLoading(false);
     }
   };
 
@@ -195,7 +198,7 @@ export default function NetworkPage() {
       toast({
         title: "Error",
         description: "Failed to accept connection",
-        variant: "destructive",
+        variant: "destructive"
       });
     }
   };
@@ -220,7 +223,7 @@ export default function NetworkPage() {
       toast({
         title: "Error",
         description: "Failed to reject connection",
-        variant: "destructive",
+        variant: "destructive"
       });
     }
   };
@@ -297,9 +300,17 @@ export default function NetworkPage() {
                           </AvatarFallback>
                         </Avatar>
                         <div>
-                          <h3 className="font-medium">{request.profile.full_name}</h3>
+                          <Link
+                            href={`/profile/${request.profile.username}`}
+                            className="font-medium hover:underline"
+                          >
+                            {request.profile.full_name}
+                          </Link>
                           <p className="text-sm text-muted-foreground">
                             {request.profile.headline}
+                          </p>
+                          <p className="text-sm text-muted-foreground">
+                            {mutualConnections[request.profile.id] || 0} mutual connections
                           </p>
                         </div>
                       </div>
@@ -338,9 +349,17 @@ export default function NetworkPage() {
                           </AvatarFallback>
                         </Avatar>
                         <div>
-                          <h3 className="font-medium">{request.profile.full_name}</h3>
+                          <Link
+                            href={`/profile/${request.profile.username}`}
+                            className="font-medium hover:underline"
+                          >
+                            {request.profile.full_name}
+                          </Link>
                           <p className="text-sm text-muted-foreground">
                             {request.profile.headline}
+                          </p>
+                          <p className="text-sm text-muted-foreground">
+                            {mutualConnections[request.profile.id] || 0} mutual connections
                           </p>
                         </div>
                       </div>
@@ -360,10 +379,10 @@ export default function NetworkPage() {
                 <div className="space-y-4">
                   {[1, 2, 3].map((i) => (
                     <div key={i} className="flex items-center space-x-4">
-                      <div className="h-10 w-10 rounded-full bg-muted animate-pulse" />
+                      <Skeleton className="h-10 w-10 rounded-full" />
                       <div className="space-y-2">
-                        <div className="h-4 w-[200px] bg-muted animate-pulse rounded" />
-                        <div className="h-3 w-[150px] bg-muted animate-pulse rounded" />
+                        <Skeleton className="h-4 w-[200px]" />
+                        <Skeleton className="h-3 w-[150px]" />
                       </div>
                     </div>
                   ))}
@@ -383,9 +402,17 @@ export default function NetworkPage() {
                           </AvatarFallback>
                         </Avatar>
                         <div>
-                          <h3 className="font-medium">{connection.profile.full_name}</h3>
+                          <Link
+                            href={`/profile/${connection.profile.username}`}
+                            className="font-medium hover:underline"
+                          >
+                            {connection.profile.full_name}
+                          </Link>
                           <p className="text-sm text-muted-foreground">
                             {connection.profile.headline}
+                          </p>
+                          <p className="text-sm text-muted-foreground">
+                            {mutualConnections[connection.profile.id] || 0} mutual connections
                           </p>
                         </div>
                       </div>
@@ -432,15 +459,18 @@ export default function NetworkPage() {
                           <div className="flex-1">
                             <h3 className="font-medium">{profile.full_name}</h3>
                             <p className="text-sm text-muted-foreground">{profile.headline}</p>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="mt-2"
-                              onClick={() => handleConnect(profile.id)}
-                              disabled={connectLoading}
-                            >
-                              {connectLoading ? "Connecting..." : "Connect"}
-                            </Button>
+                            <p className="text-sm text-muted-foreground mt-1">
+                              {mutualConnections[profile.id] || 0} mutual connections
+                            </p>
+                            <div className="mt-2 space-x-2">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                asChild
+                              >
+                                <Link href={`/profile/${profile.username}`}>View Profile</Link>
+                              </Button>
+                            </div>
                           </div>
                         </div>
                       </CardContent>
