@@ -52,7 +52,8 @@ export default function MessagesPage() {
 
     const { data, error } = await supabase
       .from("conversations")
-      .select(`
+      .select(
+        `
         id,
         created_at,
         conversation_participants!inner (
@@ -62,16 +63,19 @@ export default function MessagesPage() {
             avatar_url
           )
         )
-      `)
+      `,
+      )
       .order("created_at", { ascending: false });
 
     if (data && !error) {
       const formattedConversations = data.map((conv) => ({
         id: conv.id,
-        conversation_participants: conv.conversation_participants.map((participant) => ({
-          profile_id: participant.profile_id,
-          profiles: participant.profiles,
-        })),
+        conversation_participants: conv.conversation_participants.map(
+          (participant) => ({
+            profile_id: participant.profile_id,
+            profiles: participant.profiles,
+          }),
+        ),
         last_message: conv.messages?.[0]
           ? {
               content: conv.messages[0].content,
@@ -125,29 +129,9 @@ export default function MessagesPage() {
 
   return (
     <div className="container flex h-[calc(100vh-4rem)] gap-6 py-6">
-      <div className="w-80 flex flex-col border-r pr-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-semibold">Messages</h2>
-          <Button size="icon" variant="ghost" onClick={() => setSearchModalOpen(true)}>
-            <Plus className="h-5 w-5" />
-          </Button>
-          <UserSearchModal
-            isOpen={searchModalOpen}
-            onClose={() => setSearchModalOpen(false)}
-            onStartConversation={startNewChat}
-          />
-        </div>
+        
 
-        <div className="relative mb-4">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input
-            type="search"
-            placeholder="Search messages..."
-            className="pl-8"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </div>
+    
 
         <div className="flex-1 overflow-auto">
           <ChatList
@@ -156,9 +140,9 @@ export default function MessagesPage() {
             selectedId={selectedChat}
           />
         </div>
-      </div>
+      
 
-      <div className="flex-1 flex flex-col">
+      {/* <div className="flex-1 flex flex-col">
         {selectedChat ? (
           <ChatWindow conversationId={selectedChat} currentUserId={user?.id} />
         ) : (
@@ -166,7 +150,7 @@ export default function MessagesPage() {
             Select a conversation or start a new one
           </div>
         )}
-      </div>
+      </div> */}
     </div>
   );
 }
