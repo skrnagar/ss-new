@@ -132,9 +132,9 @@ export default function MessagesPage() {
             <Plus className="h-5 w-5" />
           </Button>
           <UserSearchModal
-            open={searchModalOpen}
-            onOpenChange={setSearchModalOpen}
-            onSelectUser={startNewChat}
+            isOpen={searchModalOpen}
+            onClose={() => setSearchModalOpen(false)}
+            onStartConversation={startNewChat}
           />
         </div>
 
