@@ -92,7 +92,7 @@ export default function FeedPage() {
         query = query.lt('created_at', cursor);
       }
 
-      const { data: newPosts, error } = await query;
+      const { data, error } = await query;
 
       if (error) throw error;
 
