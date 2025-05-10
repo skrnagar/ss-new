@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -19,6 +18,7 @@ export default function NetworkPage() {
   const [connectionRequests, setConnectionRequests] = useState<any[]>([]);
   const [sentRequests, setSentRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [connectLoading, setConnectLoading] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -99,6 +99,7 @@ export default function NetworkPage() {
   };
 
   const handleConnect = async (profileId: string) => {
+    setConnectLoading(true);
     try {
       const { error } = await supabase
         .from("connections")
@@ -120,7 +121,7 @@ export default function NetworkPage() {
         title: "Request sent",
         description: "Connection request sent successfully",
       });
-      
+
       fetchNetworkData();
       fetchRequests();
     } catch (error) {
@@ -130,6 +131,8 @@ export default function NetworkPage() {
         description: "Failed to send connection request",
         variant: "destructive",
       });
+    } finally {
+      setConnectLoading(false);
     }
   };
 
@@ -396,8 +399,9 @@ export default function NetworkPage() {
                               size="sm"
                               className="mt-2"
                               onClick={() => handleConnect(profile.id)}
+                              disabled={connectLoading}
                             >
-                              Connect
+                              {connectLoading ? "Connecting..." : "Connect"}
                             </Button>
                           </div>
                         </div>
