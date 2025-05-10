@@ -164,8 +164,11 @@ export default function NetworkPage() {
         description: "You are now connected",
       });
 
-      fetchNetworkData();
-      fetchRequests();
+      // Refresh both network data and requests
+      await Promise.all([
+        fetchNetworkData(),
+        fetchRequests()
+      ]);
     } catch (error) {
       console.error("Error accepting connection:", error);
       toast({

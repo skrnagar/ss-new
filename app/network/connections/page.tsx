@@ -69,8 +69,10 @@ export default function ConnectionsPage() {
 
       if (error) throw error;
 
-      fetchConnections();
-      fetchPendingRequests();
+      await Promise.all([
+        fetchConnections(),
+        fetchPendingRequests()
+      ]);
     } catch (error) {
       console.error("Error accepting connection:", error);
     }
