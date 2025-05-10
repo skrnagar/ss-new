@@ -97,7 +97,12 @@ export function ChatList() {
       .from("conversations")
       .select("id")
       .eq("type", "direct")
-      .contains("participant_ids", [user.id, userId]);
+      .in("id", supabase.from("conversation_participants")
+        .select("conversation_id")
+        .eq("profile_id", user.id))
+      .in("id", supabase.from("conversation_participants")
+        .select("conversation_id")
+        .eq("profile_id", userId));
 
     if (existing && existing.length > 0) {
       setSelectedConversation(existing[0].id);
@@ -108,7 +113,6 @@ export function ChatList() {
       .from("conversations")
       .insert({
         type: "direct",
-        participant_ids: [user.id, userId],
         created_by: user.id
       })
       .select()
