@@ -88,12 +88,6 @@ export function ChatList({ initialUserId }: ChatListProps) {
       setConversations(uniqueConversations);
     }
   };
-          .filter((p) => p.id !== user?.id),
-        last_message: conv.messages[0],
-      }));
-      setConversations(formattedConversations);
-    }
-  };
 
   const subscribeToUpdates = () => {
     const subscription = supabase
@@ -170,12 +164,6 @@ export function ChatList({ initialUserId }: ChatListProps) {
       await fetchConversations();
     } catch (error) {
       console.error("Error adding participants:", error);
-    }
-
-    if (newConversation?.id) {
-      setSelectedConversation(newConversation.id);
-      setIsModalOpen(false);
-      await fetchConversations();
     }
   };
 
