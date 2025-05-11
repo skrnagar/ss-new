@@ -131,7 +131,7 @@ export function ChatList({ initialUserId }: ChatListProps) {
     );
 
     if (existingConversation && existingConversation.length > 0) {
-      setSelectedConversation(existing[0].id);
+      setSelectedConversation(existingConversation[0].conversation_id);
       return;
     }
 
@@ -149,19 +149,20 @@ export function ChatList({ initialUserId }: ChatListProps) {
       return;
     }
 
-    const participantPromises = [user.id, userId].map(id =>
-      supabase
-        .from("conversation_participants")
-        .insert({
-          conversation_id: newConversation.id,
-          profile_id: id
-        })
-    );
-
     try {
+      const participantPromises = [user.id, userId].map(id =>
+        supabase
+          .from("conversation_participants")
+          .insert({
+            conversation_id: newConversation.id,
+            profile_id: id
+          })
+      );
+
       await Promise.all(participantPromises);
-      setSelectedConversation(newConversation.id);
       await fetchConversations();
+      setSelectedConversation(newConversation.id);
+      setIsModalOpen(false);
     } catch (error) {
       console.error("Error adding participants:", error);
     }
@@ -265,11 +266,12 @@ export function ChatList({ initialUserId }: ChatListProps) {
             >
               ← Back
             </button>
-          <ChatWindow
-            conversationId={selectedConversation}
-            otherUser={otherUser}
-            currentUserId={user?.id || ""}
-          />
+            <ChatWindow
+              conversationId={selectedConversation}
+              otherUser={otherUser}
+              currentUserId={user?.id || ""}
+            />
+          </>
         ) : (
           <div className="flex h-full items-center justify-center flex-col gap-4 text-muted-foreground">
             <MessageCircle className="h-12 w-12" />
