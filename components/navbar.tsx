@@ -98,17 +98,66 @@ export const Navbar = memo(function Navbar() {
       <div className="container flex h-16 items-center justify-between py-4">
         {isMobile ? (
           <>
-            <Button variant="ghost" className="relative h-8 w-8 md:h-10 md:w-10 rounded-full">
-              <Avatar className="h-8 w-8">
-                <AvatarImage
-                  src={user?.profile?.avatar_url || user?.user_metadata?.avatar_url || ""}
-                  alt={user?.profile?.full_name || user?.user_metadata?.full_name || "User"}
-                />
-                <AvatarFallback>
-                  {getInitials(user?.profile?.full_name || user?.user_metadata?.full_name || "")}
-                </AvatarFallback>
-              </Avatar>
-            </Button>
+            <div className="flex items-center gap-2">
+              {user && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="relative h-8 w-8 md:h-10 md:w-10 rounded-full">
+                      <Avatar className="h-8 w-8">
+                        <AvatarImage
+                          src={user?.profile?.avatar_url || user?.user_metadata?.avatar_url || ""}
+                          alt={user?.profile?.full_name || user?.user_metadata?.full_name || "User"}
+                        />
+                        <AvatarFallback>
+                          {getInitials(user?.profile?.full_name || user?.user_metadata?.full_name || "")}
+                        </AvatarFallback>
+                      </Avatar>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-56" align="start" forceMount>
+                    <DropdownMenuLabel className="font-normal">
+                      <div className="flex flex-col space-y-1">
+                        <p className="text-sm font-medium leading-none">
+                          {user?.profile?.full_name || user?.user_metadata?.full_name || getUserName()}
+                        </p>
+                        <p className="text-xs leading-none text-muted-foreground">{user?.email}</p>
+                        {user?.profile?.headline && (
+                          <p className="text-xs leading-none text-muted-foreground mt-1">
+                            {user.profile.headline}
+                          </p>
+                        )}
+                      </div>
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuGroup>
+                      <DropdownMenuItem asChild>
+                        <Link href="/profile" className="cursor-pointer">
+                          <User className="mr-2 h-4 w-4" />
+                          <span>Profile</span>
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link href="/settings" className="cursor-pointer">
+                          <Settings className="mr-2 h-4 w-4" />
+                          <span>Settings</span>
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link href="/compliance" className="cursor-pointer">
+                          <Shield className="mr-2 h-4 w-4" />
+                          <span>Compliance</span>
+                        </Link>
+                      </DropdownMenuItem>
+                    </DropdownMenuGroup>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer">
+                      <LogOut className="mr-2 h-4 w-4" />
+                      <span>Log out</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
+            </div>
             <Link href="/" className="flex items-center justify-center" prefetch={true}>
               <Image
                 src="/safetyshaper_logo.png"
