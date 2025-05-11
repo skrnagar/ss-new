@@ -1,7 +1,6 @@
-
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,6 +9,9 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabase";
 import { Send, CheckCheck, Check } from "lucide-react";
 import { format } from "date-fns";
+import Image from "next/image";
+import { ImageModal } from "@/components/ui/image-modal";
+import { useState } from "react";
 
 interface Message {
   id: string;
@@ -18,6 +20,7 @@ interface Message {
   created_at: string;
   seen: boolean;
   seen_at: string | null;
+  image_url?: string | null;
 }
 
 interface Profile {
@@ -38,6 +41,7 @@ export function ChatWindow({ conversationId, otherUser, currentUserId }: ChatWin
   const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchMessages = async () => {
@@ -54,12 +58,12 @@ export function ChatWindow({ conversationId, otherUser, currentUserId }: ChatWin
 
       setMessages(data || []);
       scrollToBottom();
-      
+
       // Mark messages as seen
       const unseenMessages = data?.filter(
         (msg) => !msg.seen && msg.sender_id !== currentUserId
       );
-      
+
       if (unseenMessages?.length) {
         await Promise.all(
           unseenMessages.map((msg) => markAsRead(msg.id))
@@ -81,7 +85,7 @@ export function ChatWindow({ conversationId, otherUser, currentUserId }: ChatWin
         const newMessage = payload.new as Message;
         setMessages((prev) => [...prev, newMessage]);
         scrollToBottom();
-        
+
         if (newMessage.sender_id !== currentUserId) {
           markAsRead(newMessage.id);
         }
@@ -155,6 +159,26 @@ export function ChatWindow({ conversationId, otherUser, currentUserId }: ChatWin
                 }`}
               >
                 <p className="break-words">{message.content}</p>
+                 {message.image_url && (
+                <>
+                  <div 
+                    className="mt-2 relative w-48 h-48 cursor-pointer"
+                    onClick={() => setSelectedImage(message.image_url)}
+                  >
+                    <Image
+                      src={message.image_url}
+                      alt="Message attachment"
+                      fill
+                      className="object-cover rounded-md hover:opacity-90 transition-opacity"
+                    />
+                  </div>
+                  <ImageModal
+                    isOpen={selectedImage === message.image_url}
+                    onClose={() => setSelectedImage(null)}
+                    imageUrl={message.image_url}
+                  />
+                </>
+              )}
                 <div className="flex items-center justify-end space-x-1 mt-1">
                   <span className="text-xs opacity-70">
                     {format(new Date(message.created_at), "HH:mm")}
