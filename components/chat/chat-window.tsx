@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useRef, useState } from "react";
@@ -32,10 +33,9 @@ interface ChatWindowProps {
   conversationId: string;
   otherUser: Profile;
   currentUserId: string;
-  user: Profile;
 }
 
-export function ChatWindow({ conversationId, otherUser, currentUserId, user }: ChatWindowProps) {
+export function ChatWindow({ conversationId, otherUser, currentUserId }: ChatWindowProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -94,7 +94,7 @@ export function ChatWindow({ conversationId, otherUser, currentUserId, user }: C
     return () => {
       subscription.unsubscribe();
     };
-  }, [conversationId, currentUserId, toast, user, otherUser]);
+  }, [conversationId, currentUserId, toast]);
 
   const scrollToBottom = () => {
     if (scrollRef.current) {
@@ -154,14 +154,10 @@ export function ChatWindow({ conversationId, otherUser, currentUserId, user }: C
           {messages.map((message) => (
             <div
               key={message.id}
-              className={`flex items-start gap-2 ${
-                message.sender_id === currentUserId ? "flex-row-reverse" : "flex-row"
+              className={`flex ${
+                message.sender_id === currentUserId ? "justify-end" : "justify-start"
               }`}
             >
-              <Avatar className="h-8 w-8 flex-shrink-0">
-                <AvatarImage src={message.sender_id === currentUserId ? user?.avatar_url : otherUser.avatar_url} />
-                <AvatarFallback>{message.sender_id === currentUserId ? user?.full_name?.[0] : otherUser.full_name[0]}</AvatarFallback>
-              </Avatar>
               <div
                 className={`max-w-[70%] rounded-lg p-3 ${
                   message.sender_id === currentUserId
