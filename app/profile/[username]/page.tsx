@@ -86,7 +86,7 @@ export default async function ProfilePage({ params }: { params: { username: stri
                   ) : (
                     <>
                       <Button className="flex-1" asChild>
-                        <Link href={`/messages/${profile.id}`}>
+                        <Link href={`/messages?userId=${profile.id}`}>
                           <MessageSquare className="h-4 w-4 mr-2" />
                           Message
                         </Link>

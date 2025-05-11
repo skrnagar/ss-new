@@ -233,7 +233,7 @@ export default function ConnectionsPage() {
                   </div>
                   <div className="flex gap-2">
                     <Button variant="outline" size="sm" asChild>
-                      <Link href={`/messages/${connection.profile.id}`}>
+                      <Link href={`/messages?userId=${connection.profile.id}`}>
                         <MessageSquare className="h-4 w-4 mr-2" />
                         Message
                       </Link>

@@ -418,7 +418,7 @@ export default function NetworkPage() {
                       </div>
                       <div className="flex gap-2">
                         <Button variant="outline" size="sm" asChild>
-                          <Link href={`/messages/${connection.profile.id}`}>Message</Link>
+                          <Link href={`/messages?userId=${connection.profile.id}`}>Message</Link>
                         </Button>
                         <Button
                           variant="ghost"
