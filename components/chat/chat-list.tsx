@@ -50,30 +50,44 @@ export function ChatList({ initialUserId }: ChatListProps) {
 
   const fetchConversations = async () => {
     const { data, error } = await supabase
-      .from("conversations")
+      .from("conversation_participants")
       .select(`
-        id,
-        messages (
-          content,
-          created_at,
-          seen,
-          sender_id
-        ),
-        conversation_participants!inner (
-          profiles!inner (
-            id,
-            full_name,
-            avatar_url
+        conversation:conversations!inner (
+          id,
+          messages (
+            content,
+            created_at,
+            seen,
+            sender_id
+          ),
+          conversation_participants!inner (
+            profiles!inner (
+              id,
+              full_name,
+              avatar_url
+            )
           )
         )
       `)
+      .eq('profile_id', user?.id)
       .order('created_at', { ascending: false });
 
     if (!error && data) {
-      // Remove duplicates by conversation ID
-      const uniqueConversations = Array.from(new Map(data.map(conv => [conv.id, conv])).values());
+      const formattedConversations = data.map((item) => ({
+        id: item.conversation.id,
+        participants: item.conversation.conversation_participants
+          .map((p) => p.profiles)
+          .filter((p) => p.id !== user?.id),
+        last_message: item.conversation.messages[0],
+      }));
+
+      const uniqueConversations = Array.from(
+        new Map(formattedConversations.map(conv => [conv.id, conv])).values()
+      );
       
-      const formattedConversations = uniqueConversations.map((conv) => ({
+      setConversations(uniqueConversations);
+    }
+  };
         id: conv.id,
         participants: conv.conversation_participants
           .map((p) => p.profiles)
