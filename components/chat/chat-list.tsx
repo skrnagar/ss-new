@@ -159,19 +159,9 @@ export function ChatList({ initialUserId }: ChatListProps) {
     }
 
     if (newConversation?.id) {
-      const participantPromises = [user.id, userId].map(id =>
-        supabase
-          .from("conversation_participants")
-          .insert({
-            conversation_id: newConversation.id,
-            profile_id: id
-          })
-      );
-
-      await Promise.all(participantPromises);
-      await fetchConversations();
       setSelectedConversation(newConversation.id);
       setIsModalOpen(false);
+      await fetchConversations();
     }
   };
 
