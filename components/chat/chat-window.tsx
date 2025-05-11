@@ -1,17 +1,17 @@
+
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabase";
-import { Send, CheckCheck, Check } from "lucide-react";
+import { Send, CheckCheck, Check, ArrowLeft } from "lucide-react";
 import { format } from "date-fns";
 import Image from "next/image";
 import { ImageModal } from "@/components/ui/image-modal";
-import { useState } from "react";
 
 interface Message {
   id: string;
@@ -39,9 +39,9 @@ export function ChatWindow({ conversationId, otherUser, currentUserId }: ChatWin
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchMessages = async () => {
@@ -59,7 +59,6 @@ export function ChatWindow({ conversationId, otherUser, currentUserId }: ChatWin
       setMessages(data || []);
       scrollToBottom();
 
-      // Mark messages as seen
       const unseenMessages = data?.filter(
         (msg) => !msg.seen && msg.sender_id !== currentUserId
       );
@@ -95,7 +94,7 @@ export function ChatWindow({ conversationId, otherUser, currentUserId }: ChatWin
     return () => {
       subscription.unsubscribe();
     };
-  }, [conversationId, currentUserId]);
+  }, [conversationId, currentUserId, toast]);
 
   const scrollToBottom = () => {
     if (scrollRef.current) {
@@ -141,13 +140,14 @@ export function ChatWindow({ conversationId, otherUser, currentUserId }: ChatWin
           >
             <ArrowLeft className="h-4 w-4" />
           </Button>
-        <Avatar className="h-10 w-10">
-          <AvatarImage src={otherUser.avatar_url} />
-          <AvatarFallback>{otherUser.full_name[0]}</AvatarFallback>
-        </Avatar>
-        <div>
-          <h3 className="font-semibold">{otherUser.full_name}</h3>
-          <p className="text-sm text-muted-foreground">Active now</p>
+          <Avatar className="h-10 w-10">
+            <AvatarImage src={otherUser.avatar_url} />
+            <AvatarFallback>{otherUser.full_name[0]}</AvatarFallback>
+          </Avatar>
+          <div>
+            <h3 className="font-semibold">{otherUser.full_name}</h3>
+            <p className="text-sm text-muted-foreground">Active now</p>
+          </div>
         </div>
       </div>
 
@@ -168,26 +168,26 @@ export function ChatWindow({ conversationId, otherUser, currentUserId }: ChatWin
                 }`}
               >
                 <p className="break-words">{message.content}</p>
-                 {message.image_url && (
-                <>
-                  <div 
-                    className="mt-2 relative w-48 h-48 cursor-pointer"
-                    onClick={() => setSelectedImage(message.image_url)}
-                  >
-                    <Image
-                      src={message.image_url}
-                      alt="Message attachment"
-                      fill
-                      className="object-cover rounded-md hover:opacity-90 transition-opacity"
+                {message.image_url && (
+                  <>
+                    <div 
+                      className="mt-2 relative w-48 h-48 cursor-pointer"
+                      onClick={() => setSelectedImage(message.image_url)}
+                    >
+                      <Image
+                        src={message.image_url}
+                        alt="Message attachment"
+                        fill
+                        className="object-cover rounded-md hover:opacity-90 transition-opacity"
+                      />
+                    </div>
+                    <ImageModal
+                      isOpen={selectedImage === message.image_url}
+                      onClose={() => setSelectedImage(null)}
+                      imageUrl={message.image_url}
                     />
-                  </div>
-                  <ImageModal
-                    isOpen={selectedImage === message.image_url}
-                    onClose={() => setSelectedImage(null)}
-                    imageUrl={message.image_url}
-                  />
-                </>
-              )}
+                  </>
+                )}
                 <div className="flex items-center justify-end space-x-1 mt-1">
                   <span className="text-xs opacity-70">
                     {format(new Date(message.created_at), "HH:mm")}
