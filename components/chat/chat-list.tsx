@@ -103,11 +103,11 @@ export function ChatList() {
         )
       `)
       .eq("profile_id", user.id)
-      .eq("conversations.type", "direct")
-      .eq("conversations.conversation_id", supabase
-        .from("conversation_participants")
-        .select("conversation_id")
-        .eq("profile_id", userId)
+      .in("conversation_id", 
+        supabase
+          .from("conversation_participants")
+          .select("conversation_id")
+          .eq("profile_id", userId)
       );
 
     if (existing && existing.length > 0) {
@@ -118,10 +118,10 @@ export function ChatList() {
     const { data: newConversation, error: conversationError } = await supabase
       .from("conversations")
       .insert({
-        type: "direct",
-        created_by: user.id
+        created_by: user.id,
+        type: "direct"
       })
-      .select()
+      .select("id")
       .single();
 
     if (conversationError || !newConversation) {
