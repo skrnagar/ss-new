@@ -27,7 +27,11 @@ interface Conversation {
   };
 }
 
-export function ChatList() {
+interface ChatListProps {
+  initialUserId?: string | null;
+}
+
+export function ChatList({ initialUserId }: ChatListProps) {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -38,7 +42,11 @@ export function ChatList() {
     if (!user) return;
     fetchConversations();
     subscribeToUpdates();
-  }, [user?.id]);
+    
+    if (initialUserId) {
+      startNewConversation(initialUserId);
+    }
+  }, [user?.id, initialUserId]);
 
   const fetchConversations = async () => {
     const { data, error } = await supabase
@@ -150,20 +158,20 @@ export function ChatList() {
       console.error("Error adding participants:", error);
     }
 
-    if (data && !error) {
-      await Promise.all([
-        supabase.from("conversation_participants").insert({
-          conversation_id: data.id,
-          profile_id: user.id,
-        }),
-        supabase.from("conversation_participants").insert({
-          conversation_id: data.id,
-          profile_id: userId,
-        }),
-      ]);
+    if (newConversation?.id) {
+      const participantPromises = [user.id, userId].map(id =>
+        supabase
+          .from("conversation_participants")
+          .insert({
+            conversation_id: newConversation.id,
+            profile_id: id
+          })
+      );
 
-      setSelectedConversation(data.id);
-      fetchConversations();
+      await Promise.all(participantPromises);
+      await fetchConversations();
+      setSelectedConversation(newConversation.id);
+      setIsModalOpen(false);
     }
   };
 
