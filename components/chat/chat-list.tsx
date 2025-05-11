@@ -88,9 +88,6 @@ export function ChatList({ initialUserId }: ChatListProps) {
       setConversations(uniqueConversations);
     }
   };
-        id: conv.id,
-        participants: conv.conversation_participants
-          .map((p) => p.profiles)
           .filter((p) => p.id !== user?.id),
         last_message: conv.messages[0],
       }));
