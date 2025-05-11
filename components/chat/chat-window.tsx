@@ -131,7 +131,16 @@ export function ChatWindow({ conversationId, otherUser, currentUserId }: ChatWin
 
   return (
     <div className="flex flex-col h-full bg-white">
-      <div className="flex items-center space-x-4 p-4 border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
+      <div className="flex items-center justify-between p-4 border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
+        <div className="flex items-center space-x-4">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="md:hidden"
+            onClick={() => window.history.back()}
+          >
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
         <Avatar className="h-10 w-10">
           <AvatarImage src={otherUser.avatar_url} />
           <AvatarFallback>{otherUser.full_name[0]}</AvatarFallback>

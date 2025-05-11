@@ -183,6 +183,8 @@ export function ChatList({ initialUserId }: ChatListProps) {
   return (
     <div className="flex h-[calc(100vh-4rem)] bg-white relative">
       <div className={`${selectedConversation ? 'hidden md:flex' : 'flex'} w-full md:w-[320px] border-r flex-col`}>
+        <div className="flex items-center p-4 border-b">
+          <h2 className="text-xl font-semibold">Messages</h2>
         <div className="p-4 border-b">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold">Messages</h2>
