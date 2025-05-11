@@ -11,7 +11,7 @@ import { UserSearchModal } from "./user-search-modal";
 import { ChatWindow } from "@/components/chat/chat-window";
 import { supabase } from "@/lib/supabase";
 import { format } from "date-fns";
-import { Search, Plus, MessageCircle } from "lucide-react";
+import { Search, Plus, MessageCircle, ArrowLeft } from "lucide-react";
 
 interface Conversation {
   id: string;
@@ -183,8 +183,6 @@ export function ChatList({ initialUserId }: ChatListProps) {
   return (
     <div className="flex h-[calc(100vh-4rem)] bg-white relative">
       <div className={`${selectedConversation ? 'hidden md:flex' : 'flex'} w-full md:w-[320px] border-r flex-col`}>
-        <div className="flex items-center p-4 border-b">
-          <h2 className="text-xl font-semibold">Messages</h2>
         <div className="p-4 border-b">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold">Messages</h2>
@@ -266,7 +264,7 @@ export function ChatList({ initialUserId }: ChatListProps) {
               onClick={() => setSelectedConversation(null)}
               className="md:hidden absolute top-4 left-4 z-10"
             >
-              ← Back
+              <ArrowLeft className="h-4 w-4" />
             </button>
             <ChatWindow
               conversationId={selectedConversation}
