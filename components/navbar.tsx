@@ -99,18 +99,51 @@ export const Navbar = memo(function Navbar() {
   return (
     <header className="sticky top-0 z-40 border-b bg-white">
       <div className="container flex h-16 items-center justify-between py-4">
-        <div className="flex items-center gap-4">
-          <Link href="/" className="flex items-center" prefetch={true}>
-            <Image
-              src="/safetyshaper_logo.png"
-              alt="Safety Shaper Logo"
-              width={65}
-              height={30}
-              className="mr-2 h-8 w-8 transition-transform hover:scale-105"
-              style={{ width: "auto", height: "auto" }}
-              priority
-            />
-          </Link>
+        {isMobile ? (
+          <>
+            <Button variant="ghost" className="relative h-8 w-8 md:h-10 md:w-10 rounded-full">
+              <Avatar className="h-8 w-8">
+                <AvatarImage
+                  src={user?.profile?.avatar_url || user?.user_metadata?.avatar_url || ""}
+                  alt={user?.profile?.full_name || user?.user_metadata?.full_name || "User"}
+                />
+                <AvatarFallback>
+                  {getInitials(user?.profile?.full_name || user?.user_metadata?.full_name || "")}
+                </AvatarFallback>
+              </Avatar>
+            </Button>
+            <Link href="/" className="flex items-center justify-center" prefetch={true}>
+              <Image
+                src="/safetyshaper_logo.png"
+                alt="Safety Shaper Logo"
+                width={65}
+                height={30}
+                className="h-8 w-8 transition-transform hover:scale-105"
+                style={{ width: "auto", height: "auto" }}
+                priority
+              />
+            </Link>
+            <div className="flex items-center gap-2">
+              <Link href="/messages">
+                <Button variant="ghost" size="icon" aria-label="Messages">
+                  <MessageCircle className="h-5 w-5" />
+                </Button>
+              </Link>
+            </div>
+          </>
+        ) : (
+          <div className="flex items-center gap-4">
+            <Link href="/" className="flex items-center" prefetch={true}>
+              <Image
+                src="/safetyshaper_logo.png"
+                alt="Safety Shaper Logo"
+                width={65}
+                height={30}
+                className="mr-2 h-8 w-8 transition-transform hover:scale-105"
+                style={{ width: "auto", height: "auto" }}
+                priority
+              />
+            </Link>
 
           {user && !isMobile && (
             <NavigationMenu>
@@ -348,6 +381,7 @@ export const Navbar = memo(function Navbar() {
             </div>
           )}
         </div>
+      </div>
       </div>
     </header>
   );
