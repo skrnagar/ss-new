@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -181,22 +180,17 @@ export const Navbar = memo(function Navbar() {
         )}
 
         <div className="flex items-center gap-4">
-          {!isMobile && (
-            <div className="relative">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                type="search"
-                placeholder="Search..."
-                className="w-[200px] md:w-[300px] pl-8 rounded-full bg-muted/70 focus-visible:ring-primary transition-all focus-visible:bg-muted"
-              />
-            </div>
-          )}
-
-          {user ? (
-            <div className="flex items-center gap-4">
-              {!isMobile && (
-                <>
-                  <NavigationMenu>
+            {!isMobile && (
+              <>
+                <div className="relative">
+                  <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    type="search"
+                    placeholder="Search..."
+                    className="w-[200px] md:w-[300px] pl-8 rounded-full bg-muted/70 focus-visible:ring-primary transition-all focus-visible:bg-muted"
+                  />
+                </div>
+                <NavigationMenu>
                     <NavigationMenuList>
                       <NavigationMenuItem>
                         <NavigationMenuTrigger>
@@ -284,6 +278,8 @@ export const Navbar = memo(function Navbar() {
                 </>
               )}
 
+              {user ? (
+            <div className="flex items-center gap-4">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-8 w-8 md:h-10 md:w-10 rounded-full">
