@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -42,17 +43,14 @@ import { useRouter } from "next/navigation";
 import { memo, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
 
-// Memoize the Navbar component to prevent unnecessary re-renders
 export const Navbar = memo(function Navbar() {
   const router = useRouter();
   const { toast } = useToast();
   const isMobile = useMobile();
   const { user, isLoading } = useAuth();
 
-  // Memoize handler functions to prevent recreation on every render
   const handleSignOut = useCallback(async () => {
     try {
-      // Call server endpoint first to clear cookies
       const response = await fetch("/api/auth/signout", {
         method: "POST",
         headers: {
@@ -64,19 +62,15 @@ export const Navbar = memo(function Navbar() {
         throw new Error("Server sign out failed");
       }
 
-      // Then sign out from Supabase client
       await supabase.auth.signOut();
 
       toast({
         title: "Signed out successfully",
       });
 
-      // Force page reload to clear all client state
       window.location.href = "/";
-
     } catch (error) {
       console.error("Sign out error:", error);
-      // Still redirect on error to ensure user is logged out
       window.location.href = "/";
     }
   }, [toast]);
@@ -95,6 +89,10 @@ export const Navbar = memo(function Navbar() {
     if (!user) return "User";
     return user?.user_metadata?.name || user?.email?.split("@")[0] || "User";
   }, [user]);
+
+  if (isLoading) {
+    return null;
+  }
 
   return (
     <header className="sticky top-0 z-40 border-b bg-white">
@@ -145,41 +143,42 @@ export const Navbar = memo(function Navbar() {
               />
             </Link>
 
-          {user && !isMobile && (
-            <NavigationMenu>
-              <NavigationMenuList>
-                <NavigationMenuItem>
-                  <Link href="/feed" legacyBehavior passHref prefetch={true}>
-                    <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                      Home
-                    </NavigationMenuLink>
-                  </Link>
-                </NavigationMenuItem>
-                <NavigationMenuItem>
-                  <Link href="/knowledge" legacyBehavior passHref prefetch={true}>
-                    <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                      Knowledge Hub
-                    </NavigationMenuLink>
-                  </Link>
-                </NavigationMenuItem>
-                <NavigationMenuItem>
-                  <Link href="/learning" legacyBehavior passHref prefetch={true}>
-                    <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                      Learning
-                    </NavigationMenuLink>
-                  </Link>
-                </NavigationMenuItem>
-                <NavigationMenuItem>
-                  <Link href="/articles" legacyBehavior passHref prefetch={true}>
-                    <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                      Articles
-                    </NavigationMenuLink>
-                  </Link>
-                </NavigationMenuItem>
-              </NavigationMenuList>
-            </NavigationMenu>
-          )}
-        </div>
+            {user && !isMobile && (
+              <NavigationMenu>
+                <NavigationMenuList>
+                  <NavigationMenuItem>
+                    <Link href="/feed" legacyBehavior passHref prefetch={true}>
+                      <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                        Home
+                      </NavigationMenuLink>
+                    </Link>
+                  </NavigationMenuItem>
+                  <NavigationMenuItem>
+                    <Link href="/knowledge" legacyBehavior passHref prefetch={true}>
+                      <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                        Knowledge Hub
+                      </NavigationMenuLink>
+                    </Link>
+                  </NavigationMenuItem>
+                  <NavigationMenuItem>
+                    <Link href="/learning" legacyBehavior passHref prefetch={true}>
+                      <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                        Learning
+                      </NavigationMenuLink>
+                    </Link>
+                  </NavigationMenuItem>
+                  <NavigationMenuItem>
+                    <Link href="/articles" legacyBehavior passHref prefetch={true}>
+                      <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                        Articles
+                      </NavigationMenuLink>
+                    </Link>
+                  </NavigationMenuItem>
+                </NavigationMenuList>
+              </NavigationMenu>
+            )}
+          </div>
+        )}
 
         <div className="flex items-center gap-4">
           {!isMobile && (
@@ -241,9 +240,7 @@ export const Navbar = memo(function Navbar() {
                                 href="/groups"
                                 className="flex items-center gap-2 p-2 rounded-md hover:bg-muted transition-colors"
                               >
-                                <div className="relative">
-                                  <Users className="h-4 w-4 text-primary" />
-                                </div>
+                                <Users className="h-4 w-4 text-primary" />
                                 <div>
                                   <div className="font-medium">Groups</div>
                                   <p className="text-xs text-muted-foreground">
@@ -255,9 +252,7 @@ export const Navbar = memo(function Navbar() {
                                 href="/events"
                                 className="flex items-center gap-2 p-2 rounded-md hover:bg-muted transition-colors"
                               >
-                                <div className="relative">
-                                  <Calendar className="h-4 w-4 text-primary" />
-                                </div>
+                                <Calendar className="h-4 w-4 text-primary" />
                                 <div>
                                   <div className="font-medium">Events</div>
                                   <p className="text-xs text-muted-foreground">
@@ -306,10 +301,14 @@ export const Navbar = memo(function Navbar() {
                 <DropdownMenuContent className="w-56" align="end" forceMount>
                   <DropdownMenuLabel className="font-normal">
                     <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium leading-none">{user?.profile?.full_name || user?.user_metadata?.full_name || getUserName()}</p>
+                      <p className="text-sm font-medium leading-none">
+                        {user?.profile?.full_name || user?.user_metadata?.full_name || getUserName()}
+                      </p>
                       <p className="text-xs leading-none text-muted-foreground">{user?.email}</p>
                       {user?.profile?.headline && (
-                        <p className="text-xs leading-none text-muted-foreground mt-1">{user.profile.headline}</p>
+                        <p className="text-xs leading-none text-muted-foreground mt-1">
+                          {user.profile.headline}
+                        </p>
                       )}
                     </div>
                   </DropdownMenuLabel>
@@ -334,15 +333,13 @@ export const Navbar = memo(function Navbar() {
                       </Link>
                     </DropdownMenuItem>
                     {isMobile && (
-                      <DropdownMenuItem asChild>
-                        <Link href="/jobs" className="cursor-pointer">
-                          <Briefcase className="mr-2 h-4 w-4" />
-                          <span>Jobs</span>
-                        </Link>
-                      </DropdownMenuItem>
-                    )}
-                    {isMobile && (
                       <>
+                        <DropdownMenuItem asChild>
+                          <Link href="/jobs" className="cursor-pointer">
+                            <Briefcase className="mr-2 h-4 w-4" />
+                            <span>Jobs</span>
+                          </Link>
+                        </DropdownMenuItem>
                         <DropdownMenuItem asChild>
                           <Link href="/messages" className="cursor-pointer">
                             <MessageCircle className="mr-2 h-4 w-4" />
@@ -367,21 +364,16 @@ export const Navbar = memo(function Navbar() {
               </DropdownMenu>
             </div>
           ) : (
-            <div>
-
-                <div className="flex items-center gap-2">
-                  <Button asChild variant="outline" className="bg-white text-black ">
-                    <Link href="/auth/login">Log in</Link>
-                  </Button>
-                  <Button asChild className="bg-primary text-white hover:bg-primary/90">
-                    <Link href="/auth/register">Sign Up</Link>
-                  </Button>
-                </div>
-
+            <div className="flex items-center gap-2">
+              <Button asChild variant="outline" className="bg-white text-black">
+                <Link href="/auth/login">Log in</Link>
+              </Button>
+              <Button asChild className="bg-primary text-white hover:bg-primary/90">
+                <Link href="/auth/register">Sign Up</Link>
+              </Button>
             </div>
           )}
         </div>
-      </div>
       </div>
     </header>
   );
