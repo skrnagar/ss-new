@@ -180,8 +180,8 @@ export function ChatList({ initialUserId }: ChatListProps) {
     : null;
 
   return (
-    <div className="flex h-[calc(100vh-4rem)] bg-white">
-      <div className="w-[320px] border-r flex flex-col">
+    <div className="flex h-[calc(100vh-4rem)] bg-white relative">
+      <div className={`${selectedConversation ? 'hidden md:flex' : 'flex'} w-full md:w-[320px] border-r flex-col`}>
         <div className="p-4 border-b">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold">Messages</h2>
@@ -256,8 +256,15 @@ export function ChatList({ initialUserId }: ChatListProps) {
         </ScrollArea>
       </div>
 
-      <div className="flex-1">
+      <div className={`flex-1 ${!selectedConversation ? 'hidden md:block' : 'block'}`}>
         {selectedConversation && otherUser ? (
+          <>
+            <button 
+              onClick={() => setSelectedConversation(null)}
+              className="md:hidden absolute top-4 left-4 z-10"
+            >
+              ← Back
+            </button>
           <ChatWindow
             conversationId={selectedConversation}
             otherUser={otherUser}
