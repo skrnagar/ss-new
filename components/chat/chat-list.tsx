@@ -70,7 +70,10 @@ export function ChatList({ initialUserId }: ChatListProps) {
       .order('created_at', { ascending: false });
 
     if (!error && data) {
-      const formattedConversations = data.map((conv) => ({
+      // Remove duplicates by conversation ID
+      const uniqueConversations = Array.from(new Map(data.map(conv => [conv.id, conv])).values());
+      
+      const formattedConversations = uniqueConversations.map((conv) => ({
         id: conv.id,
         participants: conv.conversation_participants
           .map((p) => p.profiles)
