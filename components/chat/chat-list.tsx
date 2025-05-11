@@ -94,18 +94,20 @@ export function ChatList() {
     if (!user) return;
     
     const { data: existing } = await supabase
-      .from("conversations")
-      .select("id")
-      .eq("type", "direct")
-      .filter("id", "in", (qb) => 
-        qb.from("conversation_participants")
-          .select("conversation_id")
-          .eq("profile_id", user.id)
-      )
-      .filter("id", "in", (qb) => 
-        qb.from("conversation_participants")
-          .select("conversation_id")
-          .eq("profile_id", userId)
+      .from("conversation_participants")
+      .select(`
+        conversation_id,
+        conversations!inner (
+          id,
+          type
+        )
+      `)
+      .eq("profile_id", user.id)
+      .eq("conversations.type", "direct")
+      .eq("conversations.conversation_id", supabase
+        .from("conversation_participants")
+        .select("conversation_id")
+        .eq("profile_id", userId)
       );
 
     if (existing && existing.length > 0) {
@@ -113,7 +115,7 @@ export function ChatList() {
       return;
     }
 
-    const { data, error } = await supabase
+    const { data: newConversation, error: conversationError } = await supabase
       .from("conversations")
       .insert({
         type: "direct",
@@ -121,6 +123,28 @@ export function ChatList() {
       })
       .select()
       .single();
+
+    if (conversationError || !newConversation) {
+      console.error("Error creating conversation:", conversationError);
+      return;
+    }
+
+    const participantPromises = [user.id, userId].map(id =>
+      supabase
+        .from("conversation_participants")
+        .insert({
+          conversation_id: newConversation.id,
+          profile_id: id
+        })
+    );
+
+    try {
+      await Promise.all(participantPromises);
+      setSelectedConversation(newConversation.id);
+      await fetchConversations();
+    } catch (error) {
+      console.error("Error adding participants:", error);
+    }
 
     if (data && !error) {
       await Promise.all([
