@@ -103,16 +103,18 @@ export function ChatList() {
         )
       `)
       .eq("profile_id", user.id)
-      .eq("conversations.type", "direct")
-      .in("conversation_id", async (qb) => {
-        const { data } = await supabase
-          .from("conversation_participants")
-          .select("conversation_id")
-          .eq("profile_id", userId);
-        return data?.map(d => d.conversation_id) || [];
-      });
+      .eq("conversations.type", "direct");
 
-    if (existing && existing.length > 0) {
+    const { data: otherParticipant } = await supabase
+      .from("conversation_participants")
+      .select("conversation_id")
+      .eq("profile_id", userId);
+
+    const existingConversation = existing?.filter(conv => 
+      otherParticipant?.some(p => p.conversation_id === conv.conversation_id)
+    );
+
+    if (existingConversation && existingConversation.length > 0) {
       setSelectedConversation(existing[0].id);
       return;
     }
