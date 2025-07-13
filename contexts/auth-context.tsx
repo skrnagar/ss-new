@@ -35,13 +35,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     user: User | null;
     profile: Profile | null;
   }>({ user: null, profile: null });
+  const [loading, setLoading] = useState(true); // NEW loading state
 
   const memoizedAuthValue = useMemo(() => ({
     user: authState.user,
     profile: authState.profile,
-    isLoading: !authState.user && !authState.profile,
+    isLoading: loading, // Use the new loading state
     isAuthenticated: !!authState.user
-  }), [authState]);
+  }), [authState, loading]);
 
   // Function to fetch profile data
   const fetchProfile = async (userId: string) => {
@@ -100,6 +101,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         }
       } catch (error) {
         console.error("Error initializing auth:", error);
+      } finally {
+        setLoading(false); // Set loading to false after initial check
       }
     };
 
@@ -120,6 +123,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       } else {
         setAuthState((prev) => ({ ...prev, profile: null }));
       }
+      setLoading(false); // Set loading to false after auth state change
     });
 
     // Cleanup subscription
