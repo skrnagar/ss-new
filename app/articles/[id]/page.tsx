@@ -25,9 +25,9 @@ export default function ArticlePage() {
   const router = useRouter();
   const [article, setArticle] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [comments, setComments] = useState([]);
+  const [comments, setComments] = useState<any[]>([]);
   const [newComment, setNewComment] = useState("");
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<any>(null);
   const [claps, setClaps] = useState(0);
   const [isAuthor, setIsAuthor] = useState(false); // Added state for author check
 
@@ -65,7 +65,7 @@ export default function ArticlePage() {
     fetchData();
   }, [id]);
 
-  const handleSubmitComment = async (e) => {
+  const handleSubmitComment = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!newComment.trim() || !user) return;
 

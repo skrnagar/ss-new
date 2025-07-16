@@ -34,3 +34,4 @@ async function runChatSchema() {
 }
 
 runChatSchema();
+export {}

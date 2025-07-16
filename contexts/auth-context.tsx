@@ -133,7 +133,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ ...memoizedAuthValue, refreshProfile }}>
+    <AuthContext.Provider value={{ ...memoizedAuthValue, session: (authState as any).session, refreshProfile }}>
       {children}
     </AuthContext.Provider>
   );

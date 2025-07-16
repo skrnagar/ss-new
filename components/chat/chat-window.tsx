@@ -170,7 +170,7 @@ export function ChatWindow({ conversationId, otherUser, currentUserId }: ChatWin
                   <>
                     <div 
                       className="mt-2 relative w-48 h-48 cursor-pointer"
-                      onClick={() => setSelectedImage(message.image_url)}
+                      onClick={() => setSelectedImage(message.image_url || null)}
                     >
                       <Image
                         src={message.image_url}

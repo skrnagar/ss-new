@@ -91,7 +91,7 @@ export default async function ProfilePage({ params }: { params: { username: stri
                           Message
                         </Link>
                       </Button>
-                      <ConnectButton userId={session.user.id} profileId={profile.id} />
+                      {session && <ConnectButton userId={session.user.id} profileId={profile.id} />}
                     </>
                   )}
                 </div>

@@ -23,12 +23,19 @@ export function UserActivity({ userId, isOwnProfile }: UserActivityProps) {
     created_at: string;
     content?: string;
     post_id?: string;
+    data?: any;
   }
 
   interface Post {
     id: string;
     content: string;
     created_at: string;
+    profile?: {
+      id: string;
+      full_name?: string;
+      avatar_url?: string;
+    };
+    image_url?: string;
   }
 
   const [activities, setActivities] = useState<Activity[]>([]);
@@ -76,11 +83,13 @@ export function UserActivity({ userId, isOwnProfile }: UserActivityProps) {
         // Combine and sort activities
         const allActivities = [
           ...comments.map((comment) => ({
+            id: comment.id,
             type: "comment",
             created_at: comment.created_at,
             data: comment,
           })),
           ...likes.map((like) => ({
+            id: like.id,
             type: "like",
             created_at: like.created_at,
             data: like,

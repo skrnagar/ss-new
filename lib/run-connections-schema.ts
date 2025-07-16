@@ -12,11 +12,9 @@ async function main() {
     const { error } = await supabase.from("connections").select("id").limit(1);
 
     if (error?.message.includes('relation "connections" does not exist')) {
-      const { error: schemaError } = await supabase.sql(schema);
-      if (schemaError) {
-        throw schemaError;
-      }
-      console.log("Successfully created connections schema");
+      // Schema migrations must be run using the Supabase SQL editor, CLI, or a Postgres client (e.g., pg), not the Supabase JS client.
+      // Please run the contents of lib/connections-schema.sql manually in your Supabase project if the table does not exist.
+      throw new Error('Connections table does not exist. Please run the schema migration manually.');
     } else {
       console.log("Connections table already exists");
     }

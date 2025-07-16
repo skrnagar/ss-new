@@ -5,12 +5,14 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useAuth } from "@/contexts/auth-context";
 import { supabase } from "@/lib/supabase";
+import { useToast } from "@/hooks/use-toast";
 import { MessageSquare, UserMinus, UserPlus } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
 export default function ConnectionsPage() {
   const { user } = useAuth();
+  const { toast } = useToast();
   const [connections, setConnections] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [pendingRequests, setPendingRequests] = useState<any[]>([]);
@@ -33,9 +35,10 @@ export default function ConnectionsPage() {
 
   const handleShowMutualConnections = async (profileId: string) => {
     // Fetch mutual connections
-    const mutuals = await fetchMutualConnections(profileId);
-    setSelectedMutualConnections(mutuals);
-    setShowMutualConnections(true);
+    // TODO: Implement fetchMutualConnections function
+    // const mutuals = await fetchMutualConnections(profileId);
+    // setSelectedMutualConnections(mutuals);
+    // setShowMutualConnections(true);
   };
 
   useEffect(() => {

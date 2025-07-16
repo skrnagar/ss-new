@@ -35,3 +35,4 @@ async function setupArticlesSchema() {
 }
 
 setupArticlesSchema();
+export {}

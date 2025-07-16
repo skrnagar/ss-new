@@ -279,7 +279,7 @@ export default async function Home() {
                 <p className="text-muted-foreground mb-4">Best practices and frameworks for ESG compliance, reporting standards, and implementation strategies.</p>
                 <div className="flex flex-wrap gap-2">
                   <Badge >ESG</Badge>
-                  <Badge variant="primary">Compliance</Badge>
+                  <Badge variant="default">Compliance</Badge>
                   <Badge variant="secondary">Reporting</Badge>
                 </div>
               </Link>
@@ -303,9 +303,9 @@ export default async function Home() {
                 <h3 className="text-xl font-semibold mb-2 group-hover:text-primary">Sustainable Operations</h3>
                 <p className="text-muted-foreground mb-4">Implementing sustainable practices in operations, reducing environmental impact, and promoting circular economy.</p>
                 <div className="flex flex-wrap gap-2">
-                  <Badge variant="primary">Sustainability</Badge>
+                  <Badge variant="default">Sustainability</Badge>
                   <Badge variant="secondary">Operations</Badge>
-                  <Badge variant="primary">Environment</Badge>
+                  <Badge variant="default">Environment</Badge>
                 </div>
               </Link>
             </div>
@@ -330,7 +330,7 @@ export default async function Home() {
                 <div className="flex flex-wrap gap-2">
                   <Badge variant="secondary">Safety</Badge>
                   <Badge >Culture</Badge>
-                  <Badge variant="primary">Leadership</Badge>
+                  <Badge variant="default">Leadership</Badge>
                 </div>
               </Link>
             </div>

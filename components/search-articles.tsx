@@ -8,8 +8,8 @@ import Link from "next/link";
 
 export function SearchArticles() {
   const [query, setQuery] = useState('');
-  const [articles, setArticles] = useState([]);
-  const [trendingTags, setTrendingTags] = useState([]);
+  const [articles, setArticles] = useState<any[]>([]);
+  const [trendingTags, setTrendingTags] = useState<any[]>([]);
 
   useEffect(() => {
     fetchTrendingTags();

@@ -265,9 +265,8 @@ export function PostCreator({ isDialog = false, onSuccess }: PostCreatorProps) {
       }
 
       // Navigate to feed page and refresh data
-      router.push('/feed').then(() => {
-        router.refresh();
-      });
+      router.push('/feed');
+      router.refresh();
     } catch (error) {
       console.error("Error creating post:", error);
       toast({

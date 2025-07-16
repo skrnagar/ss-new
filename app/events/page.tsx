@@ -109,6 +109,7 @@ export default function EventsPage() {
               description:
                 "Annual conference discussing workplace safety best practices and innovations.",
               start_date: "2025-03-04",
+              date: "2025-03-04", // added
               location: "Virtual Event",
               image_url: "/placeholder.jpg",
               category: "Safety",
@@ -125,6 +126,7 @@ export default function EventsPage() {
               title: "World Health Day Forum",
               description: "Global discussion on health priorities and challenges.",
               start_date: "2025-04-07",
+              date: "2025-04-07", // added
               location: "Geneva, Switzerland",
               image_url: "/placeholder.jpg",
               category: "Health",
@@ -141,6 +143,7 @@ export default function EventsPage() {
               title: "ESG Reporting Framework Summit",
               description: "Learn about the latest ESG reporting standards and requirements.",
               start_date: "2025-04-15",
+              date: "2025-04-15", // added
               location: "London, UK",
               image_url: "/placeholder.jpg",
               category: "Environment",
@@ -157,6 +160,7 @@ export default function EventsPage() {
               title: "Biodiversity Summit",
               description: "Global conference on protecting biodiversity and natural habitats.",
               start_date: "2025-04-22",
+              date: "2025-04-22", // added
               location: "New York, USA",
               image_url: "/placeholder.jpg",
               category: "Environment",
@@ -173,6 +177,7 @@ export default function EventsPage() {
               title: "World Day for Safety and Health at Work",
               description: "Global awareness day for preventing workplace accidents and diseases.",
               start_date: "2025-04-28",
+              date: "2025-04-28", // added
               location: "Multiple Locations",
               image_url: "/placeholder.jpg",
               category: "Safety",

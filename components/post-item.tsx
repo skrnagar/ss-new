@@ -533,11 +533,11 @@ const PostItem = memo(function PostItem({ post, currentUser }: PostItemProps) {
           {/* Image or Document attachment */}
           {(post.image_url || post.document_url) && (
             <div className="mt-3">
-              {isImageUrl(getStorageUrl(post.image_url)) ? (
+              {isImageUrl(getStorageUrl(post.image_url || null)) ? (
                 <div className="mt-3 rounded-md overflow-hidden">
                   <div className="relative w-full max-h-[500px]" style={{ aspectRatio: "16/9" }}>
                     <Image
-                      src={getStorageUrl(post.image_url) || '/placeholder.jpg'}
+                      src={getStorageUrl(post.image_url || null) || '/placeholder.jpg'}
                       alt="Post attachment"
                       width={800}
                       height={450}
@@ -555,7 +555,7 @@ const PostItem = memo(function PostItem({ post, currentUser }: PostItemProps) {
               ) : (
                 <div className="flex items-center gap-2 p-4 bg-muted rounded-lg">
                   <FileText className="h-5 w-5" />
-                  <a href={getStorageUrl(post.document_url)} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
+                  <a href={getStorageUrl(post.document_url || null) || '#'} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
                     View Document
                   </a>
                 </div>

@@ -73,12 +73,12 @@ export function ChatList({ initialUserId }: ChatListProps) {
       .order('created_at', { ascending: false });
 
     if (!error && data) {
-      const formattedConversations = data.map((item) => ({
-        id: item.conversation.id,
-        participants: item.conversation.conversation_participants
-          .map((p) => p.profiles)
-          .filter((p) => p.id !== user?.id),
-        last_message: item.conversation.messages[0],
+      const formattedConversations = data.map((item: any) => ({
+        id: item.conversation?.id || item.id,
+        participants: item.conversation?.conversation_participants
+          ?.map((p: any) => p.profiles)
+          ?.filter((p: any) => p.id !== user?.id) || [],
+        last_message: item.conversation?.messages?.[0],
       }));
 
       const uniqueConversations = Array.from(

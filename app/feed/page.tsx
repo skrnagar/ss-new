@@ -50,7 +50,7 @@ export default function FeedPage() {
     id: string;
     content: string;
     created_at: string;
-    author_id: string;
+    user_id: string;
     updated_at?: string;
   }
 
@@ -264,7 +264,21 @@ export default function FeedPage() {
           {postsLoading ? (
             <div className="space-y-4">
               {[1, 2, 3].map((i) => (
-                <PostItem key={i} post={{}} currentUser={null} />
+                <PostItem
+                  key={i}
+                  post={{
+                    id: `skeleton-${i}`,
+                    user_id: "skeleton",
+                    created_at: new Date().toISOString(),
+                    content: "",
+                    profile: {
+                      id: "skeleton",
+                      full_name: "Loading...",
+                      avatar_url: "",
+                    },
+                  }}
+                  currentUser={null}
+                />
               ))}
             </div>
           ) : (

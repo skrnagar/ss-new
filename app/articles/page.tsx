@@ -11,7 +11,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { SearchArticles } from "@/components/search-articles";
 
 export default function ArticlesPage() {
-  const [articles, setArticles] = useState([]);
+  const [articles, setArticles] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("for-you");
 

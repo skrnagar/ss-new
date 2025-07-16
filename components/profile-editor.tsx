@@ -14,7 +14,7 @@ export function ProfileEditor({ profile, onUpdate }: { profile: any; onUpdate: (
   const [position, setPosition] = useState(profile.position || "");
   const [company, setCompany] = useState(profile.company || "");
   const [location, setLocation] = useState(profile.location || "");
-  const [avatar, setAvatar] = useState(null); // Added state for avatar
+  const [avatar, setAvatar] = useState<File | null>(null); // Added state for avatar
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 

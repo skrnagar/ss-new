@@ -11,6 +11,7 @@ import { Input } from "./ui/input";
 import { supabase } from "@/lib/supabase";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
+import type { User } from "@supabase/supabase-js";
 
 interface ArticleEditorProps {
   initialContent?: string;
@@ -24,7 +25,7 @@ export function ArticleEditor({ initialContent = "", initialTitle = "", articleI
   const [coverImage, setCoverImage] = useState<File | null>(null);
   const { toast } = useToast();
   const router = useRouter();
-  const [user, setUser] = useState(null); // Assuming user object is available
+  const [user, setUser] = useState<User | null>(null); // Assuming user object is available
 
   useEffect(() => {
     const getUser = async () => {
