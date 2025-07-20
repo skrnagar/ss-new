@@ -1,13 +1,12 @@
-
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/lib/supabase";
 import Link from "next/link";
 
 export function SearchArticles() {
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState("");
   const [articles, setArticles] = useState<any[]>([]);
   const [trendingTags, setTrendingTags] = useState<any[]>([]);
 
@@ -23,15 +22,15 @@ export function SearchArticles() {
 
   const searchArticles = async () => {
     const { data, error } = await supabase
-      .from('articles')
+      .from("articles")
       .select(`
         *,
         profiles:author_id(name, avatar_url),
         tags(name)
       `)
       .or(`title.ilike.%${query}%, content.ilike.%${query}%`)
-      .eq('published', true)
-      .order('published_at', { ascending: false });
+      .eq("published", true)
+      .order("published_at", { ascending: false });
 
     if (!error && data) {
       setArticles(data);
@@ -40,9 +39,9 @@ export function SearchArticles() {
 
   const fetchTrendingTags = async () => {
     const { data, error } = await supabase
-      .from('tags')
-      .select('name, articles!articles_tags(count)')
-      .order('articles(count)', { ascending: false })
+      .from("tags")
+      .select("name, articles!articles_tags(count)")
+      .order("articles(count)", { ascending: false })
       .limit(10);
 
     if (!error && data) {
@@ -64,15 +63,13 @@ export function SearchArticles() {
         <div className="space-y-4">
           <h2 className="text-xl font-semibold">Search Results</h2>
           {articles.map((article: any) => (
-            <Link 
+            <Link
               href={`/articles/${article.id}`}
               key={article.id}
               className="block p-4 border rounded-lg hover:bg-muted"
             >
               <h3 className="font-semibold">{article.title}</h3>
-              <p className="text-sm text-muted-foreground">
-                by {article.profiles.name}
-              </p>
+              <p className="text-sm text-muted-foreground">by {article.profiles.name}</p>
             </Link>
           ))}
         </div>

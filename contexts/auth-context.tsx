@@ -37,12 +37,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }>({ user: null, profile: null });
   const [loading, setLoading] = useState(true); // NEW loading state
 
-  const memoizedAuthValue = useMemo(() => ({
-    user: authState.user,
-    profile: authState.profile,
-    isLoading: loading, // Use the new loading state
-    isAuthenticated: !!authState.user
-  }), [authState, loading]);
+  const memoizedAuthValue = useMemo(
+    () => ({
+      user: authState.user,
+      profile: authState.profile,
+      isLoading: loading, // Use the new loading state
+      isAuthenticated: !!authState.user,
+    }),
+    [authState, loading]
+  );
 
   // Function to fetch profile data
   const fetchProfile = async (userId: string) => {
@@ -133,7 +136,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ ...memoizedAuthValue, session: (authState as any).session, refreshProfile }}>
+    <AuthContext.Provider
+      value={{ ...memoizedAuthValue, session: (authState as any).session, refreshProfile }}
+    >
       {children}
     </AuthContext.Provider>
   );

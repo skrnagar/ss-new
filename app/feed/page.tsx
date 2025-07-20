@@ -13,14 +13,9 @@ import dynamic from "next/dynamic";
 import Image from "next/image";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import {
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Clock } from "lucide-react";
 import { User } from "lucide-react";
-
 
 const PostItem = dynamic(() => import("@/components/post-item").then((mod) => mod.default), {
   ssr: false,
@@ -64,13 +59,13 @@ export default function FeedPage() {
   const fetchPosts = async (cursor: string | null = null) => {
     try {
       let query = supabase
-        .from('posts')
-        .select('*, profile:profiles(*)')
-        .order('created_at', { ascending: false })
+        .from("posts")
+        .select("*, profile:profiles(*)")
+        .order("created_at", { ascending: false })
         .limit(POSTS_PER_PAGE);
 
       if (cursor) {
-        query = query.lt('created_at', cursor);
+        query = query.lt("created_at", cursor);
       }
 
       const { data, error } = await query;
@@ -78,12 +73,11 @@ export default function FeedPage() {
       if (error) throw error;
 
       const newPosts = data || [];
-      setPosts(prev => cursor ? [...prev, ...newPosts] : newPosts);
+      setPosts((prev) => (cursor ? [...prev, ...newPosts] : newPosts));
       setHasMore(newPosts.length === POSTS_PER_PAGE);
       setLastCursor(newPosts[newPosts.length - 1]?.created_at || null);
-
     } catch (error) {
-      console.error('Error fetching posts:', error);
+      console.error("Error fetching posts:", error);
     } finally {
       setPostsLoading(false);
     }
@@ -97,16 +91,16 @@ export default function FeedPage() {
   const fetchEvents = async () => {
     try {
       const { data: eventData } = await supabase
-        .from('events')
-        .select('*')
-        .eq('is_public', true)
-        .gte('start_date', new Date().toISOString())
-        .order('start_date', { ascending: true })
+        .from("events")
+        .select("*")
+        .eq("is_public", true)
+        .gte("start_date", new Date().toISOString())
+        .order("start_date", { ascending: true })
         .limit(2);
 
       setEvents(eventData || []);
     } catch (error) {
-      console.error('Error fetching events:', error);
+      console.error("Error fetching events:", error);
     }
   };
 
@@ -115,23 +109,23 @@ export default function FeedPage() {
     try {
       // Get existing connections to exclude them
       const { data: connections } = await supabase
-        .from('connections')
-        .select('connected_user_id')
-        .eq('user_id', user.id);
+        .from("connections")
+        .select("connected_user_id")
+        .eq("user_id", user.id);
 
-      const connectedIds = connections?.map(c => c.connected_user_id) || [];
+      const connectedIds = connections?.map((c) => c.connected_user_id) || [];
       connectedIds.push(user.id); // Add current user to excluded list
 
       // Get suggested profiles
       const { data: profiles } = await supabase
-        .from('profiles')
-        .select('*')
-        .not('id', 'in', `(${connectedIds.join(',')})`)
+        .from("profiles")
+        .select("*")
+        .not("id", "in", `(${connectedIds.join(",")})`)
         .limit(3);
 
       setSuggestions(profiles || []);
     } catch (error) {
-      console.error('Error fetching suggestions:', error);
+      console.error("Error fetching suggestions:", error);
     }
   };
 
@@ -139,15 +133,13 @@ export default function FeedPage() {
     if (!user) return;
     try {
       await supabase
-        .from('connections')
-        .insert([
-          { user_id: user.id, connected_user_id: profileId, status: 'pending' }
-        ]);
+        .from("connections")
+        .insert([{ user_id: user.id, connected_user_id: profileId, status: "pending" }]);
 
       // Refresh suggestions after connecting
       fetchSuggestions();
     } catch (error) {
-      console.error('Error sending connection request:', error);
+      console.error("Error sending connection request:", error);
     }
   };
 
@@ -158,19 +150,22 @@ export default function FeedPage() {
     }
   }, [user]);
 
-
   useEffect(() => {
     fetchPosts();
     // Set up real-time subscription for new posts
     const postsSubscription = supabase
-      .channel('public:posts')
-      .on('postgres_changes', { 
-        event: '*', 
-        schema: 'public', 
-        table: 'posts' 
-      }, () => {
-        fetchPosts(); // Refresh posts when changes occur
-      })
+      .channel("public:posts")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "posts",
+        },
+        () => {
+          fetchPosts(); // Refresh posts when changes occur
+        }
+      )
       .subscribe();
 
     return () => {
@@ -180,20 +175,22 @@ export default function FeedPage() {
 
   // Intersection Observer for infinite scroll
   const observerRef = useRef<IntersectionObserver>();
-  const lastPostRef = useCallback((node: HTMLElement | null) => {
-    if (postsLoading) return;
+  const lastPostRef = useCallback(
+    (node: HTMLElement | null) => {
+      if (postsLoading) return;
 
-    if (observerRef.current) observerRef.current.disconnect();
+      if (observerRef.current) observerRef.current.disconnect();
 
-    observerRef.current = new IntersectionObserver(entries => {
-      if (entries[0].isIntersecting && hasMore) {
-        fetchPosts(lastCursor);
-      }
-    });
+      observerRef.current = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && hasMore) {
+          fetchPosts(lastCursor);
+        }
+      });
 
-    if (node) observerRef.current.observe(node);
-  }, [postsLoading, hasMore, lastCursor]);
-
+      if (node) observerRef.current.observe(node);
+    },
+    [postsLoading, hasMore, lastCursor]
+  );
 
   return (
     <div className="container py-6">
@@ -205,23 +202,25 @@ export default function FeedPage() {
               <Link href={`/profile/${userProfile.id}`} className="block">
                 <Card>
                   <CardContent className="pt-6">
-                <div className="flex flex-col items-center">
-                  <Image
-                    src={userProfile.avatar_url || "/placeholder-user.jpg"}
-                    alt={userProfile.full_name || "User"}
-                    width={60}
-                    height={60}
-                    className="rounded-full hover:opacity-90 transition-opacity"
-                  />
-                  <h3 className="font-semibold text-sm mt-2">{userProfile.full_name || "User"}</h3>
-                  {userProfile.headline && (
-                    <p className="text-xs text-gray-500 text-center line-clamp-2 mt-1">
-                      {userProfile.headline}
-                    </p>
-                  )}
-                </div>
-                    </CardContent>
-                      </Card>
+                    <div className="flex flex-col items-center">
+                      <Image
+                        src={userProfile.avatar_url || "/placeholder-user.jpg"}
+                        alt={userProfile.full_name || "User"}
+                        width={60}
+                        height={60}
+                        className="rounded-full hover:opacity-90 transition-opacity"
+                      />
+                      <h3 className="font-semibold text-sm mt-2">
+                        {userProfile.full_name || "User"}
+                      </h3>
+                      {userProfile.headline && (
+                        <p className="text-xs text-gray-500 text-center line-clamp-2 mt-1">
+                          {userProfile.headline}
+                        </p>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
               </Link>
             </div>
           )}
@@ -235,7 +234,10 @@ export default function FeedPage() {
                     <h3 className="font-medium">My Connections</h3>
                   </div>
                 </Link>
-                <Link href="/network/professionals" className="flex items-center gap-3 hover:text-primary">
+                <Link
+                  href="/network/professionals"
+                  className="flex items-center gap-3 hover:text-primary"
+                >
                   <Search className="h-5 w-5" />
                   <div>
                     <h3 className="font-medium">Explore People</h3>
@@ -260,7 +262,7 @@ export default function FeedPage() {
 
         {/* Main Content */}
         <div className="col-span-12 lg:col-span-6">
-          <PostTrigger/>
+          <PostTrigger />
           {postsLoading ? (
             <div className="space-y-4">
               {[1, 2, 3].map((i) => (
@@ -284,7 +286,7 @@ export default function FeedPage() {
           ) : (
             <div className="space-y-4">
               {posts.map((post, index) => (
-                <div ref={index === posts.length -1 ? lastPostRef : null} key={post.id}>
+                <div ref={index === posts.length - 1 ? lastPostRef : null} key={post.id}>
                   <PostItem key={post.id} post={post} currentUser={user} />
                 </div>
               ))}
@@ -294,8 +296,6 @@ export default function FeedPage() {
 
         {/* Right sidebar */}
         <div className="col-span-3 hidden lg:block space-y-6">
-
-
           <Card>
             <CardContent className="pt-6">
               <h3 className="font-semibold mb-3">Upcoming Events</h3>
@@ -319,11 +319,11 @@ export default function FeedPage() {
                       <div className="flex items-center gap-2 mb-1">
                         <Clock className="h-4 w-4 text-primary" />
                         <span className="text-sm font-medium">
-                          {new Date(event.start_date).toLocaleDateString('en-US', {
-                            month: 'short',
-                            day: 'numeric',
-                            hour: 'numeric',
-                            minute: '2-digit'
+                          {new Date(event.start_date).toLocaleDateString("en-US", {
+                            month: "short",
+                            day: "numeric",
+                            hour: "numeric",
+                            minute: "2-digit",
                           })}
                         </span>
                       </div>
@@ -373,22 +373,14 @@ export default function FeedPage() {
                       <div className="flex items-center gap-2">
                         <Avatar className="h-8 w-8">
                           <AvatarImage src={profile.avatar_url} />
-                          <AvatarFallback>
-                            {profile.full_name?.substring(0, 2)}
-                          </AvatarFallback>
+                          <AvatarFallback>{profile.full_name?.substring(0, 2)}</AvatarFallback>
                         </Avatar>
                         <div>
                           <p className="text-sm font-medium">{profile.full_name}</p>
-                          <p className="text-xs text-muted-foreground">
-                            {profile.headline}
-                          </p>
+                          <p className="text-xs text-muted-foreground">{profile.headline}</p>
                         </div>
                       </div>
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => handleConnect(profile.id)}
-                      >
+                      <Button variant="outline" size="sm" onClick={() => handleConnect(profile.id)}>
                         Connect
                       </Button>
                     </div>
@@ -409,7 +401,6 @@ export default function FeedPage() {
           </Card>
 
           {/* Network Navigation Card */}
-
         </div>
       </div>
     </div>

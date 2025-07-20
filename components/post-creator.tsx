@@ -12,9 +12,8 @@ import { FileText, Image, Loader2, Paperclip, Video, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import type * as React from "react";
 import { useRef, useState, useCallback } from "react";
-import debounce from 'lodash.debounce';
-import imageCompression from 'browser-image-compression';
-
+import debounce from "lodash.debounce";
+import imageCompression from "browser-image-compression";
 
 // Define Profile type based on what's in auth context
 type Profile = {
@@ -76,19 +75,19 @@ export function PostCreator({ isDialog = false, onSuccess }: PostCreatorProps) {
 
   // Compress image before upload
   const compressImage = async (file: File): Promise<File> => {
-    if (!file.type.startsWith('image/')) return file;
+    if (!file.type.startsWith("image/")) return file;
 
     setIsCompressing(true);
     try {
       const options = {
         maxSizeMB: 1,
         maxWidthOrHeight: 1920,
-        useWebWorker: true
+        useWebWorker: true,
       };
       const compressedFile = await imageCompression(file, options);
       return new File([compressedFile], file.name, { type: file.type });
     } catch (error) {
-      console.error('Error compressing image:', error);
+      console.error("Error compressing image:", error);
       return file;
     } finally {
       setIsCompressing(false);
@@ -209,7 +208,7 @@ export function PostCreator({ isDialog = false, onSuccess }: PostCreatorProps) {
           .upload(fileName, attachmentFile, {
             cacheControl: "3600",
             upsert: false,
-            contentType: attachmentFile.type
+            contentType: attachmentFile.type,
           });
 
         if (uploadError) {
@@ -242,7 +241,7 @@ export function PostCreator({ isDialog = false, onSuccess }: PostCreatorProps) {
       const { data: post, error: postError } = await supabase
         .from("posts")
         .insert([newPost])
-        .select('*, profiles(*)')
+        .select("*, profiles(*)")
         .single();
 
       if (postError) {
@@ -265,7 +264,7 @@ export function PostCreator({ isDialog = false, onSuccess }: PostCreatorProps) {
       }
 
       // Navigate to feed page and refresh data
-      router.push('/feed');
+      router.push("/feed");
       router.refresh();
     } catch (error) {
       console.error("Error creating post:", error);
@@ -280,113 +279,112 @@ export function PostCreator({ isDialog = false, onSuccess }: PostCreatorProps) {
   };
 
   return (
-        <div className="flex flex-col gap-3">
-          <div className="flex-1 space-y-3">
-            <Textarea
-              placeholder={`What's on your mind, ${activeProfile?.full_name?.split(" ")[0] || "User"}?`}
-              value={content}
-              onChange={(e) => debouncedSetContent(e.target.value)}
-              className="min-h-[120px] md:min-h-[250px] resize-none text-sm md:text-base"
-            />
+    <div className="flex flex-col gap-3">
+      <div className="flex-1 space-y-3">
+        <Textarea
+          placeholder={`What's on your mind, ${activeProfile?.full_name?.split(" ")[0] || "User"}?`}
+          value={content}
+          onChange={(e) => debouncedSetContent(e.target.value)}
+          className="min-h-[120px] md:min-h-[250px] resize-none text-sm md:text-base"
+        />
 
-            {attachmentPreview && (
-              <div className="relative rounded-md border p-3 bg-muted/20">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="absolute top-2 right-2 h-6 w-6 rounded-full bg-background/80"
-                  onClick={clearAttachment}
-                >
-                  <X className="h-4 w-4" />
-                </Button>
+        {attachmentPreview && (
+          <div className="relative rounded-md border p-3 bg-muted/20">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute top-2 right-2 h-6 w-6 rounded-full bg-background/80"
+              onClick={clearAttachment}
+            >
+              <X className="h-4 w-4" />
+            </Button>
 
-                {attachmentType === "image" ? (
-                  <div className="relative aspect-video max-h-[300px] overflow-hidden rounded-md">
-                    <img
-                      src={attachmentPreview}
-                      alt="Attachment preview"
-                      className="object-contain w-full h-full"
-                    />
-                  </div>
-                ) : attachmentType === "video" ? (
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Video className="h-4 w-4" />
-                    <span>{attachmentPreview}</span>
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <FileText className="h-4 w-4" />
-                    <span>{attachmentPreview}</span>
-                  </div>
-                )}
-              </div>
-            )}
-
-            <div className="flex items-center justify-between flex-wrap gap-2">
-              <div className="flex items-center gap-1 md:gap-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-muted-foreground h-8 px-2 md:px-3"
-                  onClick={() => handleAttachmentSelect("image")}
-                >
-                  <Image className="h-4 w-4 md:mr-2" />
-                  <span className="hidden md:inline">Photo</span>
-                </Button>
-
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-muted-foreground h-8 px-2 md:px-3"
-                  onClick={() => handleAttachmentSelect("video")}
-                >
-                  <Video className="h-4 w-4 md:mr-2" />
-                  <span className="hidden md:inline">Video</span>
-                </Button>
-
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-muted-foreground h-8 px-2 md:px-3"
-                  onClick={() => handleAttachmentSelect("document")}
-                >
-                  <FileText className="h-4 w-4 md:mr-2" />
-                  <span className="hidden md:inline">Document</span>
-                </Button>
-
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  className="hidden"
-                  onChange={handleFileChange}
-                  accept={
-                    attachmentType === "image"
-                      ? ".jpg,.jpeg,.png,.gif,.webp,image/*"
-                      : attachmentType === "video"
-                        ? ".mp4,.mov,.avi,video/*"
-                        : ".pdf,.doc,.docx,.txt,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain"
-                  }
+            {attachmentType === "image" ? (
+              <div className="relative aspect-video max-h-[300px] overflow-hidden rounded-md">
+                <img
+                  src={attachmentPreview}
+                  alt="Attachment preview"
+                  className="object-contain w-full h-full"
                 />
               </div>
-
-              <Button 
-                size="lg" 
-                onClick={handleSubmit} 
-                disabled={isSubmitting || isCompressing}
-                className="w-full md:w-auto"
-              >
-                {isSubmitting || isCompressing ? (
-                  <>
-                    <Loader2 className="h-4 w-8 mr-2 animate-spin" />
-                    {isCompressing ? "Compressing..." : "Posting..."}
-                  </>
-                ) : (
-                  <>Post</>
-                )}
-              </Button>
-            </div>
+            ) : attachmentType === "video" ? (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Video className="h-4 w-4" />
+                <span>{attachmentPreview}</span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <FileText className="h-4 w-4" />
+                <span>{attachmentPreview}</span>
+              </div>
+            )}
           </div>
-        </div>
+        )}
 
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <div className="flex items-center gap-1 md:gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-muted-foreground h-8 px-2 md:px-3"
+              onClick={() => handleAttachmentSelect("image")}
+            >
+              <Image className="h-4 w-4 md:mr-2" />
+              <span className="hidden md:inline">Photo</span>
+            </Button>
+
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-muted-foreground h-8 px-2 md:px-3"
+              onClick={() => handleAttachmentSelect("video")}
+            >
+              <Video className="h-4 w-4 md:mr-2" />
+              <span className="hidden md:inline">Video</span>
+            </Button>
+
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-muted-foreground h-8 px-2 md:px-3"
+              onClick={() => handleAttachmentSelect("document")}
+            >
+              <FileText className="h-4 w-4 md:mr-2" />
+              <span className="hidden md:inline">Document</span>
+            </Button>
+
+            <input
+              type="file"
+              ref={fileInputRef}
+              className="hidden"
+              onChange={handleFileChange}
+              accept={
+                attachmentType === "image"
+                  ? ".jpg,.jpeg,.png,.gif,.webp,image/*"
+                  : attachmentType === "video"
+                    ? ".mp4,.mov,.avi,video/*"
+                    : ".pdf,.doc,.docx,.txt,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain"
+              }
+            />
+          </div>
+
+          <Button
+            size="lg"
+            onClick={handleSubmit}
+            disabled={isSubmitting || isCompressing}
+            className="w-full md:w-auto"
+          >
+            {isSubmitting || isCompressing ? (
+              <>
+                <Loader2 className="h-4 w-8 mr-2 animate-spin" />
+                {isCompressing ? "Compressing..." : "Posting..."}
+              </>
+            ) : (
+              <>Post</>
+            )}
+          </Button>
+        </div>
+      </div>
+    </div>
   );
 }

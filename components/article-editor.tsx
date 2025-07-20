@@ -19,7 +19,11 @@ interface ArticleEditorProps {
   articleId?: string;
 }
 
-export function ArticleEditor({ initialContent = "", initialTitle = "", articleId }: ArticleEditorProps) {
+export function ArticleEditor({
+  initialContent = "",
+  initialTitle = "",
+  articleId,
+}: ArticleEditorProps) {
   const [title, setTitle] = useState(initialTitle);
   const [saving, setSaving] = useState(false);
   const [coverImage, setCoverImage] = useState<File | null>(null);
@@ -29,13 +33,15 @@ export function ArticleEditor({ initialContent = "", initialTitle = "", articleI
 
   useEffect(() => {
     const getUser = async () => {
-      const { data: { session }, error } = await supabase.auth.getSession();
+      const {
+        data: { session },
+        error,
+      } = await supabase.auth.getSession();
       if (session?.user) setUser(session.user);
-      else console.error('Error fetching user:', error);
+      else console.error("Error fetching user:", error);
     };
     getUser();
   }, []);
-
 
   const editor = useEditor({
     extensions: [
@@ -61,23 +67,24 @@ export function ArticleEditor({ initialContent = "", initialTitle = "", articleI
     try {
       setSaving(true);
       const content = editor.getHTML();
-      
+
       // Save as draft
-      const { data, error } = await supabase
-        .from('articles')
-        .upsert({
+      const { data, error } = await supabase.from("articles").upsert(
+        {
           id: articleId,
           title,
           content,
           author_id: user?.id,
           published: false,
           updated_at: new Date().toISOString(),
-        }, {
-          onConflict: 'id'
-        });
+        },
+        {
+          onConflict: "id",
+        }
+      );
 
       if (error) throw error;
-      
+
       toast({
         title: "Draft saved",
         description: "Your changes have been saved automatically",
@@ -170,17 +177,15 @@ export function ArticleEditor({ initialContent = "", initialTitle = "", articleI
 
         if (error) throw error;
       } else {
-        const { error } = await supabase
-          .from("articles")
-          .insert({
-            title,
-            content,
-            cover_image: coverImageUrl,
-            published: true,
-            published_at: new Date().toISOString(),
-            read_time: readTime,
-            author_id: user?.id, // Added author_id
-          });
+        const { error } = await supabase.from("articles").insert({
+          title,
+          content,
+          cover_image: coverImageUrl,
+          published: true,
+          published_at: new Date().toISOString(),
+          read_time: readTime,
+          author_id: user?.id, // Added author_id
+        });
 
         if (error) throw error;
       }
@@ -230,17 +235,10 @@ export function ArticleEditor({ initialContent = "", initialTitle = "", articleI
       <EditorContent editor={editor} />
 
       <div className="fixed bottom-4 right-4 flex gap-2">
-        <Button
-          variant="outline"
-          onClick={autosave}
-          disabled={saving}
-        >
+        <Button variant="outline" onClick={autosave} disabled={saving}>
           Save Draft
         </Button>
-        <Button
-          onClick={handlePublish}
-          disabled={saving}
-        >
+        <Button onClick={handlePublish} disabled={saving}>
           Publish
         </Button>
       </div>

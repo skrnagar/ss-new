@@ -19,7 +19,7 @@ export function ProfileEditor({ profile, onUpdate }: { profile: any; onUpdate: (
   const { toast } = useToast();
 
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
+    if (e.target.files?.[0]) {
       setAvatar(e.target.files[0]);
     }
   };
@@ -32,12 +32,18 @@ export function ProfileEditor({ profile, onUpdate }: { profile: any; onUpdate: (
       let avatarUrl = profile.avatar_url; // Preserve existing avatar
 
       if (avatar) {
-        const fileExt = avatar.name.split('.').pop()?.toLowerCase();
-        const contentType = fileExt === 'png' ? 'image/png' : 
-                          fileExt === 'jpg' || fileExt === 'jpeg' ? 'image/jpeg' :
-                          fileExt === 'webp' ? 'image/webp' :
-                          fileExt === 'gif' ? 'image/gif' : 'image/jpeg';
-                          
+        const fileExt = avatar.name.split(".").pop()?.toLowerCase();
+        const contentType =
+          fileExt === "png"
+            ? "image/png"
+            : fileExt === "jpg" || fileExt === "jpeg"
+              ? "image/jpeg"
+              : fileExt === "webp"
+                ? "image/webp"
+                : fileExt === "gif"
+                  ? "image/gif"
+                  : "image/jpeg";
+
         const timestamp = Date.now();
         const fileName = `${profile.id}/${timestamp}-${avatar.name}`;
         const { data: uploadData, error: uploadError } = await supabase.storage
@@ -45,18 +51,15 @@ export function ProfileEditor({ profile, onUpdate }: { profile: any; onUpdate: (
           .upload(fileName, avatar, {
             cacheControl: "3600",
             upsert: true,
-            contentType: avatar.type || 'image/jpeg' // Use file's actual type or fallback
+            contentType: avatar.type || "image/jpeg", // Use file's actual type or fallback
           });
 
         if (uploadError) throw uploadError;
-        
-        const { data: publicUrlData } = supabase.storage
-          .from("avatars")
-          .getPublicUrl(fileName);
-          
+
+        const { data: publicUrlData } = supabase.storage.from("avatars").getPublicUrl(fileName);
+
         avatarUrl = publicUrlData.publicUrl;
       }
-
 
       const { error: updateError } = await supabase
         .from("profiles")

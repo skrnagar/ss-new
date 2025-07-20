@@ -1,5 +1,5 @@
-const fs = require("fs");
-const path = require("path");
+const fs = require("node:fs");
+const path = require("node:path");
 const { createClient } = require("@supabase/supabase-js");
 
 if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
@@ -34,4 +34,4 @@ async function runChatSchema() {
 }
 
 runChatSchema();
-export {}
+export {};
