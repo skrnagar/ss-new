@@ -10,7 +10,11 @@ import { PostDialog } from "./post-dialog";
 import Link from "next/link";
 import { Image, FileVideo, FileText, BookOpen } from "lucide-react";
 
-export function PostTrigger() {
+interface PostTriggerProps {
+  onPostSuccess?: () => void;
+}
+
+export function PostTrigger({ onPostSuccess }: PostTriggerProps) {
   const [open, setOpen] = useState(false);
   const { profile } = useAuth();
 
@@ -71,7 +75,7 @@ export function PostTrigger() {
           </div>
         </CardContent>
       </Card>
-      <PostDialog open={open} onOpenChange={setOpen} />
+      <PostDialog open={open} onOpenChange={setOpen} onPostSuccess={onPostSuccess} />
     </>
   );
 }

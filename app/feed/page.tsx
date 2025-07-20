@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Clock } from "lucide-react";
 import { User } from "lucide-react";
+import useSWR, { mutate as globalMutate } from 'swr';
 
 const PostItem = dynamic(() => import("@/components/post-item").then((mod) => mod.default), {
   ssr: false,
@@ -49,85 +50,96 @@ export default function FeedPage() {
     updated_at?: string;
   }
 
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [postsLoading, setPostsLoading] = useState(true);
-  const [lastCursor, setLastCursor] = useState<string | null>(null);
-  const [hasMore, setHasMore] = useState(true);
-
   const POSTS_PER_PAGE = 10;
 
-  const fetchPosts = async (cursor: string | null = null) => {
-    try {
-      let query = supabase
-        .from("posts")
-        .select("*, profile:profiles(*)")
-        .order("created_at", { ascending: false })
-        .limit(POSTS_PER_PAGE);
+  // Infinite scroll state
+  const [page, setPage] = useState(1);
+  const [allPosts, setAllPosts] = useState<any[]>([]);
+  const [hasMore, setHasMore] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
 
-      if (cursor) {
-        query = query.lt("created_at", cursor);
-      }
-
-      const { data, error } = await query;
-
-      if (error) throw error;
-
-      const newPosts = data || [];
-      setPosts((prev) => (cursor ? [...prev, ...newPosts] : newPosts));
-      setHasMore(newPosts.length === POSTS_PER_PAGE);
-      setLastCursor(newPosts[newPosts.length - 1]?.created_at || null);
-    } catch (error) {
-      console.error("Error fetching posts:", error);
-    } finally {
-      setPostsLoading(false);
-    }
+  const fetchPosts = async (pageNum = 1) => {
+    const from = (pageNum - 1) * POSTS_PER_PAGE;
+    const to = from + POSTS_PER_PAGE - 1;
+    const { data, error } = await supabase
+      .from("posts")
+      .select("*, profile:profiles(*)")
+      .order("created_at", { ascending: false })
+      .range(from, to);
+    if (error) throw error;
+    return data;
   };
-
-  const [events, setEvents] = useState<any[]>([]);
-  const [suggestions, setSuggestions] = useState<any[]>([]);
-  const { user, profile: userProfile, isLoading: authLoading } = useAuth();
-  const router = useRouter();
 
   const fetchEvents = async () => {
-    try {
-      const { data: eventData } = await supabase
-        .from("events")
-        .select("*")
-        .eq("is_public", true)
-        .gte("start_date", new Date().toISOString())
-        .order("start_date", { ascending: true })
-        .limit(2);
-
-      setEvents(eventData || []);
-    } catch (error) {
-      console.error("Error fetching events:", error);
-    }
+    const { data, error } = await supabase
+      .from("events")
+      .select("*")
+      .eq("is_public", true)
+      .gte("start_date", new Date().toISOString())
+      .order("start_date", { ascending: true })
+      .limit(2);
+    if (error) throw error;
+    return data;
   };
 
-  const fetchSuggestions = async () => {
-    if (!user) return;
-    try {
-      // Get existing connections to exclude them
-      const { data: connections } = await supabase
-        .from("connections")
-        .select("connected_user_id")
-        .eq("user_id", user.id);
-
-      const connectedIds = connections?.map((c) => c.connected_user_id) || [];
-      connectedIds.push(user.id); // Add current user to excluded list
-
-      // Get suggested profiles
-      const { data: profiles } = await supabase
-        .from("profiles")
-        .select("*")
-        .not("id", "in", `(${connectedIds.join(",")})`)
-        .limit(3);
-
-      setSuggestions(profiles || []);
-    } catch (error) {
-      console.error("Error fetching suggestions:", error);
-    }
+  const fetchSuggestions = async (userId: string) => {
+    if (!userId) return [];
+    const { data: connections } = await supabase
+      .from("connections")
+      .select("connected_user_id")
+      .eq("user_id", userId);
+    const connectedIds = connections?.map((c) => c.connected_user_id) || [];
+    connectedIds.push(userId);
+    const { data: profiles } = await supabase
+      .from("profiles")
+      .select("*")
+      .not("id", "in", `(${connectedIds.join(",")})`)
+      .limit(3);
+    return profiles || [];
   };
+
+  const { user, profile: userProfile, isLoading: authLoading } = useAuth();
+  // Initial load with SWR for SSR/CSR consistency
+  const { data: posts, error: postsError, isLoading: postsLoading, mutate } = useSWR('posts', () => fetchPosts(1));
+  const { data: events = [], error: eventsError } = useSWR('events', fetchEvents);
+  const { data: suggestions = [], error: suggestionsError } = useSWR(
+    user ? ['suggestions', user.id] : null,
+    () => user ? fetchSuggestions(user.id) : []
+  );
+  const router = useRouter();
+
+  // Load more posts when page changes
+  useEffect(() => {
+    let ignore = false;
+    const load = async () => {
+      setLoadingMore(true);
+      try {
+        const newPosts = await fetchPosts(page);
+        if (!ignore) {
+          setAllPosts((prev) => {
+            // Avoid duplicates
+            const ids = new Set(prev.map((p) => p.id));
+            return [...prev, ...newPosts.filter((p: any) => !ids.has(p.id))];
+          });
+          if (newPosts.length < POSTS_PER_PAGE) setHasMore(false);
+        }
+      } catch (e) {
+        setHasMore(false);
+      } finally {
+        setLoadingMore(false);
+      }
+    };
+    if (page > 1) load();
+    return () => { ignore = true; };
+  }, [page]);
+
+  // On initial posts load, set allPosts
+  useEffect(() => {
+    if (posts && page === 1) {
+      setAllPosts(posts);
+      setHasMore(posts.length === POSTS_PER_PAGE);
+    }
+  }, [posts]);
 
   const handleConnect = async (profileId: string) => {
     if (!user) return;
@@ -137,59 +149,26 @@ export default function FeedPage() {
         .insert([{ user_id: user.id, connected_user_id: profileId, status: "pending" }]);
 
       // Refresh suggestions after connecting
-      fetchSuggestions();
+      // fetchSuggestions(); // This will be handled by SWR's revalidation
     } catch (error) {
       console.error("Error sending connection request:", error);
     }
   };
 
-  useEffect(() => {
-    fetchEvents();
-    if (user) {
-      fetchSuggestions();
-    }
-  }, [user]);
-
-  useEffect(() => {
-    fetchPosts();
-    // Set up real-time subscription for new posts
-    const postsSubscription = supabase
-      .channel("public:posts")
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "posts",
-        },
-        () => {
-          fetchPosts(); // Refresh posts when changes occur
-        }
-      )
-      .subscribe();
-
-    return () => {
-      postsSubscription.unsubscribe();
-    };
-  }, []);
-
   // Intersection Observer for infinite scroll
   const observerRef = useRef<IntersectionObserver>();
   const lastPostRef = useCallback(
     (node: HTMLElement | null) => {
-      if (postsLoading) return;
-
+      if (loadingMore || postsLoading || !hasMore) return;
       if (observerRef.current) observerRef.current.disconnect();
-
       observerRef.current = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting && hasMore) {
-          fetchPosts(lastCursor);
+        if (entries[0].isIntersecting) {
+          setPage((prev) => prev + 1);
         }
       });
-
       if (node) observerRef.current.observe(node);
     },
-    [postsLoading, hasMore, lastCursor]
+    [loadingMore, postsLoading, hasMore]
   );
 
   return (
@@ -262,8 +241,11 @@ export default function FeedPage() {
 
         {/* Main Content */}
         <div className="col-span-12 lg:col-span-6">
-          <PostTrigger />
-          {postsLoading ? (
+          <PostTrigger onPostSuccess={() => {
+            setPage(1);
+            mutate();
+          }} />
+          {postsLoading && page === 1 ? (
             <div className="space-y-4">
               {[1, 2, 3].map((i) => (
                 <PostItem
@@ -283,13 +265,26 @@ export default function FeedPage() {
                 />
               ))}
             </div>
+          ) : allPosts.length === 0 ? (
+            <div className="text-center text-muted-foreground py-12">No posts yet. Be the first to post!</div>
           ) : (
             <div className="space-y-4">
-              {posts.map((post, index) => (
-                <div ref={index === posts.length - 1 ? lastPostRef : null} key={post.id}>
+              {allPosts.map((post, index) => (
+                <div ref={index === allPosts.length - 1 ? lastPostRef : null} key={post.id}>
                   <PostItem key={post.id} post={post} currentUser={user} />
                 </div>
               ))}
+              {loadingMore && (
+                <div className="flex justify-center py-4">
+                  <svg className="animate-spin h-6 w-6 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+                  </svg>
+                </div>
+              )}
+              {!hasMore && allPosts.length > 0 && (
+                <div className="text-center text-muted-foreground py-4">No more posts.</div>
+              )}
             </div>
           )}
         </div>

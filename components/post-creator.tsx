@@ -11,7 +11,7 @@ import { supabase } from "@/lib/supabase";
 import { FileText, Image, Loader2, Paperclip, Video, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import type * as React from "react";
-import { useRef, useState, useCallback } from "react";
+import { useRef, useState, useCallback, useEffect } from "react";
 import debounce from "lodash.debounce";
 import imageCompression from "browser-image-compression";
 
@@ -27,9 +27,10 @@ type Profile = {
 interface PostCreatorProps {
   isDialog?: boolean;
   onSuccess?: () => void;
+  onOptimisticPost?: (optimisticPost: any) => void;
 }
 
-export function PostCreator({ isDialog = false, onSuccess }: PostCreatorProps) {
+export function PostCreator({ isDialog = false, onSuccess, onOptimisticPost }: PostCreatorProps) {
   const { user, profile: authProfile } = useAuth();
   const activeProfile = authProfile;
 
@@ -65,13 +66,26 @@ export function PostCreator({ isDialog = false, onSuccess }: PostCreatorProps) {
   const { toast } = useToast();
   const router = useRouter();
 
-  // Debounce content updates
+  // Debounce content updates for autosave/UX, but always use latest content for submit
+  const [inputContent, setInputContent] = useState("");
   const debouncedSetContent = useCallback(
     debounce((value: string) => {
       setContent(value);
     }, 300),
     []
   );
+
+  // Keep content in sync with inputContent
+  useEffect(() => {
+    setContent(inputContent);
+  }, [inputContent]);
+
+  // Cleanup: reset isSubmitting if component unmounts
+  useEffect(() => {
+    return () => {
+      setIsSubmitting(false);
+    };
+  }, []);
 
   // Compress image before upload
   const compressImage = async (file: File): Promise<File> => {
@@ -163,7 +177,7 @@ export function PostCreator({ isDialog = false, onSuccess }: PostCreatorProps) {
   };
 
   const handleSubmit = async () => {
-    if (!content.trim() && !attachmentFile) {
+    if (!inputContent.trim() && !attachmentFile) {
       toast({
         title: "Empty post",
         description: "Please add some text or an attachment to your post",
@@ -171,9 +185,7 @@ export function PostCreator({ isDialog = false, onSuccess }: PostCreatorProps) {
       });
       return;
     }
-
     setIsSubmitting(true);
-
     try {
       let imageUrl = null;
       let videoUrl = null;
@@ -230,12 +242,17 @@ export function PostCreator({ isDialog = false, onSuccess }: PostCreatorProps) {
 
       const newPost = {
         user_id: activeProfile?.id,
-        content: content.trim(),
+        content: inputContent.trim(),
         image_url: imageUrl,
         video_url: videoUrl,
         document_url: documentUrl,
         created_at: new Date().toISOString(),
       };
+
+      // Optimistically add the post to the feed
+      if (onOptimisticPost) {
+        onOptimisticPost({ ...newPost, id: `optimistic-${Date.now()}` });
+      }
 
       // Create post in database
       const { data: post, error: postError } = await supabase
@@ -245,6 +262,10 @@ export function PostCreator({ isDialog = false, onSuccess }: PostCreatorProps) {
         .single();
 
       if (postError) {
+        // Remove optimistic post if API fails
+        if (onOptimisticPost) {
+          onOptimisticPost(null); // Signal to remove the optimistic post
+        }
         throw postError;
       }
 
@@ -255,7 +276,7 @@ export function PostCreator({ isDialog = false, onSuccess }: PostCreatorProps) {
       });
 
       // Reset form
-      setContent("");
+      setInputContent("");
       clearAttachment();
 
       // Call onSuccess with the new post data for immediate UI update
@@ -283,8 +304,11 @@ export function PostCreator({ isDialog = false, onSuccess }: PostCreatorProps) {
       <div className="flex-1 space-y-3">
         <Textarea
           placeholder={`What's on your mind, ${activeProfile?.full_name?.split(" ")[0] || "User"}?`}
-          value={content}
-          onChange={(e) => debouncedSetContent(e.target.value)}
+          value={inputContent}
+          onChange={(e) => {
+            setInputContent(e.target.value);
+            debouncedSetContent(e.target.value);
+          }}
           className="min-h-[120px] md:min-h-[250px] resize-none text-sm md:text-base"
         />
 

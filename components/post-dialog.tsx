@@ -15,9 +15,10 @@ import { useAuth } from "@/contexts/auth-context";
 interface PostDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onPostSuccess?: () => void;
 }
 
-export function PostDialog({ open, onOpenChange }: PostDialogProps) {
+export function PostDialog({ open, onOpenChange, onPostSuccess }: PostDialogProps) {
   const { profile } = useAuth();
 
   const getInitials = (name: string) => {
@@ -50,7 +51,10 @@ export function PostDialog({ open, onOpenChange }: PostDialogProps) {
               <p className="text-sm text-muted-foreground">{profile?.headline}</p>
             </div>
           </div>
-          <PostCreator isDialog onSuccess={() => onOpenChange(false)} />
+          <PostCreator isDialog onSuccess={() => {
+            onOpenChange(false);
+            if (onPostSuccess) onPostSuccess();
+          }} />
         </div>
       </DialogContent>
     </Dialog>

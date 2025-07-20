@@ -27,9 +27,9 @@ export default function AuthCallbackPage() {
         }
 
         // Check if user has a profile
-        const { data: profile, error: profileError } = await supabase
+        let { data: profile, error: profileError } = await supabase
           .from("profiles")
-          .select("username, full_name")
+          .select("id, username, full_name")
           .eq("id", session.user.id)
           .single();
 
@@ -37,10 +37,37 @@ export default function AuthCallbackPage() {
           console.error("Profile fetch error:", profileError);
         }
 
-        // Immediate redirect based on profile status
+        // If profile does not exist, create it
+        if (!profile) {
+          console.log("No profile found, creating new profile row for user");
+          const { error: insertError } = await supabase.from("profiles").insert({
+            id: session.user.id,
+            email: session.user.email,
+            full_name: session.user.user_metadata?.name || "",
+            // Add other fields as needed
+          });
+          if (insertError) {
+            console.error("Error creating profile row:", insertError);
+          } else {
+            // Wait a moment for the DB to update
+            await new Promise((r) => setTimeout(r, 500));
+            // Refetch the profile after insert
+            const { data: newProfile } = await supabase
+              .from("profiles")
+              .select("id, username, full_name")
+              .eq("id", session.user.id)
+              .single();
+            profile = newProfile;
+            console.log("Profile created and fetched:", profile);
+          }
+        }
+
+        // Always redirect after login
         if (!profile || !profile.username) {
+          console.log("Redirecting to /profile/setup", profile);
           window.location.href = "/profile/setup";
         } else {
+          console.log("Redirecting to /feed", profile);
           window.location.href = "/feed";
         }
       } catch (err) {

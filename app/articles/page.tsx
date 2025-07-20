@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -9,32 +9,21 @@ import { formatDistanceToNow } from "date-fns";
 import { supabase } from "@/lib/supabase";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SearchArticles } from "@/components/search-articles";
+import useSWR from 'swr';
+
+const fetchArticles = async () => {
+  const { data, error } = await supabase
+    .from("articles_with_author")
+    .select("*")
+    .eq("published", true)
+    .order("published_at", { ascending: false });
+  if (error) throw error;
+  return data;
+};
 
 export default function ArticlesPage() {
-  const [articles, setArticles] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: articles = [], error, isLoading } = useSWR('articles', fetchArticles);
   const [activeTab, setActiveTab] = useState("for-you");
-
-  useEffect(() => {
-    async function fetchArticles() {
-      try {
-        const { data, error } = await supabase
-          .from("articles_with_author")
-          .select("*")
-          .eq("published", true)
-          .order("published_at", { ascending: false });
-
-        if (error) throw error;
-        if (data) setArticles(data);
-      } catch (error) {
-        console.error("Error fetching articles:", error);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchArticles();
-  }, []);
 
   const tabs = [
     { id: "for-you", label: "For you" },
@@ -74,7 +63,7 @@ export default function ArticlesPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Main Content */}
         <div className="lg:col-span-2">
-          {loading ? (
+          {isLoading ? (
             <div className="space-y-8">
               {[1, 2, 3].map((i) => (
                 <div key={i} className="flex gap-4">

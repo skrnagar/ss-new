@@ -101,11 +101,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           setAuthState((prev) => ({ ...prev, profile: profileData }));
         } else {
           console.log("No user in session");
+          setAuthState((prev) => ({ ...prev, profile: null }));
         }
       } catch (error) {
         console.error("Error initializing auth:", error);
+        setAuthState((prev) => ({ ...prev, profile: null }));
       } finally {
-        setLoading(false); // Set loading to false after initial check
+        setLoading(false); // Always set loading to false
+        console.log("Profile fetch complete. isLoading set to false");
       }
     };
 
@@ -126,7 +129,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       } else {
         setAuthState((prev) => ({ ...prev, profile: null }));
       }
-      setLoading(false); // Set loading to false after auth state change
+      setLoading(false); // Always set loading to false
+      console.log("Profile fetch complete after auth change. isLoading set to false");
     });
 
     // Cleanup subscription
