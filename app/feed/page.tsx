@@ -252,14 +252,8 @@ export default function FeedPage() {
                   key={i}
                   post={{
                     id: `skeleton-${i}`,
-                    user_id: "skeleton",
-                    created_at: new Date().toISOString(),
-                    content: "",
-                    profile: {
-                      id: "skeleton",
-                      full_name: "Loading...",
-                      avatar_url: "",
-                    },
+                    user_id: "",
+                    created_at: "",
                   }}
                   currentUser={null}
                 />
