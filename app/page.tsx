@@ -65,8 +65,6 @@ export default async function Home() {
                 <div className="mt-4 w-full">
                   <AuthButtons />
                 </div>
-
-              
               </div>
             </div>
             <div className="hidden md:block">
@@ -221,26 +219,33 @@ export default async function Home() {
       <section className="py-16 ">
         <div className="container">
           <div className="bg-sky-50 border rounded-lg py-16 ">
-
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-            <div className="p-6 rounded-lg transition-colors">
-              <div className="text-5xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent animate-in slide-in-from-bottom duration-700 mb-3">100K+</div>
-              <p className="text-muted-foreground font-medium">ESG & EHS Professionals</p>
-            </div>
-            <div className="p-6 rounded-lg transition-colors">
-              <div className="text-5xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent animate-in slide-in-from-bottom duration-700 mb-3">1500+</div>
-              <p className="text-muted-foreground font-medium">Leading Companies</p>
-            </div>
-            <div className="p-6 rounded-lg transition-colors">
-              <div className="text-5xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent animate-in slide-in-from-bottom duration-700 mb-3">500+</div>
-              <p className="text-muted-foreground font-medium">Specialized Groups</p>
-            </div>
-            <div className="p-6 rounded-lg hover:bg-background/80 transition-colors">
-              <div className="text-5xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent animate-in slide-in-from-bottom duration-700 mb-3">3000+</div>
-              <p className="text-muted-foreground font-medium">Knowledge Resources</p>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+              <div className="p-6 rounded-lg transition-colors">
+                <div className="text-5xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent animate-in slide-in-from-bottom duration-700 mb-3">
+                  100K+
+                </div>
+                <p className="text-muted-foreground font-medium">ESG & EHS Professionals</p>
+              </div>
+              <div className="p-6 rounded-lg transition-colors">
+                <div className="text-5xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent animate-in slide-in-from-bottom duration-700 mb-3">
+                  1500+
+                </div>
+                <p className="text-muted-foreground font-medium">Leading Companies</p>
+              </div>
+              <div className="p-6 rounded-lg transition-colors">
+                <div className="text-5xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent animate-in slide-in-from-bottom duration-700 mb-3">
+                  500+
+                </div>
+                <p className="text-muted-foreground font-medium">Specialized Groups</p>
+              </div>
+              <div className="p-6 rounded-lg hover:bg-background/80 transition-colors">
+                <div className="text-5xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent animate-in slide-in-from-bottom duration-700 mb-3">
+                  3000+
+                </div>
+                <p className="text-muted-foreground font-medium">Knowledge Resources</p>
+              </div>
             </div>
           </div>
-             </div>
         </div>
       </section>
 
@@ -251,7 +256,8 @@ export default async function Home() {
             <div className="max-w-2xl">
               <h2 className="text-3xl font-bold mb-4">Explore Collaborative Articles</h2>
               <p className="text-muted-foreground text-lg">
-                Join industry experts in creating and improving articles on key ESG & EHS topics. Share your expertise and learn from others.
+                Join industry experts in creating and improving articles on key ESG & EHS topics.
+                Share your expertise and learn from others.
               </p>
             </div>
             <Button asChild variant="outline" className="mt-4 md:mt-0">
@@ -261,7 +267,10 @@ export default async function Home() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <div className="group">
-              <Link href="/articles" className="block p-6 rounded-xl border bg-card hover:shadow-lg transition-all">
+              <Link
+                href="/articles"
+                className="block p-6 rounded-xl border bg-card hover:shadow-lg transition-all"
+              >
                 <div className="flex items-center gap-2 mb-4">
                   <div className="flex -space-x-2">
                     <Avatar className="border-2 border-background">
@@ -275,10 +284,15 @@ export default async function Home() {
                   </div>
                   <span className="text-sm text-muted-foreground">125+ contributors</span>
                 </div>
-                <h3 className="text-xl font-semibold mb-2 group-hover:text-primary">ESG Compliance & Reporting</h3>
-                <p className="text-muted-foreground mb-4">Best practices and frameworks for ESG compliance, reporting standards, and implementation strategies.</p>
+                <h3 className="text-xl font-semibold mb-2 group-hover:text-primary">
+                  ESG Compliance & Reporting
+                </h3>
+                <p className="text-muted-foreground mb-4">
+                  Best practices and frameworks for ESG compliance, reporting standards, and
+                  implementation strategies.
+                </p>
                 <div className="flex flex-wrap gap-2">
-                  <Badge >ESG</Badge>
+                  <Badge>ESG</Badge>
                   <Badge variant="default">Compliance</Badge>
                   <Badge variant="secondary">Reporting</Badge>
                 </div>
@@ -286,7 +300,10 @@ export default async function Home() {
             </div>
 
             <div className="group">
-              <Link href="/articles" className="block p-6 rounded-xl border bg-card hover:shadow-lg transition-all">
+              <Link
+                href="/articles"
+                className="block p-6 rounded-xl border bg-card hover:shadow-lg transition-all"
+              >
                 <div className="flex items-center gap-2 mb-4">
                   <div className="flex -space-x-2">
                     <Avatar className="border-2 border-background">
@@ -300,8 +317,13 @@ export default async function Home() {
                   </div>
                   <span className="text-sm text-muted-foreground">98+ contributors</span>
                 </div>
-                <h3 className="text-xl font-semibold mb-2 group-hover:text-primary">Sustainable Operations</h3>
-                <p className="text-muted-foreground mb-4">Implementing sustainable practices in operations, reducing environmental impact, and promoting circular economy.</p>
+                <h3 className="text-xl font-semibold mb-2 group-hover:text-primary">
+                  Sustainable Operations
+                </h3>
+                <p className="text-muted-foreground mb-4">
+                  Implementing sustainable practices in operations, reducing environmental impact,
+                  and promoting circular economy.
+                </p>
                 <div className="flex flex-wrap gap-2">
                   <Badge variant="default">Sustainability</Badge>
                   <Badge variant="secondary">Operations</Badge>
@@ -311,7 +333,10 @@ export default async function Home() {
             </div>
 
             <div className="group">
-              <Link href="/articles" className="block p-6 rounded-xl border bg-card hover:shadow-lg transition-all">
+              <Link
+                href="/articles"
+                className="block p-6 rounded-xl border bg-card hover:shadow-lg transition-all"
+              >
                 <div className="flex items-center gap-2 mb-4">
                   <div className="flex -space-x-2">
                     <Avatar className="border-2 border-background">
@@ -325,11 +350,16 @@ export default async function Home() {
                   </div>
                   <span className="text-sm text-muted-foreground">150+ contributors</span>
                 </div>
-                <h3 className="text-xl font-semibold mb-2 group-hover:text-primary">Building Safety Culture</h3>
-                <p className="text-muted-foreground mb-4">Creating and maintaining a strong safety culture, employee engagement, and behavioral safety approaches.</p>
+                <h3 className="text-xl font-semibold mb-2 group-hover:text-primary">
+                  Building Safety Culture
+                </h3>
+                <p className="text-muted-foreground mb-4">
+                  Creating and maintaining a strong safety culture, employee engagement, and
+                  behavioral safety approaches.
+                </p>
                 <div className="flex flex-wrap gap-2">
                   <Badge variant="secondary">Safety</Badge>
-                  <Badge >Culture</Badge>
+                  <Badge>Culture</Badge>
                   <Badge variant="default">Leadership</Badge>
                 </div>
               </Link>

@@ -90,14 +90,17 @@ export default function ArticlesPage() {
           ) : (
             <div className="space-y-8">
               {articles.map((article: any) => (
-                <Link 
-                  href={`/articles/${article.id}`} 
+                <Link
+                  href={`/articles/${article.id}`}
                   key={article.id}
                   className="flex gap-6 group"
                 >
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
-                      <Link href={`/profile/${article.author_id}`} className="flex items-center gap-2 hover:text-primary">
+                      <Link
+                        href={`/profile/${article.author_id}`}
+                        className="flex items-center gap-2 hover:text-primary"
+                      >
                         <Image
                           src={article.author_avatar || "/placeholder-user.jpg"}
                           alt={article.author_name}
@@ -112,7 +115,8 @@ export default function ArticlesPage() {
                       {article.title}
                     </h2>
                     <p className="text-gray-600 line-clamp-2 mb-2">
-                      {article.excerpt || article.content?.replace(/<[^>]*>/g, '').substring(0, 160)}
+                      {article.excerpt ||
+                        article.content?.replace(/<[^>]*>/g, "").substring(0, 160)}
                     </p>
                     <div className="flex items-center text-sm text-gray-500">
                       <span>
@@ -144,8 +148,8 @@ export default function ArticlesPage() {
             <h2 className="font-semibold mb-4">Staff Picks</h2>
             <div className="space-y-4 mb-8">
               {articles.slice(0, 3).map((article: any) => (
-                <Link 
-                  href={`/articles/${article.id}`} 
+                <Link
+                  href={`/articles/${article.id}`}
                   key={`staff-${article.id}`}
                   className="block"
                 >
@@ -168,7 +172,14 @@ export default function ArticlesPage() {
 
             <h2 className="font-semibold mb-4">Recommended topics</h2>
             <div className="flex flex-wrap gap-2">
-              {["Programming", "Artificial Intelligence", "Python", "Cybersecurity", "Science", "Productivity"].map((topic) => (
+              {[
+                "Programming",
+                "Artificial Intelligence",
+                "Python",
+                "Cybersecurity",
+                "Science",
+                "Productivity",
+              ].map((topic) => (
                 <Link
                   key={topic}
                   href={`/tags/${topic.toLowerCase()}`}

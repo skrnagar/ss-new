@@ -48,6 +48,8 @@ export const Navbar = memo(function Navbar() {
   const isMobile = useMobile();
   const { user, profile, isLoading } = useAuth();
 
+  console.log('[Navbar] Rendered. isLoading:', isLoading, 'user:', user, 'profile:', profile);
+
   const handleSignOut = useCallback(async () => {
     try {
       const response = await fetch("/api/auth/signout", {
@@ -90,6 +92,7 @@ export const Navbar = memo(function Navbar() {
   }, [user]);
 
   if (isLoading) {
+    console.log('[Navbar] isLoading is true, returning null');
     return null;
   }
 
@@ -180,105 +183,105 @@ export const Navbar = memo(function Navbar() {
         )}
 
         <div className="flex items-center gap-4">
-            {!isMobile && (
-              <>
-                <div className="relative">
-                  <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    type="search"
-                    placeholder="Search..."
-                    className="w-[200px] md:w-[300px] pl-8 rounded-full bg-muted/70 focus-visible:ring-primary transition-all focus-visible:bg-muted"
-                  />
-                </div>
-                <NavigationMenu>
-                    <NavigationMenuList>
-                      <NavigationMenuItem>
-                        <NavigationMenuTrigger>
-                          <Users className="h-5 w-5 mr-1" />
-                          <span className="sr-only">Networks</span>
-                        </NavigationMenuTrigger>
-                        <NavigationMenuContent>
-                          <div className="w-[300px] p-4">
-                            <div className="mb-3 pb-2 border-b">
-                              <h4 className="font-medium mb-1">Professional Network</h4>
+          {!isMobile && (
+            <>
+              <div className="relative">
+                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  type="search"
+                  placeholder="Search..."
+                  className="w-[200px] md:w-[300px] pl-8 rounded-full bg-muted/70 focus-visible:ring-primary transition-all focus-visible:bg-muted"
+                />
+              </div>
+              <NavigationMenu>
+                <NavigationMenuList>
+                  <NavigationMenuItem>
+                    <NavigationMenuTrigger>
+                      <Users className="h-5 w-5 mr-1" />
+                      <span className="sr-only">Networks</span>
+                    </NavigationMenuTrigger>
+                    <NavigationMenuContent>
+                      <div className="w-[300px] p-4">
+                        <div className="mb-3 pb-2 border-b">
+                          <h4 className="font-medium mb-1">Professional Network</h4>
+                          <p className="text-xs text-muted-foreground">
+                            Connect with industry professionals
+                          </p>
+                        </div>
+                        <div className="grid gap-3">
+                          <Link
+                            href="/network"
+                            className="flex items-center gap-2 p-2 rounded-md hover:bg-muted transition-colors"
+                          >
+                            <Users className="h-4 w-4 text-primary" />
+                            <div>
+                              <div className="font-medium">My Connections</div>
                               <p className="text-xs text-muted-foreground">
-                                Connect with industry professionals
+                                Manage your professional network
                               </p>
                             </div>
-                            <div className="grid gap-3">
-                              <Link
-                                href="/network"
-                                className="flex items-center gap-2 p-2 rounded-md hover:bg-muted transition-colors"
-                              >
-                                <Users className="h-4 w-4 text-primary" />
-                                <div>
-                                  <div className="font-medium">My Connections</div>
-                                  <p className="text-xs text-muted-foreground">
-                                    Manage your professional network
-                                  </p>
-                                </div>
-                              </Link>
-                              <Link
-                                href="/network/professionals"
-                                className="flex items-center gap-2 p-2 rounded-md hover:bg-muted transition-colors"
-                              >
-                                <Search className="h-4 w-4 text-primary" />
-                                <div>
-                                  <div className="font-medium">Explore People</div>
-                                  <p className="text-xs text-muted-foreground">
-                                    Find ESG & EHS professionals
-                                  </p>
-                                </div>
-                              </Link>
-                              <Link
-                                href="/groups"
-                                className="flex items-center gap-2 p-2 rounded-md hover:bg-muted transition-colors"
-                              >
-                                <Users className="h-4 w-4 text-primary" />
-                                <div>
-                                  <div className="font-medium">Groups</div>
-                                  <p className="text-xs text-muted-foreground">
-                                    Join specialized professional groups
-                                  </p>
-                                </div>
-                              </Link>
-                              <Link
-                                href="/events"
-                                className="flex items-center gap-2 p-2 rounded-md hover:bg-muted transition-colors"
-                              >
-                                <Calendar className="h-4 w-4 text-primary" />
-                                <div>
-                                  <div className="font-medium">Events</div>
-                                  <p className="text-xs text-muted-foreground">
-                                    Discover industry events and conferences
-                                  </p>
-                                </div>
-                              </Link>
+                          </Link>
+                          <Link
+                            href="/network/professionals"
+                            className="flex items-center gap-2 p-2 rounded-md hover:bg-muted transition-colors"
+                          >
+                            <Search className="h-4 w-4 text-primary" />
+                            <div>
+                              <div className="font-medium">Explore People</div>
+                              <p className="text-xs text-muted-foreground">
+                                Find ESG & EHS professionals
+                              </p>
                             </div>
-                          </div>
-                        </NavigationMenuContent>
-                      </NavigationMenuItem>
-                    </NavigationMenuList>
-                  </NavigationMenu>
-                  <Link href="/jobs">
-                    <Button variant="ghost" size="icon" aria-label="Jobs">
-                      <Briefcase className="h-5 w-5" />
-                    </Button>
-                  </Link>
-                  <Link href="/messages">
-                    <Button variant="ghost" size="icon" aria-label="Messages" className="relative">
-                      <MessageCircle className="h-5 w-5" />
-                    </Button>
-                  </Link>
-                  <Link href="/notifications">
-                    <Button variant="ghost" size="icon" aria-label="Notifications">
-                      <Bell className="h-5 w-5" />
-                    </Button>
-                  </Link>
-                </>
-              )}
+                          </Link>
+                          <Link
+                            href="/groups"
+                            className="flex items-center gap-2 p-2 rounded-md hover:bg-muted transition-colors"
+                          >
+                            <Users className="h-4 w-4 text-primary" />
+                            <div>
+                              <div className="font-medium">Groups</div>
+                              <p className="text-xs text-muted-foreground">
+                                Join specialized professional groups
+                              </p>
+                            </div>
+                          </Link>
+                          <Link
+                            href="/events"
+                            className="flex items-center gap-2 p-2 rounded-md hover:bg-muted transition-colors"
+                          >
+                            <Calendar className="h-4 w-4 text-primary" />
+                            <div>
+                              <div className="font-medium">Events</div>
+                              <p className="text-xs text-muted-foreground">
+                                Discover industry events and conferences
+                              </p>
+                            </div>
+                          </Link>
+                        </div>
+                      </div>
+                    </NavigationMenuContent>
+                  </NavigationMenuItem>
+                </NavigationMenuList>
+              </NavigationMenu>
+              <Link href="/jobs">
+                <Button variant="ghost" size="icon" aria-label="Jobs">
+                  <Briefcase className="h-5 w-5" />
+                </Button>
+              </Link>
+              <Link href="/messages">
+                <Button variant="ghost" size="icon" aria-label="Messages" className="relative">
+                  <MessageCircle className="h-5 w-5" />
+                </Button>
+              </Link>
+              <Link href="/notifications">
+                <Button variant="ghost" size="icon" aria-label="Notifications">
+                  <Bell className="h-5 w-5" />
+                </Button>
+              </Link>
+            </>
+          )}
 
-              {user ? (
+          {user ? (
             <div className="flex items-center gap-4">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>

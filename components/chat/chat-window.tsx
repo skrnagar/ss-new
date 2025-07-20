@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useRef, useState } from "react";
@@ -59,14 +58,10 @@ export function ChatWindow({ conversationId, otherUser, currentUserId }: ChatWin
       setMessages(data || []);
       scrollToBottom();
 
-      const unseenMessages = data?.filter(
-        (msg) => !msg.seen && msg.sender_id !== currentUserId
-      );
+      const unseenMessages = data?.filter((msg) => !msg.seen && msg.sender_id !== currentUserId);
 
       if (unseenMessages?.length) {
-        await Promise.all(
-          unseenMessages.map((msg) => markAsRead(msg.id))
-        );
+        await Promise.all(unseenMessages.map((msg) => markAsRead(msg.id)));
       }
     };
 
@@ -74,21 +69,24 @@ export function ChatWindow({ conversationId, otherUser, currentUserId }: ChatWin
 
     const subscription = supabase
       .channel(`conversation:${conversationId}`)
-      .on("postgres_changes", {
-        event: "INSERT",
-        schema: "public",
-        table: "messages",
-        filter: `conversation_id=eq.${conversationId}`,
-      }, 
-      (payload) => {
-        const newMessage = payload.new as Message;
-        setMessages((prev) => [...prev, newMessage]);
-        scrollToBottom();
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "messages",
+          filter: `conversation_id=eq.${conversationId}`,
+        },
+        (payload) => {
+          const newMessage = payload.new as Message;
+          setMessages((prev) => [...prev, newMessage]);
+          scrollToBottom();
 
-        if (newMessage.sender_id !== currentUserId) {
-          markAsRead(newMessage.id);
+          if (newMessage.sender_id !== currentUserId) {
+            markAsRead(newMessage.id);
+          }
         }
-      })
+      )
       .subscribe();
 
     return () => {
@@ -131,12 +129,7 @@ export function ChatWindow({ conversationId, otherUser, currentUserId }: ChatWin
   return (
     <div className="flex flex-col h-[100vh] bg-white">
       <div className="flex items-center p-4 border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="mr-3"
-          onClick={() => window.history.back()}
-        >
+        <Button variant="ghost" size="icon" className="mr-3" onClick={() => window.history.back()}>
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <Avatar className="h-10 w-10">
@@ -168,7 +161,7 @@ export function ChatWindow({ conversationId, otherUser, currentUserId }: ChatWin
                 <p className="break-words">{message.content}</p>
                 {message.image_url && (
                   <>
-                    <div 
+                    <div
                       className="mt-2 relative w-48 h-48 cursor-pointer"
                       onClick={() => setSelectedImage(message.image_url || null)}
                     >
@@ -207,7 +200,10 @@ export function ChatWindow({ conversationId, otherUser, currentUserId }: ChatWin
         </div>
       </ScrollArea>
 
-      <form onSubmit={sendMessage} className="p-4 border-t bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
+      <form
+        onSubmit={sendMessage}
+        className="p-4 border-t bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60"
+      >
         <div className="flex space-x-2">
           <Input
             value={newMessage}

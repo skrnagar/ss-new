@@ -19,7 +19,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-
 export default function ArticlePage() {
   const { id } = useParams();
   const router = useRouter();
@@ -31,22 +30,17 @@ export default function ArticlePage() {
   const [claps, setClaps] = useState(0);
   const [isAuthor, setIsAuthor] = useState(false); // Added state for author check
 
-
   useEffect(() => {
     async function fetchData() {
       try {
         const [articleResponse, commentsResponse, userResponse] = await Promise.all([
-          supabase
-            .from("articles_with_author")
-            .select("*")
-            .eq("id", id)
-            .single(),
+          supabase.from("articles_with_author").select("*").eq("id", id).single(),
           supabase
             .from("comments")
-            .select(`*, profiles:profiles(*)`)
+            .select("*, profiles:profiles(*)")
             .eq("article_id", id)
             .order("created_at", { ascending: false }),
-          supabase.auth.getSession()
+          supabase.auth.getSession(),
         ]);
 
         if (articleResponse.error) throw articleResponse.error;
@@ -74,9 +68,9 @@ export default function ArticlePage() {
       .insert({
         article_id: id,
         user_id: user.id,
-        content: newComment.trim()
+        content: newComment.trim(),
       })
-      .select(`*, profiles:profiles(*)`)
+      .select("*, profiles:profiles(*)")
       .single();
 
     if (!error && data) {
@@ -87,7 +81,7 @@ export default function ArticlePage() {
 
   const handleClap = async () => {
     try {
-      setClaps(prev => prev + 1);
+      setClaps((prev) => prev + 1);
       await supabase
         .from("articles")
         .update({ claps: claps + 1 })
@@ -119,7 +113,10 @@ export default function ArticlePage() {
 
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
             <div className="flex items-center gap-3">
-              <Link href={`/profile/${article.author_id}`} className="flex items-center gap-3 hover:opacity-80">
+              <Link
+                href={`/profile/${article.author_id}`}
+                className="flex items-center gap-3 hover:opacity-80"
+              >
                 <Image
                   src={article.author_avatar || "/placeholder-user.jpg"}
                   alt={article.author_name}
@@ -130,7 +127,9 @@ export default function ArticlePage() {
                 <div>
                   <h2 className="font-semibold text-gray-900">{article.author_name}</h2>
                   <div className="text-sm text-gray-600 flex items-center gap-2">
-                    <span>{formatDistanceToNow(new Date(article.published_at), { addSuffix: true })}</span>
+                    <span>
+                      {formatDistanceToNow(new Date(article.published_at), { addSuffix: true })}
+                    </span>
                     <span>·</span>
                     <span>{article.read_time || "5"} min read</span>
                   </div>
@@ -166,17 +165,17 @@ export default function ArticlePage() {
                     <DropdownMenuItem
                       className="text-red-600"
                       onClick={async () => {
-                        if (window.confirm('Are you sure you want to delete this article?')) {
+                        if (window.confirm("Are you sure you want to delete this article?")) {
                           try {
                             const { error } = await supabase
-                              .from('articles')
+                              .from("articles")
                               .delete()
-                              .eq('id', article.id);
-                            
+                              .eq("id", article.id);
+
                             if (error) throw error;
-                            router.push('/articles');
+                            router.push("/articles");
                           } catch (error) {
-                            console.error('Error deleting article:', error);
+                            console.error("Error deleting article:", error);
                           }
                         }
                       }}
@@ -207,8 +206,10 @@ export default function ArticlePage() {
           )}
         </header>
 
-        <div className="prose prose-lg max-w-none" dangerouslySetInnerHTML={{ __html: article.content }}>
-        </div>
+        <div
+          className="prose prose-lg max-w-none"
+          dangerouslySetInnerHTML={{ __html: article.content }}
+        />
       </article>
 
       <div className="border-t pt-8">
@@ -233,9 +234,7 @@ export default function ArticlePage() {
             <div key={comment.id} className="flex gap-4">
               <Avatar>
                 <AvatarImage src={comment.profiles?.avatar_url} />
-                <AvatarFallback>
-                  {comment.profiles?.name?.substring(0, 2)}
-                </AvatarFallback>
+                <AvatarFallback>{comment.profiles?.name?.substring(0, 2)}</AvatarFallback>
               </Avatar>
               <div>
                 <div className="flex items-center gap-2 mb-1">

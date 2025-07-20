@@ -16,18 +16,19 @@ export default function ConnectionsPage() {
   const [connections, setConnections] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [pendingRequests, setPendingRequests] = useState<any[]>([]);
-  const [sortBy, setSortBy] = useState<'recent' | 'name'>('recent');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState<"recent" | "name">("recent");
+  const [searchQuery, setSearchQuery] = useState("");
   const [showMutualConnections, setShowMutualConnections] = useState(false);
   const [selectedMutualConnections, setSelectedMutualConnections] = useState<any[]>([]);
 
   const sortedAndFilteredConnections = connections
-    .filter(conn => 
-      conn.profile.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      conn.profile.headline?.toLowerCase().includes(searchQuery.toLowerCase())
+    .filter(
+      (conn) =>
+        conn.profile.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        conn.profile.headline?.toLowerCase().includes(searchQuery.toLowerCase())
     )
     .sort((a, b) => {
-      if (sortBy === 'recent') {
+      if (sortBy === "recent") {
         return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
       }
       return a.profile.full_name.localeCompare(b.profile.full_name);
@@ -50,7 +51,7 @@ export default function ConnectionsPage() {
 
   const fetchConnections = async () => {
     if (!user?.id) return;
-    
+
     try {
       // Fetch both sent and received connections in parallel for completeness
       const [sentConnections, receivedConnections] = await Promise.all([
@@ -68,7 +69,7 @@ export default function ConnectionsPage() {
           `)
           .eq("user_id", user.id)
           .eq("status", "accepted"),
-          
+
         supabase
           .from("connections")
           .select(`
@@ -82,16 +83,13 @@ export default function ConnectionsPage() {
             )
           `)
           .eq("connected_user_id", user.id)
-          .eq("status", "accepted")
+          .eq("status", "accepted"),
       ]);
 
       if (sentConnections.error) throw sentConnections.error;
       if (receivedConnections.error) throw receivedConnections.error;
 
-      const allConnections = [
-        ...(sentConnections.data || []),
-        ...(receivedConnections.data || [])
-      ];
+      const allConnections = [...(sentConnections.data || []), ...(receivedConnections.data || [])];
 
       setConnections(allConnections);
     } catch (error) {
@@ -99,7 +97,7 @@ export default function ConnectionsPage() {
       toast({
         title: "Error fetching connections",
         description: "Please try again later",
-        variant: "destructive"
+        variant: "destructive",
       });
     } finally {
       setLoading(false);
@@ -133,10 +131,7 @@ export default function ConnectionsPage() {
 
       if (error) throw error;
 
-      await Promise.all([
-        fetchConnections(),
-        fetchPendingRequests()
-      ]);
+      await Promise.all([fetchConnections(), fetchPendingRequests()]);
     } catch (error) {
       console.error("Error accepting connection:", error);
     }

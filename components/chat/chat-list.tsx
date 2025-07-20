@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -42,7 +41,7 @@ export function ChatList({ initialUserId }: ChatListProps) {
     if (!user) return;
     fetchConversations();
     subscribeToUpdates();
-    
+
     if (initialUserId) {
       startNewConversation(initialUserId);
     }
@@ -69,22 +68,23 @@ export function ChatList({ initialUserId }: ChatListProps) {
           )
         )
       `)
-      .eq('profile_id', user?.id)
-      .order('created_at', { ascending: false });
+      .eq("profile_id", user?.id)
+      .order("created_at", { ascending: false });
 
     if (!error && data) {
       const formattedConversations = data.map((item: any) => ({
         id: item.conversation?.id || item.id,
-        participants: item.conversation?.conversation_participants
-          ?.map((p: any) => p.profiles)
-          ?.filter((p: any) => p.id !== user?.id) || [],
+        participants:
+          item.conversation?.conversation_participants
+            ?.map((p: any) => p.profiles)
+            ?.filter((p: any) => p.id !== user?.id) || [],
         last_message: item.conversation?.messages?.[0],
       }));
 
       const uniqueConversations = Array.from(
-        new Map(formattedConversations.map(conv => [conv.id, conv])).values()
+        new Map(formattedConversations.map((conv) => [conv.id, conv])).values()
       );
-      
+
       setConversations(uniqueConversations);
     }
   };
@@ -92,13 +92,17 @@ export function ChatList({ initialUserId }: ChatListProps) {
   const subscribeToUpdates = () => {
     const subscription = supabase
       .channel("conversations_changes")
-      .on("postgres_changes", { 
-        event: "*", 
-        schema: "public",
-        table: "messages"
-      }, () => {
-        fetchConversations();
-      })
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "messages",
+        },
+        () => {
+          fetchConversations();
+        }
+      )
       .subscribe();
 
     return () => {
@@ -108,7 +112,7 @@ export function ChatList({ initialUserId }: ChatListProps) {
 
   const startNewConversation = async (userId: string) => {
     if (!user) return;
-    
+
     const { data: existing } = await supabase
       .from("conversation_participants")
       .select(`
@@ -126,8 +130,8 @@ export function ChatList({ initialUserId }: ChatListProps) {
       .select("conversation_id")
       .eq("profile_id", userId);
 
-    const existingConversation = existing?.filter(conv => 
-      otherParticipant?.some(p => p.conversation_id === conv.conversation_id)
+    const existingConversation = existing?.filter((conv) =>
+      otherParticipant?.some((p) => p.conversation_id === conv.conversation_id)
     );
 
     if (existingConversation && existingConversation.length > 0) {
@@ -139,7 +143,7 @@ export function ChatList({ initialUserId }: ChatListProps) {
       .from("conversations")
       .insert({
         created_by: user.id,
-        type: "direct"
+        type: "direct",
       })
       .select("id")
       .single();
@@ -150,13 +154,11 @@ export function ChatList({ initialUserId }: ChatListProps) {
     }
 
     try {
-      const participantPromises = [user.id, userId].map(id =>
-        supabase
-          .from("conversation_participants")
-          .insert({
-            conversation_id: newConversation.id,
-            profile_id: id
-          })
+      const participantPromises = [user.id, userId].map((id) =>
+        supabase.from("conversation_participants").insert({
+          conversation_id: newConversation.id,
+          profile_id: id,
+        })
       );
 
       await Promise.all(participantPromises);
@@ -169,24 +171,22 @@ export function ChatList({ initialUserId }: ChatListProps) {
   };
 
   const filteredConversations = conversations.filter((conv) =>
-    conv.participants.some((p) =>
-      p.full_name.toLowerCase().includes(searchQuery.toLowerCase())
-    )
+    conv.participants.some((p) => p.full_name.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
   const otherUser = selectedConversation
-    ? conversations
-        .find((c) => c.id === selectedConversation)
-        ?.participants[0]
+    ? conversations.find((c) => c.id === selectedConversation)?.participants[0]
     : null;
 
   return (
     <div className="flex h-[calc(100vh-4rem)] bg-white relative">
-      <div className={`${selectedConversation ? 'hidden md:flex' : 'flex'} w-full md:w-[320px] border-r flex-col`}>
+      <div
+        className={`${selectedConversation ? "hidden md:flex" : "flex"} w-full md:w-[320px] border-r flex-col`}
+      >
         <div className="p-4 border-b">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold">Messages</h2>
-            <Button 
+            <Button
               variant="outline"
               size="icon"
               onClick={() => setIsModalOpen(true)}
@@ -205,7 +205,7 @@ export function ChatList({ initialUserId }: ChatListProps) {
             />
           </div>
         </div>
-        
+
         <ScrollArea className="flex-1">
           {filteredConversations.length > 0 ? (
             filteredConversations.map((conversation) => (
@@ -220,24 +220,17 @@ export function ChatList({ initialUserId }: ChatListProps) {
                 <div className="flex items-center space-x-4 w-full">
                   <Avatar>
                     <AvatarImage src={conversation.participants[0].avatar_url} />
-                    <AvatarFallback>
-                      {conversation.participants[0].full_name[0]}
-                    </AvatarFallback>
+                    <AvatarFallback>{conversation.participants[0].full_name[0]}</AvatarFallback>
                   </Avatar>
                   <div className="flex-1 space-y-1 overflow-hidden">
-                    <p className="font-medium">
-                      {conversation.participants[0].full_name}
-                    </p>
+                    <p className="font-medium">{conversation.participants[0].full_name}</p>
                     {conversation.last_message && (
                       <div className="flex justify-between items-center">
                         <p className="text-sm text-muted-foreground truncate">
                           {conversation.last_message.content}
                         </p>
                         <span className="text-xs text-muted-foreground whitespace-nowrap ml-2">
-                          {format(
-                            new Date(conversation.last_message.created_at),
-                            "HH:mm"
-                          )}
+                          {format(new Date(conversation.last_message.created_at), "HH:mm")}
                         </span>
                       </div>
                     )}
@@ -246,21 +239,17 @@ export function ChatList({ initialUserId }: ChatListProps) {
               </Button>
             ))
           ) : searchQuery ? (
-            <div className="p-4 text-center text-muted-foreground">
-              No conversations found
-            </div>
+            <div className="p-4 text-center text-muted-foreground">No conversations found</div>
           ) : (
-            <div className="p-4 text-center text-muted-foreground">
-              No messages yet
-            </div>
+            <div className="p-4 text-center text-muted-foreground">No messages yet</div>
           )}
         </ScrollArea>
       </div>
 
-      <div className={`flex-1 ${!selectedConversation ? 'hidden md:block' : 'block'}`}>
+      <div className={`flex-1 ${!selectedConversation ? "hidden md:block" : "block"}`}>
         {selectedConversation && otherUser ? (
           <>
-            <button 
+            <button
               onClick={() => setSelectedConversation(null)}
               className="md:hidden absolute top-4 left-4 z-10"
             >
