@@ -83,6 +83,14 @@ const UserMenu = ({ user, profile, handleSignOut, isMobile }: any) => (
             <span>Settings</span>
           </Link>
         </DropdownMenuItem>
+        {!isMobile && (
+          <DropdownMenuItem asChild>
+            <Link href="/compliance" className="cursor-pointer">
+              <Shield className="mr-2 h-4 w-4" />
+              <span>Compliance</span>
+            </Link>
+          </DropdownMenuItem>
+        )}
         {isMobile && (
           <>
             <DropdownMenuItem asChild>
@@ -127,7 +135,7 @@ const MobileHeader = ({ user, profile, handleSignOut }: any) => (
         priority
       />
     </Link>
-    <div className="flex items-center gap-1">
+    <div className="flex items-center gap-1 flex-1 justify-end">
       <Button variant="ghost" size="icon" asChild>
         <Link href="/search">
           <Search className="h-5 w-5" />
@@ -189,15 +197,102 @@ const DesktopHeader = ({ user, profile, handleSignOut }: any) => (
       </NavigationMenu>
     </div>
 
-    <div className="flex items-center gap-4">
+    <div className="flex items-center gap-2">
       <div className="relative">
         <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
         <Input
           type="search"
           placeholder="Search..."
-          className="w-[300px] pl-8 rounded-full bg-muted/70"
+          className="w-[250px] pl-8 rounded-md bg-muted/70"
         />
       </div>
+
+      <NavigationMenu>
+        <NavigationMenuList>
+          <NavigationMenuItem>
+            <NavigationMenuTrigger>
+              <Users className="h-5 w-5" />
+            </NavigationMenuTrigger>
+            <NavigationMenuContent>
+              <div className="w-[300px] p-4">
+                <div className="mb-3 pb-2 border-b">
+                  <h4 className="font-medium mb-1">Professional Network</h4>
+                  <p className="text-xs text-muted-foreground">
+                    Connect with industry professionals
+                  </p>
+                </div>
+                <div className="grid gap-3">
+                  <Link
+                    href="/network"
+                    className="flex items-center gap-2 p-2 rounded-md hover:bg-muted"
+                  >
+                    <Users className="h-4 w-4 text-primary" />
+                    <div>
+                      <div className="font-medium">My Connections</div>
+                      <p className="text-xs text-muted-foreground">
+                        Manage your professional network
+                      </p>
+                    </div>
+                  </Link>
+                  <Link
+                    href="/network/professionals"
+                    className="flex items-center gap-2 p-2 rounded-md hover:bg-muted"
+                  >
+                    <Search className="h-4 w-4 text-primary" />
+                    <div>
+                      <div className="font-medium">Explore People</div>
+                      <p className="text-xs text-muted-foreground">
+                        Find ESG & EHS professionals
+                      </p>
+                    </div>
+                  </Link>
+                  <Link
+                    href="/groups"
+                    className="flex items-center gap-2 p-2 rounded-md hover:bg-muted"
+                  >
+                    <Users className="h-4 w-4 text-primary" />
+                    <div>
+                      <div className="font-medium">Groups</div>
+                      <p className="text-xs text-muted-foreground">
+                        Join specialized professional groups
+                      </p>
+                    </div>
+                  </Link>
+                  <Link
+                    href="/events"
+                    className="flex items-center gap-2 p-2 rounded-md hover:bg-muted"
+                  >
+                    <Calendar className="h-4 w-4 text-primary" />
+                    <div>
+                      <div className="font-medium">Events</div>
+                      <p className="text-xs text-muted-foreground">
+                        Discover industry events and conferences
+                      </p>
+                    </div>
+                  </Link>
+                </div>
+              </div>
+            </NavigationMenuContent>
+          </NavigationMenuItem>
+        </NavigationMenuList>
+      </NavigationMenu>
+
+      <Button variant="ghost" size="icon" asChild>
+        <Link href="/jobs">
+          <Briefcase className="h-5 w-5" />
+        </Link>
+      </Button>
+      <Button variant="ghost" size="icon" asChild>
+        <Link href="/messages">
+          <MessageCircle className="h-5 w-5" />
+        </Link>
+      </Button>
+      <Button variant="ghost" size="icon" asChild>
+        <Link href="/notifications">
+          <Bell className="h-5 w-5" />
+        </Link>
+      </Button>
+
       <UserMenu user={user} profile={profile} handleSignOut={handleSignOut} />
     </div>
   </div>

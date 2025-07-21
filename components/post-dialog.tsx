@@ -33,11 +33,11 @@ export function PostDialog({ open, onOpenChange, onPostSuccess }: PostDialogProp
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[95%] sm:w-[90%] max-w-[800px] p-0 !mt-0">
+      <DialogContent className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[95%] sm:w-[90%] max-w-[800px] p-0 !mt-0 max-h-[90vh] flex flex-col">
         <DialogHeader className="p-4 border-b">
           <DialogTitle className="text-xl font-semibold">Create a post</DialogTitle>
         </DialogHeader>
-        <div className="p-4">
+        <div className="p-4 flex-1 overflow-auto min-h-[300px]">
           <div className="flex items-center gap-3 mb-4">
             <Avatar className="h-10 w-10">
               <AvatarImage

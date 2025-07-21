@@ -313,7 +313,7 @@ export function PostCreator({ isDialog = false, onSuccess, onOptimisticPost }: P
         />
 
         {attachmentPreview && (
-          <div className="relative rounded-md border p-3 bg-muted/20">
+          <div className="relative rounded-md border p-3 bg-muted/20 max-h-64 overflow-auto">
             <Button
               variant="ghost"
               size="icon"
@@ -324,7 +324,7 @@ export function PostCreator({ isDialog = false, onSuccess, onOptimisticPost }: P
             </Button>
 
             {attachmentType === "image" ? (
-              <div className="relative aspect-video max-h-[300px] overflow-hidden rounded-md">
+              <div className="relative aspect-video max-h-56 overflow-auto rounded-md flex items-center justify-center">
                 <img
                   src={attachmentPreview}
                   alt="Attachment preview"
@@ -334,12 +334,12 @@ export function PostCreator({ isDialog = false, onSuccess, onOptimisticPost }: P
             ) : attachmentType === "video" ? (
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Video className="h-4 w-4" />
-                <span>{attachmentPreview}</span>
+                <span className="truncate max-w-[200px]">{attachmentPreview}</span>
               </div>
             ) : (
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <FileText className="h-4 w-4" />
-                <span>{attachmentPreview}</span>
+                <span className="truncate max-w-[200px]">{attachmentPreview}</span>
               </div>
             )}
           </div>
