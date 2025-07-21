@@ -194,13 +194,13 @@ export default function LearningPage() {
           {categories.map((category, index) => (
             <Card
               key={index}
-              className={`flex-shrink-0 w-[300px] cursor-pointer hover:shadow-md transition-shadow ${category.color}`}
+              className={`flex-shrink-0 w-[260px] sm:w-[300px] cursor-pointer hover:shadow-md transition-shadow ${category.color}`}
             >
               <CardContent className="p-4">
-                <div className="text-4xl mb-2">{category.icon}</div>
-                <h3 className="font-semibold mb-1">{category.title}</h3>
-                <p className="text-sm text-muted-foreground">{category.description}</p>
-                <Button className="mt-4" variant="secondary">
+                <div className="text-3xl sm:text-4xl mb-2">{category.icon}</div>
+                <h3 className="font-semibold mb-1 text-base sm:text-lg">{category.title}</h3>
+                <p className="text-xs sm:text-sm text-muted-foreground">{category.description}</p>
+                <Button className="mt-4 w-full sm:w-auto" variant="secondary">
                   Learn more
                 </Button>
               </CardContent>
@@ -209,9 +209,9 @@ export default function LearningPage() {
         </div>
       </div>
 
-      <div className="flex gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Sidebar */}
-        <div className="w-64 flex-shrink-0">
+        <div className="lg:col-span-3 mb-8 lg:mb-0">
           <div className="space-y-1">
             <Button variant="ghost" className="w-full justify-start">
               <Award className="mr-2 h-4 w-4" />
@@ -233,10 +233,10 @@ export default function LearningPage() {
         </div>
 
         {/* Main Content */}
-        <div className="flex-1">
+        <div className="lg:col-span-9">
           <div className="mb-6">
             <h2 className="text-xl font-semibold mb-4">This week's top courses</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {courses.map((course, index) => (
                 <Card
                   key={index}
@@ -251,8 +251,8 @@ export default function LearningPage() {
                     </Badge>
                   </div>
                   <CardContent className="p-4">
-                    <h3 className="font-semibold mb-2 text-primary/90">{course.title}</h3>
-                    <div className="flex items-center text-sm text-muted-foreground mb-2">
+                    <h3 className="font-semibold mb-2 text-primary/90 text-base sm:text-lg">{course.title}</h3>
+                    <div className="flex flex-wrap items-center text-xs sm:text-sm text-muted-foreground mb-2 gap-x-2 gap-y-1">
                       <Clock className="h-4 w-4 mr-1" />
                       <span>{course.duration}</span>
                       <span className="mx-2">•</span>
