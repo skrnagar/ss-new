@@ -18,7 +18,8 @@ interface UserSearchModalProps {
 }
 
 export function UserSearchModal({ isOpen, onClose, onStartConversation }: UserSearchModalProps) {
-  const { user } = useAuth();
+  const { session } = useAuth();
+  const user = session?.user;
   const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<any[]>([]);

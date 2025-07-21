@@ -26,7 +26,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Linkedin, Lock, Mail } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import * as React from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -46,6 +46,8 @@ export default function LoginPage() {
   const router = useRouter();
   const { toast } = useToast();
   const [loading, setLoading] = React.useState(false);
+  const searchParams = useSearchParams();
+  const [activeTab, setActiveTab] = React.useState(searchParams.get("tab") || "login");
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -88,7 +90,7 @@ export default function LoginPage() {
       });
 
       // Redirect to feed page after successful login
-      router.replace("/feed");
+      router.push("/feed");
     } catch (_error) {
       toast({
         title: "An error occurred",
@@ -132,7 +134,7 @@ export default function LoginPage() {
       if (!data.session) return;
 
       // Redirect to profile setup immediately using router
-      router.replace("/profile/setup");
+      router.push("/profile/setup");
     } catch (_error) {
       toast({
         title: "An error occurred",
@@ -191,7 +193,12 @@ export default function LoginPage() {
           </p>
         </div>
 
-        <Tabs defaultValue="login" className="w-full">
+        <Tabs
+          defaultValue="login"
+          value={activeTab}
+          onValueChange={setActiveTab}
+          className="w-full"
+        >
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="login">Login</TabsTrigger>
             <TabsTrigger value="register">Register</TabsTrigger>

@@ -2,7 +2,7 @@
 
 import { supabase } from "@/lib/supabase";
 import type { Session, User } from "@supabase/supabase-js";
-import { createContext, useContext, useEffect, useState, useMemo } from "react";
+import { createContext, useContext, useEffect, useState, useCallback } from "react";
 
 type Profile = {
   id: string;
@@ -13,139 +13,100 @@ type Profile = {
 };
 
 type AuthContextType = {
-  user: User | null;
-  profile: Profile | null;
   session: Session | null;
+  profile: Profile | null;
   isLoading: boolean;
-  isAuthenticated: boolean;
   refreshProfile: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType>({
-  user: null,
-  profile: null,
   session: null,
+  profile: null,
   isLoading: true,
-  isAuthenticated: false,
   refreshProfile: async () => {},
 });
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [authState, setAuthState] = useState<{
-    user: User | null;
-    profile: Profile | null;
-  }>({ user: null, profile: null });
-  const [loading, setLoading] = useState(true); // NEW loading state
+  const [session, setSession] = useState<Session | null>(null);
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const memoizedAuthValue = useMemo(
-    () => ({
-      user: authState.user,
-      profile: authState.profile,
-      isLoading: loading, // Use the new loading state
-      isAuthenticated: !!authState.user,
-    }),
-    [authState, loading]
-  );
+  const fetchProfile = useCallback(async (user: User | null) => {
+    if (!user) {
+      setProfile(null);
+      return;
+    }
 
-  // Function to fetch profile data
-  const fetchProfile = async (userId: string) => {
     try {
-      console.log("Fetching profile for user ID:", userId);
-
       const { data, error } = await supabase
         .from("profiles")
         .select("id, username, full_name, avatar_url, headline, position, company")
-        .eq("id", userId)
+        .eq("id", user.id)
         .single();
 
       if (error) {
         console.error("Error fetching profile:", error);
-        console.error("Error code:", error.code, "Message:", error.message);
-        return null;
+        setProfile(null);
+      } else {
+        setProfile(data);
       }
-
-      console.log("Profile data retrieved:", data ? "success" : "not found");
-      return data;
     } catch (error) {
       console.error("Exception in fetchProfile:", error);
-      return null;
+      setProfile(null);
     }
-  };
-
-  // Function to refresh profile data
-  const refreshProfile = async () => {
-    if (!memoizedAuthValue.user) return;
-
-    const profileData = await fetchProfile(memoizedAuthValue.user.id);
-    setAuthState((prev) => ({ ...prev, profile: profileData }));
-  };
+  }, []);
 
   useEffect(() => {
-    // Initialize auth state
-    const initAuth = async () => {
+    const initialize = async () => {
       try {
-        console.log("Initializing auth state...");
-        // Get initial session
         const {
-          data: { session },
+          data: { session: initialSession },
         } = await supabase.auth.getSession();
+        setSession(initialSession);
 
-        console.log("Session loaded:", !!session);
-        setAuthState((prev) => ({ ...prev, user: session?.user || null, session }));
-
-        // Fetch profile if user exists
-        if (session?.user) {
-          console.log("User found in session, fetching profile...");
-          const profileData = await fetchProfile(session.user.id);
-          console.log("Profile loaded:", !!profileData);
-          setAuthState((prev) => ({ ...prev, profile: profileData }));
-        } else {
-          console.log("No user in session");
-          setAuthState((prev) => ({ ...prev, profile: null }));
+        if (initialSession) {
+          await fetchProfile(initialSession.user);
         }
       } catch (error) {
         console.error("Error initializing auth:", error);
-        setAuthState((prev) => ({ ...prev, profile: null }));
       } finally {
-        setLoading(false); // Always set loading to false
-        console.log("Profile fetch complete. isLoading set to false");
+        setIsLoading(false);
       }
     };
 
-    initAuth();
+    initialize();
 
-    // Set up auth state change listener
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log("Auth state changed:", event, session?.user?.id);
-      setAuthState((prev) => ({ ...prev, session, user: session?.user || null }));
-
-      // Fetch profile if user exists
-      if (session?.user) {
-        const profileData = await fetchProfile(session.user.id);
-        console.log("Profile data fetched:", profileData ? "found" : "not found");
-        setAuthState((prev) => ({ ...prev, profile: profileData }));
-      } else {
-        setAuthState((prev) => ({ ...prev, profile: null }));
-      }
-      setLoading(false); // Always set loading to false
-      console.log("Profile fetch complete after auth change. isLoading set to false");
+    } = supabase.auth.onAuthStateChange((_event, changedSession) => {
+      setSession(changedSession);
+      fetchProfile(changedSession?.user ?? null);
     });
 
-    // Cleanup subscription
     return () => {
       subscription.unsubscribe();
     };
-  }, []);
+  }, [fetchProfile]);
 
-  return (
-    <AuthContext.Provider
-      value={{ ...memoizedAuthValue, session: (authState as any).session, refreshProfile }}
-    >
-      {children}
-    </AuthContext.Provider>
-  );
+  const refreshProfile = useCallback(async () => {
+    if (session?.user) {
+      await fetchProfile(session.user);
+    }
+  }, [session, fetchProfile]);
+
+  const value = { session, profile, isLoading, refreshProfile };
+
+  // Render a loading screen while the session is being fetched.
+  // This prevents the rest of the app from rendering prematurely.
+  if (isLoading) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-background z-50">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
 export const useAuth = () => useContext(AuthContext);

@@ -18,9 +18,9 @@ import { supabase } from "@/lib/supabase";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import * as React from "react";
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
+import { useAuth } from "@/contexts/auth-context";
 
 const profileSetupSchema = z.object({
   full_name: z.string().min(2, "Full name must be at least 2 characters"), // Added full_name validation
@@ -42,7 +42,8 @@ export default function ProfileSetupPage() {
   const router = useRouter();
   const { toast } = useToast();
   const [loading, setLoading] = React.useState(false);
-  const [user, setUser] = React.useState<any>(null);
+  const { session, profile } = useAuth();
+  const user = session?.user;
 
   const form = useForm<z.infer<typeof profileSetupSchema>>({
     resolver: zodResolver(profileSetupSchema),
@@ -57,43 +58,19 @@ export default function ProfileSetupPage() {
     },
   });
 
-  // Fetch current user on component mount
   React.useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const {
-          data: { user },
-        } = await supabase.auth.getUser();
-        setUser(user);
-
-        if (user) {
-          // Try to fetch existing profile data
-          const { data: profile } = await supabase
-            .from("profiles")
-            .select("*")
-            .eq("id", user.id)
-            .single();
-
-          if (profile) {
-            // Pre-fill form with existing data if available
-            form.reset({
-              full_name: profile.full_name || "", // Added full_name to pre-fill
-              headline: profile.headline || "",
-              bio: profile.bio || "",
-              company: profile.company || "",
-              position: profile.position || "",
-              location: profile.location || "",
-              username: profile.username || "",
-            });
-          }
-        }
-      } catch (error) {
-        console.error("Error fetching user:", error);
-      }
-    };
-
-    fetchUser();
-  }, [form]);
+    if (profile) {
+      form.reset({
+        full_name: profile.full_name || "",
+        headline: profile.headline || "",
+        bio: profile.bio || "",
+        company: profile.company || "",
+        position: profile.position || "",
+        location: profile.location || "",
+        username: profile.username || "",
+      });
+    }
+  }, [profile, form]);
 
   async function onSubmit(values: z.infer<typeof profileSetupSchema>) {
     if (!user) {

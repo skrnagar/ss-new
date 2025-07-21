@@ -9,7 +9,8 @@ type ProtectedRouteProps = {
 };
 
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const { user, isLoading } = useAuth();
+  const { session, isLoading } = useAuth();
+  const user = session?.user;
   const router = useRouter();
 
   useEffect(() => {

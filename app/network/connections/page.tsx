@@ -11,7 +11,8 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 export default function ConnectionsPage() {
-  const { user } = useAuth();
+  const { session } = useAuth();
+  const user = session?.user;
   const { toast } = useToast();
   const [connections, setConnections] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);

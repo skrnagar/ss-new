@@ -13,7 +13,8 @@ import { useEffect, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function NetworkPage() {
-  const { user } = useAuth();
+  const { session } = useAuth();
+  const user = session?.user;
   const { toast } = useToast();
   const [connections, setConnections] = useState<any[]>([]);
   const [suggestions, setSuggestions] = useState<any[]>([]);

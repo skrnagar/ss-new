@@ -8,6 +8,7 @@ import { Manrope, Poppins } from "next/font/google";
 import { Home, Users, PlusSquare, BookOpen, GraduationCap } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
+import AuthRedirector from "./components/auth-redirector";
 
 // Dynamically import Navbar with Suspense
 const Navbar = dynamic(
@@ -118,6 +119,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${poppins.className} ${manrope.className}`}>
         <AuthProvider>
+          <AuthRedirector />
           <div className="flex flex-col min-h-screen">
             <Suspense
               fallback={

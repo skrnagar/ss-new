@@ -10,6 +10,7 @@ import { supabase } from "@/lib/supabase";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SearchArticles } from "@/components/search-articles";
 import useSWR from 'swr';
+import { useAuth } from "@/contexts/auth-context";
 
 const fetchArticles = async () => {
   const { data, error } = await supabase
@@ -22,7 +23,11 @@ const fetchArticles = async () => {
 };
 
 export default function ArticlesPage() {
-  const { data: articles = [], error, isLoading } = useSWR('articles', fetchArticles);
+  const { isLoading: authLoading } = useAuth();
+  const { data: articles = [], error, isLoading } = useSWR(
+    !authLoading ? 'articles' : null,
+    fetchArticles
+  );
   const [activeTab, setActiveTab] = useState("for-you");
 
   const tabs = [
@@ -63,7 +68,7 @@ export default function ArticlesPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Main Content */}
         <div className="lg:col-span-2">
-          {isLoading ? (
+          {isLoading || authLoading ? (
             <div className="space-y-8">
               {[1, 2, 3].map((i) => (
                 <div key={i} className="flex gap-4">

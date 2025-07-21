@@ -50,6 +50,9 @@ export default function FeedPage() {
     updated_at?: string;
   }
 
+  const { session, profile: userProfile, isLoading: authLoading } = useAuth();
+  const user = session?.user;
+
   const POSTS_PER_PAGE = 10;
 
   // Infinite scroll state
@@ -98,13 +101,14 @@ export default function FeedPage() {
     return profiles || [];
   };
 
-  const { user, profile: userProfile, isLoading: authLoading } = useAuth();
-  // Initial load with SWR for SSR/CSR consistency
-  const { data: posts, error: postsError, isLoading: postsLoading, mutate } = useSWR('posts', () => fetchPosts(1));
+  const { data: posts, error: postsError, isLoading: postsLoading, mutate } = useSWR(
+    !authLoading && user ? 'posts' : null,
+    () => fetchPosts(1)
+  );
   const { data: events = [], error: eventsError } = useSWR('events', fetchEvents);
   const { data: suggestions = [], error: suggestionsError } = useSWR(
-    user ? ['suggestions', user.id] : null,
-    () => user ? fetchSuggestions(user.id) : []
+    !authLoading && user ? ['suggestions', user.id] : null,
+    () => (user ? fetchSuggestions(user.id) : [])
   );
   const router = useRouter();
 
@@ -245,7 +249,7 @@ export default function FeedPage() {
             setPage(1);
             mutate();
           }} />
-          {postsLoading && page === 1 ? (
+          {(postsLoading || authLoading) && page === 1 ? (
             <div className="space-y-4">
               {[1, 2, 3].map((i) => (
                 <PostItem

@@ -31,7 +31,7 @@ interface PostCreatorProps {
 }
 
 export function PostCreator({ isDialog = false, onSuccess, onOptimisticPost }: PostCreatorProps) {
-  const { user, profile: authProfile } = useAuth();
+  const { profile: authProfile } = useAuth();
   const activeProfile = authProfile;
 
   if (!activeProfile) {

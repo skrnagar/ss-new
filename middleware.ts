@@ -63,10 +63,24 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(redirectUrl);
     }
 
+    // New logic: Check for profile completeness if the user is authenticated
+    if (isAuthenticated && path !== "/profile/setup" && !path.startsWith("/api/")) {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("username")
+        .eq("id", session.user.id)
+        .single();
+
+      // If profile is missing or username is not set, redirect to setup
+      if (!profile || !profile.username) {
+        return NextResponse.redirect(new URL("/profile/setup", request.url));
+      }
+    }
+
     // Check if the user is accessing auth routes while already authenticated
     const isAuthRoute = authRoutes.some((route) => path === route || path.startsWith(`${route}/`));
 
-    if (isAuthRoute && isAuthenticated) {
+    if (isAuthRoute && isAuthenticated && request.nextUrl.pathname === "/") {
       return NextResponse.redirect(new URL("/feed", request.url));
     }
 

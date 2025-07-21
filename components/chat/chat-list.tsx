@@ -35,7 +35,8 @@ export function ChatList({ initialUserId }: ChatListProps) {
   const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { user } = useAuth();
+  const { session } = useAuth();
+  const user = session?.user;
 
   useEffect(() => {
     if (!user) return;

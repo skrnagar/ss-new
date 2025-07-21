@@ -29,7 +29,7 @@ export function ArticleEditor({
   const [coverImage, setCoverImage] = useState<File | null>(null);
   const { toast } = useToast();
   const router = useRouter();
-  const [user, setUser] = useState<User | null>(null); // Assuming user object is available
+  const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
     const getUser = async () => {

@@ -46,9 +46,10 @@ export const Navbar = memo(function Navbar() {
   const router = useRouter();
   const { toast } = useToast();
   const isMobile = useMobile();
-  const { user, profile, isLoading } = useAuth();
+  const { session, profile } = useAuth();
+  const user = session?.user;
 
-  console.log('[Navbar] Rendered. isLoading:', isLoading, 'user:', user, 'profile:', profile);
+  console.log('[Navbar] Rendered. isLoading:', false, 'user:', user, 'profile:', profile);
 
   const handleSignOut = useCallback(async () => {
     try {
@@ -91,11 +92,6 @@ export const Navbar = memo(function Navbar() {
     return user?.user_metadata?.name || user?.email?.split("@")[0] || "User";
   }, [user]);
 
-  if (isLoading) {
-    console.log('[Navbar] isLoading is true, returning null');
-    return null;
-  }
-
   return (
     <header className="sticky top-0 z-40 border-b bg-white">
       <div className="container flex h-16 items-center justify-between py-4">
@@ -104,11 +100,11 @@ export const Navbar = memo(function Navbar() {
             <Button variant="ghost" className="relative h-8 w-8 md:h-10 md:w-10 rounded-full">
               <Avatar className="h-8 w-8">
                 <AvatarImage
-                  src={profile?.avatar_url || user?.user_metadata?.avatar_url || ""}
-                  alt={profile?.full_name || user?.user_metadata?.full_name || "User"}
+                  src={profile?.avatar_url || ""}
+                  alt={profile?.full_name || "User"}
                 />
                 <AvatarFallback>
-                  {getInitials(profile?.full_name || user?.user_metadata?.full_name || "")}
+                  {getInitials(profile?.full_name || "")}
                 </AvatarFallback>
               </Avatar>
             </Button>
@@ -145,7 +141,7 @@ export const Navbar = memo(function Navbar() {
               />
             </Link>
 
-            {user && !isMobile && (
+            {session && !isMobile && (
               <NavigationMenu>
                 <NavigationMenuList>
                   <NavigationMenuItem>
@@ -281,18 +277,18 @@ export const Navbar = memo(function Navbar() {
                 </>
               )}
 
-              {user ? (
+              {session ? (
             <div className="flex items-center gap-4">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-8 w-8 md:h-10 md:w-10 rounded-full">
                     <Avatar className="h-8 w-8 md:h-10 md:w-10">
                       <AvatarImage
-                        src={profile?.avatar_url || user?.user_metadata?.avatar_url || ""}
-                        alt={profile?.full_name || user?.user_metadata?.full_name || "User"}
+                        src={profile?.avatar_url || ""}
+                        alt={profile?.full_name || "User"}
                       />
                       <AvatarFallback>
-                        {getInitials(profile?.full_name || user?.user_metadata?.full_name || "")}
+                        {getInitials(profile?.full_name || "")}
                       </AvatarFallback>
                     </Avatar>
                   </Button>
@@ -301,7 +297,7 @@ export const Navbar = memo(function Navbar() {
                   <DropdownMenuLabel className="font-normal">
                     <div className="flex flex-col space-y-1">
                       <p className="text-sm font-medium leading-none">
-                        {profile?.full_name || user?.user_metadata?.full_name || getUserName()}
+                        {profile?.full_name || getUserName()}
                       </p>
                       <p className="text-xs leading-none text-muted-foreground">{user?.email}</p>
                       {profile?.headline && (
