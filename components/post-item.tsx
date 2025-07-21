@@ -28,6 +28,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type * as React from "react";
 import { memo, useEffect, useState } from "react";
+import ModernDocumentViewer from "@/components/modern-document-viewer";
 
 // Define the PostItemProps interface
 interface PostItemProps {
@@ -48,6 +49,7 @@ interface PostItemProps {
       position?: string;
       company?: string;
     };
+    image_urls?: string[]; // Added for multiple images
   };
   currentUser?: {
     id: string;
@@ -74,9 +76,6 @@ const PostItem = memo(function PostItem({ post, currentUser }: PostItemProps) {
   const MAX_CONTENT_LENGTH = 300;
 
   useEffect(() => {
-    // Debug log to check current user status
-    console.log("Current user in post item:", currentUser ? "Logged in" : "Not logged in");
-
     // Check if current user has liked the post
     if (currentUser?.id) {
       checkLikeStatus();
@@ -126,7 +125,6 @@ const PostItem = memo(function PostItem({ post, currentUser }: PostItemProps) {
       }
 
       if (error) {
-        console.error("Error checking like status:", error);
         toast({
           title: "Error checking like status",
           description: error.message,
@@ -134,7 +132,7 @@ const PostItem = memo(function PostItem({ post, currentUser }: PostItemProps) {
         });
       }
     } catch (error) {
-      console.error("Error checking like status:", error);
+      // silent
     }
   };
 
@@ -146,7 +144,7 @@ const PostItem = memo(function PostItem({ post, currentUser }: PostItemProps) {
 
       setLikes(data || []);
     } catch (error) {
-      console.error("Error fetching likes:", error);
+      // silent
     }
   };
 
@@ -154,8 +152,6 @@ const PostItem = memo(function PostItem({ post, currentUser }: PostItemProps) {
     setIsLoadingComments(true);
 
     try {
-      console.log("Fetching comments for post:", post.id);
-
       // Simplify the query to avoid join issues
       const { data, error } = await supabase
         .from("comments")
@@ -164,8 +160,6 @@ const PostItem = memo(function PostItem({ post, currentUser }: PostItemProps) {
         .order("created_at", { ascending: true });
 
       if (error) throw error;
-
-      console.log("Comments fetched:", data?.length || 0);
 
       // If we have comments, fetch the user profiles separately
       if (data && data.length > 0) {
@@ -179,7 +173,7 @@ const PostItem = memo(function PostItem({ post, currentUser }: PostItemProps) {
           .in("id", userIds);
 
         if (profilesError) {
-          console.error("Error fetching profiles:", profilesError);
+          // silent
         } else {
           // Create a map of user_id to profile data
           const profileMap = (profiles || []).reduce<Record<string, any>>((map, profile) => {
@@ -196,7 +190,6 @@ const PostItem = memo(function PostItem({ post, currentUser }: PostItemProps) {
 
       setComments(data || []);
     } catch (error) {
-      console.error("Error fetching comments:", error);
       toast({
         title: "Error loading comments",
         description: "Failed to load comments. Please try again.",
@@ -266,7 +259,6 @@ const PostItem = memo(function PostItem({ post, currentUser }: PostItemProps) {
         }
       }
     } catch (error: any) {
-      console.error("Error toggling like:", error);
       toast({
         title: "Action failed",
         description: error.message || "Unable to process your like",
@@ -338,7 +330,6 @@ const PostItem = memo(function PostItem({ post, currentUser }: PostItemProps) {
         variant: "default",
       });
     } catch (error: any) {
-      console.error("Error submitting comment:", error);
       toast({
         title: "Comment failed",
         description: error.message || "Could not post your comment",
@@ -362,7 +353,6 @@ const PostItem = memo(function PostItem({ post, currentUser }: PostItemProps) {
         description: "Your comment has been removed",
       });
     } catch (error) {
-      console.error("Error deleting comment:", error);
       toast({
         title: "Delete failed",
         description: "An error occurred while deleting the comment",
@@ -388,7 +378,6 @@ const PostItem = memo(function PostItem({ post, currentUser }: PostItemProps) {
 
       router.refresh();
     } catch (error) {
-      console.error("Error deleting post:", error);
       toast({
         title: "Delete failed",
         description: "An error occurred while deleting the post",
@@ -453,7 +442,6 @@ const PostItem = memo(function PostItem({ post, currentUser }: PostItemProps) {
       if (error) throw error;
       return fileName; // Return the uploaded file name
     } catch (error) {
-      console.error("Error uploading media:", error);
       toast({
         title: "Upload failed",
         description: "Could not upload media. Please try again later.",
@@ -468,12 +456,12 @@ const PostItem = memo(function PostItem({ post, currentUser }: PostItemProps) {
   }
 
   return (
-    <Card>
-      <CardContent className="pt-6">
+    <Card className="mb-6 bg-white shadow-sm rounded-xl transition-shadow hover:shadow-md border border-gray-200">
+      <CardContent className="pt-6 pb-2 px-6">
         <div className="flex justify-between items-start mb-4">
-          <div className="flex items-start gap-3">
+          <div className="flex items-start gap-4">
             <Link href={`/profile/${post.profile?.username || "#"}`}>
-              <Avatar className="h-10 w-10">
+              <Avatar className="h-12 w-12">
                 <AvatarImage src={post.profile?.avatar_url} alt={post.profile?.full_name} />
                 <AvatarFallback>{getInitials(post.profile?.full_name || "User")}</AvatarFallback>
               </Avatar>
@@ -481,14 +469,13 @@ const PostItem = memo(function PostItem({ post, currentUser }: PostItemProps) {
             <div>
               <Link
                 href={`/profile/${post.profile?.username || "#"}`}
-                className="font-medium hover:underline"
+                className="font-semibold text-lg text-gray-900 hover:underline"
               >
                 {post.profile?.full_name || "Anonymous User"}
               </Link>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-muted-foreground font-medium">
                 {post.profile?.headline || post.profile?.position}
-                {post.profile?.position && post.profile?.company && " at "}
-                {post.profile?.company}
+                {post.profile?.company && <span className="ml-1">@ {post.profile?.company}</span>}
               </p>
               <div className="flex items-center text-xs text-muted-foreground mt-1">
                 <Clock className="h-3 w-3 mr-1" />
@@ -496,7 +483,6 @@ const PostItem = memo(function PostItem({ post, currentUser }: PostItemProps) {
               </div>
             </div>
           </div>
-
           {isAuthor && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -518,12 +504,11 @@ const PostItem = memo(function PostItem({ post, currentUser }: PostItemProps) {
             </DropdownMenu>
           )}
         </div>
-
         {/* Post content */}
         <div className="space-y-4">
           {post.content && (
             <div>
-              <p className="whitespace-pre-line">{displayContent}</p>
+              <p className="whitespace-pre-line text-base text-gray-800 leading-relaxed">{displayContent}</p>
               {shouldTruncate && (
                 <Button
                   variant="link"
@@ -535,57 +520,95 @@ const PostItem = memo(function PostItem({ post, currentUser }: PostItemProps) {
               )}
             </div>
           )}
-
-          {/* Image or Document attachment */}
-          {(post.image_url || post.document_url) && (
-            <div className="mt-3">
-              {isImageUrl(getStorageUrl(post.image_url || null)) ? (
-                <div className="mt-3 rounded-md overflow-hidden">
-                  <div className="relative w-full max-h-[500px]" style={{ aspectRatio: "16/9" }}>
-                    <Image
-                      src={getStorageUrl(post.image_url || null) || "/placeholder.jpg"}
-                      alt="Post attachment"
-                      width={800}
-                      height={450}
-                      style={{ objectFit: "cover", width: "100%", height: "auto" }}
-                      className="rounded-md"
-                      loading="lazy"
-                      quality={80}
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.src = "/placeholder.jpg";
-                      }}
-                    />
-                  </div>
-                </div>
-              ) : (
-                <div className="flex items-center gap-2 p-4 bg-muted rounded-lg">
-                  <FileText className="h-5 w-5" />
-                  <a
-                    href={getStorageUrl(post.document_url || null) || "#"}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-500 hover:underline"
-                  >
-                    View Document
-                  </a>
-                </div>
-              )}
+          {/* Media attachments (images, video, document) */}
+          {/* Single Image Full Width */}
+          {Array.isArray(post.image_urls) && post.image_urls.length === 1 && (
+            <div className="mt-3 rounded-md overflow-hidden w-full">
+              <div className="relative w-full aspect-video bg-muted flex items-center justify-center">
+                <Image
+                  src={post.image_urls[0]}
+                  alt="Post image"
+                  fill
+                  className="object-contain rounded-md"
+                  loading="lazy"
+                  quality={80}
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.src = "/placeholder.jpg";
+                  }}
+                />
+              </div>
             </div>
           )}
-
-          {/* Video attachment */}
+          {/* Multiple Images Grid */}
+          {Array.isArray(post.image_urls) && post.image_urls.length > 1 && (
+            <div className="mt-3 grid grid-cols-2 md:grid-cols-3 gap-2 rounded-md overflow-hidden w-full">
+              {post.image_urls.map((src, idx) => (
+                <div key={idx} className="relative aspect-video bg-muted flex items-center justify-center">
+                  <Image
+                    src={src}
+                    alt={`Post image ${idx + 1}`}
+                    fill
+                    className="object-contain rounded-md"
+                    loading="lazy"
+                    quality={80}
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.src = "/placeholder.jpg";
+                    }}
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+          {/* Video */}
           {post.video_url && (
-            <div className="mt-3 rounded-md overflow-hidden">
-              <video src={post.video_url} controls className="w-full" poster="/placeholder.jpg" />
+            <div className="mt-3 rounded-md overflow-hidden w-full">
+              <video
+                src={post.video_url}
+                controls
+                className="w-full h-auto rounded-md bg-black"
+                preload="metadata"
+                style={{ maxHeight: 400 }}
+              />
             </div>
           )}
+          {/* Document (PDF/DOCX) */}
+          {post.document_url && (
+            <div className="mt-3 rounded-md overflow-hidden w-full">
+              <ModernDocumentViewer
+                url={post.document_url}
+                type={post.document_url.endsWith(".pdf") ? "pdf" : "docx"}
+                fileName={post.document_url.split("/").pop()}
+              />
+            </div>
+          )}
+
+          {/* Single Image (legacy) */}
+          {post.image_url && !post.image_urls && (
+            <div className="mt-3 rounded-md overflow-hidden">
+              <div className="relative w-full max-h-[500px] aspect-video">
+                <Image
+                  src={getStorageUrl(post.image_url) || "/placeholder.jpg"}
+                  alt="Post attachment"
+                  fill
+                  className="object-cover rounded-md"
+                  loading="lazy"
+                  quality={80}
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.src = "/placeholder.jpg";
+                  }}
+                />
+              </div>
+            </div>
+          )}
+
         </div>
       </CardContent>
-
-      <CardFooter className="flex flex-col px-6 py-3">
+      <div className="border-t border-gray-100 px-6 py-3 flex flex-col gap-2">
         {/* Like and comment counts */}
-        <div className="flex justify-between w-full mb-3 text-sm text-muted-foreground">
+        <div className="flex justify-between w-full mb-1 text-sm text-muted-foreground">
           <div className="flex items-center">
             <ThumbsUp className="h-3 w-3 mr-1" />
             <span>{likes.length || 0}</span>
@@ -595,13 +618,12 @@ const PostItem = memo(function PostItem({ post, currentUser }: PostItemProps) {
             <span>{comments.length || 0}</span>
           </div>
         </div>
-
         {/* Action buttons */}
-        <div className="flex justify-between w-full border-t pt-3">
+        <div className="flex justify-between w-full pt-1">
           <Button
             variant="ghost"
             size="sm"
-            className={`text-muted-foreground ${isLiked ? "text-primary" : ""}`}
+            className={`text-muted-foreground font-medium ${isLiked ? "text-primary" : ""}`}
             onClick={handleLikeToggle}
           >
             <ThumbsUp className={`h-4 w-4 mr-2 ${isLiked ? "fill-primary" : ""}`} />
@@ -610,15 +632,15 @@ const PostItem = memo(function PostItem({ post, currentUser }: PostItemProps) {
           <Button
             variant="ghost"
             size="sm"
-            className={`text-muted-foreground ${showComments ? "bg-muted/50" : ""}`}
+            className={`text-muted-foreground font-medium ${showComments ? "bg-muted/50" : ""}`}
             onClick={handleToggleComments}
           >
             <MessageSquare className="h-4 w-4 mr-2" />
-            {comments.length > 0 ? `Comments (${comments.length})` : "Comments"}
+            Comment
           </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className="text-muted-foreground">
+              <Button variant="ghost" size="sm" className="text-muted-foreground font-medium">
                 <Share2 className="h-4 w-4 mr-2" />
                 Share
               </Button>
@@ -714,103 +736,102 @@ const PostItem = memo(function PostItem({ post, currentUser }: PostItemProps) {
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-
-        {/* Comments section */}
-        {showComments && (
-          <div className="w-full mt-4 space-y-4">
-            {/* Comment form */}
-            <form onSubmit={handleCommentSubmit} className="flex items-start gap-2 w-full">
-              <div className="w-full">
-                <div className="flex-1 relative">
-                  <Textarea
-                    placeholder="Write a comment..."
-                    value={commentContent}
-                    onChange={(e) => setCommentContent(e.target.value)}
-                    className="min-h-[60px] pr-10 resize-none w-full"
-                  />
-                  <Button
-                    type="submit"
-                    size="icon"
-                    variant="ghost"
-                    className="absolute right-2 bottom-2"
-                    disabled={isSubmittingComment || !commentContent.trim()}
-                  >
-                    <Send className="h-4 w-4" />
-                  </Button>
-                </div>
+      </div>
+      {/* Comments section */}
+      {showComments && (
+        <div className="w-full mt-4 space-y-4">
+          {/* Comment form */}
+          <form onSubmit={handleCommentSubmit} className="flex items-start gap-2 w-full">
+            <div className="w-full">
+              <div className="flex-1 relative">
+                <Textarea
+                  placeholder="Write a comment..."
+                  value={commentContent}
+                  onChange={(e) => setCommentContent(e.target.value)}
+                  className="min-h-[60px] pr-10 resize-none w-full"
+                />
+                <Button
+                  type="submit"
+                  size="icon"
+                  variant="ghost"
+                  className="absolute right-2 bottom-2"
+                  disabled={isSubmittingComment || !commentContent.trim()}
+                >
+                  <Send className="h-4 w-4" />
+                </Button>
               </div>
-            </form>
+            </div>
+          </form>
 
-            {/* Comments list */}
-            {isLoadingComments ? (
-              <div className="text-center py-4">Loading comments...</div>
-            ) : (
-              <>
-                {comments.length === 0 ? (
-                  <div className="text-center py-4 text-muted-foreground">No comments yet</div>
-                ) : (
-                  <div className="space-y-4">
-                    {comments.map((comment) => (
-                      <div
-                        key={comment.id || `temp-comment-${Date.now()}-${Math.random()}`}
-                        className="flex items-start gap-2"
-                      >
-                        <Avatar className="h-8 w-8 mt-1">
-                          <AvatarImage
-                            src={
-                              comment.profiles?.avatar_url ||
-                              `https://ui-avatars.com/api/?name=${encodeURIComponent(comment.profiles?.full_name || "User")}&size=40&background=random`
-                            }
-                            alt={comment.profiles?.full_name}
-                          />
-                          <AvatarFallback>
-                            {getInitials(comment.profiles?.full_name || "User")}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1">
-                          <div className="bg-muted rounded-lg p-3">
-                            <div className="flex justify-between items-start">
-                              <Link
-                                href={`/profile/${comment.profiles?.username || "#"}`}
-                                className="font-medium text-sm hover:underline"
-                              >
-                                {comment.profiles?.full_name || "Anonymous User"}
-                              </Link>
-                              {currentUser && comment.user_id === currentUser.id && (
-                                <DropdownMenu>
-                                  <DropdownMenuTrigger asChild>
-                                    <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-                                      <MoreHorizontal className="h-3 w-3" />
-                                    </Button>
-                                  </DropdownMenuTrigger>
-                                  <DropdownMenuContent align="end">
-                                    <DropdownMenuItem>Edit</DropdownMenuItem>
-                                    <DropdownMenuSeparator />
-                                    <DropdownMenuItem
-                                      className="text-red-600 focus:text-red-600"
-                                      onClick={() => handleDeleteComment(comment.id)}
-                                    >
-                                      Delete
-                                    </DropdownMenuItem>
-                                  </DropdownMenuContent>
-                                </DropdownMenu>
-                              )}
-                            </div>
-                            <p className="text-sm mt-1">{comment.content}</p>
+          {/* Comments list */}
+          {isLoadingComments ? (
+            <div className="text-center py-4">Loading comments...</div>
+          ) : (
+            <>
+              {comments.length === 0 ? (
+                <div className="text-center py-4 text-muted-foreground">No comments yet</div>
+              ) : (
+                <div className="space-y-4">
+                  {comments.map((comment) => (
+                    <div
+                      key={comment.id || `temp-comment-${Date.now()}-${Math.random()}`}
+                      className="flex items-start gap-2"
+                    >
+                      <Avatar className="h-8 w-8 mt-1">
+                        <AvatarImage
+                          src={
+                            comment.profiles?.avatar_url ||
+                            `https://ui-avatars.com/api/?name=${encodeURIComponent(comment.profiles?.full_name || "User")}&size=40&background=random`
+                          }
+                          alt={comment.profiles?.full_name}
+                        />
+                        <AvatarFallback>
+                          {getInitials(comment.profiles?.full_name || "User")}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1">
+                        <div className="bg-muted rounded-lg p-3">
+                          <div className="flex justify-between items-start">
+                            <Link
+                              href={`/profile/${comment.profiles?.username || "#"}`}
+                              className="font-medium text-sm hover:underline"
+                            >
+                              {comment.profiles?.full_name || "Anonymous User"}
+                            </Link>
+                            {currentUser && comment.user_id === currentUser.id && (
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                                    <MoreHorizontal className="h-3 w-3" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                  <DropdownMenuItem>Edit</DropdownMenuItem>
+                                  <DropdownMenuSeparator />
+                                  <DropdownMenuItem
+                                    className="text-red-600 focus:text-red-600"
+                                    onClick={() => handleDeleteComment(comment.id)}
+                                  >
+                                    Delete
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            )}
                           </div>
-                          <div className="text-xs text-muted-foreground mt-1 flex items-center">
-                            <span>{formatDate(comment.created_at)}</span>
-                          </div>
+                          <p className="text-sm mt-1">{comment.content}</p>
+                        </div>
+                        <div className="text-xs text-muted-foreground mt-1 flex items-center">
+                          <span>{formatDate(comment.created_at)}</span>
                         </div>
                       </div>
-                    ))}
-                  </div>
-                )}
-              </>
-            )}
-          </div>
-        )}
-      </CardFooter>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      )}
     </Card>
   );
 });

@@ -101,7 +101,6 @@ export function PostCreator({ isDialog = false, onSuccess, onOptimisticPost }: P
       const compressedFile = await imageCompression(file, options);
       return new File([compressedFile], file.name, { type: file.type });
     } catch (error) {
-      console.error("Error compressing image:", error);
       return file;
     } finally {
       setIsCompressing(false);
@@ -118,6 +117,10 @@ export function PostCreator({ isDialog = false, onSuccess, onOptimisticPost }: P
       .substring(0, 2);
   };
 
+  // New: Support multiple images
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+
   const handleAttachmentSelect = (type: "image" | "video" | "document") => {
     setAttachmentType(type);
 
@@ -132,52 +135,50 @@ export function PostCreator({ isDialog = false, onSuccess, onOptimisticPost }: P
   };
 
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    console.log("File input changed:", event.target.files);
-    const file = event.target.files?.[0];
-    if (!file) {
-      console.log("No file selected");
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
+
+    if (attachmentType === "image") {
+      const validFiles = Array.from(files).slice(0, 6); // Limit to 6 images
+      const compressedFiles: File[] = [];
+      const previews: string[] = [];
+      for (const file of validFiles) {
+        if (file.size > 10 * 1024 * 1024) continue;
+        const compressed = await compressImage(file);
+        compressedFiles.push(compressed);
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          previews.push(e.target?.result as string);
+          if (previews.length === compressedFiles.length) {
+            setImageFiles(compressedFiles);
+            setImagePreviews([...previews]);
+          }
+        };
+        reader.readAsDataURL(compressed);
+      }
       return;
     }
-
-    console.log("Selected file:", file.name, file.type, file.size);
-
-    // Validate file size (10MB max)
-    if (file.size > 10 * 1024 * 1024) {
-      toast({
-        title: "File too large",
-        description: "Please select a file smaller than 10MB",
-        variant: "destructive",
-      });
-      return;
-    }
-
+    const file = files[0];
+    if (!file) return;
+    if (file.size > 10 * 1024 * 1024) return;
     const compressedFile = await compressImage(file);
     setAttachmentFile(compressedFile);
-
-    // Create preview for images
-    if (attachmentType === "image") {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setAttachmentPreview(e.target?.result as string);
-      };
-      reader.readAsDataURL(compressedFile);
-    } else {
-      // For non-images, just show the filename
-      setAttachmentPreview(compressedFile.name);
-    }
+    setAttachmentPreview(compressedFile.name);
   };
 
   const clearAttachment = () => {
     setAttachmentFile(null);
     setAttachmentPreview(null);
     setAttachmentType(null);
+    setImageFiles([]);
+    setImagePreviews([]);
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
   };
 
   const handleSubmit = async () => {
-    if (!inputContent.trim() && !attachmentFile) {
+    if (!inputContent.trim() && !attachmentFile && imageFiles.length === 0) {
       toast({
         title: "Empty post",
         description: "Please add some text or an attachment to your post",
@@ -187,63 +188,82 @@ export function PostCreator({ isDialog = false, onSuccess, onOptimisticPost }: P
     }
     setIsSubmitting(true);
     try {
-      let imageUrl = null;
+      let imageUrls: string[] = [];
       let videoUrl = null;
       let documentUrl = null;
 
-      // Upload attachment if any
-      if (attachmentFile) {
-        const fileExt = attachmentFile.name.split(".").pop();
-        const fileName = `${activeProfile?.id || "user"}-${Date.now()}.${fileExt}`;
-        let bucket = "";
-
-        if (attachmentType === "image") {
-          bucket = "post-images";
-        } else if (attachmentType === "video") {
-          bucket = "post-videos";
-        } else if (attachmentType === "document") {
-          bucket = "post-documents";
+      // Upload images if any
+      if (imageFiles.length > 0) {
+        for (const file of imageFiles) {
+          const fileExt = file.name.split(".").pop();
+          const fileName = `${activeProfile?.id || "user"}-${Date.now()}-${Math.random().toString(36).slice(2)}.${fileExt}`;
+          const bucket = "post-images";
+          const { data: buckets } = await supabase.storage.listBuckets();
+          const bucketExists = buckets?.some((b) => b.name === bucket);
+          if (!bucketExists) {
+            await supabase.storage.createBucket(bucket, { public: true });
+          }
+          const { error: uploadError } = await supabase.storage
+            .from(bucket)
+            .upload(fileName, file, {
+              cacheControl: "3600",
+              upsert: false,
+              contentType: file.type,
+            });
+          if (uploadError) continue;
+          const { data: { publicUrl } } = supabase.storage.from(bucket).getPublicUrl(fileName);
+          imageUrls.push(publicUrl);
         }
-
-        // Check if bucket exists first
+      }
+      if (attachmentFile && attachmentType === "video") {
+        const fileExt = attachmentFile.name.split(".").pop();
+        const fileName = `${activeProfile?.id || "user"}-${Date.now()}-${Math.random().toString(36).slice(2)}.${fileExt}`;
+        const bucket = "post-videos";
         const { data: buckets } = await supabase.storage.listBuckets();
         const bucketExists = buckets?.some((b) => b.name === bucket);
-
         if (!bucketExists) {
-          await supabase.storage.createBucket(bucket, {
-            public: true,
-          });
+          await supabase.storage.createBucket(bucket, { public: true });
         }
-
-        const { data: uploadData, error: uploadError } = await supabase.storage
+        const { error: uploadError } = await supabase.storage
           .from(bucket)
           .upload(fileName, attachmentFile, {
             cacheControl: "3600",
             upsert: false,
             contentType: attachmentFile.type,
           });
-
         if (uploadError) {
           throw uploadError;
         }
-
-        const {
-          data: { publicUrl },
-        } = supabase.storage.from(bucket).getPublicUrl(fileName);
-
-        if (attachmentType === "image") {
-          imageUrl = publicUrl;
-        } else if (attachmentType === "video") {
-          videoUrl = publicUrl;
-        } else if (attachmentType === "document") {
-          documentUrl = publicUrl;
+        const { data: { publicUrl } } = supabase.storage.from(bucket).getPublicUrl(fileName);
+        videoUrl = publicUrl;
+      }
+      if (attachmentFile && attachmentType === "document") {
+        const fileExt = attachmentFile.name.split(".").pop();
+        const fileName = `${activeProfile?.id || "user"}-${Date.now()}-${Math.random().toString(36).slice(2)}.${fileExt}`;
+        const bucket = "post-documents";
+        const { data: buckets } = await supabase.storage.listBuckets();
+        const bucketExists = buckets?.some((b) => b.name === bucket);
+        if (!bucketExists) {
+          await supabase.storage.createBucket(bucket, { public: true });
         }
+        const { error: uploadError } = await supabase.storage
+          .from(bucket)
+          .upload(fileName, attachmentFile, {
+            cacheControl: "3600",
+            upsert: false,
+            contentType: attachmentFile.type,
+          });
+        if (uploadError) {
+          throw uploadError;
+        }
+        const { data: { publicUrl } } = supabase.storage.from(bucket).getPublicUrl(fileName);
+        documentUrl = publicUrl;
       }
 
       const newPost = {
         user_id: activeProfile?.id,
         content: inputContent.trim(),
-        image_url: imageUrl,
+        image_urls: imageUrls.length > 0 ? imageUrls : null,
         video_url: videoUrl,
         document_url: documentUrl,
         created_at: new Date().toISOString(),
@@ -288,7 +308,6 @@ export function PostCreator({ isDialog = false, onSuccess, onOptimisticPost }: P
       router.push("/feed");
       router.refresh();
     } catch (error) {
-      console.error("Error creating post:", error);
       toast({
         title: "Post failed",
         description: "An error occurred while creating your post. Please try again.",
@@ -311,6 +330,27 @@ export function PostCreator({ isDialog = false, onSuccess, onOptimisticPost }: P
           }}
           className="min-h-[120px] md:min-h-[250px] resize-none text-sm md:text-base"
         />
+
+        {imagePreviews.length > 0 && (
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-2 max-h-64 overflow-auto rounded-md border p-3 bg-muted/20">
+            {imagePreviews.map((src, idx) => (
+              <div key={idx} className="relative aspect-video rounded-md overflow-hidden flex items-center justify-center">
+                <img src={src} alt={`Attachment preview ${idx + 1}`} className="object-contain w-full h-full" />
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="absolute top-2 right-2 h-6 w-6 rounded-full bg-background/80"
+                  onClick={() => {
+                    setImageFiles(files => files.filter((_, i) => i !== idx));
+                    setImagePreviews(previews => previews.filter((_, i) => i !== idx));
+                  }}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            ))}
+          </div>
+        )}
 
         {attachmentPreview && (
           <div className="relative rounded-md border p-3 bg-muted/20 max-h-64 overflow-auto">
