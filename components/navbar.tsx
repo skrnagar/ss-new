@@ -83,6 +83,28 @@ const UserMenu = ({ user, profile, handleSignOut, isMobile }: any) => (
             <span>Settings</span>
           </Link>
         </DropdownMenuItem>
+        {isMobile && (
+          <>
+            <DropdownMenuItem asChild>
+              <Link href="/jobs" className="cursor-pointer">
+                <Briefcase className="mr-2 h-4 w-4" />
+                <span>Jobs</span>
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link href="/messages" className="cursor-pointer">
+                <MessageCircle className="mr-2 h-4 w-4" />
+                <span>Messages</span>
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link href="/notifications" className="cursor-pointer">
+                <Bell className="mr-2 h-4 w-4" />
+                <span>Notifications</span>
+              </Link>
+            </DropdownMenuItem>
+          </>
+        )}
       </DropdownMenuGroup>
       <DropdownMenuSeparator />
       <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer">
@@ -94,19 +116,23 @@ const UserMenu = ({ user, profile, handleSignOut, isMobile }: any) => (
 );
 
 const MobileHeader = ({ user, profile, handleSignOut }: any) => (
-  <div className="flex items-center justify-between w-full">
-    <UserMenu user={user} profile={profile} handleSignOut={handleSignOut} isMobile={true} />
-    <Link href="/" className="flex-grow text-center">
-      <Image
-        src="/safetyshaper_logo.png"
-        alt="Safety Shaper Logo"
-        width={65}
-        height={30}
-        className="mx-auto h-8 w-auto"
-        priority
-      />
-    </Link>
-    <div className="flex items-center gap-2">
+  <div className="flex items-center justify-between w-full px-4">
+    <div className="w-1/3">
+      <UserMenu user={user} profile={profile} handleSignOut={handleSignOut} isMobile={true} />
+    </div>
+    <div className="w-1/3 text-center">
+      <Link href="/">
+        <Image
+          src="/safetyshaper_logo.png"
+          alt="Safety Shaper Logo"
+          width={65}
+          height={30}
+          className="mx-auto h-8 w-auto"
+          priority
+        />
+      </Link>
+    </div>
+    <div className="w-1/3 flex items-center justify-end gap-2">
       <Button variant="ghost" size="icon" asChild>
         <Link href="/search">
           <Search className="h-5 w-5" />
@@ -115,11 +141,6 @@ const MobileHeader = ({ user, profile, handleSignOut }: any) => (
       <Button variant="ghost" size="icon" asChild>
         <Link href="/messages">
           <MessageCircle className="h-5 w-5" />
-        </Link>
-      </Button>
-      <Button variant="ghost" size="icon" asChild>
-        <Link href="/notifications">
-          <Bell className="h-5 w-5" />
         </Link>
       </Button>
     </div>
@@ -204,7 +225,7 @@ export const Navbar = memo(function Navbar() {
             <DesktopHeader user={user} profile={profile} handleSignOut={handleSignOut} />
           )
         ) : (
-          <div className="flex items-center justify-between w-full">
+          <div className="container flex items-center justify-between w-full">
             <Link href="/" className="flex items-center">
               <Image
                 src="/safetyshaper_logo.png"

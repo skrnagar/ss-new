@@ -20,7 +20,7 @@ export function useMobile(breakpoint = 768): boolean {
   useEffect(() => {
     // Initial check
     const checkMobile = () => {
-      setIsMobile(window.innerWidth < breakpoint);
+      setIsMobile(window.innerWidth <= breakpoint);
     };
 
     // Debounced resize handler
