@@ -1,75 +1,40 @@
 "use client";
 
-import { useRouter, usePathname } from "next/navigation";
-import { Home, Users, PlusSquare, BookOpen, GraduationCap } from "lucide-react";
-import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { Home, Users, PlusSquare, BookOpen, GraduationCap } from "lucide-react";
+
+const navItems = [
+  { href: "/feed", icon: Home, label: "Home" },
+  { href: "/network", icon: Users, label: "Network" },
+  { href: "/posts/create", icon: PlusSquare, label: "Post" },
+  { href: "/knowledge", icon: BookOpen, label: "Knowledge" },
+  { href: "/learning", icon: GraduationCap, label: "Learning" },
+];
 
 export function MobileNav() {
   const pathname = usePathname();
 
-  const navItems = [
-    {
-      label: "Home",
-      href: "/feed",
-      icon: Home,
-      isActive: (path: string) => path === "/feed"
-    },
-    {
-      label: "Network",
-      href: "/network",
-      icon: Users,
-      isActive: (path: string) => path.startsWith("/network")
-    },
-    {
-      label: "Post",
-      href: "/posts/create",
-      icon: PlusSquare,
-      isActive: (path: string) => path === "/posts/create"
-    },
-    {
-      label: "Knowledge",
-      href: "/knowledge",
-      icon: BookOpen,
-      isActive: (path: string) => path.startsWith("/knowledge")
-    },
-    {
-      label: "Learning",
-      href: "/learning",
-      icon: GraduationCap,
-      isActive: (path: string) => path.startsWith("/learning")
-    }
-  ];
-
   return (
-    <div className="fixed bottom-0 left-0 z-50 w-full h-16 bg-white border-t shadow-sm">
-      <div className="max-w-md mx-auto h-full">
-        <div className="grid h-full grid-cols-5">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = item.isActive(pathname);
-
-            return (
+    <nav className="bg-white fixed bottom-0 w-full border-t md:hidden">
+      <ul className="flex justify-around p-2">
+        {navItems.map((item) => {
+          const isActive = pathname === item.href;
+          return (
+            <li key={item.href}>
               <Link
-                key={item.href}
                 href={item.href}
-                className={cn(
-                  "flex flex-col items-center justify-center relative transition-colors",
-                  isActive 
-                    ? "text-primary font-medium" 
-                    : "text-gray-500 hover:text-primary"
-                )}
+                className={`flex flex-col items-center w-16 ${
+                  isActive ? "text-primary" : "text-gray-500"
+                } hover:text-primary transition-colors`}
               >
-                <Icon className="w-6 h-6 mb-0.5" />
+                <item.icon className="w-5 h-5 mb-1" />
                 <span className="text-xs">{item.label}</span>
-                {isActive && (
-                  <span className="absolute -top-0.5 left-1/2 w-1 h-1 bg-primary rounded-full transform -translate-x-1/2" />
-                )}
               </Link>
-            );
-          })}
-        </div>
-      </div>
-    </div>
+            </li>
+          );
+        })}
+      </ul>
+    </nav>
   );
 }
