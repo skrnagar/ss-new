@@ -10,6 +10,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import AuthRedirector from "./components/auth-redirector";
 import { MobileNav } from "@/components/mobile-nav";
+import { Analytics } from "@vercel/analytics/react";
 
 // Dynamically import Navbar with Suspense
 const Navbar = dynamic(
@@ -106,6 +107,7 @@ export default function RootLayout({
             <MobileNav />
           </div>
         </AuthProvider>
+        <Analytics />
       </body>
     </html>
   );

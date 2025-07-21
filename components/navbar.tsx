@@ -116,23 +116,18 @@ const UserMenu = ({ user, profile, handleSignOut, isMobile }: any) => (
 );
 
 const MobileHeader = ({ user, profile, handleSignOut }: any) => (
-  <div className="flex items-center justify-between w-full px-4">
-    <div className="w-1/3">
-      <UserMenu user={user} profile={profile} handleSignOut={handleSignOut} isMobile={true} />
-    </div>
-    <div className="w-1/3 text-center">
-      <Link href="/">
-        <Image
-          src="/safetyshaper_logo.png"
-          alt="Safety Shaper Logo"
-          width={65}
-          height={30}
-          className="mx-auto h-8 w-auto"
-          priority
-        />
-      </Link>
-    </div>
-    <div className="w-1/3 flex items-center justify-end gap-2">
+  <div className="flex items-center justify-between w-full">
+    <Link href="/" className="flex items-center" prefetch={true}>
+      <Image
+        src="/safetyshaper_logo.png"
+        alt="Safety Shaper Logo"
+        width={65}
+        height={30}
+        className="h-8 w-auto"
+        priority
+      />
+    </Link>
+    <div className="flex items-center gap-1">
       <Button variant="ghost" size="icon" asChild>
         <Link href="/search">
           <Search className="h-5 w-5" />
@@ -143,6 +138,12 @@ const MobileHeader = ({ user, profile, handleSignOut }: any) => (
           <MessageCircle className="h-5 w-5" />
         </Link>
       </Button>
+      <Button variant="ghost" size="icon" asChild>
+        <Link href="/notifications">
+          <Bell className="h-5 w-5" />
+        </Link>
+      </Button>
+      <UserMenu user={user} profile={profile} handleSignOut={handleSignOut} isMobile={true} />
     </div>
   </div>
 );
@@ -225,7 +226,7 @@ export const Navbar = memo(function Navbar() {
             <DesktopHeader user={user} profile={profile} handleSignOut={handleSignOut} />
           )
         ) : (
-          <div className="container flex items-center justify-between w-full">
+          <div className="flex items-center justify-between w-full">
             <Link href="/" className="flex items-center">
               <Image
                 src="/safetyshaper_logo.png"
