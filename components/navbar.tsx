@@ -42,6 +42,145 @@ import { useRouter } from "next/navigation";
 import { memo, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
 
+const getInitials = (name: string): string => {
+  if (!name) return "U";
+  return name
+    .split(" ")
+    .map((part) => part?.[0] || "")
+    .join("")
+    .toUpperCase()
+    .substring(0, 2);
+};
+
+const UserMenu = ({ user, profile, handleSignOut, isMobile }: any) => (
+  <DropdownMenu>
+    <DropdownMenuTrigger asChild>
+      <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+        <Avatar className="h-8 w-8">
+          <AvatarImage src={profile?.avatar_url || ""} alt={profile?.full_name || "User"} />
+          <AvatarFallback>{getInitials(profile?.full_name || "")}</AvatarFallback>
+        </Avatar>
+      </Button>
+    </DropdownMenuTrigger>
+    <DropdownMenuContent className="w-56" align="end" forceMount>
+      <DropdownMenuLabel className="font-normal">
+        <div className="flex flex-col space-y-1">
+          <p className="text-sm font-medium leading-none">{profile?.full_name || user?.email}</p>
+          <p className="text-xs leading-none text-muted-foreground">{user?.email}</p>
+        </div>
+      </DropdownMenuLabel>
+      <DropdownMenuSeparator />
+      <DropdownMenuGroup>
+        <DropdownMenuItem asChild>
+          <Link href="/profile" className="cursor-pointer">
+            <User className="mr-2 h-4 w-4" />
+            <span>Profile</span>
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link href="/settings" className="cursor-pointer">
+            <Settings className="mr-2 h-4 w-4" />
+            <span>Settings</span>
+          </Link>
+        </DropdownMenuItem>
+      </DropdownMenuGroup>
+      <DropdownMenuSeparator />
+      <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer">
+        <LogOut className="mr-2 h-4 w-4" />
+        <span>Log out</span>
+      </DropdownMenuItem>
+    </DropdownMenuContent>
+  </DropdownMenu>
+);
+
+const MobileHeader = ({ user, profile, handleSignOut }: any) => (
+  <div className="flex items-center justify-between w-full">
+    <UserMenu user={user} profile={profile} handleSignOut={handleSignOut} isMobile={true} />
+    <Link href="/" className="flex-grow text-center">
+      <Image
+        src="/safetyshaper_logo.png"
+        alt="Safety Shaper Logo"
+        width={65}
+        height={30}
+        className="mx-auto h-8 w-auto"
+        priority
+      />
+    </Link>
+    <div className="flex items-center gap-2">
+      <Button variant="ghost" size="icon" asChild>
+        <Link href="/search">
+          <Search className="h-5 w-5" />
+        </Link>
+      </Button>
+      <Button variant="ghost" size="icon" asChild>
+        <Link href="/messages">
+          <MessageCircle className="h-5 w-5" />
+        </Link>
+      </Button>
+      <Button variant="ghost" size="icon" asChild>
+        <Link href="/notifications">
+          <Bell className="h-5 w-5" />
+        </Link>
+      </Button>
+    </div>
+  </div>
+);
+
+const DesktopHeader = ({ user, profile, handleSignOut }: any) => (
+  <div className="flex items-center justify-between w-full">
+    <div className="flex items-center gap-4">
+      <Link href="/" className="flex items-center" prefetch={true}>
+        <Image
+          src="/safetyshaper_logo.png"
+          alt="Safety Shaper Logo"
+          width={65}
+          height={30}
+          className="mr-2 h-8 w-auto"
+          priority
+        />
+      </Link>
+      <NavigationMenu>
+        <NavigationMenuList>
+          <NavigationMenuItem>
+            <Link href="/feed" legacyBehavior passHref>
+              <NavigationMenuLink className={navigationMenuTriggerStyle()}>Home</NavigationMenuLink>
+            </Link>
+          </NavigationMenuItem>
+          <NavigationMenuItem>
+            <Link href="/knowledge" legacyBehavior passHref>
+              <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                Knowledge Hub
+              </NavigationMenuLink>
+            </Link>
+          </NavigationMenuItem>
+          <NavigationMenuItem>
+            <Link href="/learning" legacyBehavior passHref>
+              <NavigationMenuLink className={navigationMenuTriggerStyle()}>Learning</NavigationMenuLink>
+            </Link>
+          </NavigationMenuItem>
+          <NavigationMenuItem>
+            <Link href="/articles" legacyBehavior passHref>
+              <NavigationMenuLink className={navigationMenuTriggerStyle()}>Articles</NavigationMenuLink>
+            </Link>
+          </NavigationMenuItem>
+        </NavigationMenuList>
+      </NavigationMenu>
+    </div>
+
+    <div className="flex items-center gap-4">
+      <div className="relative">
+        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+        <Input
+          type="search"
+          placeholder="Search..."
+          className="w-[300px] pl-8 rounded-full bg-muted/70"
+        />
+      </div>
+      <UserMenu user={user} profile={profile} handleSignOut={handleSignOut} />
+    </div>
+  </div>
+);
+
 export const Navbar = memo(function Navbar() {
   const router = useRouter();
   const { toast } = useToast();
@@ -49,326 +188,43 @@ export const Navbar = memo(function Navbar() {
   const { session, profile } = useAuth();
   const user = session?.user;
 
-  console.log('[Navbar] Rendered. isLoading:', false, 'user:', user, 'profile:', profile);
-
   const handleSignOut = useCallback(async () => {
-    try {
-      const response = await fetch("/api/auth/signout", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error("Server sign out failed");
-      }
-
-      await supabase.auth.signOut();
-
-      toast({
-        title: "Signed out successfully",
-      });
-
-      window.location.href = "/";
-    } catch (error) {
-      console.error("Sign out error:", error);
-      window.location.href = "/";
-    }
-  }, [toast]);
-
-  const getInitials = useCallback((name: string): string => {
-    if (!name) return "U";
-    return name
-      .split(" ")
-      .map((part) => part?.[0] || "")
-      .join("")
-      .toUpperCase()
-      .substring(0, 2);
-  }, []);
-
-  const getUserName = useCallback(() => {
-    if (!user) return "User";
-    return user?.user_metadata?.name || user?.email?.split("@")[0] || "User";
-  }, [user]);
+    await supabase.auth.signOut();
+    toast({ title: "Signed out successfully" });
+    router.push("/");
+  }, [router, toast]);
 
   return (
     <header className="sticky top-0 z-40 border-b bg-white">
-      <div className="container flex h-16 items-center justify-between py-4">
-        {isMobile ? (
-          <>
-            <Button variant="ghost" className="relative h-8 w-8 md:h-10 md:w-10 rounded-full">
-              <Avatar className="h-8 w-8">
-                <AvatarImage
-                  src={profile?.avatar_url || ""}
-                  alt={profile?.full_name || "User"}
-                />
-                <AvatarFallback>
-                  {getInitials(profile?.full_name || "")}
-                </AvatarFallback>
-              </Avatar>
-            </Button>
-            <Link href="/" className="flex items-center justify-center" prefetch={true}>
-              <Image
-                src="/safetyshaper_logo.png"
-                alt="Safety Shaper Logo"
-                width={65}
-                height={30}
-                className="h-8 w-8 transition-transform hover:scale-105"
-                style={{ width: "auto", height: "auto" }}
-                priority
-              />
-            </Link>
-            <div className="flex items-center gap-2">
-              <Link href="/messages">
-                <Button variant="ghost" size="icon" aria-label="Messages">
-                  <MessageCircle className="h-5 w-5" />
-                </Button>
-              </Link>
-            </div>
-          </>
-        ) : (
-          <div className="flex items-center gap-4">
-            <Link href="/" className="flex items-center" prefetch={true}>
-              <Image
-                src="/safetyshaper_logo.png"
-                alt="Safety Shaper Logo"
-                width={65}
-                height={30}
-                className="mr-2 h-8 w-8 transition-transform hover:scale-105"
-                style={{ width: "auto", height: "auto" }}
-                priority
-              />
-            </Link>
-
-            {session && !isMobile && (
-              <NavigationMenu>
-                <NavigationMenuList>
-                  <NavigationMenuItem>
-                    <Link href="/feed" legacyBehavior passHref prefetch={true}>
-                      <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                        Home
-                      </NavigationMenuLink>
-                    </Link>
-                  </NavigationMenuItem>
-                  <NavigationMenuItem>
-                    <Link href="/knowledge" legacyBehavior passHref prefetch={true}>
-                      <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                        Knowledge Hub
-                      </NavigationMenuLink>
-                    </Link>
-                  </NavigationMenuItem>
-                  <NavigationMenuItem>
-                    <Link href="/learning" legacyBehavior passHref prefetch={true}>
-                      <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                        Learning
-                      </NavigationMenuLink>
-                    </Link>
-                  </NavigationMenuItem>
-                  <NavigationMenuItem>
-                    <Link href="/articles" legacyBehavior passHref prefetch={true}>
-                      <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                        Articles
-                      </NavigationMenuLink>
-                    </Link>
-                  </NavigationMenuItem>
-                </NavigationMenuList>
-              </NavigationMenu>
-            )}
-          </div>
-        )}
-
-        <div className="flex items-center gap-4">
-            {!isMobile && (
-              <>
-                <div className="relative">
-                  <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    type="search"
-                    placeholder="Search..."
-                    className="w-[200px] md:w-[300px] pl-8 rounded-full bg-muted/70 focus-visible:ring-primary transition-all focus-visible:bg-muted"
-                  />
-                </div>
-                <NavigationMenu>
-                    <NavigationMenuList>
-                      <NavigationMenuItem>
-                        <NavigationMenuTrigger>
-                          <Users className="h-5 w-5 mr-1" />
-                          <span className="sr-only">Networks</span>
-                        </NavigationMenuTrigger>
-                        <NavigationMenuContent>
-                          <div className="w-[300px] p-4">
-                            <div className="mb-3 pb-2 border-b">
-                              <h4 className="font-medium mb-1">Professional Network</h4>
-                              <p className="text-xs text-muted-foreground">
-                                Connect with industry professionals
-                              </p>
-                            </div>
-                            <div className="grid gap-3">
-                              <Link
-                                href="/network"
-                                className="flex items-center gap-2 p-2 rounded-md hover:bg-muted transition-colors"
-                              >
-                                <Users className="h-4 w-4 text-primary" />
-                                <div>
-                                  <div className="font-medium">My Connections</div>
-                                  <p className="text-xs text-muted-foreground">
-                                    Manage your professional network
-                                  </p>
-                                </div>
-                              </Link>
-                              <Link
-                                href="/network/professionals"
-                                className="flex items-center gap-2 p-2 rounded-md hover:bg-muted transition-colors"
-                              >
-                                <Search className="h-4 w-4 text-primary" />
-                                <div>
-                                  <div className="font-medium">Explore People</div>
-                                  <p className="text-xs text-muted-foreground">
-                                    Find ESG & EHS professionals
-                                  </p>
-                                </div>
-                              </Link>
-                              <Link
-                                href="/groups"
-                                className="flex items-center gap-2 p-2 rounded-md hover:bg-muted transition-colors"
-                              >
-                                <Users className="h-4 w-4 text-primary" />
-                                <div>
-                                  <div className="font-medium">Groups</div>
-                                  <p className="text-xs text-muted-foreground">
-                                    Join specialized professional groups
-                                  </p>
-                                </div>
-                              </Link>
-                              <Link
-                                href="/events"
-                                className="flex items-center gap-2 p-2 rounded-md hover:bg-muted transition-colors"
-                              >
-                                <Calendar className="h-4 w-4 text-primary" />
-                                <div>
-                                  <div className="font-medium">Events</div>
-                                  <p className="text-xs text-muted-foreground">
-                                    Discover industry events and conferences
-                                  </p>
-                                </div>
-                              </Link>
-                            </div>
-                          </div>
-                        </NavigationMenuContent>
-                      </NavigationMenuItem>
-                    </NavigationMenuList>
-                  </NavigationMenu>
-                  <Link href="/jobs">
-                    <Button variant="ghost" size="icon" aria-label="Jobs">
-                      <Briefcase className="h-5 w-5" />
-                    </Button>
-                  </Link>
-                  <Link href="/messages">
-                    <Button variant="ghost" size="icon" aria-label="Messages" className="relative">
-                      <MessageCircle className="h-5 w-5" />
-                    </Button>
-                  </Link>
-                  <Link href="/notifications">
-                    <Button variant="ghost" size="icon" aria-label="Notifications">
-                      <Bell className="h-5 w-5" />
-                    </Button>
-                  </Link>
-                </>
-              )}
-
-              {session ? (
-            <div className="flex items-center gap-4">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-8 w-8 md:h-10 md:w-10 rounded-full">
-                    <Avatar className="h-8 w-8 md:h-10 md:w-10">
-                      <AvatarImage
-                        src={profile?.avatar_url || ""}
-                        alt={profile?.full_name || "User"}
-                      />
-                      <AvatarFallback>
-                        {getInitials(profile?.full_name || "")}
-                      </AvatarFallback>
-                    </Avatar>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56" align="end" forceMount>
-                  <DropdownMenuLabel className="font-normal">
-                    <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium leading-none">
-                        {profile?.full_name || getUserName()}
-                      </p>
-                      <p className="text-xs leading-none text-muted-foreground">{user?.email}</p>
-                      {profile?.headline && (
-                        <p className="text-xs leading-none text-muted-foreground mt-1">
-                          {profile.headline}
-                        </p>
-                      )}
-                    </div>
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuGroup>
-                    <DropdownMenuItem asChild>
-                      <Link href="/profile" className="cursor-pointer">
-                        <User className="mr-2 h-4 w-4" />
-                        <span>Profile</span>
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link href="/settings" className="cursor-pointer">
-                        <Settings className="mr-2 h-4 w-4" />
-                        <span>Settings</span>
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link href="/compliance" className="cursor-pointer">
-                        <Shield className="mr-2 h-4 w-4" />
-                        <span>Compliance</span>
-                      </Link>
-                    </DropdownMenuItem>
-                    {isMobile && (
-                      <>
-                        <DropdownMenuItem asChild>
-                          <Link href="/jobs" className="cursor-pointer">
-                            <Briefcase className="mr-2 h-4 w-4" />
-                            <span>Jobs</span>
-                          </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem asChild>
-                          <Link href="/messages" className="cursor-pointer">
-                            <MessageCircle className="mr-2 h-4 w-4" />
-                            <span>Messages</span>
-                          </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem asChild>
-                          <Link href="/notifications" className="cursor-pointer">
-                            <Bell className="mr-2 h-4 w-4" />
-                            <span>Notifications</span>
-                          </Link>
-                        </DropdownMenuItem>
-                      </>
-                    )}
-                  </DropdownMenuGroup>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer">
-                    <LogOut className="mr-2 h-4 w-4" />
-                    <span>Log out</span>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
+      <div className="container flex h-16 items-center">
+        {session ? (
+          isMobile ? (
+            <MobileHeader user={user} profile={profile} handleSignOut={handleSignOut} />
           ) : (
+            <DesktopHeader user={user} profile={profile} handleSignOut={handleSignOut} />
+          )
+        ) : (
+          <div className="flex items-center justify-between w-full">
+            <Link href="/" className="flex items-center">
+              <Image
+                src="/safetyshaper_logo.png"
+                alt="Safety Shaper Logo"
+                width={65}
+                height={30}
+                className="mr-2 h-8 w-auto"
+                priority
+              />
+            </Link>
             <div className="flex items-center gap-2">
-              <Button asChild variant="outline" className="bg-white text-black">
+              <Button asChild variant="outline">
                 <Link href="/auth/login">Log in</Link>
               </Button>
-              <Button asChild className="bg-primary text-white hover:bg-primary/90">
-                <Link href="/auth/register">Sign Up</Link>
+              <Button asChild>
+                <Link href="/auth/login?tab=register">Sign Up</Link>
               </Button>
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </header>
   );

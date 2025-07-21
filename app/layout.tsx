@@ -9,6 +9,7 @@ import { Home, Users, PlusSquare, BookOpen, GraduationCap } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
 import AuthRedirector from "./components/auth-redirector";
+import { MobileNav } from "@/components/mobile-nav";
 
 // Dynamically import Navbar with Suspense
 const Navbar = dynamic(
@@ -69,46 +70,6 @@ export const metadata: Metadata = {
   },
 };
 
-//New MobileNav Component
-const MobileNav = () => {
-  return (
-    <nav className="bg-white fixed bottom-0 w-full border-t md:hidden">
-      <ul className="flex justify-around p-2">
-        <li>
-          <Link href="/feed" className="flex flex-col items-center text-gray-500 hover:text-primary">
-            <Home className="w-5 h-5 mb-1" />
-            <span className="text-xs">Home</span>
-          </Link>
-        </li>
-        <li>
-          <Link href="/network" className="flex flex-col items-center text-gray-500 hover:text-primary">
-            <Users className="w-5 h-5 mb-1" />
-            <span className="text-xs">Network</span>
-          </Link>
-        </li>
-        <li>
-          <Link href="/posts/create" className="flex flex-col items-center text-gray-500 hover:text-primary">
-            <PlusSquare className="w-5 h-5 mb-1" />
-            <span className="text-xs">Post</span>
-          </Link>
-        </li>
-        <li>
-          <Link href="/knowledge" className="flex flex-col items-center text-gray-500 hover:text-primary">
-            <BookOpen className="w-5 h-5 mb-1" />
-            <span className="text-xs">Knowledge</span>
-          </Link>
-        </li>
-        <li>
-          <Link href="/learning" className="flex flex-col items-center text-gray-500 hover:text-primary">
-            <GraduationCap className="w-5 h-5 mb-1" />
-            <span className="text-xs">Learning</span>
-          </Link>
-        </li>
-      </ul>
-    </nav>
-  );
-};
-
 
 export default function RootLayout({
   children,
@@ -142,9 +103,7 @@ export default function RootLayout({
               <Footer />
             </div>
             {/* Mobile navigation - only visible on mobile devices */}
-            <div className="block md:hidden">
-              <MobileNav />
-            </div>
+            <MobileNav />
           </div>
         </AuthProvider>
       </body>
