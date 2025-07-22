@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/auth-context";
+import { useToast } from "@/hooks/use-toast";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,7 +10,6 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { UserSearchModal } from "./user-search-modal";
 import { ChatWindow } from "@/components/chat/chat-window";
 import { supabase } from "@/lib/supabase";
-import { format } from "date-fns";
 import { Search, Plus, MessageCircle, ArrowLeft } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -32,6 +32,36 @@ interface ChatListProps {
   initialUserId?: string | null;
 }
 
+// Add types for Supabase responses
+interface SupabaseProfile {
+  id: string;
+  full_name: string;
+  avatar_url: string;
+}
+
+interface SupabaseMessage {
+  id: string;
+  content: string;
+  created_at: string;
+  seen: boolean;
+  sender_id: string;
+}
+
+interface SupabaseConversationParticipant {
+  profiles: SupabaseProfile;
+}
+
+interface SupabaseConversation {
+  id: string;
+  messages: SupabaseMessage[];
+  conversation_participants: SupabaseConversationParticipant[];
+}
+
+interface SupabaseConversationParticipantRow {
+  conversation: SupabaseConversation;
+  id: string;
+}
+
 function isProfile(user: any): user is { id: string; full_name: string; avatar_url: string } {
   return (
     user &&
@@ -48,15 +78,19 @@ export function ChatList({ initialUserId }: ChatListProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { session } = useAuth();
   const user = session?.user;
+  const { toast } = useToast();
 
   useEffect(() => {
     if (!user) return;
     fetchConversations();
-    subscribeToUpdates();
+    const unsubscribe = subscribeToUpdates();
 
     if (initialUserId) {
       startNewConversation(initialUserId);
     }
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
   }, [user?.id, initialUserId]);
 
   const fetchConversations = async () => {
@@ -89,14 +123,20 @@ export function ChatList({ initialUserId }: ChatListProps) {
       if (error) throw error;
       if (!data) return;
 
-      const formattedConversations = data.map((item: any) => ({
-        id: item.conversation?.id || item.id,
-        participants:
-          item.conversation?.conversation_participants
-            ?.map((p: any) => p.profiles)
-            ?.filter((p: any) => p.id !== user?.id) || [],
-        last_message: item.conversation?.messages?.[0],
-      }));
+      // Supabase returns a nested structure, so we process as 'any' and map to Conversation
+      const formattedConversations = (data as any[]).map((item) => {
+        const messages = item.conversation?.messages || [];
+        const unreadCount = messages.filter((msg: any) => !msg.seen && msg.sender_id !== user?.id).length;
+        return {
+          id: item.conversation?.id || item.id,
+          participants:
+            item.conversation?.conversation_participants
+              ?.map((p: any) => p.profiles)
+              ?.filter((p: any) => p.id !== user?.id) || [],
+          last_message: messages[0],
+          unreadCount,
+        };
+      });
 
       const uniqueConversations = Array.from(
         new Map(formattedConversations.map((conv) => [conv.id, conv])).values()
@@ -104,7 +144,11 @@ export function ChatList({ initialUserId }: ChatListProps) {
 
       setConversations(uniqueConversations);
     } catch (err: any) {
-      console.error('Error fetching conversations:', err);
+      toast({
+        title: 'Error fetching conversations',
+        description: err?.message || String(err),
+        variant: 'destructive',
+      });
     }
   };
 
@@ -287,7 +331,6 @@ export function ChatList({ initialUserId }: ChatListProps) {
         </ScrollArea>
       </div>
       {/* Section 2: Chat Window */}
-      {/* Mobile full-screen chat overlay */}
       <div className={`flex-1 h-full flex flex-col w-full ${(selectedConversation && isProfile(otherUser)) ? 'flex' : 'hidden'} lg:flex relative`}>
         {selectedConversation && isProfile(otherUser) ? (
           <>
@@ -337,37 +380,39 @@ export function ChatList({ initialUserId }: ChatListProps) {
         )}
       </div>
       {/* Mobile full-screen overlay */}
-      <div className="fixed inset-0 z-50 bg-white flex flex-col lg:hidden">
-        <div className="flex items-center p-4 border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            onClick={() => setSelectedConversation('')}
-            className="mr-3"
-            aria-label="Back to conversations"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <Avatar className="h-10 w-10">
-            <AvatarImage src={otherUser?.avatar_url} />
-            <AvatarFallback>{otherUser?.full_name?.[0]}</AvatarFallback>
-          </Avatar>
-          <div className="ml-3">
-            <h3 className="font-semibold">{otherUser?.full_name}</h3>
-            <p className="text-sm text-muted-foreground">Active now</p>
+      {selectedConversation && isProfile(otherUser) && (
+        <div className="fixed inset-0 z-50 bg-white flex flex-col lg:hidden">
+          <div className="flex items-center p-4 border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              onClick={() => setSelectedConversation('')}
+              className="mr-3"
+              aria-label="Back to conversations"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <Avatar className="h-10 w-10">
+              <AvatarImage src={otherUser?.avatar_url} />
+              <AvatarFallback>{otherUser?.full_name?.[0]}</AvatarFallback>
+            </Avatar>
+            <div className="ml-3">
+              <h3 className="font-semibold">{otherUser?.full_name}</h3>
+              <p className="text-sm text-muted-foreground">Active now</p>
+            </div>
+          </div>
+          <div className="flex-1 bg-transparent flex flex-col">
+            <div className="p-4 flex-1 flex flex-col">
+              <ChatWindow
+                conversationId={selectedConversation}
+                otherUser={otherUser as { id: string; full_name: string; avatar_url: string }}
+                currentUserId={user?.id || ""}
+              />
+            </div>
           </div>
         </div>
-        <div className="flex-1 bg-transparent flex flex-col">
-          <div className="p-4 flex-1 flex flex-col">
-            <ChatWindow
-              conversationId={selectedConversation}
-              otherUser={otherUser as { id: string; full_name: string; avatar_url: string }}
-              currentUserId={user?.id || ""}
-            />
-          </div>
-        </div>
-      </div>
+      )}
       <UserSearchModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}

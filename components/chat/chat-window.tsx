@@ -8,7 +8,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabase";
 import { Send, CheckCheck, Check, ArrowLeft } from "lucide-react";
-import { format, differenceInCalendarDays, isSameDay } from "date-fns";
+import { format } from "date-fns";
 import Image from "next/image";
 import { ImageModal } from "@/components/ui/image-modal";
 
@@ -142,24 +142,17 @@ export function ChatWindow({ conversationId, otherUser, currentUserId }: ChatWin
               >
                 <p className="break-words">{message.content}</p>
                 {message.image_url && (
-                  <>
-                    <div
-                      className="mt-2 relative w-48 h-48 cursor-pointer"
-                      onClick={() => setSelectedImage(message.image_url || null)}
-                    >
-                      <Image
-                        src={message.image_url}
-                        alt="Message attachment"
-                        fill
-                        className="object-cover rounded-md hover:opacity-90 transition-opacity"
-                      />
-                    </div>
-                    <ImageModal
-                      isOpen={selectedImage === message.image_url}
-                      onClose={() => setSelectedImage(null)}
-                      imageUrl={message.image_url}
+                  <div
+                    className="mt-2 relative w-48 h-48 cursor-pointer"
+                    onClick={() => setSelectedImage(message.image_url || null)}
+                  >
+                    <Image
+                      src={message.image_url}
+                      alt="Message attachment"
+                      fill
+                      className="object-cover rounded-md hover:opacity-90 transition-opacity"
                     />
-                  </>
+                  </div>
                 )}
                 <div className="flex items-center justify-end space-x-1 mt-1">
                   <span className="text-xs opacity-70">
@@ -181,7 +174,12 @@ export function ChatWindow({ conversationId, otherUser, currentUserId }: ChatWin
           <div ref={scrollRef} />
         </div>
       </ScrollArea>
-
+      {/* Single ImageModal for all images */}
+      <ImageModal
+        isOpen={!!selectedImage}
+        onClose={() => setSelectedImage(null)}
+        imageUrl={selectedImage || ""}
+      />
       <form
         onSubmit={sendMessage}
         className="p-4 border-t bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60"

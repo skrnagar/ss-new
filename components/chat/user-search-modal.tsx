@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Search } from "lucide-react";
 import { useState } from "react";
+import { useRef } from "react";
 
 interface UserSearchModalProps {
   isOpen: boolean;
@@ -23,6 +24,7 @@ export function UserSearchModal({ isOpen, onClose, onStartConversation }: UserSe
   const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<any[]>([]);
+  const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleSearch = async (query: string) => {
     setSearchQuery(query);
@@ -36,7 +38,11 @@ export function UserSearchModal({ isOpen, onClose, onStartConversation }: UserSe
         .limit(10);
 
       if (error) {
-        console.error("Error fetching suggestions:", error);
+        toast({
+          title: "Error fetching suggestions",
+          description: error.message,
+          variant: "destructive",
+        });
         return;
       }
 
@@ -52,7 +58,11 @@ export function UserSearchModal({ isOpen, onClose, onStartConversation }: UserSe
       .limit(10);
 
     if (error) {
-      console.error("Error searching users:", error);
+      toast({
+        title: "Error searching users",
+        description: error.message,
+        variant: "destructive",
+      });
       return;
     }
 
@@ -80,7 +90,14 @@ export function UserSearchModal({ isOpen, onClose, onStartConversation }: UserSe
           <Input
             placeholder="Type a name or multiple names"
             value={searchQuery}
-            onChange={(e) => handleSearch(e.target.value)}
+            onChange={(e) => {
+              const value = e.target.value;
+              if (debounceRef.current) clearTimeout(debounceRef.current);
+              debounceRef.current = setTimeout(() => {
+                handleSearch(value);
+              }, 350);
+              setSearchQuery(value);
+            }}
             className="pl-10 w-full mb-4"
           />
           <Search className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
