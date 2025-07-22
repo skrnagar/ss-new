@@ -83,7 +83,7 @@ export function ChatList({ initialUserId }: ChatListProps) {
   useEffect(() => {
     if (!user) return;
     fetchConversations();
-    const unsubscribe = subscribeToUpdates();
+    const unsubscribe = subscribeToUpdates(user.id);
 
     if (initialUserId) {
       startNewConversation(initialUserId);
@@ -124,8 +124,13 @@ export function ChatList({ initialUserId }: ChatListProps) {
       if (!data) return;
 
       // Supabase returns a nested structure, so we process as 'any' and map to Conversation
-      const formattedConversations = (data as any[]).map((item) => {
+      let formattedConversations = (data as any[]).map((item) => {
         const messages = item.conversation?.messages || [];
+        // Find the latest message (by created_at)
+        const latestMessage = messages.reduce((latest: any, msg: any) => {
+          if (!latest) return msg;
+          return new Date(msg.created_at) > new Date(latest.created_at) ? msg : latest;
+        }, null);
         const unreadCount = messages.filter((msg: any) => !msg.seen && msg.sender_id !== user?.id).length;
         return {
           id: item.conversation?.id || item.id,
@@ -133,9 +138,16 @@ export function ChatList({ initialUserId }: ChatListProps) {
             item.conversation?.conversation_participants
               ?.map((p: any) => p.profiles)
               ?.filter((p: any) => p.id !== user?.id) || [],
-          last_message: messages[0],
+          last_message: latestMessage,
           unreadCount,
         };
+      });
+
+      // Sort conversations by latest message created_at descending
+      formattedConversations = formattedConversations.sort((a, b) => {
+        const aTime = a.last_message?.created_at ? new Date(a.last_message.created_at).getTime() : 0;
+        const bTime = b.last_message?.created_at ? new Date(b.last_message.created_at).getTime() : 0;
+        return bTime - aTime;
       });
 
       const uniqueConversations = Array.from(
@@ -152,13 +164,14 @@ export function ChatList({ initialUserId }: ChatListProps) {
     }
   };
 
-  const subscribeToUpdates = () => {
+  const subscribeToUpdates = (userId: string) => {
+    const channelName = `conversations_changes_${userId}`;
     const subscription = supabase
-      .channel("conversations_changes")
+      .channel(channelName)
       .on(
         "postgres_changes",
         {
-          event: "*",
+          event: "*", // Listen to all events (INSERT, UPDATE, etc.)
           schema: "public",
           table: "messages",
         },

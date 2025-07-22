@@ -39,8 +39,42 @@ export function ChatWindow({ conversationId, otherUser, currentUserId }: ChatWin
   const [newMessage, setNewMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [otherTyping, setOtherTyping] = useState(false);
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+  const typingChannelRef = useRef<any>(null);
+
+  // Typing indicator: broadcast when typing
+  useEffect(() => {
+    if (!conversationId) return;
+    // Subscribe to typing events
+    const channel = supabase.channel(`typing:${conversationId}`);
+    typingChannelRef.current = channel;
+    channel.on('broadcast', { event: 'typing' }, (payload) => {
+      if (payload.payload.userId !== currentUserId) {
+        setOtherTyping(true);
+        if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+        typingTimeoutRef.current = setTimeout(() => setOtherTyping(false), 2000);
+      }
+    });
+    channel.subscribe();
+    return () => {
+      channel.unsubscribe();
+      if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+    };
+  }, [conversationId, currentUserId]);
+
+  // Broadcast typing event
+  const handleTyping = () => {
+    if (typingChannelRef.current) {
+      typingChannelRef.current.send({
+        type: 'broadcast',
+        event: 'typing',
+        payload: { userId: currentUserId },
+      });
+    }
+  };
 
   useEffect(() => {
     const fetchMessages = async () => {
@@ -102,14 +136,19 @@ export function ChatWindow({ conversationId, otherUser, currentUserId }: ChatWin
     e.preventDefault();
     if (!newMessage.trim() || isLoading) return;
     setIsLoading(true);
-    const { error } = await supabase.from("messages").insert({
+    const messageToSend = {
       conversation_id: conversationId,
       sender_id: currentUserId,
       content: newMessage.trim(),
-    });
+      created_at: new Date().toISOString(),
+      seen: false,
+      seen_at: null,
+    };
+    const { data, error } = await supabase.from("messages").insert(messageToSend).select().single();
     if (error) {
       toast({ title: "Error sending message", description: error.message });
     } else {
+      setMessages((prev) => [...prev, { ...messageToSend, id: data.id }]);
       setNewMessage("");
     }
     setIsLoading(false);
@@ -173,6 +212,9 @@ export function ChatWindow({ conversationId, otherUser, currentUserId }: ChatWin
                 </div>
               </div>
             ))}
+            {otherTyping && (
+              <div className="text-xs text-muted-foreground italic pb-2 pl-2">{otherUser.full_name} is typing…</div>
+            )}
             <div ref={scrollRef} />
           </div>
         </div>
@@ -192,7 +234,7 @@ export function ChatWindow({ conversationId, otherUser, currentUserId }: ChatWin
           <Input
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
-            onInput={() => {}}
+            onInput={handleTyping}
             placeholder="Type a message..."
             disabled={isLoading}
             className="flex-1"
