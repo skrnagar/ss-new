@@ -51,7 +51,7 @@ function MessagesPageContent() {
             <h3 className="font-semibold mb-2">Start a new conversation</h3>
             <p className="text-sm text-muted-foreground mb-4">Connect with professionals and grow your network.</p>
             <Link href="/network" className="w-full">
-              <button className="w-full bg-primary text-white rounded-md py-2 font-semibold hover:bg-primary/90 transition">Find People</button>
+              <span className="block w-full bg-primary text-white rounded-md py-2 font-semibold hover:bg-primary/90 transition text-center cursor-pointer">Find People</span>
             </Link>
           </div>
         </div>
