@@ -123,66 +123,69 @@ export function ChatWindow({ conversationId, otherUser, currentUserId }: ChatWin
   };
 
   return (
-    <div className="flex flex-col h-full bg-white min-h-0 relative">
-      <ScrollArea className="flex-1 p-4 pb-28 sm:pb-4">
-        <div className="space-y-4">
-          {messages.map((message) => (
-            <div
-              key={message.id}
-              className={`flex ${
-                message.sender_id === currentUserId ? "justify-end" : "justify-start"
-              }`}
-            >
+    <div className="flex flex-col h-full min-h-0 bg-white">
+      {/* Chat header goes here if needed */}
+      <div className="flex-1 min-h-0 flex flex-col">
+        <div className="flex-1 min-h-0 overflow-y-auto p-4" style={{ scrollBehavior: 'smooth' }}>
+          <div className="space-y-4">
+            {messages.map((message) => (
               <div
-                className={`max-w-[70%] rounded-lg p-3 ${
-                  message.sender_id === currentUserId
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted"
+                key={message.id}
+                className={`flex ${
+                  message.sender_id === currentUserId ? "justify-end" : "justify-start"
                 }`}
               >
-                <p className="break-words">{message.content}</p>
-                {message.image_url && (
-                  <div
-                    className="mt-2 relative w-48 h-48 cursor-pointer"
-                    onClick={() => setSelectedImage(message.image_url || null)}
-                  >
-                    <Image
-                      src={message.image_url}
-                      alt="Message attachment"
-                      fill
-                      className="object-cover rounded-md hover:opacity-90 transition-opacity"
-                    />
-                  </div>
-                )}
-                <div className="flex items-center justify-end space-x-1 mt-1">
-                  <span className="text-xs opacity-70">
-                    {format(new Date(message.created_at), "HH:mm")}
-                  </span>
-                  {message.sender_id === currentUserId && (
-                    <span>
-                      {message.seen ? (
-                        <CheckCheck className="h-4 w-4" />
-                      ) : (
-                        <Check className="h-4 w-4" />
-                      )}
-                    </span>
+                <div
+                  className={`max-w-[70%] rounded-lg p-3 ${
+                    message.sender_id === currentUserId
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-muted"
+                  }`}
+                >
+                  <p className="break-words">{message.content}</p>
+                  {message.image_url && (
+                    <div
+                      className="mt-2 relative w-48 h-48 cursor-pointer"
+                      onClick={() => setSelectedImage(message.image_url || null)}
+                    >
+                      <Image
+                        src={message.image_url}
+                        alt="Message attachment"
+                        fill
+                        className="object-cover rounded-md hover:opacity-90 transition-opacity"
+                      />
+                    </div>
                   )}
+                  <div className="flex items-center justify-end space-x-1 mt-1">
+                    <span className="text-xs opacity-70">
+                      {format(new Date(message.created_at), "HH:mm")}
+                    </span>
+                    {message.sender_id === currentUserId && (
+                      <span>
+                        {message.seen ? (
+                          <CheckCheck className="h-4 w-4" />
+                        ) : (
+                          <Check className="h-4 w-4" />
+                        )}
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-          <div ref={scrollRef} />
+            ))}
+            <div ref={scrollRef} />
+          </div>
         </div>
-      </ScrollArea>
-      {/* Single ImageModal for all images */}
-      <ImageModal
-        isOpen={!!selectedImage}
-        onClose={() => setSelectedImage(null)}
-        imageUrl={selectedImage || ""}
-      />
+        {/* Single ImageModal for all images */}
+        <ImageModal
+          isOpen={!!selectedImage}
+          onClose={() => setSelectedImage(null)}
+          imageUrl={selectedImage || ""}
+        />
+      </div>
       <form
         onSubmit={sendMessage}
-        className="p-4 border-t bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 w-full fixed bottom-0 left-0 right-0 z-10 sm:static sm:z-auto sm:relative"
+        className="p-4 border-t bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 w-full"
         style={{ maxWidth: '100vw' }}
       >
         <div className="flex space-x-2 items-end">
