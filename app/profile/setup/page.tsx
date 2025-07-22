@@ -59,17 +59,17 @@ export default function ProfileSetupPage() {
   });
 
   React.useEffect(() => {
-    if (profile) {
-      form.reset({
+          if (profile) {
+            form.reset({
         full_name: profile.full_name || "",
-        headline: profile.headline || "",
-        bio: profile.bio || "",
-        company: profile.company || "",
-        position: profile.position || "",
-        location: profile.location || "",
-        username: profile.username || "",
-      });
-    }
+              headline: profile.headline || "",
+              bio: profile.bio || "",
+              company: profile.company || "",
+              position: profile.position || "",
+              location: profile.location || "",
+              username: profile.username || "",
+            });
+          }
   }, [profile, form]);
 
   async function onSubmit(values: z.infer<typeof profileSetupSchema>) {

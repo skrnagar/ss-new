@@ -9,6 +9,8 @@ import { Briefcase, Calendar, Edit, MapPin, MessageSquare, User, UserPlus } from
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { ConnectButton } from "@/components/connect-button";
+import { FollowButton } from "@/components/follow-button";
+import { useState, useEffect } from "react";
 
 export const revalidate = 3600; // Revalidate the data at most every hour
 
@@ -92,6 +94,9 @@ export default async function ProfilePage({ params }: { params: { username: stri
                         </Link>
                       </Button>
                       {session && <ConnectButton userId={session.user.id} profileId={profile.id} />}
+                      {!isOwnProfile && session && (
+                        <FollowButton userId={session.user.id} profileId={profile.id} />
+                      )}
                     </>
                   )}
                 </div>

@@ -104,7 +104,7 @@ export default function RootLayout({
               <Footer />
             </div>
             {/* Mobile navigation - only visible on mobile devices */}
-            <MobileNav />
+              <MobileNav />
           </div>
         </AuthProvider>
         <Analytics />

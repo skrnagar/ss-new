@@ -11,6 +11,10 @@ const protectedRoutes = [
   "/knowledge",
   "/messages",
   "/notifications",
+  "/network",
+  "/network/connections",
+  "/network/followers",
+  "/network/following",
 ];
 
 // Routes that should redirect to feed if already authenticated
