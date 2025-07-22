@@ -99,7 +99,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   // Render a loading screen while the session is being fetched.
   // This prevents the rest of the app from rendering prematurely.
   if (isLoading) {
-    return (
+  return (
       <div className="fixed inset-0 flex items-center justify-center bg-background z-50">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
       </div>

@@ -39,8 +39,9 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { memo, useCallback } from "react";
+import { memo, useCallback, useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { NotificationDropdown } from "@/components/notification-dropdown";
 
 const getInitials = (name: string): string => {
   if (!name) return "U";
@@ -55,7 +56,7 @@ const getInitials = (name: string): string => {
 const UserMenu = ({ user, profile, handleSignOut, isMobile }: any) => (
   <DropdownMenu>
     <DropdownMenuTrigger asChild>
-      <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+      <Button variant="ghost" className="relative h-8 w-8 rounded-full pl-10" style={{ paddingLeft: '40px' }}>
         <Avatar className="h-8 w-8">
           <AvatarImage src={profile?.avatar_url || ""} alt={profile?.full_name || "User"} />
           <AvatarFallback>{getInitials(profile?.full_name || "")}</AvatarFallback>
@@ -105,12 +106,6 @@ const UserMenu = ({ user, profile, handleSignOut, isMobile }: any) => (
                 <span>Messages</span>
               </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link href="/notifications" className="cursor-pointer">
-                <Bell className="mr-2 h-4 w-4" />
-                <span>Notifications</span>
-              </Link>
-            </DropdownMenuItem>
           </>
         )}
       </DropdownMenuGroup>
@@ -146,11 +141,7 @@ const MobileHeader = ({ user, profile, handleSignOut }: any) => (
           <MessageCircle className="h-5 w-5" />
         </Link>
       </Button>
-      <Button variant="ghost" size="icon" asChild>
-        <Link href="/notifications">
-          <Bell className="h-5 w-5" />
-        </Link>
-      </Button>
+      <NotificationDropdown userId={user?.id} />
       <UserMenu user={user} profile={profile} handleSignOut={handleSignOut} isMobile={true} />
     </div>
   </div>
@@ -287,12 +278,7 @@ const DesktopHeader = ({ user, profile, handleSignOut }: any) => (
           <MessageCircle className="h-5 w-5" />
         </Link>
       </Button>
-      <Button variant="ghost" size="icon" asChild>
-        <Link href="/notifications">
-          <Bell className="h-5 w-5" />
-        </Link>
-      </Button>
-
+      <NotificationDropdown userId={user?.id} />
       <UserMenu user={user} profile={profile} handleSignOut={handleSignOut} />
     </div>
   </div>

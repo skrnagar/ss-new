@@ -229,6 +229,63 @@ export default function NetworkPage() {
     }
   };
 
+  // Add Connect, Cancel, Remove handlers
+  const handleConnect = async (profileId: string) => {
+    if (!user?.id) return;
+    // Optimistic update
+    setSentRequests((prev) => [
+      ...prev,
+      {
+        id: `optimistic-${profileId}`,
+        user_id: user.id,
+        connected_user_id: profileId,
+        status: "pending",
+        profile: suggestions.find((p) => p.id === profileId),
+      },
+    ]);
+    setSuggestions((prev) => prev.filter((p) => p.id !== profileId));
+    try {
+      const { error } = await supabase.from("connections").insert({
+        user_id: user.id,
+        connected_user_id: profileId,
+        status: "pending",
+      });
+      if (error) throw error;
+      toast({ title: "Request sent", description: "Connection request sent." });
+      fetchRequests();
+      fetchNetworkData();
+    } catch (error) {
+      toast({ title: "Error", description: "Failed to send request.", variant: "destructive" });
+    }
+  };
+
+  const handleCancelRequest = async (connectionId: string) => {
+    // Optimistic update
+    setSentRequests((prev) => prev.filter((r) => r.id !== connectionId));
+    try {
+      const { error } = await supabase.from("connections").delete().eq("id", connectionId);
+      if (error) throw error;
+      toast({ title: "Request cancelled" });
+      fetchRequests();
+      fetchNetworkData();
+    } catch (error) {
+      toast({ title: "Error", description: "Failed to cancel request.", variant: "destructive" });
+    }
+  };
+
+  const handleRemoveConnection = async (connectionId: string) => {
+    // Optimistic update
+    setConnections((prev) => prev.filter((c) => c.id !== connectionId));
+    try {
+      const { error } = await supabase.from("connections").delete().eq("id", connectionId);
+      if (error) throw error;
+      toast({ title: "Connection removed" });
+      fetchNetworkData();
+    } catch (error) {
+      toast({ title: "Error", description: "Failed to remove connection.", variant: "destructive" });
+    }
+  };
+
   return (
     <div className="container py-6">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -364,7 +421,9 @@ export default function NetworkPage() {
                           </p>
                         </div>
                       </div>
-                      <Button variant="secondary" disabled>Pending</Button>
+                      <Button variant="outline" onClick={() => handleCancelRequest(request.id)}>
+                        Cancel
+                      </Button>
                     </div>
                   ))}
                 </div>
@@ -422,6 +481,13 @@ export default function NetworkPage() {
                           <Link href={`/messages?userId=${connection.profile.id}`}>Message</Link>
                         </Button>
                         <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => handleRemoveConnection(connection.id)}
+                        >
+                          Remove
+                        </Button>
+                        <Button
                           variant="ghost"
                           size="sm"
                           asChild
@@ -464,6 +530,13 @@ export default function NetworkPage() {
                               {mutualConnections[profile.id] || 0} mutual connections
                             </p>
                             <div className="mt-2 space-x-2">
+                              <Button
+                                variant="default"
+                                size="sm"
+                                onClick={() => handleConnect(profile.id)}
+                              >
+                                Connect
+                              </Button>
                               <Button
                                 variant="outline"
                                 size="sm"

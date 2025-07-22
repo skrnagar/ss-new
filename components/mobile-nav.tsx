@@ -18,23 +18,23 @@ export function MobileNav() {
   return (
     <nav className="bg-white fixed bottom-0 w-full border-t md:hidden">
       <ul className="flex justify-around p-2">
-        {navItems.map((item) => {
+          {navItems.map((item) => {
           const isActive = pathname === item.href;
-          return (
+            return (
             <li key={item.href}>
-              <Link
-                href={item.href}
+                <Link
+                  href={item.href}
                 className={`flex flex-col items-center w-16 ${
                   isActive ? "text-primary" : "text-gray-500"
                 } hover:text-primary transition-colors`}
-              >
+                >
                 <item.icon className="w-5 h-5 mb-1" />
-                <span className="text-xs">{item.label}</span>
-              </Link>
-            </li>
-          );
-        })}
-      </ul>
+                  <span className="text-xs">{item.label}</span>
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
     </nav>
   );
 }

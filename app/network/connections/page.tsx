@@ -9,6 +9,8 @@ import { useToast } from "@/hooks/use-toast";
 import { MessageSquare, UserMinus, UserPlus } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { Input } from "@/components/ui/input";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 export default function ConnectionsPage() {
   const { session } = useAuth();
@@ -139,14 +141,15 @@ export default function ConnectionsPage() {
   };
 
   const handleRemoveConnection = async (connectionId: string) => {
+    // Optimistic update
+    setConnections((prev) => prev.filter((c) => c.id !== connectionId));
     try {
       const { error } = await supabase.from("connections").delete().eq("id", connectionId);
-
       if (error) throw error;
-
+      toast({ title: "Connection removed" });
       fetchConnections();
     } catch (error) {
-      console.error("Error removing connection:", error);
+      toast({ title: "Error", description: "Failed to remove connection.", variant: "destructive" });
     }
   };
 
@@ -189,9 +192,29 @@ export default function ConnectionsPage() {
 
       <Card>
         <CardContent className="p-6">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-semibold">My Connections</h2>
-            <p className="text-sm text-muted-foreground">{connections.length} connections</p>
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-2">
+            <div className="flex items-center gap-2">
+              <h2 className="text-lg font-semibold">My Connections</h2>
+              <span className="text-sm text-muted-foreground">{connections.length} connections</span>
+            </div>
+            <div className="flex gap-2 items-center mt-2 md:mt-0">
+              <Input
+                type="text"
+                placeholder="Search connections..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-40 md:w-64"
+              />
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm">Sort: {sortBy === "recent" ? "Recent" : "Name"}</Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => setSortBy("recent")}>Recent</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setSortBy("name")}>Name</DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </div>
 
           {loading ? (
@@ -206,9 +229,9 @@ export default function ConnectionsPage() {
                 </div>
               ))}
             </div>
-          ) : connections.length > 0 ? (
+          ) : sortedAndFilteredConnections.length > 0 ? (
             <div className="grid gap-4">
-              {connections.map((connection) => (
+              {sortedAndFilteredConnections.map((connection) => (
                 <div
                   key={connection.id}
                   className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
@@ -238,7 +261,7 @@ export default function ConnectionsPage() {
                       </Link>
                     </Button>
                     <Button
-                      variant="outline"
+                      variant="destructive"
                       size="sm"
                       onClick={() => handleRemoveConnection(connection.id)}
                     >
@@ -251,8 +274,7 @@ export default function ConnectionsPage() {
             </div>
           ) : (
             <div className="text-center py-8 text-muted-foreground">
-              <p>You don't have any connections yet.</p>
-              <p className="mt-2">Start connecting with other professionals in your field!</p>
+              <p>No connections found.</p>
             </div>
           )}
         </CardContent>
