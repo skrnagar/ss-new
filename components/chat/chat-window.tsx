@@ -8,7 +8,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabase";
 import { Send, CheckCheck, Check, ArrowLeft } from "lucide-react";
-import { format } from "date-fns";
+import { format, differenceInCalendarDays, isSameDay } from "date-fns";
 import Image from "next/image";
 import { ImageModal } from "@/components/ui/image-modal";
 
@@ -59,7 +59,6 @@ export function ChatWindow({ conversationId, otherUser, currentUserId }: ChatWin
       scrollToBottom();
 
       const unseenMessages = data?.filter((msg) => !msg.seen && msg.sender_id !== currentUserId);
-
       if (unseenMessages?.length) {
         await Promise.all(unseenMessages.map((msg) => markAsRead(msg.id)));
       }
@@ -81,7 +80,6 @@ export function ChatWindow({ conversationId, otherUser, currentUserId }: ChatWin
           const newMessage = payload.new as Message;
           setMessages((prev) => [...prev, newMessage]);
           scrollToBottom();
-
           if (newMessage.sender_id !== currentUserId) {
             markAsRead(newMessage.id);
           }
@@ -103,14 +101,12 @@ export function ChatWindow({ conversationId, otherUser, currentUserId }: ChatWin
   const sendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newMessage.trim() || isLoading) return;
-
     setIsLoading(true);
     const { error } = await supabase.from("messages").insert({
       conversation_id: conversationId,
       sender_id: currentUserId,
       content: newMessage.trim(),
     });
-
     if (error) {
       toast({ title: "Error sending message", description: error.message });
     } else {
@@ -127,21 +123,7 @@ export function ChatWindow({ conversationId, otherUser, currentUserId }: ChatWin
   };
 
   return (
-    <div className="flex flex-col h-[100vh] bg-white">
-      <div className="flex items-center p-4 border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
-        <Button variant="ghost" size="icon" className="mr-3" onClick={() => window.history.back()}>
-          <ArrowLeft className="h-5 w-5" />
-        </Button>
-        <Avatar className="h-10 w-10">
-          <AvatarImage src={otherUser.avatar_url} />
-          <AvatarFallback>{otherUser.full_name[0]}</AvatarFallback>
-        </Avatar>
-        <div className="ml-3">
-          <h3 className="font-semibold">{otherUser.full_name}</h3>
-          <p className="text-sm text-muted-foreground">Active now</p>
-        </div>
-      </div>
-
+    <div className="flex flex-col h-full bg-white min-h-0">
       <ScrollArea className="flex-1 p-4">
         <div className="space-y-4">
           {messages.map((message) => (
@@ -204,15 +186,17 @@ export function ChatWindow({ conversationId, otherUser, currentUserId }: ChatWin
         onSubmit={sendMessage}
         className="p-4 border-t bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60"
       >
-        <div className="flex space-x-2">
+        <div className="flex space-x-2 items-end">
           <Input
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
+            onInput={() => {}}
             placeholder="Type a message..."
             disabled={isLoading}
             className="flex-1"
+            aria-label="Type a message"
           />
-          <Button type="submit" disabled={isLoading || !newMessage.trim()}>
+          <Button type="submit" disabled={isLoading || !newMessage.trim()} aria-label="Send message">
             <Send className="h-4 w-4" />
             <span className="sr-only">Send message</span>
           </Button>

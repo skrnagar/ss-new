@@ -17,6 +17,7 @@ import { CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Clock } from "lucide-react";
 import { User } from "lucide-react";
 import useSWR, { mutate as globalMutate } from 'swr';
+import { ProfileCard } from "@/components/profile-card";
 
 const PostItem = dynamic(() => import("@/components/post-item").then((mod) => mod.default), {
   ssr: false,
@@ -87,18 +88,35 @@ export default function FeedPage() {
 
   const fetchSuggestions = async (userId: string) => {
     if (!userId) return [];
-    const { data: connections } = await supabase
+    // Get all connections for the current user
+    const { data: myConnections } = await supabase
       .from("connections")
       .select("connected_user_id")
       .eq("user_id", userId);
-    const connectedIds = connections?.map((c) => c.connected_user_id) || [];
+    const connectedIds = myConnections?.map((c) => c.connected_user_id) || [];
     connectedIds.push(userId);
+    // Get all profiles not already connected
     const { data: profiles } = await supabase
       .from("profiles")
-      .select("*")
-      .not("id", "in", `(${connectedIds.join(",")})`)
-      .limit(3);
-    return profiles || [];
+      .select("id, full_name, headline, avatar_url")
+      .not("id", "in", `(${connectedIds.join(",")})`);
+    // For each profile, count mutual connections
+    const suggestionsWithMutuals = await Promise.all(
+      (profiles || []).map(async (profile) => {
+        // Get their connections
+        const { data: theirConnections } = await supabase
+          .from("connections")
+          .select("connected_user_id")
+          .eq("user_id", profile.id);
+        const theirIds = theirConnections?.map((c) => c.connected_user_id) || [];
+        // Count mutuals
+        const mutualCount = theirIds.filter((id) => connectedIds.includes(id)).length;
+        return { ...profile, mutualCount };
+      })
+    );
+    // Sort by mutualCount descending
+    suggestionsWithMutuals.sort((a, b) => b.mutualCount - a.mutualCount);
+    return suggestionsWithMutuals.slice(0, 3);
   };
 
   const { data: posts, error: postsError, isLoading: postsLoading, mutate } = useSWR(
@@ -180,33 +198,7 @@ export default function FeedPage() {
       <div className="grid grid-cols-11 gap-6">
         {/* Left Sidebar */}
         <div className="col-span-2 hidden lg:block space-y-6">
-          {userProfile && (
-            <div className="transition-shadow">
-              <Link href={`/profile/${userProfile.id}`} className="block">
-                <Card>
-                  <CardContent className="pt-6">
-                    <div className="flex flex-col items-center">
-                      <Image
-                        src={userProfile.avatar_url || "/placeholder-user.jpg"}
-                        alt={userProfile.full_name || "User"}
-                        width={60}
-                        height={60}
-                        className="rounded-full hover:opacity-90 transition-opacity"
-                      />
-                      <h3 className="font-semibold text-sm mt-2">
-                        {userProfile.full_name || "User"}
-                      </h3>
-                      {userProfile.headline && (
-                        <p className="text-xs text-gray-500 text-center line-clamp-2 mt-1">
-                          {userProfile.headline}
-                        </p>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-            </div>
-          )}
+          {userProfile && <ProfileCard profile={userProfile} />}
 
           <Card>
             <CardContent className="pt-6">
@@ -361,7 +353,7 @@ export default function FeedPage() {
                 </div>
               ) : suggestions.length > 0 ? (
                 <div className="space-y-4">
-                  {suggestions.slice(0, 3).map((profile) => (
+                  {suggestions.map((profile) => (
                     <div key={profile.id} className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <Avatar className="h-8 w-8">
@@ -371,6 +363,9 @@ export default function FeedPage() {
                         <div>
                           <p className="text-sm font-medium">{profile.full_name}</p>
                           <p className="text-xs text-muted-foreground">{profile.headline}</p>
+                          {profile.mutualCount > 0 && (
+                            <span className="text-xs text-blue-600 font-semibold">{profile.mutualCount} mutual connection{profile.mutualCount > 1 ? 's' : ''}</span>
+                          )}
                         </div>
                       </div>
                       <Button variant="outline" size="sm" onClick={() => handleConnect(profile.id)}>

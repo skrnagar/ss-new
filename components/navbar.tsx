@@ -118,6 +118,53 @@ const UserMenu = ({ user, profile, handleSignOut, isMobile }: any) => (
   </DropdownMenu>
 );
 
+function MessageBadge() {
+  const { session } = useAuth();
+  const user = session?.user;
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    if (!user?.id) return;
+    let ignore = false;
+    async function fetchUnread() {
+      if (!user?.id) return;
+      const { data, error } = await supabase
+        .from("conversation_participants")
+        .select(`conversation:conversations!inner(id, messages(seen, sender_id))`)
+        .eq("profile_id", user.id);
+      if (!ignore && data) {
+        let count = 0;
+        data.forEach((item: any) => {
+          const messages = item.conversation?.messages || [];
+          count += messages.filter((m: any) => !m.seen && m.sender_id !== user.id).length;
+        });
+        setUnreadCount(count);
+      }
+    }
+    fetchUnread();
+    // Optionally, subscribe to real-time updates
+    const channel = supabase
+      .channel('messages_badge')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, fetchUnread)
+      .subscribe();
+    return () => {
+      ignore = true;
+      supabase.removeChannel(channel);
+    };
+  }, [user?.id]);
+
+  return (
+    <span className="relative">
+      <MessageCircle className="h-5 w-5" aria-label="Messages" />
+      {unreadCount > 0 && (
+        <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white rounded-full text-xs px-1.5 py-0.5 flex items-center justify-center min-w-[20px] min-h-[20px]">
+          {unreadCount}
+        </span>
+      )}
+    </span>
+  );
+}
+
 const MobileHeader = ({ user, profile, handleSignOut }: any) => (
   <div className="flex items-center justify-between w-full">
     <Link href="/" className="flex items-center" prefetch={true}>
@@ -138,7 +185,7 @@ const MobileHeader = ({ user, profile, handleSignOut }: any) => (
       </Button>
       <Button variant="ghost" size="icon" asChild>
         <Link href="/messages">
-          <MessageCircle className="h-5 w-5" />
+          <MessageBadge />
         </Link>
       </Button>
       <NotificationDropdown userId={user?.id} />
@@ -275,7 +322,7 @@ const DesktopHeader = ({ user, profile, handleSignOut }: any) => (
       </Button>
       <Button variant="ghost" size="icon" asChild>
         <Link href="/messages">
-          <MessageCircle className="h-5 w-5" />
+          <MessageBadge />
         </Link>
       </Button>
       <NotificationDropdown userId={user?.id} />

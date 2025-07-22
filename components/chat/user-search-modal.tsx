@@ -74,7 +74,7 @@ export function UserSearchModal({ isOpen, onClose, onStartConversation }: UserSe
 
   return (
     <Dialog open={isOpen} onOpenChange={() => onClose()}>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="fixed left-1/2 top-1/2 z-50 w-full max-w-lg -translate-x-1/2 -translate-y-1/2 border bg-background p-6 shadow-lg duration-200 data-[state=open]:zoom-in-95 sm:rounded-lg">
         <DialogTitle className="text-xl font-semibold mb-4">New message</DialogTitle>
         <div className="relative">
           <Input
