@@ -253,7 +253,7 @@ export function ChatList({ initialUserId }: ChatListProps) {
     otherUser.avatar_url;
 
   return (
-    <div className="flex h-full w-full flex-col lg:flex-row">
+    <div className="flex h-full w-full flex-col lg:flex-row min-h-0">
       {/* Section 1: Conversation List */}
       <div className={`h-full flex flex-col border-r border-gray-200 bg-white w-full ${selectedConversation && otherUser ? 'hidden lg:flex' : 'flex'} lg:max-w-[340px]`}>
         <div className="p-4 border-b bg-white rounded-t-lg">
@@ -331,7 +331,7 @@ export function ChatList({ initialUserId }: ChatListProps) {
         </ScrollArea>
       </div>
       {/* Section 2: Chat Window */}
-      <div className={`flex-1 h-full flex flex-col w-full ${(selectedConversation && isProfile(otherUser)) ? 'flex' : 'hidden'} lg:flex relative`}>
+      <div className={`flex-1 h-full min-h-0 flex flex-col w-full ${(selectedConversation && isProfile(otherUser)) ? 'flex' : 'hidden'} lg:flex relative`}>
         {selectedConversation && isProfile(otherUser) ? (
           <>
             <div className="flex items-center p-4 border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
@@ -354,14 +354,12 @@ export function ChatList({ initialUserId }: ChatListProps) {
                 <p className="text-sm text-muted-foreground">Active now</p>
               </div>
             </div>
-            <div className="h-full bg-transparent flex flex-col">
-              <div className="p-4 h-full flex flex-col">
-                <ChatWindow
-                  conversationId={selectedConversation}
-                  otherUser={otherUser as { id: string; full_name: string; avatar_url: string }}
-                  currentUserId={user?.id || ""}
-                />
-              </div>
+            <div className="flex-1 min-h-0 bg-transparent flex flex-col">
+              <ChatWindow
+                conversationId={selectedConversation}
+                otherUser={otherUser as { id: string; full_name: string; avatar_url: string }}
+                currentUserId={user?.id || ""}
+              />
             </div>
           </>
         ) : (
@@ -402,14 +400,12 @@ export function ChatList({ initialUserId }: ChatListProps) {
               <p className="text-sm text-muted-foreground">Active now</p>
             </div>
           </div>
-          <div className="flex-1 bg-transparent flex flex-col">
-            <div className="p-4 flex-1 flex flex-col">
-              <ChatWindow
-                conversationId={selectedConversation}
-                otherUser={otherUser as { id: string; full_name: string; avatar_url: string }}
-                currentUserId={user?.id || ""}
-              />
-            </div>
+          <div className="flex-1 min-h-0 bg-transparent flex flex-col">
+            <ChatWindow
+              conversationId={selectedConversation}
+              otherUser={otherUser as { id: string; full_name: string; avatar_url: string }}
+              currentUserId={user?.id || ""}
+            />
           </div>
         </div>
       )}
