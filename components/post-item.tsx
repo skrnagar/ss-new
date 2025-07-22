@@ -59,6 +59,15 @@ interface PostItemProps {
   } | null;
 }
 
+function ProfileLink({ profile, children, className = "" }: { profile: { username?: string; id?: string }; children: React.ReactNode; className?: string }) {
+  const href = profile?.username ? `/profile/${profile.username}` : profile?.id ? `/profile/${profile.id}` : "#";
+  return (
+    <Link href={href} className={className} prefetch={false}>
+      {children}
+    </Link>
+  );
+}
+
 const PostItem = memo(function PostItem({ post, currentUser }: PostItemProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -460,19 +469,16 @@ const PostItem = memo(function PostItem({ post, currentUser }: PostItemProps) {
       <CardContent className="pt-6 pb-2 px-6">
         <div className="flex justify-between items-start mb-4">
           <div className="flex items-start gap-4">
-            <Link href={`/profile/${post.profile?.username || "#"}`}>
+            <ProfileLink profile={post.profile}>
               <Avatar className="h-12 w-12">
                 <AvatarImage src={post.profile?.avatar_url} alt={post.profile?.full_name} />
                 <AvatarFallback>{getInitials(post.profile?.full_name || "User")}</AvatarFallback>
               </Avatar>
-            </Link>
+            </ProfileLink>
             <div>
-              <Link
-                href={`/profile/${post.profile?.username || "#"}`}
-                className="font-semibold text-lg text-gray-900 hover:underline"
-              >
+              <ProfileLink profile={post.profile} className="font-semibold text-lg text-gray-900 hover:underline">
                 {post.profile?.full_name || "Anonymous User"}
-              </Link>
+              </ProfileLink>
               <p className="text-sm text-muted-foreground font-medium">
                 {post.profile?.headline || post.profile?.position}
                 {post.profile?.company && <span className="ml-1">@ {post.profile?.company}</span>}
@@ -792,12 +798,14 @@ const PostItem = memo(function PostItem({ post, currentUser }: PostItemProps) {
                       <div className="flex-1">
                         <div className="bg-muted rounded-lg p-3">
                           <div className="flex justify-between items-start">
-                            <Link
-                              href={`/profile/${comment.profiles?.username || "#"}`}
-                              className="font-medium text-sm hover:underline"
-                            >
-                              {comment.profiles?.full_name || "Anonymous User"}
-                            </Link>
+                            <ProfileLink profile={comment.profiles}>
+                              <Link
+                                href={`/profile/${comment.profiles?.username || comment.profiles?.id || ""}`}
+                                className="font-medium text-sm hover:underline"
+                              >
+                                {comment.profiles?.full_name || "Anonymous User"}
+                              </Link>
+                            </ProfileLink>
                             {currentUser && comment.user_id === currentUser.id && (
                               <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
