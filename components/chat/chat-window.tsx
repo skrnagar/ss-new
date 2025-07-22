@@ -123,8 +123,8 @@ export function ChatWindow({ conversationId, otherUser, currentUserId }: ChatWin
   };
 
   return (
-    <div className="flex flex-col h-full bg-white min-h-0">
-      <ScrollArea className="flex-1 p-4">
+    <div className="flex flex-col h-full bg-white min-h-0 relative">
+      <ScrollArea className="flex-1 p-4 pb-28 sm:pb-4">
         <div className="space-y-4">
           {messages.map((message) => (
             <div
@@ -182,7 +182,8 @@ export function ChatWindow({ conversationId, otherUser, currentUserId }: ChatWin
       />
       <form
         onSubmit={sendMessage}
-        className="p-4 border-t bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60"
+        className="p-4 border-t bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 w-full fixed bottom-0 left-0 right-0 z-10 sm:static sm:z-auto sm:relative"
+        style={{ maxWidth: '100vw' }}
       >
         <div className="flex space-x-2 items-end">
           <Input
