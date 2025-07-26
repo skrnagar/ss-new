@@ -43,6 +43,7 @@ export function ChatWindow({ conversationId, otherUser, currentUserId }: ChatWin
   const [otherTyping, setOtherTyping] = useState(false);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   const typingChannelRef = useRef<any>(null);
   const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -150,8 +151,9 @@ export function ChatWindow({ conversationId, otherUser, currentUserId }: ChatWin
   }, [conversationId, currentUserId, fetchMessages]);
 
   const scrollToBottom = () => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollIntoView({ behavior: "smooth" });
+    if (scrollAreaRef.current) {
+      // Scroll only within the chat window, not the entire page
+      scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
     }
   };
 
@@ -250,7 +252,10 @@ export function ChatWindow({ conversationId, otherUser, currentUserId }: ChatWin
     <div className="flex flex-col h-full min-h-0 bg-gradient-to-br from-slate-50 to-blue-50">
       {/* Messages Area */}
       <div className="flex-1 min-h-0 flex flex-col">
-        <ScrollArea className="flex-1 p-4">
+        <ScrollArea 
+          className="flex-1 p-4"
+          ref={scrollAreaRef}
+        >
           <div className="space-y-6">
             {Object.entries(messageGroups).map(([dateKey, dateMessages]) => (
               <div key={dateKey} className="space-y-4">
