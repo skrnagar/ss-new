@@ -11,6 +11,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Search } from "lucide-react";
 import { useState } from "react";
 import { useRef } from "react";
+import { X, UserPlus, Loader2 } from "lucide-react";
+import { useEffect } from "react";
 
 interface UserSearchModalProps {
   isOpen: boolean;
@@ -25,9 +27,24 @@ export function UserSearchModal({ isOpen, onClose, onStartConversation }: UserSe
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [empty, setEmpty] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      setSearchQuery("");
+      setSearchResults([]);
+      setEmpty(false);
+      setLoading(false);
+      handleSearch("");
+    }
+    // eslint-disable-next-line
+  }, [isOpen]);
 
   const handleSearch = async (query: string) => {
     setSearchQuery(query);
+    setLoading(true);
+    setEmpty(false);
 
     if (!query.trim()) {
       // If query is empty, show suggested connections
@@ -47,6 +64,8 @@ export function UserSearchModal({ isOpen, onClose, onStartConversation }: UserSe
       }
 
       setSearchResults(suggestions || []);
+      setLoading(false);
+      setEmpty((suggestions || []).length === 0);
       return;
     }
 
@@ -67,6 +86,8 @@ export function UserSearchModal({ isOpen, onClose, onStartConversation }: UserSe
     }
 
     setSearchResults(data || []);
+    setLoading(false);
+    setEmpty((data || []).length === 0);
   };
 
   const startConversation = async (recipientId: string) => {
@@ -84,53 +105,97 @@ export function UserSearchModal({ isOpen, onClose, onStartConversation }: UserSe
 
   return (
     <Dialog open={isOpen} onOpenChange={() => onClose()}>
-      <DialogContent className="fixed left-1/2 top-1/2 z-50 w-full max-w-lg -translate-x-1/2 -translate-y-1/2 border bg-background p-6 shadow-lg duration-200 data-[state=open]:zoom-in-95 sm:rounded-lg">
-        <DialogTitle className="text-xl font-semibold mb-4">New message</DialogTitle>
-        <div className="relative">
-          <Input
-            placeholder="Type a name or multiple names"
-            value={searchQuery}
-            onChange={(e) => {
-              const value = e.target.value;
-              if (debounceRef.current) clearTimeout(debounceRef.current);
-              debounceRef.current = setTimeout(() => {
-                handleSearch(value);
-              }, 350);
-              setSearchQuery(value);
-            }}
-            className="pl-10 w-full mb-4"
-          />
-          <Search className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
-        </div>
-
-        <div className="mt-2">
-          <div className="mb-4 text-sm font-medium text-muted-foreground">
-            {searchQuery ? "Search results" : "Suggested"}
+      <DialogContent className="fixed left-1/2 top-1/2 z-50 w-full max-w-lg -translate-x-1/2 -translate-y-1/2 border bg-white/80 dark:bg-black/80 backdrop-blur-lg p-0 shadow-2xl duration-200 data-[state=open]:zoom-in-95 sm:rounded-2xl overflow-hidden">
+        <div className="relative flex flex-col min-h-[420px]">
+          {/* Header */}
+          <div className="flex items-center justify-between px-6 pt-6 pb-2 border-b border-white/20">
+            <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-500 bg-clip-text text-transparent">New Message</DialogTitle>
           </div>
-          <div className="space-y-2 max-h-[400px] overflow-y-auto">
-            {searchResults.map((profile) => (
-              <div
-                key={profile.id}
-                className="flex items-center justify-between p-3 hover:bg-muted/60 rounded-md cursor-pointer transition-colors"
-                onClick={() => startConversation(profile.id)}
+          {/* Search Bar */}
+          <div className="relative px-6 pt-4 pb-2">
+            <Input
+              placeholder="Search people by name..."
+              value={searchQuery}
+              onChange={(e) => {
+                const value = e.target.value;
+                if (debounceRef.current) clearTimeout(debounceRef.current);
+                debounceRef.current = setTimeout(() => {
+                  handleSearch(value);
+                }, 350);
+                setSearchQuery(value);
+              }}
+              className="pl-10 pr-10 h-12 rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-black/60 shadow-sm focus:ring-2 focus:ring-blue-400"
+            />
+            <Search className="absolute left-8 top-1/2 -translate-y-1/2 h-5 w-5 text-blue-500" />
+            {searchQuery && (
+              <button
+                className="absolute right-8 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 dark:hover:text-white"
+                onClick={() => {
+                  setSearchQuery("");
+                  handleSearch("");
+                }}
+                aria-label="Clear search"
               >
-                <div className="flex items-center gap-3">
-                  <Avatar className="h-12 w-12">
-                    <AvatarImage src={profile.avatar_url} />
-                    <AvatarFallback>
-                      {profile.full_name?.substring(0, 2).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <div className="font-medium text-base">{profile.full_name}</div>
-                    <div className="text-sm text-muted-foreground line-clamp-1">
-                      {profile.headline || "Safety Professional"}
+                <X className="h-5 w-5" />
+              </button>
+            )}
+          </div>
+          {/* Results */}
+          <div className="flex-1 px-6 pb-6 pt-2 overflow-y-auto max-h-[350px] sm:max-h-[400px] scrollbar-thin scrollbar-thumb-blue-200 dark:scrollbar-thumb-blue-900 scrollbar-track-transparent">
+            {loading ? (
+              <div className="space-y-4 mt-6">
+                {[...Array(4)].map((_, i) => (
+                  <div key={i} className="flex items-center gap-4 animate-pulse">
+                    <div className="h-12 w-12 rounded-full bg-gradient-to-br from-blue-200 to-purple-200" />
+                    <div className="flex-1 space-y-2">
+                      <div className="h-4 w-32 rounded bg-gray-200 dark:bg-gray-700" />
+                      <div className="h-3 w-20 rounded bg-gray-100 dark:bg-gray-800" />
                     </div>
+                    <div className="h-8 w-24 rounded bg-gray-100 dark:bg-gray-800" />
                   </div>
-                </div>
-                <div className="h-2 w-2 rounded-full bg-green-500 mr-2"></div>
+                ))}
               </div>
-            ))}
+            ) : empty ? (
+              <div className="flex flex-col items-center justify-center h-48 text-center text-gray-500 dark:text-gray-400">
+                <UserPlus className="h-10 w-10 mb-2 text-blue-400" />
+                <div className="font-semibold text-lg">No users found</div>
+                <div className="text-sm">Try a different name or check your spelling.</div>
+              </div>
+            ) : (
+              <div className="space-y-3 mt-2">
+                {searchResults.map((profile) => (
+                  <div
+                    key={profile.id}
+                    className="flex items-center justify-between p-3 bg-white/90 dark:bg-black/60 rounded-xl shadow-sm hover:shadow-lg border border-gray-100 dark:border-gray-800 transition cursor-pointer group"
+                  >
+                    <div className="flex items-center gap-4">
+                      <Avatar className="h-12 w-12">
+                        <AvatarImage src={profile.avatar_url} />
+                        <AvatarFallback>
+                          {profile.full_name?.substring(0, 2).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <div className="font-semibold text-base text-gray-900 dark:text-white group-hover:text-blue-600">
+                          {profile.full_name}
+                        </div>
+                        <div className="text-sm text-gray-500 dark:text-gray-300 line-clamp-1">
+                          {profile.headline || "Safety Professional"}
+                        </div>
+                      </div>
+                    </div>
+                    <Button
+                      variant="gradient"
+                      size="sm"
+                      className="rounded-lg px-4 py-2 font-semibold text-white bg-gradient-to-r from-blue-500 to-purple-500 shadow-md hover:from-blue-600 hover:to-purple-600"
+                      onClick={() => startConversation(profile.id)}
+                    >
+                      Start Chat
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </DialogContent>
