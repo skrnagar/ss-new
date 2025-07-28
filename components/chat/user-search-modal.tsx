@@ -185,7 +185,7 @@ export function UserSearchModal({ isOpen, onClose, onStartConversation }: UserSe
                       </div>
                     </div>
                     <Button
-                      variant="gradient"
+                      variant="default"
                       size="sm"
                       className="rounded-lg px-4 py-2 font-semibold text-white bg-gradient-to-r from-blue-500 to-purple-500 shadow-md hover:from-blue-600 hover:to-purple-600"
                       onClick={() => startConversation(profile.id)}

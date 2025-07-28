@@ -47,10 +47,10 @@ export function AvatarUpload({
   return (
     <>
       <Avatar
-        className={`h-24 w-24 mb-4 ${isOwnProfile ? "cursor-pointer hover:opacity-80" : ""}`}
+        className={`h-24 w-24 mb-4 border-4 border-white shadow-lg bg-white transition-transform duration-200 ${isOwnProfile ? "cursor-pointer hover:scale-105 hover:shadow-2xl" : ""}`}
         onClick={handleAvatarClick}
       >
-        <AvatarImage src={avatarUrl || "/placeholder-user.jpg"} alt={name} />
+        <AvatarImage src={avatarUrl || "/placeholder-user.jpg"} alt={name} className="object-contain" />
         <AvatarFallback>{getInitials(name)}</AvatarFallback>
       </Avatar>
 

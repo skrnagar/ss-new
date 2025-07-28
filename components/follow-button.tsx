@@ -13,13 +13,20 @@ export const FollowButton = React.memo(function FollowButton({ userId, profileId
     if (!userId || !profileId) return;
     let ignore = false;
     async function checkFollowing() {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("follows")
         .select("id")
         .eq("follower_id", userId)
         .eq("following_id", profileId)
-        .single();
-      if (!ignore) setIsFollowing(!!data);
+        .limit(1); // Use limit(1) instead of single()
+
+      if (!ignore) {
+        if (error) {
+          console.error("Error checking follow status:", error);
+        } else {
+          setIsFollowing(data && data.length > 0);
+        }
+      }
     }
     checkFollowing();
     return () => { ignore = true; };

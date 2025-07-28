@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/contexts/auth-context";
-import { Search, BookmarkIcon, Users, Calendar, Newspaper } from "lucide-react";
+import { Search, BookmarkIcon, Users, Calendar, Newspaper, UserPlus, UserCheck, UserX } from "lucide-react";
 import { PostTrigger } from "@/components/post-trigger";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -61,6 +61,7 @@ export default function FeedPage() {
   const [allPosts, setAllPosts] = useState<any[]>([]);
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [connectingUsers, setConnectingUsers] = useState<Set<string>>(new Set());
 
   const fetchPosts = async (pageNum = 1) => {
     const from = (pageNum - 1) * POSTS_PER_PAGE;
@@ -88,35 +89,96 @@ export default function FeedPage() {
 
   const fetchSuggestions = async (userId: string) => {
     if (!userId) return [];
-    // Get all connections for the current user
-    const { data: myConnections } = await supabase
-      .from("connections")
-      .select("connected_user_id")
-      .eq("user_id", userId);
-    const connectedIds = myConnections?.map((c) => c.connected_user_id) || [];
-    connectedIds.push(userId);
-    // Get all profiles not already connected
-    const { data: profiles } = await supabase
-      .from("profiles")
-      .select("id, full_name, headline, avatar_url")
-      .not("id", "in", `(${connectedIds.join(",")})`);
-    // For each profile, count mutual connections
-    const suggestionsWithMutuals = await Promise.all(
-      (profiles || []).map(async (profile) => {
-        // Get their connections
-        const { data: theirConnections } = await supabase
+    
+    try {
+      // Get all connections for the current user (both sent and received)
+      const [sentConnections, receivedConnections] = await Promise.all([
+        supabase
           .from("connections")
           .select("connected_user_id")
-          .eq("user_id", profile.id);
-        const theirIds = theirConnections?.map((c) => c.connected_user_id) || [];
-        // Count mutuals
-        const mutualCount = theirIds.filter((id) => connectedIds.includes(id)).length;
-        return { ...profile, mutualCount };
-      })
-    );
-    // Sort by mutualCount descending
-    suggestionsWithMutuals.sort((a, b) => b.mutualCount - a.mutualCount);
-    return suggestionsWithMutuals.slice(0, 3);
+          .eq("user_id", userId)
+          .eq("status", "accepted"),
+        supabase
+          .from("connections")
+          .select("user_id")
+          .eq("connected_user_id", userId)
+          .eq("status", "accepted")
+      ]);
+
+      // Get all connections (both sent and received, any status)
+      const [allSentConnections, allReceivedConnections] = await Promise.all([
+        supabase
+          .from("connections")
+          .select("connected_user_id, status")
+          .eq("user_id", userId),
+        supabase
+          .from("connections")
+          .select("user_id, status")
+          .eq("connected_user_id", userId)
+      ]);
+
+      const connectedIds = new Set([
+        userId,
+        ...(sentConnections.data?.map((c) => c.connected_user_id) || []),
+        ...(receivedConnections.data?.map((c) => c.user_id) || [])
+      ]);
+
+      // Get all users with any connection status (pending, accepted, etc.)
+      const allConnectedUserIds = new Set([
+        userId,
+        ...(allSentConnections.data?.map((c) => c.connected_user_id) || []),
+        ...(allReceivedConnections.data?.map((c) => c.user_id) || [])
+      ]);
+
+      // Get all profiles not already connected (including pending requests)
+      const { data: profiles, error } = await supabase
+        .from("profiles")
+        .select("id, full_name, headline, avatar_url, username, bio, company, position")
+        .neq("id", userId)
+        .not("id", "in", `(${Array.from(allConnectedUserIds).join(",")})`)
+        .limit(20);
+
+      if (error) {
+        console.error("Error fetching profiles:", error);
+        return [];
+      }
+
+      if (!profiles || profiles.length === 0) return [];
+
+      // For each profile, count mutual connections
+      const suggestionsWithMutuals = await Promise.all(
+        profiles.map(async (profile) => {
+          try {
+            // Get their connections
+            const { data: theirConnections } = await supabase
+              .from("connections")
+              .select("user_id, connected_user_id")
+              .or(`user_id.eq.${profile.id},connected_user_id.eq.${profile.id}`)
+              .eq("status", "accepted");
+
+            if (!theirConnections) return { ...profile, mutualCount: 0 };
+
+            const theirConnectedIds = theirConnections.map((c) => 
+              c.user_id === profile.id ? c.connected_user_id : c.user_id
+            );
+
+            // Count mutuals
+            const mutualCount = theirConnectedIds.filter((id) => connectedIds.has(id)).length;
+            return { ...profile, mutualCount };
+          } catch (error) {
+            console.error("Error calculating mutual connections for profile:", profile.id, error);
+            return { ...profile, mutualCount: 0 };
+          }
+        })
+      );
+
+      // Sort by mutualCount descending and return top 5
+      suggestionsWithMutuals.sort((a, b) => b.mutualCount - a.mutualCount);
+      return suggestionsWithMutuals.slice(0, 5);
+    } catch (error) {
+      console.error("Error fetching suggestions:", error);
+      return [];
+    }
   };
 
   const { data: posts, error: postsError, isLoading: postsLoading, mutate } = useSWR(
@@ -165,15 +227,83 @@ export default function FeedPage() {
 
   const handleConnect = async (profileId: string) => {
     if (!user) return;
+    
+    // Add to connecting state
+    setConnectingUsers(prev => new Set(prev).add(profileId));
+    
     try {
-      await supabase
+      const { error } = await supabase
         .from("connections")
-        .insert([{ user_id: user.id, connected_user_id: profileId, status: "pending" }]);
+        .insert([{ user_id: user.id, connected_user_id: profileId, status: "pending" }])
+        .select();
+
+      if (error) {
+        if (error.code === '23505') {
+          // Duplicate key error - connection already exists
+          console.log("Connection request already sent");
+          // Refresh suggestions to update the UI
+          globalMutate(['suggestions', user.id]);
+        } else {
+          console.error("Error sending connection request:", error);
+        }
+        return;
+      }
 
       // Refresh suggestions after connecting
-      // fetchSuggestions(); // This will be handled by SWR's revalidation
+      globalMutate(['suggestions', user.id]);
+      
+      // Show success feedback
+      console.log("Connection request sent successfully!");
+      
+      // You could add a toast notification here if you have a toast system
+      // toast({
+      //   title: "Connection request sent!",
+      //   description: "We'll notify you when they respond.",
+      // });
     } catch (error) {
       console.error("Error sending connection request:", error);
+    } finally {
+      // Remove from connecting state
+      setConnectingUsers(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(profileId);
+        return newSet;
+      });
+    }
+  };
+
+  const handleWithdrawRequest = async (profileId: string) => {
+    if (!user) return;
+    
+    // Add to connecting state
+    setConnectingUsers(prev => new Set(prev).add(profileId));
+    
+    try {
+      const { error } = await supabase
+        .from("connections")
+        .delete()
+        .eq("user_id", user.id)
+        .eq("connected_user_id", profileId)
+        .eq("status", "pending");
+
+      if (error) {
+        console.error("Error withdrawing connection request:", error);
+        return;
+      }
+
+      // Refresh suggestions after withdrawing
+      globalMutate(['suggestions', user.id]);
+      
+      console.log("Connection request withdrawn successfully!");
+    } catch (error) {
+      console.error("Error withdrawing connection request:", error);
+    } finally {
+      // Remove from connecting state
+      setConnectingUsers(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(profileId);
+        return newSet;
+      });
     }
   };
 
@@ -200,7 +330,7 @@ export default function FeedPage() {
         <div className="col-span-2 hidden lg:block space-y-6">
           {userProfile && <ProfileCard profile={userProfile} />}
 
-          <Card>
+          <Card className="sticky top-8">
             <CardContent className="pt-6">
               <div className="space-y-4">
                 <Link href="/network" className="flex items-center gap-3 hover:text-primary">
@@ -210,7 +340,7 @@ export default function FeedPage() {
                   </div>
                 </Link>
                 <Link
-                  href="/network/professionals"
+                  href="/network"
                   className="flex items-center gap-3 hover:text-primary"
                 >
                   <Search className="h-5 w-5" />
@@ -338,49 +468,80 @@ export default function FeedPage() {
               <h3 className="font-semibold mb-3">Suggested Connections</h3>
               {authLoading ? (
                 <div className="space-y-4">
-                  {[1, 2, 3].map((_, index) => (
+                  {[1, 2, 3, 4, 5].map((_, index) => (
                     <div key={index} className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <Skeleton className="h-8 w-8 rounded-full" />
+                        <Skeleton className="h-10 w-10 rounded-full" />
                         <div>
                           <Skeleton className="h-4 w-24 mb-1" />
                           <Skeleton className="h-3 w-36" />
                         </div>
                       </div>
-                      <Skeleton className="h-8 w-16 rounded-md" />
+                      <Skeleton className="h-8 w-8 rounded-md" />
                     </div>
                   ))}
                 </div>
+              ) : suggestionsError ? (
+                <div className="text-center py-4">
+                  <p className="text-sm text-red-500">Error loading suggestions</p>
+                  <Button variant="link" className="mt-2" asChild>
+                    <Link href="/network">Browse all professionals</Link>
+                  </Button>
+                </div>
               ) : suggestions.length > 0 ? (
-                <div className="space-y-4">
+                <div className="space-y-3">
                   {suggestions.map((profile) => (
-                    <div key={profile.id} className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Avatar className="h-8 w-8">
-                          <AvatarImage src={profile.avatar_url} />
-                          <AvatarFallback>{profile.full_name?.substring(0, 2)}</AvatarFallback>
+                    <div key={profile.id} className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition-colors">
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
+                        <Avatar className="h-12 w-12 flex-shrink-0">
+                          <AvatarImage src={profile.avatar_url} alt={profile.full_name} />
+                          <AvatarFallback className="bg-gradient-to-br from-primary/20 to-primary/10 text-primary font-semibold">
+                            {profile.full_name?.charAt(0).toUpperCase()}
+                          </AvatarFallback>
                         </Avatar>
-                        <div>
-                          <p className="text-sm font-medium">{profile.full_name}</p>
-                          <p className="text-xs text-muted-foreground">{profile.headline}</p>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-semibold truncate text-gray-900">{profile.full_name}</p>
+                          <p className="text-xs text-gray-600 truncate mb-1">{profile.headline}</p>
+                          {(profile.company || profile.position) && (
+                            <p className="text-xs text-gray-500 truncate mb-1">
+                              {profile.position && profile.company ? `${profile.position} at ${profile.company}` : 
+                               profile.position || profile.company}
+                            </p>
+                          )}
                           {profile.mutualCount > 0 && (
-                            <span className="text-xs text-blue-600 font-semibold">{profile.mutualCount} mutual connection{profile.mutualCount > 1 ? 's' : ''}</span>
+                            <span className="text-xs text-blue-600 font-medium">
+                              {profile.mutualCount} mutual connection{profile.mutualCount > 1 ? 's' : ''}
+                            </span>
                           )}
                         </div>
                       </div>
-                      <Button variant="outline" size="sm" onClick={() => handleConnect(profile.id)}>
-                        Connect
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={() => handleConnect(profile.id)}
+                        disabled={connectingUsers.has(profile.id)}
+                        className="flex-shrink-0 ml-2 p-2 hover:bg-blue-50 hover:text-blue-600 transition-colors disabled:opacity-50"
+                        title="Send connection request"
+                      >
+                        {connectingUsers.has(profile.id) ? (
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600" />
+                        ) : (
+                          <UserPlus className="h-4 w-4" />
+                        )}
                       </Button>
                     </div>
                   ))}
-                  <Button variant="link" className="px-0" asChild>
-                    <Link href="/network">See more suggestions</Link>
-                  </Button>
+                  <div className="pt-2 border-t">
+                    <Button variant="link" className="px-0 text-sm w-full justify-start" asChild>
+                      <Link href="/network">See more suggestions</Link>
+                    </Button>
+                  </div>
                 </div>
               ) : (
                 <div className="text-center py-4">
+                  <Users className="h-8 w-8 mx-auto mb-2 text-gray-300" />
                   <p className="text-sm text-muted-foreground">No suggestions available</p>
-                  <Button variant="link" className="mt-2" asChild>
+                  <Button variant="link" className="mt-2 text-sm" asChild>
                     <Link href="/network">Browse all professionals</Link>
                   </Button>
                 </div>
