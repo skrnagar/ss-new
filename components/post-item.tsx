@@ -629,26 +629,39 @@ const PostItem = memo(function PostItem({ post, currentUser }: PostItemProps) {
           <Button
             variant="ghost"
             size="sm"
-            className={`text-muted-foreground font-medium ${isLiked ? "text-primary" : ""}`}
+            className={`text-muted-foreground font-medium transition-all duration-200 ${
+              isLiked 
+                ? "text-primary hover:bg-primary/10" 
+                : "hover:bg-gray-100"
+            }`}
             onClick={handleLikeToggle}
           >
-            <ThumbsUp className={`h-4 w-4 mr-2 ${isLiked ? "fill-primary" : ""}`} />
-            {isLiked ? "Liked" : "Like"}
+            <ThumbsUp className={`h-4 w-4 md:mr-2 ${isLiked ? "fill-primary" : ""}`} />
+            <span className="hidden md:inline">{isLiked ? "Liked" : "Like"}</span>
           </Button>
           <Button
             variant="ghost"
             size="sm"
-            className={`text-muted-foreground font-medium ${showComments ? "bg-muted/50" : ""}`}
+            className={`text-muted-foreground font-medium transition-all duration-200 ${
+              showComments 
+                ? "bg-primary/10 text-primary hover:bg-primary/20" 
+                : "hover:bg-gray-100"
+            }`}
             onClick={handleToggleComments}
           >
-            <MessageSquare className="h-4 w-4 mr-2" />
-            Comment
+            <MessageSquare className={`h-4 w-4 md:mr-2 ${showComments ? "fill-primary" : ""}`} />
+            <span className="hidden md:inline">Comment</span>
+            {comments.length > 0 && (
+              <span className="ml-1 text-xs bg-gray-200 text-gray-600 px-1.5 py-0.5 rounded-full">
+                {comments.length}
+              </span>
+            )}
           </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="sm" className="text-muted-foreground font-medium">
-                <Share2 className="h-4 w-4 mr-2" />
-                Share
+                <Share2 className="h-4 w-4 md:mr-2" />
+                <span className="hidden md:inline">Share</span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56">
@@ -745,25 +758,37 @@ const PostItem = memo(function PostItem({ post, currentUser }: PostItemProps) {
       </div>
       {/* Comments section */}
       {showComments && (
-        <div className="w-full mt-4 space-y-4">
+        <div className="border-t border-gray-100 bg-gray-50/30 px-6 py-4 space-y-4 animate-in slide-in-from-top-2 duration-200">
           {/* Comment form */}
-          <form onSubmit={handleCommentSubmit} className="flex items-start gap-2 w-full">
-            <div className="w-full">
-              <div className="flex-1 relative">
-                <Textarea
-                  placeholder="Write a comment..."
-                  value={commentContent}
-                  onChange={(e) => setCommentContent(e.target.value)}
-                  className="min-h-[60px] pr-10 resize-none w-full"
-                />
+          <form onSubmit={handleCommentSubmit} className="flex items-start gap-3">
+            <Avatar className="h-8 w-8 flex-shrink-0">
+              <AvatarImage src={currentUser?.avatar_url} alt={currentUser?.full_name} />
+              <AvatarFallback>{getInitials(currentUser?.full_name || "User")}</AvatarFallback>
+            </Avatar>
+            <div className="flex-1 relative">
+              <Textarea
+                placeholder="Write a comment..."
+                value={commentContent}
+                onChange={(e) => setCommentContent(e.target.value)}
+                className="min-h-[60px] pr-12 resize-none w-full border-gray-200 focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all duration-200"
+                maxLength={500}
+              />
+              <div className="absolute right-2 bottom-2 flex items-center gap-1">
+                <span className="text-xs text-muted-foreground">
+                  {commentContent.length}/500
+                </span>
                 <Button
                   type="submit"
                   size="icon"
                   variant="ghost"
-                  className="absolute right-2 bottom-2"
+                  className="h-8 w-8 hover:bg-primary/10 hover:text-primary transition-colors"
                   disabled={isSubmittingComment || !commentContent.trim()}
                 >
-                  <Send className="h-4 w-4" />
+                  {isSubmittingComment ? (
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary" />
+                  ) : (
+                    <Send className="h-4 w-4" />
+                  )}
                 </Button>
               </div>
             </div>
@@ -771,19 +796,27 @@ const PostItem = memo(function PostItem({ post, currentUser }: PostItemProps) {
 
           {/* Comments list */}
           {isLoadingComments ? (
-            <div className="text-center py-4">Loading comments...</div>
+            <div className="flex items-center justify-center py-6">
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary" />
+              <span className="ml-2 text-sm text-muted-foreground">Loading comments...</span>
+            </div>
           ) : (
             <>
               {comments.length === 0 ? (
-                <div className="text-center py-4 text-muted-foreground">No comments yet</div>
+                <div className="text-center py-8">
+                  <MessageSquare className="h-8 w-8 mx-auto mb-2 text-gray-300" />
+                  <p className="text-sm text-muted-foreground">No comments yet</p>
+                  <p className="text-xs text-muted-foreground mt-1">Be the first to share your thoughts!</p>
+                </div>
               ) : (
-                <div className="space-y-4">
-                  {comments.map((comment) => (
+                <div className="space-y-3">
+                  {comments.map((comment, index) => (
                     <div
                       key={comment.id || `temp-comment-${Date.now()}-${Math.random()}`}
-                      className="flex items-start gap-2"
+                      className="flex items-start gap-3 group animate-in slide-in-from-top-2 duration-200"
+                      style={{ animationDelay: `${index * 50}ms` }}
                     >
-                      <Avatar className="h-8 w-8 mt-1">
+                      <Avatar className="h-8 w-8 flex-shrink-0">
                         <AvatarImage
                           src={
                             comment.profiles?.avatar_url ||
@@ -791,45 +824,58 @@ const PostItem = memo(function PostItem({ post, currentUser }: PostItemProps) {
                           }
                           alt={comment.profiles?.full_name}
                         />
-                        <AvatarFallback>
+                        <AvatarFallback className="bg-gradient-to-br from-primary/20 to-primary/10 text-primary font-semibold">
                           {getInitials(comment.profiles?.full_name || "User")}
                         </AvatarFallback>
                       </Avatar>
-                      <div className="flex-1">
-                        <div className="bg-muted rounded-lg p-3">
-                          <div className="flex justify-between items-start">
-                            <ProfileLink profile={comment.profiles}>
-                              <Link
-                                href={`/profile/${comment.profiles?.username || comment.profiles?.id || ""}`}
-                                className="font-medium text-sm hover:underline"
-                              >
-                                {comment.profiles?.full_name || "Anonymous User"}
-                              </Link>
-                            </ProfileLink>
+                      <div className="flex-1 min-w-0">
+                        <div className="bg-white rounded-xl p-3 shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-200">
+                          <div className="flex justify-between items-start mb-2">
+                            <div className="flex items-center gap-2">
+                              <ProfileLink profile={comment.profiles}>
+                                <Link
+                                  href={`/profile/${comment.profiles?.username || comment.profiles?.id || ""}`}
+                                  className="font-semibold text-sm text-gray-900 hover:text-primary transition-colors"
+                                >
+                                  {comment.profiles?.full_name || "Anonymous User"}
+                                </Link>
+                              </ProfileLink>
+                              <span className="text-xs text-muted-foreground">•</span>
+                              <span className="text-xs text-muted-foreground">{formatDate(comment.created_at)}</span>
+                            </div>
                             {currentUser && comment.user_id === currentUser.id && (
                               <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                  <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                                  <Button 
+                                    variant="ghost" 
+                                    size="sm" 
+                                    className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                                  >
                                     <MoreHorizontal className="h-3 w-3" />
                                   </Button>
                                 </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
-                                  <DropdownMenuItem>Edit</DropdownMenuItem>
+                                <DropdownMenuContent align="end" className="w-40">
+                                  <DropdownMenuItem className="text-sm">
+                                    <svg className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                    </svg>
+                                    Edit
+                                  </DropdownMenuItem>
                                   <DropdownMenuSeparator />
-                                  <DropdownMenuItem
-                                    className="text-red-600 focus:text-red-600"
+                                  <DropdownMenuItem 
+                                    className="text-sm text-red-600 focus:text-red-600"
                                     onClick={() => handleDeleteComment(comment.id)}
                                   >
+                                    <svg className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
                                     Delete
                                   </DropdownMenuItem>
                                 </DropdownMenuContent>
                               </DropdownMenu>
                             )}
                           </div>
-                          <p className="text-sm mt-1">{comment.content}</p>
-                        </div>
-                        <div className="text-xs text-muted-foreground mt-1 flex items-center">
-                          <span>{formatDate(comment.created_at)}</span>
+                          <p className="text-sm text-gray-800 leading-relaxed whitespace-pre-wrap">{comment.content}</p>
                         </div>
                       </div>
                     </div>
