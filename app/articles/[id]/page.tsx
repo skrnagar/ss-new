@@ -159,11 +159,11 @@ export default function ArticlePage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
-        <div className="max-w-4xl mx-auto px-4 py-8">
+      <div className="max-w-4xl mx-auto px-4 py-8">
           <div className="mb-8">
             <Skeleton className="h-8 w-32 mb-4" />
-            <Skeleton className="h-12 w-3/4 mb-4" />
-            <Skeleton className="h-6 w-48 mb-8" />
+        <Skeleton className="h-12 w-3/4 mb-4" />
+        <Skeleton className="h-6 w-48 mb-8" />
           </div>
           <Skeleton className="h-96 w-full rounded-xl" />
         </div>
@@ -200,7 +200,7 @@ export default function ArticlePage() {
               <ArrowLeft className="h-4 w-4" />
               <span className="hidden sm:inline">Back</span>
             </Button>
-            
+
             <div className="flex items-center gap-2">
               <Button
                 variant="ghost"
@@ -272,7 +272,7 @@ export default function ArticlePage() {
                       <Edit className="h-4 w-4 mr-2" />
                       Edit Article
                     </Link>
-                  </Button>
+                </Button>
                 )}
               </div>
               <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-8 text-gray-900 leading-tight tracking-tight">
@@ -330,26 +330,26 @@ export default function ArticlePage() {
                   <MessageCircle className="h-5 w-5" />
                   <span className="font-medium">{comments.length}</span>
                 </Button>
-              </div>
             </div>
+          </div>
 
             {/* Cover Image */}
-            {article.cover_image && (
+          {article.cover_image && (
               <div className="relative aspect-[21/9] w-full mb-12 bg-gradient-to-br from-gray-100 to-gray-200 rounded-3xl overflow-hidden shadow-2xl">
-                <Image
-                  src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/article-covers/${article.cover_image}`}
-                  alt={article.title}
-                  fill
-                  className="object-cover"
-                  priority
-                />
+              <Image
+                src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/article-covers/${article.cover_image}`}
+                alt={article.title}
+                fill
+                className="object-cover"
+                priority
+              />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent" />
-              </div>
-            )}
-          </header>
+            </div>
+          )}
+        </header>
 
           {/* Article Content */}
-          <div
+        <div
             className="prose prose-lg sm:prose-xl lg:prose-2xl max-w-none 
               prose-headings:text-gray-900 prose-headings:font-bold prose-headings:tracking-tight 
               prose-h1:text-3xl sm:prose-h1:text-4xl lg:prose-h1:text-5xl prose-h1:mb-8 prose-h1:mt-10
@@ -365,9 +365,9 @@ export default function ArticlePage() {
               prose-hr:my-16 prose-hr:border-gray-200 prose-hr:border-2
               prose-img:rounded-2xl prose-img:shadow-xl prose-img:my-12 prose-img:max-w-full prose-img:h-auto
               prose-figure:my-12 prose-figcaption:text-center prose-figcaption:text-gray-500 prose-figcaption:text-sm prose-figcaption:mt-4"
-            dangerouslySetInnerHTML={{ __html: article.content }}
-          />
-        </article>
+          dangerouslySetInnerHTML={{ __html: article.content }}
+        />
+      </article>
 
         {/* Share Section */}
         <Card className="mb-8 border-0 shadow-sm bg-gradient-to-r from-primary/5 to-primary/10">
@@ -415,7 +415,7 @@ export default function ArticlePage() {
         </Card>
 
         {/* Comments Section */}
-        <div className="border-t pt-8">
+      <div className="border-t pt-8">
           <div className="flex items-center gap-3 mb-6">
             <h2 className="text-2xl font-bold text-gray-900">Comments</h2>
             <Badge variant="secondary" className="bg-gray-100 text-gray-700">
@@ -423,25 +423,25 @@ export default function ArticlePage() {
             </Badge>
           </div>
 
-          {user ? (
+        {user ? (
             <Card className="mb-8 border-0 shadow-sm">
               <CardContent className="p-6">
                 <form onSubmit={handleSubmitComment}>
-                  <Textarea
-                    value={newComment}
-                    onChange={(e) => setNewComment(e.target.value)}
+            <Textarea
+              value={newComment}
+              onChange={(e) => setNewComment(e.target.value)}
                     placeholder="Share your thoughts on this article..."
                     className="mb-4 min-h-[100px] resize-none border-gray-200 focus:border-primary"
-                  />
+            />
                   <div className="flex justify-end">
                     <Button type="submit" disabled={!newComment.trim()}>
                       Post Comment
                     </Button>
                   </div>
-                </form>
+          </form>
               </CardContent>
             </Card>
-          ) : (
+        ) : (
             <Card className="mb-8 border-0 shadow-sm bg-gradient-to-r from-blue-50 to-indigo-50">
               <CardContent className="p-6 text-center">
                 <h3 className="text-lg font-semibold mb-2">Join the conversation</h3>
@@ -451,26 +451,26 @@ export default function ArticlePage() {
                 </Button>
               </CardContent>
             </Card>
-          )}
+        )}
 
-          <div className="space-y-6">
-            {comments.map((comment) => (
+        <div className="space-y-6">
+          {comments.map((comment) => (
               <Card key={comment.id} className="border-0 shadow-sm">
                 <CardContent className="p-6">
                   <div className="flex gap-4">
                     <Avatar className="h-10 w-10">
-                      <AvatarImage src={comment.profiles?.avatar_url} />
+                <AvatarImage src={comment.profiles?.avatar_url} />
                       <AvatarFallback className="bg-primary/10 text-primary font-semibold">
                         {comment.profiles?.name?.substring(0, 2)?.toUpperCase()}
                       </AvatarFallback>
-                    </Avatar>
+              </Avatar>
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-2">
                         <span className="font-semibold text-gray-900">{comment.profiles?.name}</span>
                         <span className="text-sm text-gray-500">
-                          {formatDistanceToNow(new Date(comment.created_at), { addSuffix: true })}
-                        </span>
-                      </div>
+                    {formatDistanceToNow(new Date(comment.created_at), { addSuffix: true })}
+                  </span>
+                </div>
                       <p className="text-gray-700 leading-relaxed">{comment.content}</p>
                     </div>
                   </div>
@@ -485,7 +485,7 @@ export default function ArticlePage() {
                 <p className="text-gray-600">Be the first to share your thoughts on this article.</p>
               </div>
             )}
-          </div>
+            </div>
         </div>
       </div>
     </div>

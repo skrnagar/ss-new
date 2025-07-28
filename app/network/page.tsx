@@ -35,6 +35,7 @@ import { useEffect, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import useSWR from 'swr';
 
 interface Connection {
   id: string;
@@ -65,176 +66,93 @@ interface Suggestion {
 }
 
 export default function NetworkPage() {
-  const { session } = useAuth();
+  const { session, isLoading: authLoading } = useAuth();
   const user = session?.user;
   const { toast } = useToast();
   
   // State management
-  const [connections, setConnections] = useState<Connection[]>([]);
-  const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
-  const [receivedRequests, setReceivedRequests] = useState<Connection[]>([]);
-  const [sentRequests, setSentRequests] = useState<Connection[]>([]);
-  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("overview");
   const [processingAction, setProcessingAction] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (user) {
-      fetchNetworkData();
-    }
-  }, [user]);
-
-  const fetchNetworkData = async () => {
-    if (!user?.id) return;
-    
-    try {
-      setLoading(true);
-      
-      // First fetch connections
-      const connectionsData = await fetchConnections();
-      setConnections(connectionsData);
-      
-      // Then fetch suggestions and requests in parallel
-      const [suggestionsData, requestsData] = await Promise.all([
-        fetchSuggestions(connectionsData),
-        fetchRequests()
-      ]);
-
-      setSuggestions(suggestionsData);
-      setReceivedRequests(requestsData.received);
-      setSentRequests(requestsData.sent);
-      
-    } catch (error) {
-      console.error("Error fetching network data:", error);
-      toast({
-        title: "Error",
-        description: "Failed to fetch network data",
-        variant: "destructive"
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchConnections = async (): Promise<Connection[]> => {
+  const fetchConnections = async (userId: string): Promise<Connection[]> => {
     const [sentResponse, receivedResponse] = await Promise.all([
       supabase
         .from("connections")
-        .select(`
-          *,
-          profile:profiles!connections_connected_user_id_fkey(
-            id, full_name, headline, avatar_url, username, company, location
-          )
-        `)
-        .eq("user_id", user?.id)
+        .select(`*,profile:profiles!connections_connected_user_id_fkey(id, full_name, headline, avatar_url, username, company, location)`)
+        .eq("user_id", userId)
         .eq("status", "accepted"),
-        
       supabase
         .from("connections")
-        .select(`
-          *,
-          profile:profiles!connections_user_id_fkey(
-            id, full_name, headline, avatar_url, username, company, location
-          )
-        `)
-        .eq("connected_user_id", user?.id)
+        .select(`*,profile:profiles!connections_user_id_fkey(id, full_name, headline, avatar_url, username, company, location)`)
+        .eq("connected_user_id", userId)
         .eq("status", "accepted")
     ]);
-
     if (sentResponse.error) throw sentResponse.error;
     if (receivedResponse.error) throw receivedResponse.error;
-
     const sentConnections = sentResponse.data || [];
     const receivedConnections = receivedResponse.data || [];
-
-    // Combine and deduplicate connections
     const allConnections = [...sentConnections, ...receivedConnections];
-    const uniqueConnections = allConnections.filter((conn, index, self) => 
-      index === self.findIndex(c => 
+    const uniqueConnections = allConnections.filter((conn, index, self) =>
+      index === self.findIndex(c =>
         (c.user_id === conn.user_id && c.connected_user_id === conn.connected_user_id) ||
         (c.user_id === conn.connected_user_id && c.connected_user_id === conn.user_id)
       )
     );
-
-    // Ensure all connections have proper profile data
-    const validConnections = uniqueConnections.filter(conn => conn.profile);
-    
-    console.log('Fetched connections:', validConnections.length);
-    console.log('Sample connection:', validConnections[0]);
-
-    return validConnections;
+    return uniqueConnections.filter(conn => conn.profile);
   };
 
-  const fetchSuggestions = async (connectionsData: Connection[]): Promise<Suggestion[]> => {
-    // Get all connected user IDs
-    const connectedUserIds = connectionsData.map(conn => 
-      conn.user_id === user?.id ? conn.connected_user_id : conn.user_id
-    );
+  const fetchRequests = async (userId: string): Promise<{received: Connection[]; sent: Connection[]}> => {
+    const [receivedResponse, sentResponse] = await Promise.all([
+      supabase
+        .from("connections")
+        .select(`*,profile:profiles!connections_user_id_fkey(id, full_name, headline, avatar_url, username, company, location)`)
+        .eq("connected_user_id", userId)
+        .eq("status", "pending"),
+      supabase
+        .from("connections")
+        .select(`*,profile:profiles!connections_connected_user_id_fkey(id, full_name, headline, avatar_url, username, company, location)`)
+        .eq("user_id", userId)
+        .eq("status", "pending")
+    ]);
+    if (receivedResponse.error) throw receivedResponse.error;
+    if (sentResponse.error) throw sentResponse.error;
+    return {
+      received: (receivedResponse.data || []).filter(req => req.profile),
+      sent: (sentResponse.data || []).filter(req => req.profile)
+    };
+  };
 
-    // Fetch users not connected
+  const fetchSuggestions = async (userId: string, connections: Connection[]): Promise<Suggestion[]> => {
+    const { data: allConnections, error: connError } = await supabase
+      .from("connections")
+      .select("user_id, connected_user_id")
+      .or(`user_id.eq.${userId},connected_user_id.eq.${userId}`)
+      .in("status", ["pending", "accepted"]);
+    if (connError) throw connError;
+    const connectedUserIds = new Set();
+    (allConnections || []).forEach(conn => {
+      if (conn.user_id === userId) connectedUserIds.add(conn.connected_user_id);
+      else if (conn.connected_user_id === userId) connectedUserIds.add(conn.user_id);
+    });
     const { data: suggestionData, error } = await supabase
       .from("profiles")
       .select("id, full_name, headline, avatar_url, username, company, location")
-      .neq("id", user?.id)
-      .not("id", "in", connectedUserIds.length > 0 ? `(${connectedUserIds.join(",")})` : "(0)")
+      .neq("id", userId)
+      .not("id", "in", connectedUserIds.size > 0 ? `(${Array.from(connectedUserIds).join(",")})` : "(0)")
       .limit(20);
-
     if (error) throw error;
-
     // Calculate mutual connections for each suggestion
     const suggestionsWithMutual = await Promise.all(
       (suggestionData || []).map(async (profile) => {
-        const mutualCount = await calculateMutualConnections(profile.id, connectionsData);
+        const mutualCount = await calculateMutualConnections(profile.id, connections);
         return {
           ...profile,
           mutual_connections: mutualCount
         };
       })
     );
-
-    console.log('Fetched suggestions:', suggestionsWithMutual.length);
-
     return suggestionsWithMutual;
-  };
-
-  const fetchRequests = async () => {
-    const [receivedResponse, sentResponse] = await Promise.all([
-      supabase
-        .from("connections")
-        .select(`
-          *,
-          profile:profiles!connections_user_id_fkey(
-            id, full_name, headline, avatar_url, username, company, location
-          )
-        `)
-        .eq("connected_user_id", user?.id)
-        .eq("status", "pending"),
-        
-      supabase
-        .from("connections")
-        .select(`
-          *,
-          profile:profiles!connections_connected_user_id_fkey(
-            id, full_name, headline, avatar_url, username, company, location
-          )
-        `)
-        .eq("user_id", user?.id)
-        .eq("status", "pending")
-    ]);
-
-    if (receivedResponse.error) throw receivedResponse.error;
-    if (sentResponse.error) throw sentResponse.error;
-
-    const received = (receivedResponse.data || []).filter(req => req.profile);
-    const sent = (sentResponse.data || []).filter(req => req.profile);
-
-    console.log('Fetched requests - received:', received.length, 'sent:', sent.length);
-
-    return {
-      received,
-      sent
-    };
   };
 
   const calculateMutualConnections = async (profileId: string, connectionsData: Connection[]): Promise<number> => {
@@ -266,6 +184,26 @@ export default function NetworkPage() {
     }
   };
 
+  const {
+    data: connections = [],
+    isLoading: loadingConnections,
+    mutate: mutateConnections
+  } = useSWR(user && user.id ? ["connections", user.id] : null, () => fetchConnections(user!.id));
+
+  const {
+    data: requests = { received: [], sent: [] },
+    isLoading: loadingRequests,
+    mutate: mutateRequests
+  } = useSWR(user && user.id ? ["requests", user.id] : null, () => fetchRequests(user!.id));
+
+  const {
+    data: suggestions = [],
+    isLoading: loadingSuggestions,
+    mutate: mutateSuggestions
+  } = useSWR(user && user.id && connections ? ["suggestions", user.id, connections] : null, () => fetchSuggestions(user!.id, connections));
+
+  const loading = authLoading || loadingConnections || loadingRequests || loadingSuggestions;
+
   // Action handlers
   const handleConnect = async (profileId: string) => {
     if (!user?.id) return;
@@ -276,23 +214,8 @@ export default function NetworkPage() {
       // Optimistic update
       const profile = suggestions.find(p => p.id === profileId);
       if (profile) {
-        setSuggestions(prev => prev.filter(p => p.id !== profileId));
-        setSentRequests(prev => [...prev, {
-          id: `temp-${Date.now()}`,
-          user_id: user.id,
-          connected_user_id: profileId,
-          status: 'pending' as const,
-          created_at: new Date().toISOString(),
-          profile: {
-            id: profileId,
-            full_name: profile.full_name,
-            headline: profile.headline,
-            avatar_url: profile.avatar_url,
-            username: profile.username,
-            company: profile.company,
-            location: profile.location
-          }
-        }]);
+        mutateSuggestions(); // Update suggestions
+        mutateRequests(); // Update requests
       }
 
       const { error } = await supabase.from("connections").insert({
@@ -309,7 +232,9 @@ export default function NetworkPage() {
       });
 
       // Refresh data
-      await fetchNetworkData();
+      await mutateConnections();
+      await mutateRequests();
+      await mutateSuggestions();
       
     } catch (error) {
       console.error("Error sending connection request:", error);
@@ -320,7 +245,9 @@ export default function NetworkPage() {
       });
       
       // Revert optimistic update
-      await fetchNetworkData();
+      await mutateConnections();
+      await mutateRequests();
+      await mutateSuggestions();
     } finally {
       setProcessingAction(null);
     }
@@ -342,7 +269,9 @@ export default function NetworkPage() {
         description: "You are now connected.",
       });
 
-      await fetchNetworkData();
+      await mutateConnections();
+      await mutateRequests();
+      await mutateSuggestions();
       
     } catch (error) {
       console.error("Error accepting connection:", error);
@@ -372,7 +301,9 @@ export default function NetworkPage() {
         description: "Connection request has been declined.",
       });
 
-      await fetchNetworkData();
+      await mutateConnections();
+      await mutateRequests();
+      await mutateSuggestions();
       
     } catch (error) {
       console.error("Error rejecting connection:", error);
@@ -402,7 +333,9 @@ export default function NetworkPage() {
         description: "Connection request has been cancelled.",
       });
 
-      await fetchNetworkData();
+      await mutateConnections();
+      await mutateRequests();
+      await mutateSuggestions();
       
     } catch (error) {
       console.error("Error cancelling request:", error);
@@ -432,7 +365,9 @@ export default function NetworkPage() {
         description: "Connection has been removed from your network.",
       });
 
-      await fetchNetworkData();
+      await mutateConnections();
+      await mutateRequests();
+      await mutateSuggestions();
       
     } catch (error) {
       console.error("Error removing connection:", error);
@@ -458,6 +393,14 @@ export default function NetworkPage() {
     suggestion.headline?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     suggestion.company?.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 via-white to-gray-50">
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary" />
+      </div>
+    );
+  }
 
   if (loading) {
     return (
@@ -492,7 +435,7 @@ export default function NetworkPage() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* Left Sidebar */}
+        {/* Left Sidebar */}
           <div className="lg:col-span-1">
             <Card className="sticky top-8">
               <CardHeader>
@@ -510,15 +453,21 @@ export default function NetworkPage() {
                     </Badge>
                   </div>
                   <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-600">Invitations</span>
+                    <Badge variant="secondary" className="bg-green-100 text-green-700">
+                      {requests.received.length}
+                    </Badge>
+                  </div>
+                  <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-600">Pending Requests</span>
                     <Badge variant="secondary" className="bg-orange-100 text-orange-700">
-                      {receivedRequests.length}
+                      {requests.received.length}
                     </Badge>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-600">Sent Requests</span>
                     <Badge variant="secondary" className="bg-blue-100 text-blue-700">
-                      {sentRequests.length}
+                      {requests.sent.length}
                     </Badge>
                   </div>
                 </div>
@@ -530,95 +479,97 @@ export default function NetworkPage() {
                     <UserCheck className="h-4 w-4 text-gray-600" />
                     <span className="text-sm">My Connections</span>
                     <ArrowRight className="h-4 w-4 ml-auto text-gray-400" />
-                  </Link>
+            </Link>
                   <Link href="/network/followers" className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-lg transition-colors">
                     <Users className="h-4 w-4 text-gray-600" />
                     <span className="text-sm">Following & Followers</span>
                     <ArrowRight className="h-4 w-4 ml-auto text-gray-400" />
-                  </Link>
+            </Link>
                   <Link href="/groups" className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-lg transition-colors">
                     <Building2 className="h-4 w-4 text-gray-600" />
                     <span className="text-sm">Groups</span>
                     <ArrowRight className="h-4 w-4 ml-auto text-gray-400" />
-                  </Link>
+            </Link>
                   <Link href="/events" className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-lg transition-colors">
                     <Calendar className="h-4 w-4 text-gray-600" />
                     <span className="text-sm">Events</span>
                     <ArrowRight className="h-4 w-4 ml-auto text-gray-400" />
-                  </Link>
+            </Link>
                 </div>
-              </CardContent>
-            </Card>
+          </CardContent>
+        </Card>
           </div>
 
-          {/* Main Content */}
+        {/* Main Content */}
           <div className="lg:col-span-3">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-              <div className="flex items-center justify-between">
-                <TabsList className="grid w-full grid-cols-4">
-                  <TabsTrigger value="overview" className="flex items-center gap-2">
-                    <Globe className="h-4 w-4" />
-                    Overview
-                  </TabsTrigger>
-                  <TabsTrigger value="connections" className="flex items-center gap-2">
-                    <UserCheck className="h-4 w-4" />
-                    Connections
-                    {connections.length > 0 && (
-                      <Badge variant="secondary" className="ml-1 h-5 w-5 p-0 text-xs">
-                        {connections.length}
-                      </Badge>
-                    )}
-                  </TabsTrigger>
-                  <TabsTrigger value="requests" className="flex items-center gap-2">
-                    <UserPlus className="h-4 w-4" />
-                    Requests
-                    {(receivedRequests.length + sentRequests.length) > 0 && (
-                      <Badge variant="secondary" className="ml-1 h-5 w-5 p-0 text-xs">
-                        {receivedRequests.length + sentRequests.length}
-                      </Badge>
-                    )}
-                  </TabsTrigger>
-                  <TabsTrigger value="discover" className="flex items-center gap-2">
-                    <Sparkles className="h-4 w-4" />
-                    Discover
-                  </TabsTrigger>
-                </TabsList>
-
-                {/* Search */}
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                  <Input
-                    placeholder="Search people..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10 w-64"
-                  />
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-4">
+                <div className="w-full overflow-x-auto scrollbar-hide">
+                  <TabsList className="flex w-max min-w-full gap-2">
+                    <TabsTrigger value="overview" className="flex items-center gap-2">
+                      <Globe className="h-4 w-4" />
+                      Overview
+                    </TabsTrigger>
+                    <TabsTrigger value="connections" className="flex items-center gap-2">
+                      <UserCheck className="h-4 w-4" />
+                      Connections
+                      {connections.length > 0 && (
+                        <Badge variant="secondary" className="ml-1 h-5 w-5 p-0 text-xs">
+                          {connections.length}
+                        </Badge>
+                      )}
+                    </TabsTrigger>
+                    <TabsTrigger value="requests" className="flex items-center gap-2">
+                      <UserPlus className="h-4 w-4" />
+                      Requests
+                      {(requests.received.length + requests.sent.length) > 0 && (
+                        <Badge variant="secondary" className="ml-1 h-5 w-5 p-0 text-xs">
+                          {requests.received.length + requests.sent.length}
+                        </Badge>
+                      )}
+                    </TabsTrigger>
+                    <TabsTrigger value="discover" className="flex items-center gap-2">
+                      <Sparkles className="h-4 w-4" />
+                      Discover
+                    </TabsTrigger>
+                  </TabsList>
+                </div>
+                <div className="w-full sm:w-auto mt-2 sm:mt-0">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <Input
+                      placeholder="Search people..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="pl-10 w-full sm:w-64"
+                    />
+                  </div>
                 </div>
               </div>
 
               {/* Overview Tab */}
               <TabsContent value="overview" className="space-y-6">
-                {/* Connection Requests */}
-                {receivedRequests.length > 0 && (
-                  <Card>
+          {/* Connection Requests */}
+                {requests.received.length > 0 && (
+            <Card>
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
                         <UserPlus className="h-5 w-5" />
-                        Connection Requests ({receivedRequests.length})
+                        Connection Requests ({requests.received.length})
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <div className="space-y-4">
-                        {receivedRequests.map((request) => (
+                <div className="space-y-4">
+                        {requests.received.map((request) => (
                           <div key={request.id} className="flex items-center justify-between p-4 border rounded-xl hover:bg-gray-50 transition-colors">
                             <div className="flex items-center gap-4">
                               <Avatar className="h-12 w-12">
-                                <AvatarImage src={request.profile.avatar_url} />
+                          <AvatarImage src={request.profile.avatar_url} />
                                 <AvatarFallback className="bg-gradient-to-br from-primary/20 to-primary/10 text-primary font-semibold">
                                   {request.profile.full_name?.charAt(0).toUpperCase()}
-                                </AvatarFallback>
-                              </Avatar>
-                              <div>
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
                                 <h3 className="font-semibold text-gray-900">{request.profile.full_name}</h3>
                                 <p className="text-sm text-gray-600">{request.profile.headline}</p>
                                 {request.profile.company && (
@@ -627,9 +578,9 @@ export default function NetworkPage() {
                                     {request.profile.company}
                                   </p>
                                 )}
-                              </div>
-                            </div>
-                            <div className="flex gap-2">
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
                               <Button
                                 onClick={() => handleAcceptConnection(request.id)}
                                 disabled={processingAction === request.id}
@@ -642,9 +593,9 @@ export default function NetworkPage() {
                                 )}
                                 Accept
                               </Button>
-                              <Button
-                                variant="outline"
-                                onClick={() => handleRejectConnection(request.id)}
+                        <Button
+                          variant="outline"
+                          onClick={() => handleRejectConnection(request.id)}
                                 disabled={processingAction === request.id}
                               >
                                 {processingAction === request.id ? (
@@ -653,17 +604,17 @@ export default function NetworkPage() {
                                   <X className="h-4 w-4 mr-2" />
                                 )}
                                 Decline
-                              </Button>
-                            </div>
-                          </div>
-                        ))}
+                        </Button>
                       </div>
-                    </CardContent>
-                  </Card>
-                )}
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
                 {/* Recent Connections */}
-                <Card>
+            <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <UserCheck className="h-5 w-5" />
@@ -675,12 +626,12 @@ export default function NetworkPage() {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {filteredConnections.slice(0, 6).map((connection) => (
                           <div key={connection.id} className="flex items-center gap-3 p-4 border rounded-xl hover:bg-gray-50 transition-colors">
-                            <Avatar className="h-10 w-10">
+                        <Avatar className="h-10 w-10">
                               <AvatarImage src={connection.profile.avatar_url} />
                               <AvatarFallback className="bg-gradient-to-br from-primary/20 to-primary/10 text-primary font-semibold">
                                 {connection.profile.full_name?.charAt(0).toUpperCase()}
-                              </AvatarFallback>
-                            </Avatar>
+                          </AvatarFallback>
+                        </Avatar>
                             <div className="flex-1 min-w-0">
                               <h3 className="font-medium text-gray-900 truncate">{connection.profile.full_name}</h3>
                               <p className="text-sm text-gray-600 truncate">{connection.profile.headline}</p>
@@ -688,7 +639,7 @@ export default function NetworkPage() {
                             <Button variant="ghost" size="sm" asChild>
                               <Link href={`/profile/${connection.profile.username}`}>
                                 <ArrowRight className="h-4 w-4" />
-                              </Link>
+                          </Link>
                             </Button>
                           </div>
                         ))}
@@ -734,9 +685,9 @@ export default function NetworkPage() {
                                 )}
                                 <p className="text-xs text-gray-500 mt-2">
                                   {suggestion.mutual_connections} mutual connections
-                                </p>
-                              </div>
-                            </div>
+                          </p>
+                        </div>
+                      </div>
                             <div className="flex gap-2 mt-4">
                               <Button
                                 onClick={() => handleConnect(suggestion.id)}
@@ -755,19 +706,19 @@ export default function NetworkPage() {
                                 <Link href={`/profile/${suggestion.username}`}>
                                   View
                                 </Link>
-                              </Button>
+                      </Button>
                             </div>
-                          </div>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
-                )}
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
               </TabsContent>
 
               {/* Connections Tab */}
               <TabsContent value="connections" className="space-y-6">
-                <Card>
+          <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <UserCheck className="h-5 w-5" />
@@ -776,17 +727,17 @@ export default function NetworkPage() {
                   </CardHeader>
                   <CardContent>
                     {connections.length > 0 ? (
-                      <div className="space-y-4">
+                <div className="space-y-4">
                         {filteredConnections.map((connection) => (
                           <div key={connection.id} className="flex items-center justify-between p-4 border rounded-xl hover:bg-gray-50 transition-colors">
                             <div className="flex items-center gap-4">
                               <Avatar className="h-12 w-12">
-                                <AvatarImage src={connection.profile.avatar_url} />
+                          <AvatarImage src={connection.profile.avatar_url} />
                                 <AvatarFallback className="bg-gradient-to-br from-primary/20 to-primary/10 text-primary font-semibold">
                                   {connection.profile.full_name?.charAt(0).toUpperCase()}
-                                </AvatarFallback>
-                              </Avatar>
-                              <div>
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
                                 <h3 className="font-semibold text-gray-900">{connection.profile.full_name}</h3>
                                 <p className="text-sm text-gray-600">{connection.profile.headline}</p>
                                 {connection.profile.company && (
@@ -795,20 +746,20 @@ export default function NetworkPage() {
                                     {connection.profile.company}
                                   </p>
                                 )}
-                              </div>
-                            </div>
-                            <div className="flex gap-2">
-                              <Button variant="outline" size="sm" asChild>
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button variant="outline" size="sm" asChild>
                                 <Link href={`/messages?userId=${connection.profile.id}`}>
                                   <MessageSquare className="h-4 w-4 mr-2" />
                                   Message
                                 </Link>
-                              </Button>
+                        </Button>
                               <Button variant="outline" size="sm" asChild>
-                                <Link href={`/profile/${connection.profile.username}`}>
-                                  View Profile
-                                </Link>
-                              </Button>
+                          <Link href={`/profile/${connection.profile.username}`}>
+                            View Profile
+                          </Link>
+                        </Button>
                               <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
                                   <Button variant="ghost" size="sm">
@@ -825,43 +776,43 @@ export default function NetworkPage() {
                                   </DropdownMenuItem>
                                 </DropdownMenuContent>
                               </DropdownMenu>
-                            </div>
-                          </div>
-                        ))}
                       </div>
-                    ) : (
+                    </div>
+                  ))}
+                </div>
+              ) : (
                       <div className="text-center py-8 text-gray-500">
                         <Users className="h-12 w-12 mx-auto mb-4 text-gray-300" />
                         <p>No connections yet</p>
                         <p className="text-sm">Start connecting with other professionals!</p>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
+                </div>
+              )}
+            </CardContent>
+          </Card>
               </TabsContent>
 
               {/* Requests Tab */}
               <TabsContent value="requests" className="space-y-6">
                 {/* Received Requests */}
-                {receivedRequests.length > 0 && (
-                  <Card>
+                {requests.received.length > 0 && (
+            <Card>
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
                         <UserPlus className="h-5 w-5" />
-                        Received Requests ({receivedRequests.length})
+                        Received Requests ({requests.received.length})
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-4">
-                        {receivedRequests.map((request) => (
+                        {requests.received.map((request) => (
                           <div key={request.id} className="flex items-center justify-between p-4 border rounded-xl hover:bg-gray-50 transition-colors">
                             <div className="flex items-center gap-4">
-                              <Avatar className="h-12 w-12">
+                          <Avatar className="h-12 w-12">
                                 <AvatarImage src={request.profile.avatar_url} />
                                 <AvatarFallback className="bg-gradient-to-br from-primary/20 to-primary/10 text-primary font-semibold">
                                   {request.profile.full_name?.charAt(0).toUpperCase()}
                                 </AvatarFallback>
-                              </Avatar>
+                          </Avatar>
                               <div>
                                 <h3 className="font-semibold text-gray-900">{request.profile.full_name}</h3>
                                 <p className="text-sm text-gray-600">{request.profile.headline}</p>
@@ -901,23 +852,23 @@ export default function NetworkPage() {
                             </div>
                           </div>
                         ))}
-                      </div>
-                    </CardContent>
-                  </Card>
+                        </div>
+                      </CardContent>
+                    </Card>
                 )}
 
                 {/* Sent Requests */}
-                {sentRequests.length > 0 && (
+                {requests.sent.length > 0 && (
                   <Card>
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
                         <Clock className="h-5 w-5" />
-                        Sent Requests ({sentRequests.length})
+                        Sent Requests ({requests.sent.length})
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-4">
-                        {sentRequests.map((request) => (
+                        {requests.sent.map((request) => (
                           <div key={request.id} className="flex items-center justify-between p-4 border rounded-xl hover:bg-gray-50 transition-colors">
                             <div className="flex items-center gap-4">
                               <Avatar className="h-12 w-12">
@@ -958,13 +909,13 @@ export default function NetworkPage() {
                               </Button>
                             </div>
                           </div>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
-                )}
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
-                {receivedRequests.length === 0 && sentRequests.length === 0 && (
+                {requests.received.length === 0 && requests.sent.length === 0 && (
                   <Card>
                     <CardContent className="text-center py-8 text-gray-500">
                       <UserPlus className="h-12 w-12 mx-auto mb-4 text-gray-300" />
@@ -986,54 +937,54 @@ export default function NetworkPage() {
                   </CardHeader>
                   <CardContent>
                     {suggestions.length > 0 ? (
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                         {filteredSuggestions.map((suggestion) => (
-                          <div key={suggestion.id} className="p-4 border rounded-xl hover:bg-gray-50 transition-colors">
-                            <div className="flex items-start gap-3 mb-4">
-                              <Avatar className="h-12 w-12">
+                          <div
+                            key={suggestion.id}
+                            className="group relative bg-white rounded-2xl shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 p-4 sm:p-6 flex flex-col items-center text-center overflow-hidden min-w-0"
+                          >
+                            <div className="relative mb-3 sm:mb-4">
+                              <Avatar className="h-16 w-16 sm:h-20 sm:w-20 shadow-xl ring-4 ring-primary/10 group-hover:ring-primary/30 transition-all duration-300">
                                 <AvatarImage src={suggestion.avatar_url} />
-                                <AvatarFallback className="bg-gradient-to-br from-primary/20 to-primary/10 text-primary font-semibold">
+                                <AvatarFallback className="bg-gradient-to-br from-primary/20 to-primary/10 text-primary font-semibold text-xl sm:text-2xl">
                                   {suggestion.full_name?.charAt(0).toUpperCase()}
                                 </AvatarFallback>
                               </Avatar>
-                              <div className="flex-1 min-w-0">
-                                <h3 className="font-semibold text-gray-900 truncate">{suggestion.full_name}</h3>
-                                <p className="text-sm text-gray-600 truncate">{suggestion.headline}</p>
-                                {suggestion.company && (
-                                  <p className="text-sm text-gray-500 flex items-center gap-1 mt-1">
-                                    <Briefcase className="h-3 w-3" />
-                                    {suggestion.company}
-                                  </p>
-                                )}
+                              <div className="absolute -bottom-2 right-0 bg-primary text-white text-xs px-2 sm:px-3 py-1 rounded-full shadow-md font-semibold opacity-90">
+                                {suggestion.mutual_connections} mutual
                               </div>
                             </div>
-                            <div className="space-y-3">
-                              <div className="flex items-center justify-between text-sm">
-                                <span className="text-gray-500">Mutual connections</span>
-                                <Badge variant="secondary" className="bg-blue-100 text-blue-700">
-                                  {suggestion.mutual_connections}
-                                </Badge>
+                            <h3 className="font-bold text-base sm:text-lg text-gray-900 mb-1 truncate w-full">{suggestion.full_name}</h3>
+                            <p className="text-xs sm:text-sm text-gray-600 mb-2 line-clamp-2">{suggestion.headline}</p>
+                            {suggestion.company && (
+                              <div className="flex items-center justify-center gap-1 text-xs text-gray-500 mb-1">
+                                <Briefcase className="h-4 w-4" />
+                                <span className="truncate max-w-[90px] sm:max-w-[120px]">{suggestion.company}</span>
                               </div>
-                              <div className="flex gap-2">
-                                <Button
-                                  onClick={() => handleConnect(suggestion.id)}
-                                  disabled={processingAction === suggestion.id}
-                                  className="flex-1"
-                                  size="sm"
-                                >
-                                  {processingAction === suggestion.id ? (
-                                    <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white" />
-                                  ) : (
-                                    <UserPlus className="h-3 w-3 mr-2" />
-                                  )}
-                                  Connect
-                                </Button>
-                                <Button variant="outline" size="sm" asChild>
-                                  <Link href={`/profile/${suggestion.username}`}>
-                                    View
-                                  </Link>
-                                </Button>
+                            )}
+                            {suggestion.location && (
+                              <div className="flex items-center justify-center gap-1 text-xs text-gray-400 mb-2">
+                                <MapPin className="h-4 w-4" />
+                                <span className="truncate max-w-[90px] sm:max-w-[120px]">{suggestion.location}</span>
                               </div>
+                            )}
+                            <div className="flex flex-col gap-2 mt-3 sm:mt-4 w-full">
+                              <Button
+                                onClick={() => handleConnect(suggestion.id)}
+                                disabled={processingAction === suggestion.id}
+                                className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-md group-hover:scale-105 transition-transform duration-200 text-sm sm:text-base h-10 sm:h-12"
+                                size="lg"
+                              >
+                                {processingAction === suggestion.id ? (
+                                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
+                                ) : (
+                                  <UserPlus className="h-4 w-4 mr-2" />
+                                )}
+                                Connect
+                              </Button>
+                              <Button variant="outline" size="sm" asChild className="w-full text-xs sm:text-sm h-9 sm:h-10">
+                                <Link href={`/profile/${suggestion.username}`}>View Profile</Link>
+                              </Button>
                             </div>
                           </div>
                         ))}
