@@ -310,11 +310,11 @@ export function ArticleEditor({
       let coverImageUrl = "";
       if (coverImage) {
         try {
-          const fileExt = coverImage.name.split(".").pop();
-          const fileName = `${Date.now()}.${fileExt}`;
+        const fileExt = coverImage.name.split(".").pop();
+        const fileName = `${Date.now()}.${fileExt}`;
 
-          const { error: uploadError, data } = await supabase.storage
-            .from("article-covers")
+        const { error: uploadError, data } = await supabase.storage
+          .from("article-covers")
             .upload(fileName, coverImage, {
               cacheControl: '3600',
               upsert: false
@@ -326,7 +326,7 @@ export function ArticleEditor({
           }
           
           if (data) {
-            coverImageUrl = data.path;
+        coverImageUrl = data.path;
           }
         } catch (uploadError) {
           console.error("Cover image upload error:", uploadError);
@@ -502,14 +502,14 @@ export function ArticleEditor({
           <div className="lg:col-span-2 space-y-4 sm:space-y-6">
             {/* Title Input */}
             <div className="space-y-3 sm:space-y-4">
-              <Input
-                type="text"
+        <Input
+          type="text"
                 placeholder="Enter your article title..."
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
                 className="text-2xl sm:text-3xl lg:text-4xl font-bold border-none px-0 focus-visible:ring-0 bg-transparent placeholder:text-gray-400"
-              />
-              
+        />
+
               <Textarea
                 placeholder="Write a brief excerpt or summary of your article..."
                 value={excerpt}
@@ -556,14 +556,14 @@ export function ArticleEditor({
                     </p>
                     
                     <div className="max-w-xs mx-auto">
-                      <Input
-                        type="file"
-                        accept="image/*"
+          <Input
+            type="file"
+            accept="image/*"
                         onChange={handleCoverImageChange}
                         className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-gradient-to-r file:from-primary file:to-primary/80 file:text-white hover:file:from-primary/90 hover:file:to-primary/70 file:cursor-pointer cursor-pointer file:transition-all file:duration-200 file:shadow-md"
                         id="cover-image-input"
-                      />
-                    </div>
+          />
+        </div>
                     
                     <div className="mt-4 flex items-center justify-center gap-4 text-xs text-gray-500">
                       <div className="flex items-center gap-1">
@@ -644,8 +644,8 @@ export function ArticleEditor({
                     >
                       <span className="text-sm font-bold">H5</span>
                     </ToolbarButton>
-                  </div>
-                  
+      </div>
+
                   <Separator orientation="vertical" className="h-6 mx-2 hidden sm:block" />
                   
                   {/* Lists */}
@@ -737,7 +737,7 @@ export function ArticleEditor({
             {/* Editor Content */}
             <Card className="border-0 shadow-sm min-h-[400px] sm:min-h-[600px]">
               <CardContent className="p-0">
-                <EditorContent editor={editor} />
+      <EditorContent editor={editor} />
               </CardContent>
             </Card>
           </div>
