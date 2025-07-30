@@ -75,15 +75,15 @@ export default function FollowersPage() {
   const fetchFollowers = async (userId: string): Promise<Follower[]> => {
     try {
       console.log('Fetching followers for user:', userId);
-      const { data, error } = await supabase
-        .from("follows")
+    const { data, error } = await supabase
+      .from("follows")
         .select("id, follower_id, following_id, created_at, profiles!follower_id (id, full_name, headline, avatar_url, username, company, location)")
         .eq("following_id", userId);
       
-      if (error) {
-        console.error('Followers fetch error:', error);
-        throw error;
-      }
+    if (error) {
+      console.error('Followers fetch error:', error);
+      throw error;
+    }
       
       console.log('Followers data received:', data);
       // Transform the data to handle the array structure
@@ -91,11 +91,11 @@ export default function FollowersPage() {
         ...item,
         profiles: Array.isArray(item.profiles) ? item.profiles[0] : item.profiles
       })).filter(item => item.profiles);
-    } catch (err) {
-      console.error('Followers fetch exception:', err);
-      throw err;
-    }
-  };
+  } catch (err) {
+    console.error('Followers fetch exception:', err);
+    throw err;
+  }
+};
 
   const fetchFollowing = async (userId: string): Promise<Following[]> => {
     try {
@@ -150,7 +150,7 @@ export default function FollowersPage() {
   );
 
   if (authLoading) {
-    return (
+  return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 via-white to-gray-50">
         <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary" />
       </div>
@@ -340,9 +340,9 @@ export default function FollowersPage() {
                                 <FollowButton userId={user.id} profileId={follower.profiles.id} />
                               )}
                             </div>
-                          </div>
+      </div>
                         ))}
-                      </div>
+      </div>
                     ) : (
                       <div className="text-center py-8 text-gray-500">
                         <Heart className="h-12 w-12 mx-auto mb-4 text-gray-300" />
@@ -365,7 +365,7 @@ export default function FollowersPage() {
                   </CardHeader>
                   <CardContent>
                     {following.length > 0 ? (
-                      <div className="space-y-4">
+        <div className="space-y-4">
                         {filteredFollowing.map((followingItem) => (
                           <div key={followingItem.id} className="flex items-center justify-between p-4 border rounded-xl hover:bg-gray-50 transition-colors">
                             <div className="flex items-center gap-4">
@@ -414,8 +414,8 @@ export default function FollowersPage() {
                         <UserPlus className="h-12 w-12 mx-auto mb-4 text-gray-300" />
                         <p>Not following anyone yet</p>
                         <p className="text-sm">Start following people to see their updates!</p>
-                      </div>
-                    )}
+            </div>
+          )}
                   </CardContent>
                 </Card>
               </TabsContent>
