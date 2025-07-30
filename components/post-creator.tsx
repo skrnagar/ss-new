@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/contexts/auth-context";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabase";
-import { FileText, Image, Loader2, Paperclip, Video, X } from "lucide-react";
+import { FileText, Image, Loader2, Paperclip, Video, X, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
 import type * as React from "react";
 import { useRef, useState, useCallback, useEffect } from "react";
@@ -319,33 +319,41 @@ export function PostCreator({ isDialog = false, onSuccess, onOptimisticPost }: P
   };
 
   return (
-    <div className="flex flex-col gap-3">
-      <div className="flex-1 space-y-3">
-        <Textarea
-          placeholder={`What's on your mind, ${activeProfile?.full_name?.split(" ")[0] || "User"}?`}
-          value={inputContent}
-          onChange={(e) => {
-            setInputContent(e.target.value);
-            debouncedSetContent(e.target.value);
-          }}
-          className="min-h-[120px] md:min-h-[250px] resize-none text-sm md:text-base"
-        />
+    <div className="flex flex-col gap-4">
+      <div className="flex-1 space-y-4">
+        {/* Enhanced Textarea with Modern Styling */}
+        <div className="relative">
+          <Textarea
+            placeholder={`What's on your mind, ${activeProfile?.full_name?.split(" ")[0] || "User"}?`}
+            value={inputContent}
+            onChange={(e) => {
+              setInputContent(e.target.value);
+              debouncedSetContent(e.target.value);
+            }}
+            className="min-h-[140px] md:min-h-[250px] resize-none text-base md:text-lg border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-gray-400 leading-relaxed"
+          />
+          {/* Character Counter */}
+          <div className="absolute bottom-2 right-2 text-xs text-gray-400">
+            {inputContent.length}/500
+          </div>
+        </div>
 
         {imagePreviews.length > 0 && (
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-2 max-h-64 overflow-auto rounded-md border p-3 bg-muted/20">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 max-h-64 overflow-auto rounded-xl border border-gray-200/50 p-4 bg-gradient-to-br from-gray-50/50 to-white/50">
             {imagePreviews.map((src, idx) => (
-              <div key={idx} className="relative aspect-video rounded-md overflow-hidden flex items-center justify-center">
-                <img src={src} alt={`Attachment preview ${idx + 1}`} className="object-contain w-full h-full" />
+              <div key={idx} className="relative aspect-video rounded-lg overflow-hidden flex items-center justify-center group shadow-sm">
+                <img src={src} alt={`Attachment preview ${idx + 1}`} className="object-cover w-full h-full transition-transform duration-200 group-hover:scale-105" />
+                <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="absolute top-2 right-2 h-6 w-6 rounded-full bg-background/80"
+                  className="absolute top-2 right-2 h-7 w-7 rounded-full bg-white/90 hover:bg-white shadow-sm transition-all duration-200"
                   onClick={() => {
                     setImageFiles(files => files.filter((_, i) => i !== idx));
                     setImagePreviews(previews => previews.filter((_, i) => i !== idx));
                   }}
                 >
-                  <X className="h-4 w-4" />
+                  <X className="h-4 w-4 text-gray-600" />
                 </Button>
               </div>
             ))}
@@ -353,68 +361,80 @@ export function PostCreator({ isDialog = false, onSuccess, onOptimisticPost }: P
         )}
 
         {attachmentPreview && (
-          <div className="relative rounded-md border p-3 bg-muted/20 max-h-64 overflow-auto">
+          <div className="relative rounded-xl border border-gray-200/50 p-4 bg-gradient-to-br from-gray-50/50 to-white/50 max-h-64 overflow-auto shadow-sm">
             <Button
               variant="ghost"
               size="icon"
-              className="absolute top-2 right-2 h-6 w-6 rounded-full bg-background/80"
+              className="absolute top-3 right-3 h-7 w-7 rounded-full bg-white/90 hover:bg-white shadow-sm transition-all duration-200"
               onClick={clearAttachment}
             >
-              <X className="h-4 w-4" />
+              <X className="h-4 w-4 text-gray-600" />
             </Button>
 
             {attachmentType === "image" ? (
-              <div className="relative aspect-video max-h-56 overflow-auto rounded-md flex items-center justify-center">
+              <div className="relative aspect-video max-h-56 overflow-auto rounded-lg flex items-center justify-center">
                 <img
                   src={attachmentPreview}
                   alt="Attachment preview"
-                  className="object-contain w-full h-full"
+                  className="object-cover w-full h-full rounded-lg"
                 />
               </div>
             ) : attachmentType === "video" ? (
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Video className="h-4 w-4" />
-                <span className="truncate max-w-[200px]">{attachmentPreview}</span>
+              <div className="flex items-center gap-3 p-3 bg-white/50 rounded-lg">
+                <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
+                  <Video className="h-5 w-5 text-red-600" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-gray-900 truncate">{attachmentPreview}</p>
+                  <p className="text-xs text-gray-500">Video file</p>
+                </div>
               </div>
             ) : (
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <FileText className="h-4 w-4" />
-                <span className="truncate max-w-[200px]">{attachmentPreview}</span>
+              <div className="flex items-center gap-3 p-3 bg-white/50 rounded-lg">
+                <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                  <FileText className="h-5 w-5 text-blue-600" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-gray-900 truncate">{attachmentPreview}</p>
+                  <p className="text-xs text-gray-500">Document file</p>
+                </div>
               </div>
             )}
           </div>
         )}
 
-        <div className="flex items-center justify-between flex-wrap gap-2">
-          <div className="flex items-center gap-1 md:gap-2">
+        {/* Enhanced Action Buttons */}
+        <div className="space-y-4">
+          {/* Attachment Buttons */}
+          <div className="flex items-center justify-center gap-3">
             <Button
               variant="ghost"
               size="sm"
-              className="text-muted-foreground h-8 px-2 md:px-3"
+              className="flex-1 h-12 rounded-xl bg-gradient-to-r from-blue-50 to-purple-50 hover:from-blue-100 hover:to-purple-100 border border-blue-200/50 text-blue-700 hover:text-blue-800 transition-all duration-200"
               onClick={() => handleAttachmentSelect("image")}
             >
-              <Image className="h-4 w-4 md:mr-2" />
-              <span className="hidden md:inline">Photo</span>
+              <Image className="h-5 w-5 mr-2" />
+              <span className="font-medium">Photo</span>
             </Button>
 
             <Button
               variant="ghost"
               size="sm"
-              className="text-muted-foreground h-8 px-2 md:px-3"
+              className="flex-1 h-12 rounded-xl bg-gradient-to-r from-red-50 to-pink-50 hover:from-red-100 hover:to-pink-100 border border-red-200/50 text-red-700 hover:text-red-800 transition-all duration-200"
               onClick={() => handleAttachmentSelect("video")}
             >
-              <Video className="h-4 w-4 md:mr-2" />
-              <span className="hidden md:inline">Video</span>
+              <Video className="h-5 w-5 mr-2" />
+              <span className="font-medium">Video</span>
             </Button>
 
             <Button
               variant="ghost"
               size="sm"
-              className="text-muted-foreground h-8 px-2 md:px-3"
+              className="flex-1 h-12 rounded-xl bg-gradient-to-r from-green-50 to-emerald-50 hover:from-green-100 hover:to-emerald-100 border border-green-200/50 text-green-700 hover:text-green-800 transition-all duration-200"
               onClick={() => handleAttachmentSelect("document")}
             >
-              <FileText className="h-4 w-4 md:mr-2" />
-              <span className="hidden md:inline">Document</span>
+              <FileText className="h-5 w-5 mr-2" />
+              <span className="font-medium">Document</span>
             </Button>
 
             <input
@@ -432,19 +452,23 @@ export function PostCreator({ isDialog = false, onSuccess, onOptimisticPost }: P
             />
           </div>
 
+          {/* Post Button */}
           <Button
             size="lg"
             onClick={handleSubmit}
-            disabled={isSubmitting || isCompressing}
-            className="w-full md:w-auto"
+            disabled={isSubmitting || isCompressing || !inputContent.trim()}
+            className="w-full h-14 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isSubmitting || isCompressing ? (
               <>
-                <Loader2 className="h-4 w-8 mr-2 animate-spin" />
+                <Loader2 className="h-5 w-5 mr-2 animate-spin" />
                 {isCompressing ? "Compressing..." : "Posting..."}
               </>
             ) : (
-              <>Post</>
+              <>
+                <Sparkles className="h-5 w-5 mr-2" />
+                Share Post
+              </>
             )}
           </Button>
         </div>

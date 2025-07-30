@@ -613,55 +613,49 @@ const PostItem = memo(function PostItem({ post, currentUser }: PostItemProps) {
         </div>
       </CardContent>
       <div className="border-t border-gray-100 px-6 py-3 flex flex-col gap-2">
-        {/* Like and comment counts */}
-        <div className="flex justify-between w-full mb-1 text-sm text-muted-foreground">
-          <div className="flex items-center">
-            <ThumbsUp className="h-3 w-3 mr-1" />
-            <span>{likes.length || 0}</span>
-          </div>
-          <div className="flex items-center">
-            <MessageSquare className="h-3 w-3 mr-1" />
-            <span>{comments.length || 0}</span>
-          </div>
-        </div>
         {/* Action buttons */}
-        <div className="flex justify-between w-full pt-1">
+        <div className="flex justify-between w-full">
           <Button
             variant="ghost"
             size="sm"
-            className={`text-muted-foreground font-medium transition-all duration-200 ${
+            className={`text-muted-foreground font-medium transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 rounded-lg ${
               isLiked 
-                ? "text-primary hover:bg-primary/10" 
-                : "hover:bg-gray-100"
+                ? "text-blue-600 bg-blue-50 hover:bg-blue-100" 
+                : "hover:bg-gray-50"
             }`}
             onClick={handleLikeToggle}
           >
-            <ThumbsUp className={`h-4 w-4 md:mr-2 ${isLiked ? "fill-primary" : ""}`} />
-            <span className="hidden md:inline">{isLiked ? "Liked" : "Like"}</span>
+            <ThumbsUp className={`h-4 w-4 md:mr-2 ${isLiked ? "fill-blue-600" : ""}`} />
+            <span className="hidden md:inline font-medium">{isLiked ? "Liked" : "Like"}</span>
+            {likes.length > 0 && (
+              <span className="ml-1 text-xs bg-blue-100 text-blue-600 px-1.5 py-0.5 rounded-full font-medium">
+                {likes.length}
+              </span>
+            )}
           </Button>
           <Button
             variant="ghost"
             size="sm"
-            className={`text-muted-foreground font-medium transition-all duration-200 ${
+            className={`text-muted-foreground font-medium transition-all duration-200 hover:bg-green-50 hover:text-green-600 rounded-lg ${
               showComments 
-                ? "bg-primary/10 text-primary hover:bg-primary/20" 
-                : "hover:bg-gray-100"
+                ? "text-green-600 bg-green-50 hover:bg-green-100" 
+                : "hover:bg-gray-50"
             }`}
             onClick={handleToggleComments}
           >
-            <MessageSquare className={`h-4 w-4 md:mr-2 ${showComments ? "fill-primary" : ""}`} />
-            <span className="hidden md:inline">Comment</span>
+            <MessageSquare className={`h-4 w-4 md:mr-2 ${showComments ? "fill-green-600" : ""}`} />
+            <span className="hidden md:inline font-medium">Comment</span>
             {comments.length > 0 && (
-              <span className="ml-1 text-xs bg-gray-200 text-gray-600 px-1.5 py-0.5 rounded-full">
+              <span className="ml-1 text-xs bg-green-100 text-green-600 px-1.5 py-0.5 rounded-full font-medium">
                 {comments.length}
               </span>
             )}
           </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className="text-muted-foreground font-medium">
+              <Button variant="ghost" size="sm" className="text-muted-foreground font-medium hover:bg-purple-50 hover:text-purple-600 rounded-lg transition-all duration-200">
                 <Share2 className="h-4 w-4 md:mr-2" />
-                <span className="hidden md:inline">Share</span>
+                <span className="hidden md:inline font-medium">Share</span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56">
