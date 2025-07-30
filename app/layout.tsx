@@ -1,6 +1,6 @@
 import type React from "react";
 import "./globals.css";
-import { Footer } from "@/components/footer";
+import { ConditionalFooter } from "@/components/conditional-footer";
 import { AuthProvider } from "@/contexts/auth-context";
 import type { Metadata } from "next";
 import dynamic from "next/dynamic";
@@ -102,7 +102,7 @@ export default function RootLayout({
             </Suspense>
             <div className="pb-16 md:pb-0">
               <main className="flex-grow">{children}</main>
-              <Footer />
+              <ConditionalFooter />
             </div>
             {/* Mobile navigation - only visible on mobile devices */}
               <MobileNav />

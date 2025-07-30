@@ -30,7 +30,7 @@ export function PostTrigger({ onPostSuccess }: PostTriggerProps) {
 
   return (
     <>
-      <Card className="md:rounded-lg rounded-none border-x-0 md:border-x mb-6">
+      <Card className="hidden md:block md:rounded-lg rounded-none border-x-0 md:border-x mb-6">
         <CardContent className="pt-4 md:pt-6 px-4 md:px-6">
           <div className="space-y-4">
             <div className="flex items-center gap-3">

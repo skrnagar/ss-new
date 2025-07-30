@@ -229,37 +229,38 @@ export function UserActivity({ userId, isOwnProfile }: UserActivityProps) {
           </p>
         </div>
 
-        {/* Engagement Stats */}
-        <div className="flex items-center justify-between py-3 border-t border-gray-100">
-          <div className="flex items-center space-x-4 text-sm text-gray-600">
-            <div className="flex items-center space-x-1">
-              <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
-                <ThumbsUp className="h-3 w-3 text-white" />
-              </div>
-              <span>{post.likes_count || 0}</span>
-            </div>
-            <span>{post.comments_count || 0} comments</span>
-            {post.shares_count > 0 && <span>{post.shares_count} reposts</span>}
-          </div>
-        </div>
-
         {/* Action Buttons */}
         <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-          <Button variant="ghost" size="sm" className="flex-1 justify-start text-gray-600 hover:text-blue-600 hover:bg-blue-50">
+          <Button variant="ghost" size="sm" className="flex-1 justify-start text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200">
             <ThumbsUp className="h-4 w-4 mr-2" />
-            Like
+            <span className="font-medium">Like</span>
+            {post.likes_count > 0 && (
+              <span className="ml-1 text-xs bg-blue-100 text-blue-600 px-1.5 py-0.5 rounded-full font-medium">
+                {post.likes_count}
+              </span>
+            )}
           </Button>
-          <Button variant="ghost" size="sm" className="flex-1 justify-start text-gray-600 hover:text-blue-600 hover:bg-blue-50">
+          <Button variant="ghost" size="sm" className="flex-1 justify-start text-gray-600 hover:text-green-600 hover:bg-green-50 rounded-lg transition-all duration-200">
             <MessageSquare className="h-4 w-4 mr-2" />
-            Comment
+            <span className="font-medium">Comment</span>
+            {post.comments_count > 0 && (
+              <span className="ml-1 text-xs bg-green-100 text-green-600 px-1.5 py-0.5 rounded-full font-medium">
+                {post.comments_count}
+              </span>
+            )}
           </Button>
-          <Button variant="ghost" size="sm" className="flex-1 justify-start text-gray-600 hover:text-blue-600 hover:bg-blue-50">
+          <Button variant="ghost" size="sm" className="flex-1 justify-start text-gray-600 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-all duration-200">
             <Share2 className="h-4 w-4 mr-2" />
-            Repost
+            <span className="font-medium">Repost</span>
+            {post.shares_count > 0 && (
+              <span className="ml-1 text-xs bg-purple-100 text-purple-600 px-1.5 py-0.5 rounded-full font-medium">
+                {post.shares_count}
+              </span>
+            )}
           </Button>
-          <Button variant="ghost" size="sm" className="flex-1 justify-start text-gray-600 hover:text-blue-600 hover:bg-blue-50">
+          <Button variant="ghost" size="sm" className="flex-1 justify-start text-gray-600 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-all duration-200">
             <Send className="h-4 w-4 mr-2" />
-            Send
+            <span className="font-medium">Send</span>
           </Button>
         </div>
       </CardContent>
