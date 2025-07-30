@@ -3,6 +3,7 @@
 import { supabase } from "@/lib/supabase";
 import type { Session, User } from "@supabase/supabase-js";
 import { createContext, useContext, useEffect, useState, useCallback } from "react";
+import { clearAvatarCache } from "@/hooks/use-avatar-cache";
 
 type Profile = {
   id: string;
@@ -81,6 +82,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     } = supabase.auth.onAuthStateChange((_event, changedSession) => {
       setSession(changedSession);
       fetchProfile(changedSession?.user ?? null);
+      
+      // Clear avatar cache on logout
+      if (!changedSession) {
+        clearAvatarCache();
+      }
     });
 
     return () => {

@@ -11,6 +11,7 @@ import { Suspense } from "react";
 import AuthRedirector from "./components/auth-redirector";
 import { MobileNav } from "@/components/mobile-nav";
 import { Analytics } from "@vercel/analytics/react";
+import { ChatPanel } from "@/components/chat-panel";
 
 // Dynamically import Navbar with Suspense
 const Navbar = dynamic(
@@ -106,6 +107,8 @@ export default function RootLayout({
             {/* Mobile navigation - only visible on mobile devices */}
               <MobileNav />
           </div>
+          {/* Chat Panel - floating in bottom right */}
+          <ChatPanel />
         </AuthProvider>
         <Analytics />
       </body>

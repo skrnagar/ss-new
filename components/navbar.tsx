@@ -35,6 +35,7 @@ import {
   Shield,
   User,
   Users,
+  BookOpen,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -94,6 +95,12 @@ const UserMenu = ({ user, profile, handleSignOut, isMobile }: any) => (
         )}
         {isMobile && (
           <>
+            <DropdownMenuItem asChild>
+              <Link href="/articles" className="cursor-pointer">
+                <BookOpen className="mr-2 h-4 w-4" />
+                <span>Articles</span>
+              </Link>
+            </DropdownMenuItem>
             <DropdownMenuItem asChild>
               <Link href="/jobs" className="cursor-pointer">
                 <Briefcase className="mr-2 h-4 w-4" />
@@ -178,16 +185,6 @@ const MobileHeader = ({ user, profile, handleSignOut }: any) => (
       />
     </Link>
     <div className="flex items-center gap-1 flex-1 justify-end">
-      <Button variant="ghost" size="icon" asChild>
-        <Link href="/search">
-          <Search className="h-5 w-5" />
-        </Link>
-      </Button>
-      <Button variant="ghost" size="icon" asChild>
-        <Link href="/messages">
-          <MessageBadge />
-        </Link>
-      </Button>
       <NotificationDropdown userId={user?.id} />
       <UserMenu user={user} profile={profile} handleSignOut={handleSignOut} isMobile={true} />
     </div>
