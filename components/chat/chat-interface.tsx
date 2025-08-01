@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { MessageSquare, ArrowLeft, Users, Search, Plus, X, Phone, Video } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
+import { useConversations } from "@/contexts/conversation-context";
 import Link from "next/link";
 import { ChatWindow } from "@/components/chat/chat-window";
 import { UserSearchModal } from "@/components/chat/user-search-modal";
@@ -37,93 +38,15 @@ interface ChatInterfaceProps {
 }
 
 export function ChatInterface({ onBack, showBackButton = false, className = "" }: ChatInterfaceProps) {
-  const [conversations, setConversations] = useState<Conversation[]>([]);
   const [selectedConversation, setSelectedConversation] = useState<string>('');
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { session, isLoading } = useAuth();
+  const { conversations, loading, error } = useConversations();
   const user = session?.user;
 
-  useEffect(() => {
-    if (!user) return;
-    fetchConversations();
-    const unsubscribe = subscribeToUpdates(user.id);
-    return () => {
-      if (unsubscribe) unsubscribe();
-    };
-  }, [user?.id]);
-
-  const fetchConversations = async () => {
-    if (!user?.id) return;
-    try {
-      const { data, error } = await supabase
-        .from("conversation_participants")
-        .select(`
-          conversation:conversations!inner(
-            id,
-            messages(
-              id,
-              content,
-              created_at,
-              seen,
-              sender_id
-            ),
-            conversation_participants(
-              profiles(
-                id,
-                full_name,
-                avatar_url
-              )
-            )
-          )
-        `)
-        .eq("profile_id", user.id);
-
-      if (error) throw error;
-
-      if (data) {
-        const processedConversations: Conversation[] = data.map((item: any) => {
-          const conversation = item.conversation;
-          const participants = conversation.conversation_participants
-            .map((p: any) => p.profiles)
-            .filter((p: any) => p.id !== user.id);
-
-          const messages = conversation.messages || [];
-          const lastMessage = messages.length > 0 ? messages[messages.length - 1] : null;
-          const unreadCount = messages.filter((m: any) => !m.seen && m.sender_id !== user.id).length;
-
-          return {
-            id: conversation.id,
-            participants,
-            last_message: lastMessage ? {
-              content: lastMessage.content,
-              created_at: lastMessage.created_at,
-              seen: lastMessage.seen
-            } : undefined,
-            unreadCount
-          };
-        });
-
-        setConversations(processedConversations);
-      }
-    } catch (error) {
-      console.error("Error fetching conversations:", error);
-    }
-  };
-
-  const subscribeToUpdates = (userId: string) => {
-    const channel = supabase
-      .channel('chat_interface_updates')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, () => {
-        fetchConversations();
-      })
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  };
+  // Conversations are now managed by the context
 
   const startNewConversation = async (userId: string) => {
     if (!user?.id) return;

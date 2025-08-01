@@ -2,6 +2,7 @@ import type React from "react";
 import "./globals.css";
 import { ConditionalFooter } from "@/components/conditional-footer";
 import { AuthProvider } from "@/contexts/auth-context";
+import { ConversationProvider } from "@/contexts/conversation-context";
 import type { Metadata } from "next";
 import dynamic from "next/dynamic";
 import { Manrope, Poppins } from "next/font/google";
@@ -82,8 +83,9 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${poppins.className} ${manrope.className}`}>
         <AuthProvider>
-          <AuthRedirector />
-          <div className="flex flex-col min-h-screen">
+          <ConversationProvider>
+            <AuthRedirector />
+            <div className="flex flex-col min-h-screen">
             <Suspense
               fallback={
                 <header className="sticky top-0 z-40 border-b bg-background">
@@ -109,6 +111,7 @@ export default function RootLayout({
           </div>
           {/* Chat Panel - floating in bottom right */}
           <ChatPanel />
+            </ConversationProvider>
         </AuthProvider>
         <Analytics />
       </body>
