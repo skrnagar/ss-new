@@ -5,7 +5,7 @@ import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
-import { Bell, UserPlus, UserCheck, UserMinus, ArrowRight } from "lucide-react";
+import { Bell, UserPlus, UserCheck, UserMinus, ArrowRight, Heart, MessageSquare } from "lucide-react";
 
 const notificationIcon = (type: string) => {
   switch (type) {
@@ -15,6 +15,12 @@ const notificationIcon = (type: string) => {
       return <UserCheck className="h-5 w-5 text-green-500 mr-3" />;
     case "connection_withdrawn":
       return <UserMinus className="h-5 w-5 text-red-500 mr-3" />;
+    case "new_follower":
+      return <UserPlus className="h-5 w-5 text-purple-500 mr-3" />;
+    case "post_like":
+      return <Heart className="h-5 w-5 text-red-500 mr-3" />;
+    case "post_comment":
+      return <MessageSquare className="h-5 w-5 text-blue-500 mr-3" />;
     default:
       return <Bell className="h-5 w-5 text-gray-400 mr-3" />;
   }
@@ -31,11 +37,45 @@ const fetchNotifications = async (userId: string) => {
 };
 
 const NotificationItem = React.memo(function NotificationItem({ n, onRead }: { n: any, onRead: (id: string) => void }) {
+  const getNotificationStyle = (type: string, read: boolean) => {
+    if (read) return "opacity-60";
+    
+    switch (type) {
+      case "post_like":
+        return "bg-red-50 border-l-4 border-red-500 font-semibold";
+      case "post_comment":
+        return "bg-blue-50 border-l-4 border-blue-500 font-semibold";
+      case "new_follower":
+        return "bg-purple-50 border-l-4 border-purple-500 font-semibold";
+      case "connection_request":
+        return "bg-blue-50 border-l-4 border-blue-500 font-semibold";
+      case "connection_accepted":
+        return "bg-green-50 border-l-4 border-green-500 font-semibold";
+      default:
+        return "bg-blue-50 border-l-4 border-blue-500 font-semibold";
+    }
+  };
+
+  const formatTime = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInMs = now.getTime() - date.getTime();
+    const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
+    const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
+    const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
+
+    if (diffInMinutes < 1) return "Just now";
+    if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
+    if (diffInHours < 24) return `${diffInHours}h ago`;
+    if (diffInDays < 7) return `${diffInDays}d ago`;
+    return date.toLocaleDateString();
+  };
+
   return (
     <Link
       key={n.id}
       href={n.link || "/network/followers"}
-      className={`flex items-center gap-4 px-6 py-5 transition hover:bg-muted/60 ${n.read ? "opacity-60" : "bg-blue-50 border-l-4 border-blue-500 font-semibold"} rounded-none sm:px-6 sm:py-5 px-3 py-4 text-base`}
+      className={`flex items-center gap-4 px-6 py-5 transition hover:bg-muted/60 ${getNotificationStyle(n.type, n.read)} rounded-none sm:px-6 sm:py-5 px-3 py-4 text-base`}
       style={{ textDecoration: "none" }}
       aria-label={n.content}
       tabIndex={0}
@@ -49,7 +89,7 @@ const NotificationItem = React.memo(function NotificationItem({ n, onRead }: { n
       {notificationIcon(n.type)}
       <div className="flex-1 min-w-0">
         <div className="text-base leading-tight line-clamp-2">{n.content}</div>
-        <div className="text-xs text-muted-foreground mt-2">{new Date(n.created_at).toLocaleString()}</div>
+        <div className="text-xs text-muted-foreground mt-2">{formatTime(n.created_at)}</div>
       </div>
       <ArrowRight className="h-5 w-5 text-muted-foreground mt-1" />
     </Link>
@@ -63,6 +103,31 @@ export function NotificationDropdown({ userId }: { userId: string }) {
   const { data: notifications = [], mutate } = useSWR(userId ? ["notifications", userId] : null, () => fetchNotifications(userId));
   const unreadCount = useMemo(() => notifications.filter((n: any) => !n.read).length, [notifications]);
   const paginated = useMemo(() => notifications.slice(0, page * PAGE_SIZE), [notifications, page]);
+
+  // Real-time subscription for notifications
+  useEffect(() => {
+    if (!userId) return;
+
+    const channel = supabase
+      .channel(`notifications_${userId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "notifications",
+          filter: `user_id=eq.${userId}`,
+        },
+        () => {
+          mutate(); // Refresh notifications when there's a change
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [userId, mutate]);
 
   const markAllRead = useCallback(async () => {
     await supabase.from("notifications").update({ read: true }).eq("user_id", userId).eq("read", false);
