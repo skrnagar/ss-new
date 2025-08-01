@@ -3,6 +3,7 @@
 import { useAuth } from "@/contexts/auth-context";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { FullScreenLoader } from "@/components/ui/logo-loder";
 
 type ProtectedRouteProps = {
   children: React.ReactNode;
@@ -21,11 +22,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
 
   // Show loading indicator
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-      </div>
-    );
+    return <FullScreenLoader variant="morph" text="Authenticating..." />;
   }
 
   // If there's a user and not loading, render children

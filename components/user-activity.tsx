@@ -22,7 +22,8 @@ import {
   ImageIcon,
   Calendar,
   MapPin,
-  Building
+  Building,
+  Bookmark
 } from "lucide-react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
@@ -232,7 +233,7 @@ export function UserActivity({ userId, isOwnProfile }: UserActivityProps) {
         {/* Action Buttons */}
         <div className="flex items-center justify-between pt-3 border-t border-gray-100">
           <Button variant="ghost" size="sm" className="flex-1 justify-start text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200">
-            <ThumbsUp className="h-4 w-4 mr-2" />
+            <Heart className="h-4 w-4 mr-2" />
             <span className="font-medium">Like</span>
             {post.likes_count > 0 && (
               <span className="ml-1 text-xs bg-blue-100 text-blue-600 px-1.5 py-0.5 rounded-full font-medium">
@@ -241,7 +242,9 @@ export function UserActivity({ userId, isOwnProfile }: UserActivityProps) {
             )}
           </Button>
           <Button variant="ghost" size="sm" className="flex-1 justify-start text-gray-600 hover:text-green-600 hover:bg-green-50 rounded-lg transition-all duration-200">
-            <MessageSquare className="h-4 w-4 mr-2" />
+            <svg className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+            </svg>
             <span className="font-medium">Comment</span>
             {post.comments_count > 0 && (
               <span className="ml-1 text-xs bg-green-100 text-green-600 px-1.5 py-0.5 rounded-full font-medium">
@@ -250,7 +253,9 @@ export function UserActivity({ userId, isOwnProfile }: UserActivityProps) {
             )}
           </Button>
           <Button variant="ghost" size="sm" className="flex-1 justify-start text-gray-600 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-all duration-200">
-            <Share2 className="h-4 w-4 mr-2" />
+            <svg className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+            </svg>
             <span className="font-medium">Repost</span>
             {post.shares_count > 0 && (
               <span className="ml-1 text-xs bg-purple-100 text-purple-600 px-1.5 py-0.5 rounded-full font-medium">

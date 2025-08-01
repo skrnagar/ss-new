@@ -22,6 +22,8 @@ import {
   Send,
   Share2,
   ThumbsUp,
+  Heart,
+  Bookmark,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -625,7 +627,7 @@ const PostItem = memo(function PostItem({ post, currentUser }: PostItemProps) {
             }`}
             onClick={handleLikeToggle}
           >
-            <ThumbsUp className={`h-4 w-4 md:mr-2 ${isLiked ? "fill-blue-600" : ""}`} />
+            <Heart className={`h-4 w-4 md:mr-2 ${isLiked ? "fill-blue-600" : ""}`} />
             <span className="hidden md:inline font-medium">{isLiked ? "Liked" : "Like"}</span>
             {likes.length > 0 && (
               <span className="ml-1 text-xs bg-blue-100 text-blue-600 px-1.5 py-0.5 rounded-full font-medium">
@@ -643,7 +645,9 @@ const PostItem = memo(function PostItem({ post, currentUser }: PostItemProps) {
             }`}
             onClick={handleToggleComments}
           >
-            <MessageSquare className={`h-4 w-4 md:mr-2 ${showComments ? "fill-green-600" : ""}`} />
+            <svg className={`h-4 w-4 md:mr-2 ${showComments ? "fill-green-600" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+            </svg>
             <span className="hidden md:inline font-medium">Comment</span>
             {comments.length > 0 && (
               <span className="ml-1 text-xs bg-green-100 text-green-600 px-1.5 py-0.5 rounded-full font-medium">
@@ -654,7 +658,9 @@ const PostItem = memo(function PostItem({ post, currentUser }: PostItemProps) {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="sm" className="text-muted-foreground font-medium hover:bg-purple-50 hover:text-purple-600 rounded-lg transition-all duration-200">
-                <Share2 className="h-4 w-4 md:mr-2" />
+                <svg className="h-4 w-4 md:mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                </svg>
                 <span className="hidden md:inline font-medium">Share</span>
               </Button>
             </DropdownMenuTrigger>

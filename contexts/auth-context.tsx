@@ -4,6 +4,7 @@ import { supabase } from "@/lib/supabase";
 import type { Session, User } from "@supabase/supabase-js";
 import { createContext, useContext, useEffect, useState, useCallback } from "react";
 import { clearAvatarCache } from "@/hooks/use-avatar-cache";
+import { FullScreenLoader } from "@/components/ui/logo-loder";
 
 type Profile = {
   id: string;
@@ -105,11 +106,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   // Render a loading screen while the session is being fetched.
   // This prevents the rest of the app from rendering prematurely.
   if (isLoading) {
-  return (
-      <div className="fixed inset-0 flex items-center justify-center bg-background z-50">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-      </div>
-    );
+    return <FullScreenLoader variant="morph" text="Loading Safety Shaper..." />;
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
