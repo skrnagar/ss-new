@@ -35,6 +35,7 @@ import { useEffect, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { FullScreenLoader } from "@/components/ui/logo-loder";
 import useSWR from 'swr';
 
 interface Connection {
@@ -395,11 +396,7 @@ export default function NetworkPage() {
   );
 
   if (authLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 via-white to-gray-50">
-        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary" />
-      </div>
-    );
+    return <FullScreenLoader variant="morph" text="Loading Network..." />;
   }
 
   if (loading) {

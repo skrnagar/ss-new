@@ -15,6 +15,9 @@ const protectedRoutes = [
   "/network/connections",
   "/network/followers",
   "/network/following",
+  "/chat",
+  "/posts/create",
+  "/articles/create",
 ];
 
 // Routes that should redirect to feed if already authenticated
@@ -62,6 +65,13 @@ export async function middleware(request: NextRequest) {
 
     if (isProtectedRoute && !isAuthenticated) {
       // Store the original URL to redirect back after login
+      const redirectUrl = new URL("/auth/login", request.url);
+      redirectUrl.searchParams.set("redirectUrl", url.pathname);
+      return NextResponse.redirect(redirectUrl);
+    }
+
+    // Special handling for chat-related routes
+    if ((path.startsWith("/chat") || path.startsWith("/messages")) && !isAuthenticated) {
       const redirectUrl = new URL("/auth/login", request.url);
       redirectUrl.searchParams.set("redirectUrl", url.pathname);
       return NextResponse.redirect(redirectUrl);
