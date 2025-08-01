@@ -113,8 +113,6 @@ export function ChatInterface({ onBack, showBackButton = false, className = "" }
       if (userData) {
         setSelectedUser(userData);
       }
-
-      fetchConversations();
     } catch (error) {
       console.error("Error starting conversation:", error);
     }
