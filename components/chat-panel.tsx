@@ -5,13 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/contexts/auth-context";
-import { supabase } from "@/lib/supabase";
+import { useConversations } from "@/contexts/conversation-context";
 import { ChatInterface } from "./chat/chat-interface";
 
 export function ChatPanel() {
   const [isOpen, setIsOpen] = useState(false);
   const { profile, session } = useAuth();
-  const [unreadCount, setUnreadCount] = useState(0);
+  const { conversations } = useConversations();
 
   // Don't render if user is not authenticated
   if (!session || !profile) {
@@ -28,44 +28,10 @@ export function ChatPanel() {
       .substring(0, 2);
   };
 
-  // Fetch unread message count - using same approach as mobile nav
-  useEffect(() => {
-    if (!profile?.id) return;
-    let ignore = false;
-
-    const fetchUnreadCount = async () => {
-      try {
-        const { data, error } = await supabase
-          .from("conversation_participants")
-          .select(`conversation:conversations!inner(id, messages(seen, sender_id))`)
-          .eq("profile_id", profile.id);
-
-        if (!ignore && data) {
-          let count = 0;
-          data.forEach((item: any) => {
-            const messages = item.conversation?.messages || [];
-            count += messages.filter((m: any) => !m.seen && m.sender_id !== profile.id).length;
-          });
-          setUnreadCount(count);
-        }
-      } catch (error) {
-        console.error("Error fetching unread count:", error);
-      }
-    };
-
-    fetchUnreadCount();
-
-    // Subscribe to real-time updates
-    const channel = supabase
-      .channel("chat_panel_messages_badge")
-      .on("postgres_changes", { event: "*", schema: "public", table: "messages" }, fetchUnreadCount)
-      .subscribe();
-
-    return () => {
-      ignore = true;
-      supabase.removeChannel(channel);
-    };
-  }, [profile?.id]);
+  // Calculate unread count from conversations context
+  const unreadCount = conversations.reduce((total, conversation) => {
+    return total + (conversation.unreadCount || 0);
+  }, 0);
 
   return (
     <>
@@ -74,7 +40,7 @@ export function ChatPanel() {
         <div className="fixed bottom-8 right-8 z-50 hidden md:block">
           <Button
             onClick={() => setIsOpen(true)}
-            className="h-auto px-6 py-4 rounded-xl shadow-lg bg-white hover:bg-gray-50 border border-gray-200 flex items-center gap-4 relative"
+            className="h-auto px-6 py-4 rounded-xl backdrop-blur-[8px] bg-white/50 hover:bg-white/70 border border-gray-200 ring-2 ring-offset-2 ring-offset-background/70 ring-white/20 flex items-center gap-4 relative"
           >
             {/* Chat Icon with Badge */}
             <div className="relative">
@@ -90,30 +56,30 @@ export function ChatPanel() {
             </div>
             
             {/* Messages Text */}
-            <span className="text-gray-900 font-semibold text-sm">Messages</span>
+            <span className="text-gray-900 font-semibold text-sm drop-shadow-sm">Messages</span>
             
-            {/* Profile Pictures */}
+            {/* Profile Pictures - Show last 3 conversations or placeholders */}
             <div className="flex -space-x-2">
-              <Avatar className="h-8 w-8 border-2 border-white">
-                <AvatarImage src={profile?.avatar_url || ""} alt={profile?.full_name || "User"} />
-                <AvatarFallback className="text-xs font-semibold bg-gray-200">
-                  {getInitials(profile?.full_name || "")}
-                </AvatarFallback>
-              </Avatar>
-              <Avatar className="h-8 w-8 border-2 border-white">
-                <AvatarImage src="/placeholder-avatar-1.jpg" alt="User 2" />
-                <AvatarFallback className="text-xs font-semibold bg-blue-200">JD</AvatarFallback>
-              </Avatar>
-              <Avatar className="h-8 w-8 border-2 border-white">
-                <AvatarImage src="/placeholder-avatar-2.jpg" alt="User 3" />
-                <AvatarFallback className="text-xs font-semibold bg-green-200">SM</AvatarFallback>
-              </Avatar>
+              {conversations.slice(0, 3).map((conversation, index) => {
+                const participant = conversation.participants[0];
+                return (
+                  <Avatar key={conversation.id} className="h-8 w-8 border-2 border-white">
+                    <AvatarImage src={participant?.avatar_url || ""} alt={participant?.full_name || "User"} />
+                    <AvatarFallback className="text-xs font-semibold bg-gray-200">
+                      {participant ? getInitials(participant.full_name) : `U${index + 1}`}
+                    </AvatarFallback>
+                  </Avatar>
+                );
+              })}
+              {/* Fill remaining slots with placeholders if less than 3 conversations */}
+              {Array.from({ length: Math.max(0, 3 - conversations.length) }).map((_, index) => (
+                <Avatar key={`placeholder-${index}`} className="h-8 w-8 border-2 border-white">
+                  <AvatarFallback className="text-xs font-semibold bg-gray-200">
+                    {index === 0 ? "JD" : index === 1 ? "SM" : "AB"}
+                  </AvatarFallback>
+                </Avatar>
+              ))}
             </div>
-            
-            {/* Ellipsis Icon */}
-            <svg className="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
-            </svg>
           </Button>
         </div>
       )}
@@ -121,7 +87,7 @@ export function ChatPanel() {
       {/* Desktop Chat Panel - Mobile-like Behavior */}
       {isOpen && (
         <div className="fixed bottom-4 right-4 z-50 hidden md:block max-w-[calc(100vw-2rem)]">
-          <Card className="w-80 lg:w-96 xl:w-[32rem] max-w-[calc(100vw-2rem)] h-[600px] lg:h-[700px] xl:h-[800px] max-h-[calc(100vh-2rem)] shadow-2xl border-0 rounded-xl overflow-hidden">
+          <Card className="w-80 lg:w-96 xl:w-[32rem] max-w-[calc(100vw-2rem)] h-[600px] lg:h-[700px] xl:h-[800px] max-h-[calc(100vh-2rem)] shadow-2xl border-0 rounded-xl overflow-hidden bg-white border border-gray-200">
             {/* Chat Content - Mobile-like Interface */}
             <CardContent className="p-0 h-full">
               <ChatInterface onBack={() => setIsOpen(false)} />

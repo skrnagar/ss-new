@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/auth-context";
+import { useConversations } from "@/contexts/conversation-context";
 import { useToast } from "@/hooks/use-toast";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -74,119 +75,20 @@ function isProfile(user: any): user is { id: string; full_name: string; avatar_u
 }
 
 export function ChatList({ initialUserId }: ChatListProps) {
-  const [conversations, setConversations] = useState<Conversation[]>([]);
   const [selectedConversation, setSelectedConversation] = useState<string>('');
   const [searchQuery, setSearchQuery] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { session } = useAuth();
+  const { conversations, loading, error } = useConversations();
   const user = session?.user;
   const { toast } = useToast();
 
   useEffect(() => {
-    if (!user) return;
-    fetchConversations();
-    const unsubscribe = subscribeToUpdates(user.id);
-
-    if (initialUserId) {
-      startNewConversation(initialUserId);
-    }
-    return () => {
-      if (unsubscribe) unsubscribe();
-    };
+    if (!user || !initialUserId) return;
+    startNewConversation(initialUserId);
   }, [user?.id, initialUserId]);
 
-  const fetchConversations = async () => {
-    if (!user?.id) return;
-    try {
-      const { data, error } = await supabase
-        .from("conversation_participants")
-        .select(`
-          conversation:conversations!inner (
-            id,
-            messages (
-              id,
-              content,
-              created_at,
-              seen,
-              sender_id
-            ),
-            conversation_participants!inner (
-              profiles!inner (
-                id,
-                full_name,
-                avatar_url
-              )
-            )
-          )
-        `)
-        .eq("profile_id", user.id)
-        .order("created_at", { ascending: false });
-
-      if (error) throw error;
-      if (!data) return;
-
-      // Supabase returns a nested structure, so we process as 'any' and map to Conversation
-      let formattedConversations = (data as any[]).map((item) => {
-        const messages = item.conversation?.messages || [];
-        // Find the latest message (by created_at)
-        const latestMessage = messages.reduce((latest: any, msg: any) => {
-          if (!latest) return msg;
-          return new Date(msg.created_at) > new Date(latest.created_at) ? msg : latest;
-        }, null);
-        const unreadCount = messages.filter((msg: any) => !msg.seen && msg.sender_id !== user?.id).length;
-        return {
-          id: item.conversation?.id || item.id,
-          participants:
-            item.conversation?.conversation_participants
-              ?.map((p: any) => p.profiles)
-              ?.filter((p: any) => p.id !== user?.id) || [],
-          last_message: latestMessage,
-          unreadCount,
-        };
-      });
-
-      // Sort conversations by latest message created_at descending
-      formattedConversations = formattedConversations.sort((a, b) => {
-        const aTime = a.last_message?.created_at ? new Date(a.last_message.created_at).getTime() : 0;
-        const bTime = b.last_message?.created_at ? new Date(b.last_message.created_at).getTime() : 0;
-        return bTime - aTime;
-      });
-
-      const uniqueConversations = Array.from(
-        new Map(formattedConversations.map((conv) => [conv.id, conv])).values()
-      );
-
-      setConversations(uniqueConversations);
-    } catch (err: any) {
-      toast({
-        title: 'Error fetching conversations',
-        description: err?.message || String(err),
-        variant: 'destructive',
-      });
-    }
-  };
-
-  const subscribeToUpdates = (userId: string) => {
-    const channelName = `conversations_changes_${userId}`;
-    const subscription = supabase
-      .channel(channelName)
-      .on(
-        "postgres_changes",
-        {
-          event: "*", // Listen to all events (INSERT, UPDATE, etc.)
-          schema: "public",
-          table: "messages",
-        },
-        () => {
-          fetchConversations();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  };
+  // Conversations are now managed by the context
 
   const startNewConversation = async (userId: string) => {
     if (!user?.id || !userId) return;
@@ -196,12 +98,10 @@ export function ChatList({ initialUserId }: ChatListProps) {
       .select(`
         conversation_id,
         conversations!inner (
-          id,
-          type
+          id
         )
       `)
-      .eq("profile_id", user.id)
-      .eq("conversations.type", "direct");
+      .eq("profile_id", user.id);
 
     const { data: otherParticipant } = await supabase
       .from("conversation_participants")
@@ -219,10 +119,7 @@ export function ChatList({ initialUserId }: ChatListProps) {
 
     const { data: newConversation, error: conversationError } = await supabase
       .from("conversations")
-      .insert({
-        created_by: user.id,
-        type: "direct",
-      })
+      .insert({})
       .select("id")
       .single();
 
@@ -240,7 +137,6 @@ export function ChatList({ initialUserId }: ChatListProps) {
       );
 
       await Promise.all(participantPromises);
-      await fetchConversations();
       setSelectedConversation(newConversation.id);
       setIsModalOpen(false);
     } catch (error) {

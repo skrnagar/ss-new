@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/contexts/auth-context";
-import { Search, BookmarkIcon, Users, Calendar, Newspaper, UserPlus, UserCheck, UserX } from "lucide-react";
+import { Search, BookmarkIcon, Users, Calendar, Newspaper, UserPlus, UserCheck, UserX, TrendingUp, Eye, Heart } from "lucide-react";
 import { PostTrigger } from "@/components/post-trigger";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -84,6 +84,17 @@ export default function FeedPage() {
       .gte("start_date", new Date().toISOString())
       .order("start_date", { ascending: true })
       .limit(2);
+    if (error) throw error;
+    return data;
+  };
+
+  const fetchTrendingArticles = async () => {
+    const { data, error } = await supabase
+      .from("articles_with_author")
+      .select("*")
+      .eq("published", true)
+      .order("published_at", { ascending: false })
+      .limit(5);
     if (error) throw error;
     return data;
   };
@@ -187,6 +198,7 @@ export default function FeedPage() {
     () => fetchPosts(1)
   );
   const { data: events = [], error: eventsError } = useSWR('events', fetchEvents);
+  const { data: trendingArticles = [], error: trendingArticlesError } = useSWR('trending-articles', fetchTrendingArticles);
   const { data: suggestions = [], error: suggestionsError } = useSWR(
     !authLoading && user ? ['suggestions', user.id] : null,
     () => (user ? fetchSuggestions(user.id) : [])
@@ -326,12 +338,12 @@ export default function FeedPage() {
 
   return (
     <div className="container py-6">
-      <div className="grid grid-cols-11 gap-6">
+      <div className="grid grid-cols-11 gap-6 relative">
         {/* Left Sidebar */}
-        <div className="col-span-2 hidden lg:block space-y-6">
+        <div className="col-span-2 hidden lg:block space-y-6 relative">
           {userProfile && <ProfileCard profile={userProfile} />}
 
-          <Card className="sticky top-8">
+          <Card className="sticky top-8 z-10 bg-white shadow-sm">
             <CardContent className="pt-6">
               <div className="space-y-4">
                 <Link href="/network" className="flex items-center gap-3 hover:text-primary">
@@ -364,10 +376,11 @@ export default function FeedPage() {
               </div>
             </CardContent>
           </Card>
+
         </div>
 
         {/* Main Content */}
-        <div className="col-span-12 lg:col-span-6">
+        <div className="col-span-12 lg:col-span-6 relative z-0">
           <PostTrigger onPostSuccess={() => {
             setPage(1);
             mutate();
@@ -408,10 +421,91 @@ export default function FeedPage() {
         </div>
 
         {/* Right sidebar */}
-        <div className="col-span-3 hidden lg:block space-y-6">
-          <Card>
+        <div className="col-span-3 hidden lg:block space-y-6 relative">
+          {/* Latest Articles */}
+          <Card className="bg-white shadow-sm">
             <CardContent className="pt-6">
-              <h3 className="font-semibold mb-3">Upcoming Events</h3>
+              <h3 className="font-semibold mb-3 flex items-center gap-2">
+                <Newspaper className="h-5 w-5 text-primary" />
+                Latest Articles
+              </h3>
+              {authLoading ? (
+                <div className="space-y-3">
+                  {[1, 2, 3].map((_, i) => (
+                    <div key={i} className="border rounded-md p-3">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Skeleton className="h-8 w-8 rounded-full" />
+                        <Skeleton className="h-4 w-32" />
+                      </div>
+                      <Skeleton className="h-5 w-3/4 mb-2" />
+                      <Skeleton className="h-4 w-full" />
+                    </div>
+                  ))}
+                </div>
+              ) : trendingArticlesError ? (
+                <div className="text-center py-4">
+                  <p className="text-sm text-red-500">Error loading articles</p>
+                  <Button variant="link" className="mt-2" asChild>
+                    <Link href="/articles">Browse all articles</Link>
+                  </Button>
+                </div>
+              ) : trendingArticles.length > 0 ? (
+                <div className="space-y-3">
+                  {trendingArticles.slice(0, 3).map((article) => (
+                    <Link
+                      href={`/articles/${article.id}`}
+                      key={article.id}
+                      className="group block"
+                    >
+                      <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                        <Avatar className="h-8 w-8 flex-shrink-0">
+                          <AvatarImage src={article.author_avatar || "/placeholder-user.jpg"} />
+                          <AvatarFallback className="text-xs">{article.author_name?.charAt(0)}</AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="text-sm font-semibold line-clamp-2 group-hover:text-primary transition-colors">
+                            {article.title}
+                          </h4>
+                          <div className="flex items-center gap-2 mt-1 text-xs text-gray-500">
+                            <span>{article.author_name}</span>
+                            <span>•</span>
+                            <span className="flex items-center gap-1">
+                              <Clock className="h-3 w-3" />
+                              {new Date(article.published_at).toLocaleDateString("en-US", {
+                                month: "short",
+                                day: "numeric"
+                              })}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                  <div className="pt-2 border-t">
+                    <Button variant="link" className="px-0 text-sm w-full justify-start" asChild>
+                      <Link href="/articles">See all articles</Link>
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center py-4">
+                  <Newspaper className="h-8 w-8 mx-auto mb-2 text-gray-300" />
+                  <p className="text-sm text-muted-foreground">No trending articles</p>
+                  <Button variant="link" className="mt-2 text-sm" asChild>
+                    <Link href="/articles">Browse all articles</Link>
+                  </Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Upcoming Events */}
+          <Card className="bg-white shadow-sm">
+            <CardContent className="pt-6">
+              <h3 className="font-semibold mb-3 flex items-center gap-2">
+                <Calendar className="h-5 w-5 text-primary" />
+                Upcoming Events
+              </h3>
               {authLoading ? (
                 <div className="space-y-3">
                   {[1, 2].map((_, i) => (
@@ -461,12 +555,13 @@ export default function FeedPage() {
             </CardContent>
           </Card>
 
-          <Card>
+          {/* Suggested Connections - Back to Right Sidebar */}
+          <Card className="bg-white shadow-sm">
             <CardContent className="pt-6">
               <h3 className="font-semibold mb-3">Suggested Connections</h3>
               {authLoading ? (
                 <div className="space-y-4">
-                  {[1, 2, 3, 4, 5].map((_, index) => (
+                  {[1, 2, 3].map((_, index) => (
                     <div key={index} className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <Skeleton className="h-10 w-10 rounded-full" />
@@ -546,8 +641,6 @@ export default function FeedPage() {
               )}
             </CardContent>
           </Card>
-
-          {/* Network Navigation Card */}
         </div>
       </div>
     </div>

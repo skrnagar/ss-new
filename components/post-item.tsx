@@ -10,6 +10,17 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Textarea } from "@/components/ui/textarea"; // Added for comments
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabase";
@@ -373,25 +384,42 @@ const PostItem = memo(function PostItem({ post, currentUser }: PostItemProps) {
   };
 
   const handleDeletePost = async () => {
-    if (!isAuthor) return;
+    if (!isAuthor) {
+      toast({
+        title: "Permission denied",
+        description: "You can only delete your own posts",
+        variant: "destructive",
+      });
+      return;
+    }
 
     setIsDeleting(true);
 
     try {
+      console.log("Attempting to delete post:", post.id);
+      
       const { error } = await supabase.from("posts").delete().eq("id", post.id);
 
-      if (error) throw error;
+      if (error) {
+        console.error("Supabase delete error:", error);
+        throw error;
+      }
 
+      console.log("Post deleted successfully");
+      
       toast({
         title: "Post deleted",
         description: "Your post has been removed successfully",
       });
 
+      // Force a page refresh to update the UI
       router.refresh();
-    } catch (error) {
+    } catch (error: any) {
+      console.error("Delete post error:", error);
+      
       toast({
         title: "Delete failed",
-        description: "An error occurred while deleting the post",
+        description: error?.message || "An error occurred while deleting the post",
         variant: "destructive",
       });
     } finally {
@@ -501,13 +529,34 @@ const PostItem = memo(function PostItem({ post, currentUser }: PostItemProps) {
               <DropdownMenuContent align="end">
                 <DropdownMenuItem>Edit Post</DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  className="text-red-600 focus:text-red-600"
-                  onClick={handleDeletePost}
-                  disabled={isDeleting}
-                >
-                  {isDeleting ? "Deleting..." : "Delete Post"}
-                </DropdownMenuItem>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <DropdownMenuItem
+                      className="text-red-600 focus:text-red-600"
+                      onSelect={(e) => e.preventDefault()}
+                    >
+                      Delete Post
+                    </DropdownMenuItem>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Delete Post</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Are you sure you want to delete this post? This action cannot be undone and will also remove all likes and comments associated with this post.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={handleDeletePost}
+                        disabled={isDeleting}
+                        className="bg-red-600 hover:bg-red-700"
+                      >
+                        {isDeleting ? "Deleting..." : "Delete Post"}
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </DropdownMenuContent>
             </DropdownMenu>
           )}
