@@ -14,6 +14,8 @@ import type * as React from "react";
 import { useRef, useState, useCallback, useEffect } from "react";
 import debounce from "lodash.debounce";
 import imageCompression from "browser-image-compression";
+import { UserMentionSuggestions } from "@/components/user-mention-suggestions";
+import { LinkPreview } from "@/components/link-preview";
 
 // Define Profile type based on what's in auth context
 type Profile = {
@@ -63,6 +65,17 @@ export function PostCreator({ isDialog = false, onSuccess, onOptimisticPost }: P
   const [attachmentFile, setAttachmentFile] = useState<File | null>(null);
   const [attachmentPreview, setAttachmentPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  // User mention state
+  const [showMentionSuggestions, setShowMentionSuggestions] = useState(false);
+  const [mentionQuery, setMentionQuery] = useState("");
+  const [cursorPosition, setCursorPosition] = useState(0);
+  
+  // Link preview state
+  const [detectedUrl, setDetectedUrl] = useState<string | null>(null);
+  const [showLinkPreview, setShowLinkPreview] = useState(false);
+  const [removedLinkPreview, setRemovedLinkPreview] = useState(false);
+  const [linkPreviewData, setLinkPreviewData] = useState<any>(null);
   const { toast } = useToast();
   const router = useRouter();
 
@@ -86,6 +99,80 @@ export function PostCreator({ isDialog = false, onSuccess, onOptimisticPost }: P
       setIsSubmitting(false);
     };
   }, []);
+
+  // Handle user mention detection
+  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const value = e.target.value;
+    const cursorPos = e.target.selectionStart;
+    
+    setInputContent(value);
+    debouncedSetContent(value);
+    setCursorPosition(cursorPos);
+
+    // Check for @ symbol to show mention suggestions
+    const beforeCursor = value.substring(0, cursorPos);
+    const mentionMatch = beforeCursor.match(/@([a-zA-Z0-9_]*)$/);
+    
+    if (mentionMatch) {
+      setShowMentionSuggestions(true);
+      setMentionQuery(mentionMatch[1]);
+    } else {
+      setShowMentionSuggestions(false);
+      setMentionQuery("");
+    }
+
+    // Check for URLs to show link preview
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    const urls = value.match(urlRegex);
+    
+    if (urls && urls.length > 0 && !removedLinkPreview) {
+      const lastUrl = urls[urls.length - 1];
+      setDetectedUrl(lastUrl);
+      setShowLinkPreview(true);
+    } else {
+      setShowLinkPreview(false);
+      setDetectedUrl(null);
+    }
+  };
+
+  // Handle user mention selection
+  const handleUserMentionSelect = (username: string) => {
+    const beforeMention = inputContent.substring(0, cursorPosition).replace(/@[a-zA-Z0-9_]*$/, '');
+    const afterMention = inputContent.substring(cursorPosition);
+    const newContent = beforeMention + '@' + username + ' ' + afterMention;
+    
+    setInputContent(newContent);
+    debouncedSetContent(newContent);
+    setShowMentionSuggestions(false);
+    setMentionQuery("");
+  };
+
+  const handleMentionSuggestionsClose = () => {
+    setShowMentionSuggestions(false);
+    setMentionQuery("");
+  };
+
+  const handleLinkPreviewClose = () => {
+    setShowLinkPreview(false);
+    setRemovedLinkPreview(true);
+    setLinkPreviewData(null);
+  };
+
+  const handleLinkPreviewRemove = () => {
+    setShowLinkPreview(false);
+    setRemovedLinkPreview(true);
+    setLinkPreviewData(null);
+    // Remove the URL from the content
+    if (detectedUrl) {
+      const newContent = inputContent.replace(detectedUrl, '').trim();
+      setInputContent(newContent);
+      debouncedSetContent(newContent);
+    }
+  };
+
+  const handleLinkPreviewData = (data: any) => {
+    setLinkPreviewData(data);
+  };
 
   // Compress image before upload
   const compressImage = async (file: File): Promise<File> => {
@@ -266,6 +353,7 @@ export function PostCreator({ isDialog = false, onSuccess, onOptimisticPost }: P
         image_urls: imageUrls.length > 0 ? imageUrls : null,
         video_url: videoUrl,
         document_url: documentUrl,
+        link_preview: linkPreviewData && !removedLinkPreview ? linkPreviewData : null,
         created_at: new Date().toISOString(),
       };
 
@@ -298,6 +386,9 @@ export function PostCreator({ isDialog = false, onSuccess, onOptimisticPost }: P
       // Reset form
       setInputContent("");
       clearAttachment();
+      setShowLinkPreview(false);
+      setDetectedUrl(null);
+      setRemovedLinkPreview(false);
 
       // Call onSuccess with the new post data for immediate UI update
       if (onSuccess) {
@@ -323,20 +414,78 @@ export function PostCreator({ isDialog = false, onSuccess, onOptimisticPost }: P
       <div className="flex-1 space-y-4">
         {/* Enhanced Textarea with Modern Styling */}
         <div className="relative">
+          {/* Formatting Toolbar */}
+          <div className="flex items-center gap-2 mb-2 p-2 bg-gray-50 rounded-lg">
+            <button
+              type="button"
+              onClick={() => {
+                const textarea = document.querySelector('textarea');
+                if (textarea) {
+                  const start = textarea.selectionStart;
+                  const end = textarea.selectionEnd;
+                  const selectedText = inputContent.substring(start, end);
+                  const newText = inputContent.substring(0, start) + `**${selectedText}**` + inputContent.substring(end);
+                  setInputContent(newText);
+                  debouncedSetContent(newText);
+                }
+              }}
+              className="px-3 py-1 text-sm font-bold bg-white border border-gray-300 rounded hover:bg-gray-50 transition-colors"
+            >
+              B
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                const textarea = document.querySelector('textarea');
+                if (textarea) {
+                  const start = textarea.selectionStart;
+                  const end = textarea.selectionEnd;
+                  const selectedText = inputContent.substring(start, end);
+                  const newText = inputContent.substring(0, start) + `#${selectedText}` + inputContent.substring(end);
+                  setInputContent(newText);
+                  debouncedSetContent(newText);
+                }
+              }}
+              className="px-3 py-1 text-sm text-blue-600 font-bold bg-white border border-gray-300 rounded hover:bg-gray-50 transition-colors"
+            >
+              #
+            </button>
+          </div>
+          
           <Textarea
             placeholder={`What's on your mind, ${activeProfile?.full_name?.split(" ")[0] || "User"}?`}
             value={inputContent}
-            onChange={(e) => {
-              setInputContent(e.target.value);
-              debouncedSetContent(e.target.value);
-            }}
+            onChange={handleInputChange}
             className="min-h-[140px] md:min-h-[250px] resize-none text-base md:text-lg border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-gray-400 leading-relaxed"
           />
           {/* Character Counter */}
           <div className="absolute bottom-2 right-2 text-xs text-gray-400">
             {inputContent.length}/500
           </div>
+          
+          {/* User Mention Suggestions */}
+          {showMentionSuggestions && (
+            <UserMentionSuggestions
+              query={mentionQuery}
+              onSelectUser={handleUserMentionSelect}
+              onClose={handleMentionSuggestionsClose}
+            />
+          )}
         </div>
+
+        {/* Link Preview */}
+        {showLinkPreview && detectedUrl && (
+          <div className="mt-3 mb-3">
+            <LinkPreview
+              url={detectedUrl}
+              onClose={handleLinkPreviewClose}
+              onRemove={handleLinkPreviewRemove}
+              onData={handleLinkPreviewData}
+            />
+          </div>
+        )}
+        
+
 
         {imagePreviews.length > 0 && (
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3 max-h-64 overflow-auto rounded-xl border border-gray-200/50 p-4 bg-gradient-to-br from-gray-50/50 to-white/50">
@@ -457,7 +606,7 @@ export function PostCreator({ isDialog = false, onSuccess, onOptimisticPost }: P
             size="lg"
             onClick={handleSubmit}
             disabled={isSubmitting || isCompressing || !inputContent.trim()}
-            className="w-full h-14 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full h-14 rounded-xl bg-primary hover:bg-primary/90 text-white font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isSubmitting || isCompressing ? (
               <>

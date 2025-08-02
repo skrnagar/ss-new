@@ -1,8 +1,7 @@
 
 import { createLegacyClient } from "@/lib/supabase-server";
-import PostItem from "@/components/post-item";
-import { Card } from "@/components/ui/card";
 import { redirect } from "next/navigation";
+import { PostActions } from "@/components/post-actions";
 
 export default async function PostPage({ params }: { params: { id: string } }) {
   const supabase = createLegacyClient();
@@ -36,9 +35,7 @@ export default async function PostPage({ params }: { params: { id: string } }) {
 
   return (
     <div className="container max-w-3xl py-8">
-      <Card className="mb-6">
-        <PostItem post={post} currentUser={session.user} />
-      </Card>
+      <PostActions post={post} currentUser={session.user} />
     </div>
   );
 }

@@ -37,6 +37,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { formatTextWithLinks } from "@/lib/link-formatter";
 
 export default function ArticlePage() {
   const { id } = useParams();
@@ -471,7 +472,12 @@ export default function ArticlePage() {
                     {formatDistanceToNow(new Date(comment.created_at), { addSuffix: true })}
                   </span>
                 </div>
-                      <p className="text-gray-700 leading-relaxed">{comment.content}</p>
+                      <p className="text-gray-700 leading-relaxed">
+                        {formatTextWithLinks(comment.content, (username) => {
+                          // Handle user mention click in article comments
+                          console.log(`User mentioned in article comment: ${username}`);
+                        })}
+                      </p>
                     </div>
                   </div>
                 </CardContent>
