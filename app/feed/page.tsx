@@ -343,7 +343,7 @@ export default function FeedPage() {
         <div className="col-span-2 hidden lg:block space-y-6 relative">
           {userProfile && <ProfileCard profile={userProfile} />}
 
-          <Card className="sticky top-8 z-10 bg-white shadow-sm">
+          <Card className="sticky top-8 bg-white shadow-sm">
             <CardContent className="pt-6">
               <div className="space-y-4">
                 <Link href="/network" className="flex items-center gap-3 hover:text-primary">
@@ -380,7 +380,7 @@ export default function FeedPage() {
         </div>
 
         {/* Main Content */}
-        <div className="col-span-12 lg:col-span-6 relative z-0">
+        <div className="col-span-12 lg:col-span-6 relative">
           <PostTrigger onPostSuccess={() => {
             setPage(1);
             mutate();
@@ -405,7 +405,23 @@ export default function FeedPage() {
             <div className="space-y-4">
               {allPosts.map((post, index) => (
                 <div ref={index === allPosts.length - 1 ? lastPostRef : null} key={post.id}>
-                  <PostItem key={post.id} post={post} currentUser={user} />
+                  <PostItem 
+                    key={post.id} 
+                    post={post} 
+                    currentUser={user} 
+                    onPostDeleted={(postId) => {
+                      setAllPosts(prevPosts => prevPosts.filter(p => p.id !== postId));
+                    }}
+                    onPostUpdated={(postId, updatedContent) => {
+                      setAllPosts(prevPosts => 
+                        prevPosts.map(p => 
+                          p.id === postId 
+                            ? { ...p, content: updatedContent, updated_at: new Date().toISOString() }
+                            : p
+                        )
+                      );
+                    }}
+                  />
                 </div>
               ))}
               {loadingMore && (

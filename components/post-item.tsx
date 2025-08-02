@@ -23,8 +23,11 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Textarea } from "@/components/ui/textarea"; // Added for comments
 import { useToast } from "@/hooks/use-toast";
+import { usePostOperations } from "@/hooks/use-post-operations";
 import { supabase } from "@/lib/supabase";
+import { formatTextWithLinks } from "@/lib/link-formatter";
 import { formatDistanceToNow } from "date-fns";
+import { LinkPreview } from "@/components/link-preview";
 import {
   Clock,
   FileText,
@@ -52,7 +55,15 @@ interface PostItemProps {
     image_url?: string;
     video_url?: string;
     document_url?: string;
+    link_preview?: {
+      title: string;
+      description: string;
+      image: string;
+      url: string;
+      domain: string;
+    };
     created_at: string;
+    updated_at?: string;
     profile?: {
       id: string;
       username?: string;
@@ -70,6 +81,8 @@ interface PostItemProps {
     full_name?: string;
     avatar_url?: string;
   } | null;
+  onPostDeleted?: (postId: string) => void;
+  onPostUpdated?: (postId: string, updatedContent: string) => void;
 }
 
 function ProfileLink({ profile, children, className = "" }: { profile: { username?: string; id?: string }; children: React.ReactNode; className?: string }) {
@@ -81,10 +94,12 @@ function ProfileLink({ profile, children, className = "" }: { profile: { usernam
   );
 }
 
-const PostItem = memo(function PostItem({ post, currentUser }: PostItemProps) {
+const PostItem = memo(function PostItem({ post, currentUser, onPostDeleted, onPostUpdated }: PostItemProps) {
   const [isExpanded, setIsExpanded] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editContent, setEditContent] = useState(post.content || "");
   const [likes, setLikes] = useState<any[]>([]);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [comments, setComments] = useState<any[]>([]);
   const [commentContent, setCommentContent] = useState("");
   const [showComments, setShowComments] = useState(false);
@@ -93,6 +108,7 @@ const PostItem = memo(function PostItem({ post, currentUser }: PostItemProps) {
   const [isLoadingComments, setIsLoadingComments] = useState(false);
   const { toast } = useToast();
   const router = useRouter();
+  const { deletePost, updatePost, isDeleting, isUpdating } = usePostOperations();
 
   const isAuthor = currentUser && post.user_id === currentUser.id;
   const MAX_CONTENT_LENGTH = 300;
@@ -383,47 +399,76 @@ const PostItem = memo(function PostItem({ post, currentUser }: PostItemProps) {
     }
   };
 
-  const handleDeletePost = async () => {
+  const handleEditPost = () => {
     if (!isAuthor) {
       toast({
         title: "Permission denied",
-        description: "You can only delete your own posts",
+        description: "You can only edit your own posts",
         variant: "destructive",
       });
       return;
     }
+    setIsEditing(true);
+    setEditContent(post.content || "");
+  };
 
-    setIsDeleting(true);
+  const handleSaveEdit = async () => {
+    if (!currentUser?.id) return;
 
-    try {
-      console.log("Attempting to delete post:", post.id);
+    const result = await updatePost(post.id, editContent, post.user_id, currentUser.id);
+    
+    if (result.success) {
+      // Update the local post content
+      post.content = editContent.trim();
+      setIsEditing(false);
       
-      const { error } = await supabase.from("posts").delete().eq("id", post.id);
-
-      if (error) {
-        console.error("Supabase delete error:", error);
-        throw error;
+      // Notify parent component about the update
+      if (onPostUpdated) {
+        onPostUpdated(post.id, editContent.trim());
       }
-
-      console.log("Post deleted successfully");
       
-      toast({
-        title: "Post deleted",
-        description: "Your post has been removed successfully",
-      });
-
       // Force a page refresh to update the UI
       router.refresh();
-    } catch (error: any) {
-      console.error("Delete post error:", error);
-      
-      toast({
-        title: "Delete failed",
-        description: error?.message || "An error occurred while deleting the post",
-        variant: "destructive",
-      });
-    } finally {
-      setIsDeleting(false);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+    setEditContent(post.content || "");
+  };
+
+  // Handle keyboard shortcuts for edit mode
+  const handleEditKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+      e.preventDefault();
+      handleSaveEdit();
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      handleCancelEdit();
+    }
+  };
+
+  const handleDeletePost = async () => {
+    console.log("handleDeletePost called with post ID:", post.id);
+    if (!currentUser?.id) {
+      console.log("No current user found");
+      return;
+    }
+
+    console.log("Starting delete operation...");
+    const result = await deletePost(post.id, post.user_id, currentUser.id);
+    console.log("Delete result:", result);
+    
+    if (result.success) {
+      console.log("Delete successful, updating UI...");
+      // Notify parent component about the deletion
+      if (onPostDeleted) {
+        onPostDeleted(post.id);
+      }
+      // Force a page refresh to update the UI
+      router.refresh();
+    } else {
+      console.log("Delete failed:", result.error);
     }
   };
 
@@ -438,7 +483,7 @@ const PostItem = memo(function PostItem({ post, currentUser }: PostItemProps) {
   const displayContent =
     shouldTruncate && !isExpanded
       ? `${post.content?.substring(0, MAX_CONTENT_LENGTH) || ""}...`
-      : post.content;
+      : post.content || "";
 
   const getStorageUrl = (imageUrl: string | null) => {
     if (!imageUrl) return null;
@@ -516,10 +561,13 @@ const PostItem = memo(function PostItem({ post, currentUser }: PostItemProps) {
               <div className="flex items-center text-xs text-muted-foreground mt-1">
                 <Clock className="h-3 w-3 mr-1" />
                 <span>{formatDate(post.created_at)}</span>
+                {post.updated_at && post.updated_at !== post.created_at && (
+                  <span className="ml-1 text-gray-400">(edited)</span>
+                )}
               </div>
             </div>
           </div>
-          {isAuthor && (
+          {isAuthor && !isEditing && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
@@ -527,55 +575,73 @@ const PostItem = memo(function PostItem({ post, currentUser }: PostItemProps) {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem>Edit Post</DropdownMenuItem>
+                <DropdownMenuItem onClick={handleEditPost}>
+                  Edit Post
+                </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <DropdownMenuItem
-                      className="text-red-600 focus:text-red-600"
-                      onSelect={(e) => e.preventDefault()}
-                    >
-                      Delete Post
-                    </DropdownMenuItem>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Delete Post</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        Are you sure you want to delete this post? This action cannot be undone and will also remove all likes and comments associated with this post.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction
-                        onClick={handleDeletePost}
-                        disabled={isDeleting}
-                        className="bg-red-600 hover:bg-red-700"
-                      >
-                        {isDeleting ? "Deleting..." : "Delete Post"}
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          )}
+                <DropdownMenuItem
+                  className="text-red-600 focus:text-red-600"
+                  onClick={() => {
+                    console.log("Delete button clicked, opening dialog");
+                    setShowDeleteDialog(true);
+                  }}
+                >
+                  Delete Post
+                </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
         </div>
         {/* Post content */}
         <div className="space-y-4">
-          {post.content && (
-            <div>
-              <p className="whitespace-pre-line text-base text-gray-800 leading-relaxed">{displayContent}</p>
-              {shouldTruncate && (
+          {isEditing ? (
+            <div className="space-y-3">
+                              <Textarea
+                  value={editContent}
+                  onChange={(e) => setEditContent(e.target.value)}
+                  onKeyDown={handleEditKeyDown}
+                  placeholder="Edit your post..."
+                  className="min-h-[100px] resize-none"
+                  disabled={isUpdating}
+                />
+              <div className="flex gap-2">
                 <Button
-                  variant="link"
-                  className="p-0 h-auto text-sm mt-1"
-                  onClick={() => setIsExpanded(!isExpanded)}
+                  onClick={handleSaveEdit}
+                  disabled={isUpdating || !editContent.trim()}
+                  size="sm"
                 >
-                  {isExpanded ? "Show less" : "Show more"}
+                  {isUpdating ? "Saving..." : "Save"}
                 </Button>
-              )}
+                <Button
+                  variant="outline"
+                  onClick={handleCancelEdit}
+                  disabled={isUpdating}
+                  size="sm"
+                >
+                  Cancel
+                </Button>
+              </div>
             </div>
+          ) : (
+            post.content && (
+              <div>
+                <p className="whitespace-pre-line text-base text-gray-800 leading-relaxed">
+                  {formatTextWithLinks(displayContent, (username) => {
+                    // Handle user mention click - could add analytics or notifications here
+                    console.log(`User mentioned: ${username}`);
+                  })}
+                </p>
+                {shouldTruncate && (
+                  <Button
+                    variant="link"
+                    className="p-0 h-auto text-sm mt-1"
+                    onClick={() => setIsExpanded(!isExpanded)}
+                  >
+                    {isExpanded ? "Show less" : "Show more"}
+                  </Button>
+                )}
+              </div>
+            )
           )}
           {/* Media attachments (images, video, document) */}
           {/* Single Image Full Width */}
@@ -638,6 +704,46 @@ const PostItem = memo(function PostItem({ post, currentUser }: PostItemProps) {
                 type={post.document_url.endsWith(".pdf") ? "pdf" : "docx"}
                 fileName={post.document_url.split("/").pop()}
               />
+            </div>
+          )}
+
+          {/* Link Preview */}
+          {post.link_preview && (
+            <div className="mt-3">
+              <a
+                href={post.link_preview.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block border border-gray-200 rounded-lg overflow-hidden bg-white hover:shadow-md transition-shadow"
+              >
+                <div className="flex">
+                  {post.link_preview.image && (
+                    <div className="w-24 h-24 flex-shrink-0">
+                      <img
+                        src={post.link_preview.image}
+                        alt={post.link_preview.title}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.style.display = 'none';
+                        }}
+                      />
+                    </div>
+                  )}
+                  
+                  <div className="flex-1 p-3 min-w-0">
+                    <div className="text-xs text-gray-500 mb-1">{post.link_preview.domain}</div>
+                    <h3 className="text-sm font-semibold text-gray-900 line-clamp-2 mb-1">
+                      {post.link_preview.title}
+                    </h3>
+                    {post.link_preview.description && (
+                      <p className="text-xs text-gray-600 line-clamp-2">
+                        {post.link_preview.description}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </a>
             </div>
           )}
 
@@ -708,7 +814,7 @@ const PostItem = memo(function PostItem({ post, currentUser }: PostItemProps) {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="sm" className="text-muted-foreground font-medium hover:bg-purple-50 hover:text-purple-600 rounded-lg transition-all duration-200">
                 <svg className="h-4 w-4 md:mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
                 </svg>
                 <span className="hidden md:inline font-medium">Share</span>
               </Button>
@@ -924,7 +1030,12 @@ const PostItem = memo(function PostItem({ post, currentUser }: PostItemProps) {
                               </DropdownMenu>
                             )}
                           </div>
-                          <p className="text-sm text-gray-800 leading-relaxed whitespace-pre-wrap">{comment.content}</p>
+                          <p className="text-sm text-gray-800 leading-relaxed whitespace-pre-wrap">
+                            {formatTextWithLinks(comment.content, (username) => {
+                              // Handle user mention click in comments
+                              console.log(`User mentioned in comment: ${username}`);
+                            })}
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -934,6 +1045,50 @@ const PostItem = memo(function PostItem({ post, currentUser }: PostItemProps) {
             </>
           )}
         </div>
+      )}
+
+      {/* Delete Confirmation Dialog */}
+      {showDeleteDialog && (
+        <>
+          {/* Backdrop */}
+          <div 
+            className="fixed inset-0 bg-black/80 z-[9999]" 
+            onClick={() => setShowDeleteDialog(false)}
+            style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}
+          />
+          {/* Modal */}
+          <div 
+            className="fixed inset-0 z-[10000] flex items-center justify-center pointer-events-none"
+            style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}
+          >
+            <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-xl pointer-events-auto">
+              <h3 className="text-lg font-semibold mb-2">Delete Post</h3>
+              <p className="text-sm text-gray-600 mb-6">
+                Are you sure you want to delete this post? This action cannot be undone and will also remove all likes and comments associated with this post.
+              </p>
+              <div className="flex justify-end gap-3">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowDeleteDialog(false)}
+                  disabled={isDeleting}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={() => {
+                    console.log("Delete confirmed, calling handleDeletePost");
+                    setShowDeleteDialog(false);
+                    handleDeletePost();
+                  }}
+                  disabled={isDeleting}
+                  className="bg-red-600 hover:bg-red-700"
+                >
+                  {isDeleting ? "Deleting..." : "Delete Post"}
+                </Button>
+              </div>
+            </div>
+          </div>
+        </>
       )}
     </Card>
   );

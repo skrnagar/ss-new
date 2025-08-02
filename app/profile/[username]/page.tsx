@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { UserActivity } from "@/components/user-activity";
+import { BioDisplay } from "@/components/bio-display";
 import { createLegacyClient } from "@/lib/supabase-server";
 import { Briefcase, Calendar, Edit, MapPin, MessageSquare, User, UserPlus, Linkedin, Twitter, Globe, BadgeCheck, Users, FileText } from "lucide-react";
 import Link from "next/link";
@@ -248,18 +249,7 @@ export default async function ProfilePage({ params }: { params: { username: stri
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                {profile.bio ? (
-                  <p className="whitespace-pre-line text-base leading-relaxed text-gray-700">{profile.bio}</p>
-                ) : (
-                  <div className="flex flex-col items-center justify-center py-12">
-                    <div className="p-4 bg-gray-100 rounded-full mb-4">
-                      <User className="h-8 w-8 text-gray-400" />
-                    </div>
-                    <p className="text-gray-500 italic text-center">
-                      {isOwnProfile ? "Add a bio to tell others about yourself." : "No bio available."}
-                    </p>
-                  </div>
-                )}
+                <BioDisplay bio={profile.bio} isOwnProfile={isOwnProfile} />
               </CardContent>
             </Card>
 
