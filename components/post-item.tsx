@@ -552,7 +552,7 @@ const PostItem = memo(function PostItem({ post, currentUser, onPostDeleted, onPo
               </Avatar>
             </ProfileLink>
             <div>
-              <ProfileLink profile={post.profile} className="font-semibold text-lg text-gray-900 hover:underline">
+              <ProfileLink profile={post.profile} className="font-semibold text-base text-gray-900 hover:underline">
                 {post.profile?.full_name || "Anonymous User"}
               </ProfileLink>
               <p className="text-sm text-muted-foreground font-medium">
@@ -626,7 +626,7 @@ const PostItem = memo(function PostItem({ post, currentUser, onPostDeleted, onPo
           ) : (
             post.content && (
               <div>
-                <p className="whitespace-pre-line text-base text-gray-800 leading-relaxed">
+                <p className="whitespace-pre-line text-sm text-gray-800 leading-relaxed">
                   {formatTextWithLinks(displayContent, (username) => {
                     // Handle user mention click - could add analytics or notifications here
                     console.log(`User mentioned: ${username}`);
@@ -1063,7 +1063,7 @@ const PostItem = memo(function PostItem({ post, currentUser, onPostDeleted, onPo
             style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}
           >
             <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-xl pointer-events-auto">
-              <h3 className="text-lg font-semibold mb-2">Delete Post</h3>
+              <h3 className="text-base font-semibold mb-2">Delete Post</h3>
               <p className="text-sm text-gray-600 mb-6">
                 Are you sure you want to delete this post? This action cannot be undone and will also remove all likes and comments associated with this post.
               </p>
