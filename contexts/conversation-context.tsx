@@ -36,29 +36,6 @@ export function ConversationProvider({ children }: { children: React.ReactNode }
   const { session } = useAuth();
   const user = session?.user;
 
-  // Real-time subscription for messages
-  useEffect(() => {
-    if (!user?.id) return;
-
-    const channel = supabase.channel('messages')
-      .on('postgres_changes', 
-        { 
-          event: '*', 
-          schema: 'public', 
-          table: 'messages' 
-        }, 
-        (payload) => {
-          // Refresh conversations when messages change
-          fetchConversations();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [user?.id]);
-
   const fetchConversations = useCallback(async () => {
     if (!user?.id) return;
     
