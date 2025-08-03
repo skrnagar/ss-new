@@ -24,10 +24,10 @@ export function BioDisplay({ bio, isOwnProfile }: BioDisplayProps) {
   }
 
   return (
-    <p className="whitespace-pre-line text-base leading-relaxed text-gray-700">
+    <p className="whitespace-pre-line text-sm leading-relaxed text-gray-700">
       {formatTextWithLinks(bio, (username) => {
-        // Handle user mention click in bio
-        console.log(`User mentioned in bio: ${username}`);
+        // Handle user mention click - could add analytics or notifications here
+        console.log(`User mentioned: ${username}`);
       })}
     </p>
   );

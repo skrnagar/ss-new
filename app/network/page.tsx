@@ -951,7 +951,7 @@ export default function NetworkPage() {
                                 {suggestion.mutual_connections} mutual
                               </div>
                             </div>
-                            <h3 className="font-bold text-base sm:text-lg text-gray-900 mb-1 truncate w-full">{suggestion.full_name}</h3>
+                            <h3 className="font-bold text-sm sm:text-base text-gray-900 mb-1 truncate w-full">{suggestion.full_name}</h3>
                             <p className="text-xs sm:text-sm text-gray-600 mb-2 line-clamp-2">{suggestion.headline}</p>
                             {suggestion.company && (
                               <div className="flex items-center justify-center gap-1 text-xs text-gray-500 mb-1">
