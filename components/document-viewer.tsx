@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Loader2, ArrowLeft, ArrowRight, Download, FileText } from "lucide-react";
+import { ArrowLeft, ArrowRight, Download, FileText } from "lucide-react";
+import { InlineLoader } from "@/components/ui/logo-loder";
 import { GlobalWorkerOptions, getDocument, version } from "pdfjs-dist";
 import "pdfjs-dist/web/pdf_viewer.css";
 import mammoth from "mammoth";
@@ -92,12 +93,12 @@ export function DocumentViewer({ url, type, filename }: DocumentViewerProps) {
           <Download className="h-4 w-4 mr-1" /> Download
         </Button>
       </div>
-      {loading && (
-        <div className="flex flex-col items-center justify-center h-64 w-full">
-          <Loader2 className="h-8 w-8 animate-spin mb-2" />
-          <span className="text-muted-foreground">Loading document...</span>
-        </div>
-      )}
+              {loading && (
+          <div className="flex flex-col items-center justify-center h-64 w-full">
+            <InlineLoader size="md" variant="fade" />
+            <span className="text-muted-foreground mt-2">Loading document...</span>
+          </div>
+        )}
       {error && (
         <div className="text-red-500 text-center py-8">{error}</div>
       )}

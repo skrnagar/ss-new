@@ -106,7 +106,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   // Render a loading screen while the session is being fetched.
   // This prevents the rest of the app from rendering prematurely.
   if (isLoading) {
-    return <FullScreenLoader variant="morph" text="Loading Safety Shaper..." />;
+    return <FullScreenLoader variant="glitch" text="Loading Safety Shaper..." />;
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

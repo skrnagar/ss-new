@@ -15,6 +15,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { useAvatarCache } from "@/hooks/use-avatar-cache";
 import { CachedAvatar } from "@/components/ui/cached-avatar";
+import { InlineLoader } from "@/components/ui/logo-loder";
 
 interface Conversation {
   id: string;
@@ -154,8 +155,8 @@ export function ChatInterface({ onBack, showBackButton = false, className = "" }
         {isLoading ? (
           // Loading state
           <div className="h-full flex flex-col items-center justify-center p-6 text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mb-4"></div>
-            <p className="text-sm text-gray-500">Loading...</p>
+            <InlineLoader size="md" variant="glitch" />
+            <p className="text-sm text-gray-500 mt-2">Loading...</p>
           </div>
         ) : !user ? (
           // Login prompt for unauthenticated users

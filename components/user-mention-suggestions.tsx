@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { supabase } from "@/lib/supabase";
 import { Search } from "lucide-react";
+import { InlineLoader } from "@/components/ui/logo-loder";
 
 interface User {
   id: string;
@@ -113,7 +114,7 @@ export function UserMentionSuggestions({ query, onSelectUser, onClose }: UserMen
         {loading ? (
           <div className="p-3 text-center text-xs text-gray-600">
             <div className="flex items-center justify-center gap-2">
-              <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-blue-600"></div>
+              <InlineLoader size="sm" variant="line" />
               Searching...
             </div>
           </div>

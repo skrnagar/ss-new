@@ -22,7 +22,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
 
   // Show loading indicator
   if (isLoading) {
-    return <FullScreenLoader variant="morph" text="Authenticating..." />;
+    return <FullScreenLoader variant="glitch" text="Authenticating..." />;
   }
 
   // If there's a user and not loading, render children

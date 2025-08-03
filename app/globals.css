@@ -98,7 +98,50 @@
   .text-gradient {
     @apply bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent;
   }
+
+  /* Custom loader animations */
+  .animate-glitch {
+    animation: glitch 2s infinite;
+  }
+
+  .animate-line-draw {
+    animation: line-draw 3s ease-in-out infinite;
+  }
+
+  @keyframes glitch {
+    0%, 100% {
+      transform: translate(0);
+    }
+    20% {
+      transform: translate(-2px, 2px);
+    }
+    40% {
+      transform: translate(-2px, -2px);
+    }
+    60% {
+      transform: translate(2px, 2px);
+    }
+    80% {
+      transform: translate(2px, -2px);
+    }
+  }
+
+  @keyframes line-draw {
+    0% {
+      stroke-dasharray: 0 1000;
+      opacity: 0;
+    }
+    50% {
+      stroke-dasharray: 1000 0;
+      opacity: 1;
+    }
+    100% {
+      stroke-dasharray: 0 1000;
+      opacity: 0;
+    }
+  }
 }
+
 
 @keyframes animate-in {
   from {

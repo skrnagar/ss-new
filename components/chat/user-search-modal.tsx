@@ -11,7 +11,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Search } from "lucide-react";
 import { useState } from "react";
 import { useRef } from "react";
-import { X, UserPlus, Loader2 } from "lucide-react";
+import { X, UserPlus } from "lucide-react";
+import { InlineLoader } from "@/components/ui/logo-loder";
 import { useEffect } from "react";
 
 interface UserSearchModalProps {

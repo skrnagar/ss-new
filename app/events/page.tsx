@@ -377,7 +377,7 @@ export default function EventsPage() {
     <Card className="mb-3" key={event.id}>
       <CardContent className="p-4 flex gap-4">
         <div className="min-w-24 flex-shrink-0">
-          <div className="rounded-md overflow-hidden h-24 w-24">
+          <div className="rounded-md overflow-hidden">
             <img
               src={event.image_url || "/placeholder.jpg"}
               alt={event.title}
