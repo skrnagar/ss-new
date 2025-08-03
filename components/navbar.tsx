@@ -205,7 +205,6 @@ const MobileHeader = ({ user, profile, handleSignOut }: any) => (
 
 const DesktopHeader = ({ user, profile, handleSignOut }: any) => (
   <div className="flex items-center justify-between w-full">
-    {/* Left Section - Logo and Navigation */}
     <div className="flex items-center gap-4">
       <Link href="/" className="flex items-center" prefetch={true}>
         <Image
@@ -245,13 +244,9 @@ const DesktopHeader = ({ user, profile, handleSignOut }: any) => (
       </NavigationMenu>
     </div>
 
-    {/* Center Section - Search */}
-    <div className="flex-1 flex justify-center max-w-2xl mx-8">
-      <GlobalSearch />
-    </div>
-
-    {/* Right Section - User Actions */}
     <div className="flex items-center gap-2">
+      <GlobalSearch />
+
       <NavigationMenu>
         <NavigationMenuList>
           <NavigationMenuItem>
