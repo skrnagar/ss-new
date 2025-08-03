@@ -38,6 +38,7 @@ import { Badge } from "./ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Separator } from "./ui/separator";
 import { Progress } from "./ui/progress";
+import { InlineLoader } from "@/components/ui/logo-loder";
 
 interface ArticleEditorProps {
   initialContent?: string;
@@ -392,7 +393,7 @@ export function ArticleEditor({
   if (!editor) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        <InlineLoader size="md" variant="fade" />
       </div>
     );
   }
@@ -425,7 +426,7 @@ export function ArticleEditor({
               >
                 {publishing ? (
                   <>
-                    <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white mr-1"></div>
+                    <InlineLoader size="sm" variant="bounce" className="mr-1" />
                     {isEditing ? "Updating..." : "Publishing..."}
                   </>
                 ) : (
@@ -480,7 +481,7 @@ export function ArticleEditor({
                 >
                                   {publishing ? (
                   <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    <InlineLoader size="sm" variant="bounce" className="mr-2" />
                     {isEditing ? "Updating..." : "Publishing..."}
                   </>
                 ) : (

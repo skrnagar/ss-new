@@ -271,9 +271,13 @@ export default function ProfileEditPage() {
               accept="image/*"
               onChange={handleFileChange}
             />
-            <Avatar className="h-24 w-24 mb-4 cursor-pointer" onClick={handleAvatarClick}>
-              <AvatarImage src={avatarUrl || "/placeholder-user.jpg"} alt="Profile" />
-              <AvatarFallback>{getInitials(user?.user_metadata?.name)}</AvatarFallback>
+            <Avatar className="h-24 w-24 cursor-pointer" onClick={handleAvatarClick}>
+              <div className="h-full w-full rounded-full p-1 bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500">
+                <div className="h-full w-full rounded-full bg-white p-1">
+                  <AvatarImage src={profile?.avatar_url || ""} alt={profile?.full_name || "User"} className="object-cover rounded-full" />
+                  <AvatarFallback className="rounded-full">{getInitials(profile?.full_name || "")}</AvatarFallback>
+                </div>
+              </div>
             </Avatar>
             <Button variant="outline" size="sm" onClick={handleAvatarClick}>
               Change Photo

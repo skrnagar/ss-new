@@ -264,7 +264,11 @@ export default async function ProfilePage({ params }: { params: { username: stri
               <CardContent>
                 <div className="client-only-component" suppressHydrationWarning>
                   {/* @ts-ignore */}
-                  <UserActivity userId={profile.id} isOwnProfile={isOwnProfile} />
+                  <UserActivity 
+                    userId={profile.id} 
+                    isOwnProfile={isOwnProfile}
+                    currentUser={session?.user}
+                  />
                 </div>
               </CardContent>
             </Card>

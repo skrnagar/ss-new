@@ -8,7 +8,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/contexts/auth-context";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabase";
-import { FileText, Image, Loader2, Paperclip, Video, X, Sparkles } from "lucide-react";
+import { FileText, Image, Paperclip, Video, X, Sparkles } from "lucide-react";
+import { InlineLoader } from "@/components/ui/logo-loder";
 import { useRouter } from "next/navigation";
 import type * as React from "react";
 import { useRef, useState, useCallback, useEffect } from "react";
@@ -608,12 +609,12 @@ export function PostCreator({ isDialog = false, onSuccess, onOptimisticPost }: P
             disabled={isSubmitting || isCompressing || !inputContent.trim()}
             className="w-full h-14 rounded-xl bg-primary hover:bg-primary/90 text-white font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isSubmitting || isCompressing ? (
-              <>
-                <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-                {isCompressing ? "Compressing..." : "Posting..."}
-              </>
-            ) : (
+                            {isSubmitting || isCompressing ? (
+                  <>
+                    <InlineLoader size="sm" variant="bounce" className="mr-2" />
+                    {isCompressing ? "Compressing..." : "Posting..."}
+                  </>
+                ) : (
               <>
                 <Sparkles className="h-5 w-5 mr-2" />
                 Share Post

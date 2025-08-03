@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input"; // Added import for Input component
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabase";
-import { Camera, Trash2, X, Loader2 } from "lucide-react";
+import { Camera, Trash2, X } from "lucide-react";
+import { InlineLoader } from "@/components/ui/logo-loder";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
@@ -159,12 +160,12 @@ export function ProfilePhotoModal({
         </div>
         {/* Modal Content */}
         <div className="p-6 flex flex-col items-center relative">
-          {/* Loading Spinner Overlay */}
-          {loading && (
-            <div className="absolute inset-0 bg-white/70 dark:bg-zinc-900/70 flex items-center justify-center z-20 rounded-2xl">
-              <Loader2 className="h-10 w-10 animate-spin text-blue-500" />
-            </div>
-          )}
+                  {/* Loading Spinner Overlay */}
+        {loading && (
+          <div className="absolute inset-0 bg-white/70 dark:bg-zinc-900/70 flex items-center justify-center z-20 rounded-2xl">
+            <InlineLoader size="lg" variant="glitch" />
+          </div>
+        )}
           <input
             type="file"
             ref={fileInputRef}
@@ -174,11 +175,13 @@ export function ProfilePhotoModal({
             disabled={loading}
           />
           <div className="mb-6 relative">
-            <div className="rounded-full p-1 bg-gradient-to-br from-blue-400 to-purple-400">
-              <Avatar className="h-40 w-40 border-4 border-white shadow-xl">
-                <AvatarImage src={previewUrl || avatarUrl || "/placeholder-user.jpg"} alt={name} />
-                <AvatarFallback>{getInitials(name)}</AvatarFallback>
-              </Avatar>
+            <div className="rounded-full bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500 p-1">
+              <div className="h-40 w-40 rounded-full bg-white p-1">
+                <Avatar className="h-full w-full shadow-xl">
+                  <AvatarImage src={previewUrl || avatarUrl || "/placeholder-user.jpg"} alt={name} className="object-cover rounded-full" />
+                  <AvatarFallback className="rounded-full">{getInitials(name)}</AvatarFallback>
+                </Avatar>
+              </div>
             </div>
             {previewUrl && !loading && (
               <div className="absolute bottom-2 left-1/2 -translate-x-1/2 bg-white/90 px-3 py-1 rounded-full shadow text-xs font-medium text-blue-600 border border-blue-200">

@@ -57,10 +57,14 @@ const getInitials = (name: string): string => {
 const UserMenu = ({ user, profile, handleSignOut, isMobile }: any) => (
   <DropdownMenu>
     <DropdownMenuTrigger asChild>
-      <Button variant="ghost" className="relative h-8 w-8 rounded-full pl-10" style={{ paddingLeft: '40px' }}>
+      <Button variant="ghost" className="relative h-8 w-8 rounded-full p-0">
         <Avatar className="h-8 w-8">
-          <AvatarImage src={profile?.avatar_url || ""} alt={profile?.full_name || "User"} />
-          <AvatarFallback>{getInitials(profile?.full_name || "")}</AvatarFallback>
+          <div className="h-full w-full rounded-full p-0.5 bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500">
+            <div className="h-full w-full rounded-full bg-white p-0.5">
+              <AvatarImage src={profile?.avatar_url || ""} alt={profile?.full_name || "User"} className="object-cover rounded-full" />
+              <AvatarFallback className="rounded-full">{getInitials(profile?.full_name || "")}</AvatarFallback>
+            </div>
+          </div>
         </Avatar>
       </Button>
     </DropdownMenuTrigger>

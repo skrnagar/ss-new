@@ -14,9 +14,13 @@ export function ProfileLink({ profile, children, className = "" }: { profile: { 
 export function ProfileCard({ profile }: { profile: { id?: string; username?: string; full_name?: string; avatar_url?: string; headline?: string } }) {
   return (
     <ProfileLink profile={profile} className="block bg-white rounded-xl shadow-sm border p-6 flex flex-col items-center text-center transition hover:shadow-md focus-visible:ring-2 focus-visible:ring-primary cursor-pointer">
-      <Avatar className="h-20 w-20 mb-3">
-        <AvatarImage src={profile.avatar_url} alt={profile.full_name} />
-        <AvatarFallback>{profile.full_name?.split(" ").map((n) => n[0]).join("") || "U"}</AvatarFallback>
+      <Avatar className="h-24 w-24 mb-3">
+        <div className="h-24 w-24 rounded-full p-1 bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500">
+          <div className="h-full w-full rounded-full bg-white p-1">
+            <AvatarImage src={profile.avatar_url} alt={profile.full_name} className="object-cover rounded-full" />
+            <AvatarFallback className="rounded-full">{profile.full_name?.split(" ").map((n) => n[0]).join("") || "U"}</AvatarFallback>
+          </div>
+        </div>
       </Avatar>
       <div className="font-bold text-m text-gray-900 hover:text-primary">
         {profile.full_name || "Anonymous User"}

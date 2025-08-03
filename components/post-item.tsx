@@ -28,6 +28,7 @@ import { supabase } from "@/lib/supabase";
 import { formatTextWithLinks } from "@/lib/link-formatter";
 import { formatDistanceToNow } from "date-fns";
 import { LinkPreview } from "@/components/link-preview";
+import { InlineLoader } from "@/components/ui/logo-loder";
 import {
   Clock,
   FileText,
@@ -546,8 +547,12 @@ const PostItem = memo(function PostItem({ post, currentUser, onPostDeleted, onPo
           <div className="flex items-start gap-4">
             <ProfileLink profile={post.profile}>
               <Avatar className="h-12 w-12">
-                <AvatarImage src={post.profile?.avatar_url} alt={post.profile?.full_name} />
-                <AvatarFallback>{getInitials(post.profile?.full_name || "User")}</AvatarFallback>
+                <div className="h-full w-full rounded-full p-0.5 bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500">
+                  <div className="h-full w-full rounded-full bg-white p-0.5">
+                    <AvatarImage src={post.profile?.avatar_url} alt={post.profile?.full_name} className="object-cover rounded-full" />
+                    <AvatarFallback className="rounded-full">{getInitials(post.profile?.full_name || "User")}</AvatarFallback>
+                  </div>
+                </div>
               </Avatar>
             </ProfileLink>
             <div>
@@ -917,8 +922,12 @@ const PostItem = memo(function PostItem({ post, currentUser, onPostDeleted, onPo
           {/* Comment form */}
           <form onSubmit={handleCommentSubmit} className="flex items-start gap-3">
             <Avatar className="h-8 w-8 flex-shrink-0">
-              <AvatarImage src={currentUser?.avatar_url} alt={currentUser?.full_name} />
-              <AvatarFallback>{getInitials(currentUser?.full_name || "User")}</AvatarFallback>
+              <div className="h-full w-full rounded-full p-0.5 bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500">
+                <div className="h-full w-full rounded-full bg-white p-0.5">
+                  <AvatarImage src={currentUser?.avatar_url} alt={currentUser?.full_name} className="object-cover rounded-full" />
+                  <AvatarFallback className="rounded-full">{getInitials(currentUser?.full_name || "User")}</AvatarFallback>
+                </div>
+              </div>
             </Avatar>
             <div className="flex-1 relative">
               <Textarea
@@ -940,7 +949,7 @@ const PostItem = memo(function PostItem({ post, currentUser, onPostDeleted, onPo
                   disabled={isSubmittingComment || !commentContent.trim()}
                 >
                   {isSubmittingComment ? (
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary" />
+                    <InlineLoader size="sm" variant="glitch" />
                   ) : (
                     <Send className="h-4 w-4" />
                   )}
@@ -952,7 +961,7 @@ const PostItem = memo(function PostItem({ post, currentUser, onPostDeleted, onPo
           {/* Comments list */}
           {isLoadingComments ? (
             <div className="flex items-center justify-center py-6">
-              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary" />
+              <InlineLoader size="sm" variant="line" />
               <span className="ml-2 text-sm text-muted-foreground">Loading comments...</span>
             </div>
           ) : (
@@ -972,16 +981,21 @@ const PostItem = memo(function PostItem({ post, currentUser, onPostDeleted, onPo
                       style={{ animationDelay: `${index * 50}ms` }}
                     >
                       <Avatar className="h-8 w-8 flex-shrink-0">
-                        <AvatarImage
-                          src={
-                            comment.profiles?.avatar_url ||
-                            `https://ui-avatars.com/api/?name=${encodeURIComponent(comment.profiles?.full_name || "User")}&size=40&background=random`
-                          }
-                          alt={comment.profiles?.full_name}
-                        />
-                        <AvatarFallback className="bg-gradient-to-br from-primary/20 to-primary/10 text-primary font-semibold">
-                          {getInitials(comment.profiles?.full_name || "User")}
-                        </AvatarFallback>
+                        <div className="h-full w-full rounded-full p-0.5 bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500">
+                          <div className="h-full w-full rounded-full bg-white p-0.5">
+                            <AvatarImage
+                              src={
+                                comment.profiles?.avatar_url ||
+                                `https://ui-avatars.com/api/?name=${encodeURIComponent(comment.profiles?.full_name || "User")}&size=40&background=random`
+                              }
+                              alt={comment.profiles?.full_name}
+                              className="object-cover rounded-full"
+                            />
+                            <AvatarFallback className="rounded-full bg-gradient-to-br from-primary/20 to-primary/10 text-primary font-semibold">
+                              {getInitials(comment.profiles?.full_name || "User")}
+                            </AvatarFallback>
+                          </div>
+                        </div>
                       </Avatar>
                       <div className="flex-1 min-w-0">
                         <div className="bg-white rounded-xl p-3 shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-200">

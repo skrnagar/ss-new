@@ -396,7 +396,7 @@ export default function NetworkPage() {
   );
 
   if (authLoading) {
-    return <FullScreenLoader variant="morph" text="Loading Network..." />;
+    return <FullScreenLoader variant="glitch" text="Loading Network..." />;
   }
 
   if (loading) {

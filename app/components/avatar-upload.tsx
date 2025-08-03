@@ -47,11 +47,15 @@ export function AvatarUpload({
   return (
     <>
       <Avatar
-        className={`h-24 w-24 mb-4 border-4 border-white shadow-lg bg-white transition-transform duration-200 ${isOwnProfile ? "cursor-pointer hover:scale-105 hover:shadow-2xl" : ""}`}
+        className={`h-34 w-34 shadow-lg bg-white transition-transform duration-200 ${isOwnProfile ? "cursor-pointer hover:scale-105 hover:shadow-2xl" : ""}`}
         onClick={handleAvatarClick}
       >
-        <AvatarImage src={avatarUrl || "/placeholder-user.jpg"} alt={name} className="object-contain" />
-        <AvatarFallback>{getInitials(name)}</AvatarFallback>
+        <div className="h-24 w-full rounded-full p-1 bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500">
+          <div className="h-full w-full rounded-full bg-white p-1">
+            <AvatarImage src={avatarUrl || "/placeholder-user.jpg"} alt={name} className="object-cover rounded-full" />
+            <AvatarFallback className="rounded-full">{getInitials(name)}</AvatarFallback>
+          </div>
+        </div>
       </Avatar>
 
       {/* Profile Photo Modal */}
