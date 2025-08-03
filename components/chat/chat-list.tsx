@@ -206,15 +206,32 @@ export function ChatList({ initialUserId }: ChatListProps) {
               <Plus className="h-4 w-4" />
             </Button>
           </div>
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <Input
-              placeholder="Search conversations..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 bg-white/70 border-gray-200 focus:bg-white focus:border-blue-300 transition-all duration-200"
-              aria-label="Search conversations"
-            />
+          {/* Search Row */}
+          <div className="p-4 border-b border-gray-100 bg-white/80 backdrop-blur-sm">
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setIsModalOpen(true)}
+                  className="hover:bg-blue-50 hover:border-blue-200 transition-all duration-200 shadow-sm"
+                  aria-label="Start a conversation"
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+              {/* Hide search on mobile, show only on desktop */}
+              <div className="relative hidden md:block flex-1">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Input
+                  placeholder="Search conversations..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10 bg-white/70 border-gray-200 focus:bg-white focus:border-blue-300 transition-all duration-200"
+                  aria-label="Search conversations"
+                />
+              </div>
+            </div>
           </div>
         </div>
 

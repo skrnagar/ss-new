@@ -163,19 +163,19 @@ export function LogoLoader({
       </g>
 
       {/* 3D Highlights - appear in phase 2 */}
-      <path
+          <path
         d="M25 30 Q35 25 45 30"
-        fill="none"
+            fill="none"
         stroke="#FFFFFF"
-        strokeWidth="1"
+            strokeWidth="1"
         opacity={animationPhase >= 2 ? "0.6" : "0"}
         className="transition-opacity duration-300 ease-in-out"
       />
-      <path
+          <path
         d="M25 40 Q35 35 45 40"
-        fill="none"
+            fill="none"
         stroke="#FFFFFF"
-        strokeWidth="1"
+            strokeWidth="1"
         opacity={animationPhase >= 2 ? "0.6" : "0"}
         className="transition-opacity duration-300 ease-in-out"
       />

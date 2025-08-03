@@ -119,41 +119,45 @@ export function GlobalSearch() {
     }
 
     setIsLoading(true);
-    const query = searchQuery.toLowerCase();
+    setSelectedIndex(-1);
 
     try {
-      const allResults: SearchResult[] = [];
+      const results: SearchResult[] = [];
 
-      // Search posts with likes and comments count
+      // Search posts
       const { data: posts } = await supabase
         .from("posts")
         .select(`
           id,
           content,
           created_at,
-          profiles!user_id (
+          profiles!inner (
             full_name,
             username,
             avatar_url
           )
         `)
-        .ilike("content", `%${query}%`)
+        .or(`content.ilike.%${searchQuery}%,profiles.full_name.ilike.%${searchQuery}%`)
         .order("created_at", { ascending: false })
         .limit(8);
 
       if (posts) {
-        posts.forEach(post => {
+        posts.forEach((post) => {
           const profile = Array.isArray(post.profiles) ? post.profiles[0] : post.profiles;
-          allResults.push({
+          const content = post.content || "";
+          const tags = extractCleanHashtags(content);
+          
+          results.push({
             id: post.id,
             type: "post",
-            title: post.content?.substring(0, 80) + (post.content && post.content.length > 80 ? "..." : ""),
-            content: post.content,
-            author: profile?.full_name,
-            authorAvatar: profile?.avatar_url,
-            timestamp: post.created_at,
+            title: content.substring(0, 60) + (content.length > 60 ? "..." : ""),
+            content: content.substring(0, 80) + (content.length > 80 ? "..." : ""),
+            author: profile?.full_name || "Unknown User",
+            authorAvatar: profile?.avatar_url || "",
+            timestamp: formatDistanceToNow(new Date(post.created_at), { addSuffix: true }),
             url: `/posts/${post.id}`,
-            tags: extractCleanHashtags(post.content || "")
+            tags,
+            stats: { likes: 0, comments: 0, views: 0 }
           });
         });
       }
@@ -161,23 +165,22 @@ export function GlobalSearch() {
       // Search users
       const { data: users } = await supabase
         .from("profiles")
-        .select("id, full_name, username, avatar_url, headline, company, location")
-        .or(`full_name.ilike.%${query}%,username.ilike.%${query}%,headline.ilike.%${query}%,company.ilike.%${query}%`)
+        .select("id, full_name, username, avatar_url, company, location")
+        .or(`full_name.ilike.%${searchQuery}%,username.ilike.%${searchQuery}%,company.ilike.%${searchQuery}%`)
         .limit(6);
 
       if (users) {
-        users.forEach(user => {
-          allResults.push({
+        users.forEach((user) => {
+          results.push({
             id: user.id,
             type: "user",
-            title: user.full_name || user.username,
-            content: user.headline || user.company,
-            author: user.full_name,
-            authorAvatar: user.avatar_url,
+            title: user.full_name || user.username || "Unknown User",
+            author: user.full_name || user.username || "Unknown User",
+            authorAvatar: user.avatar_url || "",
+            company: user.company || "",
+            location: user.location || "",
             url: `/profile/${user.username || user.id}`,
-            tags: user.company ? [user.company] : [],
-            location: user.location,
-            company: user.company
+            tags: []
           });
         });
       }
@@ -185,23 +188,38 @@ export function GlobalSearch() {
       // Search articles
       const { data: articles } = await supabase
         .from("articles")
-        .select("id, title, content, created_at, author_name, author_avatar")
-        .or(`title.ilike.%${query}%,content.ilike.%${query}%`)
+        .select(`
+          id,
+          title,
+          content,
+          created_at,
+          profiles!inner (
+            full_name,
+            username,
+            avatar_url
+          )
+        `)
+        .or(`title.ilike.%${searchQuery}%,content.ilike.%${searchQuery}%`)
         .order("created_at", { ascending: false })
         .limit(6);
 
       if (articles) {
-        articles.forEach(article => {
-          allResults.push({
+        articles.forEach((article) => {
+          const profile = Array.isArray(article.profiles) ? article.profiles[0] : article.profiles;
+          const content = article.content || "";
+          const tags = extractCleanTags(content);
+          
+          results.push({
             id: article.id,
             type: "article",
-            title: article.title,
-            content: article.content?.substring(0, 120) + (article.content && article.content.length > 120 ? "..." : ""),
-            author: article.author_name,
-            authorAvatar: article.author_avatar,
-            timestamp: article.created_at,
+            title: article.title || "Untitled Article",
+            content: content.substring(0, 120) + (content.length > 120 ? "..." : ""),
+            author: profile?.full_name || "Unknown Author",
+            authorAvatar: profile?.avatar_url || "",
+            timestamp: formatDistanceToNow(new Date(article.created_at), { addSuffix: true }),
             url: `/articles/${article.id}`,
-            tags: extractCleanTags(article.content || "")
+            tags,
+            stats: { views: 0 }
           });
         });
       }
@@ -209,22 +227,24 @@ export function GlobalSearch() {
       // Search events
       const { data: events } = await supabase
         .from("events")
-        .select("id, title, description, start_date, location")
-        .or(`title.ilike.%${query}%,description.ilike.%${query}%,location.ilike.%${query}%`)
+        .select("id, title, description, location, start_date, created_at")
+        .or(`title.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%,location.ilike.%${searchQuery}%`)
         .order("start_date", { ascending: true })
         .limit(4);
 
       if (events) {
-        events.forEach(event => {
-          allResults.push({
+        events.forEach((event) => {
+          const tags = extractCleanTags(event.description || "");
+          
+          results.push({
             id: event.id,
             type: "event",
-            title: event.title,
-            content: event.description,
-            timestamp: event.start_date,
+            title: event.title || "Untitled Event",
+            content: event.description || "",
+            location: event.location || "",
+            timestamp: formatDistanceToNow(new Date(event.created_at), { addSuffix: true }),
             url: `/events/${event.id}`,
-            tags: event.location ? [event.location] : [],
-            location: event.location
+            tags: [...tags, event.location].filter(Boolean)
           });
         });
       }
@@ -233,26 +253,30 @@ export function GlobalSearch() {
       const { data: groups } = await supabase
         .from("groups")
         .select("id, name, description, created_at")
-        .or(`name.ilike.%${query}%,description.ilike.%${query}%`)
+        .or(`name.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`)
+        .order("created_at", { ascending: false })
         .limit(4);
 
       if (groups) {
-        groups.forEach(group => {
-          allResults.push({
+        groups.forEach((group) => {
+          const tags = extractCleanTags(group.description || "");
+          
+          results.push({
             id: group.id,
             type: "group",
-            title: group.name,
-            content: group.description,
-            timestamp: group.created_at,
+            title: group.name || "Untitled Group",
+            content: group.description || "",
+            timestamp: formatDistanceToNow(new Date(group.created_at), { addSuffix: true }),
             url: `/groups/${group.id}`,
-            tags: []
+            tags
           });
         });
       }
 
-      setResults(allResults);
+      setResults(results);
     } catch (error) {
       console.error("Search error:", error);
+      setResults([]);
     } finally {
       setIsLoading(false);
     }
@@ -261,7 +285,16 @@ export function GlobalSearch() {
   // Debounced search
   useEffect(() => {
     const timeoutId = setTimeout(() => {
-      searchContent(query);
+      if (query.trim()) {
+        searchContent(query);
+        // Maintain mobile expansion when searching
+        if (typeof window !== 'undefined' && window.innerWidth < 768) {
+          setIsMobileExpanded(true);
+          setIsOpen(true);
+        }
+      } else {
+        setResults([]);
+      }
     }, 300);
 
     return () => clearTimeout(timeoutId);
@@ -300,7 +333,10 @@ export function GlobalSearch() {
 
   const handleInputFocus = () => {
     setIsOpen(true);
-    setIsMobileExpanded(true);
+    // Always expand on mobile devices when focusing
+    if (typeof window !== 'undefined' && window.innerWidth < 768) {
+      setIsMobileExpanded(true);
+    }
   };
 
   const handleInputBlur = () => {
@@ -310,6 +346,18 @@ export function GlobalSearch() {
         setIsMobileExpanded(false);
       }
     }, 200);
+  };
+
+  // Handle input change to show results on mobile
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setQuery(value);
+    
+    // On mobile, expand when user starts typing or when there's content
+    if (typeof window !== 'undefined' && window.innerWidth < 768 && (value.length > 0 || isMobileExpanded)) {
+      setIsMobileExpanded(true);
+      setIsOpen(true);
+    }
   };
 
   const getTypeIcon = (type: string) => {
@@ -358,14 +406,16 @@ export function GlobalSearch() {
             type="text"
             placeholder="Search posts, users, articles..."
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={handleInputChange}
             onFocus={handleInputFocus}
             onBlur={handleInputBlur}
             className={cn(
               "pl-10 pr-10 h-10 bg-white/90 backdrop-blur-sm border-gray-200 focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all duration-200 rounded-full text-sm",
               isMobileExpanded && "text-base"
             )}
+            style={{ fontSize: '16px' }} // Prevents zoom on iOS - must be 16px or larger
           />
+          
           {query && (
             <Button
               type="button"
@@ -382,6 +432,8 @@ export function GlobalSearch() {
             </Button>
           )}
         </div>
+        
+        {/* Removed Emoji Picker */}
       </form>
 
       {/* Mobile close button when expanded */}
@@ -405,34 +457,33 @@ export function GlobalSearch() {
       {/* Search Results Dropdown */}
       {isOpen && (
         <div className={cn(
-          "absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl border border-gray-200 max-h-[700px] overflow-hidden z-50 min-w-[320px] sm:min-w-[400px]",
-          isMobileExpanded && "fixed top-20 left-4 right-4 max-h-[calc(100vh-120px)]"
+          "bg-white rounded-2xl shadow-2xl border border-gray-200 max-h-[700px] overflow-hidden z-50",
+          // Desktop: absolute positioning with dropdown
+          !isMobileExpanded && "absolute top-full left-0 right-0 mt-2 min-w-[320px] sm:min-w-[400px]",
+          // Mobile: fixed positioning with full width
+          isMobileExpanded && "fixed top-20 left-0 right-0 mx-4 max-h-[calc(100vh-120px)] w-[calc(100vw-2rem)]"
         )}>
           <div className="p-4 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
             <div className="flex items-center justify-between mb-2">
-              <h3 className="text-sm font-semibold text-gray-900">Search Results</h3>
-              <span className="text-xs text-gray-500 bg-white px-2 py-1 rounded-full">
-                {isLoading ? "Searching..." : `${results.length} results`}
-              </span>
+              <h3 className="text-sm font-semibold text-gray-700">
+                {isLoading ? "Searching..." : `${results.length} results found`}
+              </h3>
             </div>
           </div>
-
           <div className="max-h-[600px] overflow-y-auto">
             {isLoading ? (
               <div className="p-8 text-center">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-                <p className="text-sm text-gray-500 mt-2">Searching...</p>
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-3"></div>
+                <p className="text-sm text-gray-500">Searching...</p>
               </div>
             ) : results.length > 0 ? (
               <div className="divide-y divide-gray-100">
                 {results.map((result, index) => (
                   <div
-                    key={`${result.type}-${result.id}`}
-                    className={cn(
-                      "p-4 hover:bg-gray-50 cursor-pointer transition-all duration-150 group",
-                      selectedIndex === index && "bg-gray-50"
-                    )}
+                    key={result.id}
+                    className={cn("p-4 hover:bg-gray-50 cursor-pointer transition-all duration-150 group", selectedIndex === index && "bg-gray-50")}
                     onClick={() => handleResultClick(result)}
+                    onMouseEnter={() => setSelectedIndex(index)}
                   >
                     <div className="flex items-start gap-3">
                       <div className="flex-shrink-0">
@@ -447,14 +498,11 @@ export function GlobalSearch() {
                             {result.title}
                           </h4>
                         </div>
-                        
                         {result.content && (
                           <p className="text-xs text-gray-600 line-clamp-2 mb-3 leading-relaxed">
                             {result.content}
                           </p>
                         )}
-
-                        {/* Tags */}
                         {result.tags && result.tags.length > 0 && (
                           <div className="flex flex-wrap gap-1 mb-3">
                             {result.tags.slice(0, 2).map((tag, tagIndex) => (
@@ -465,39 +513,34 @@ export function GlobalSearch() {
                             ))}
                           </div>
                         )}
-
-                        {/* Meta information */}
                         <div className="flex items-center gap-4 text-xs text-gray-500">
                           {result.author && (
-                            <div className="flex items-center gap-1">
+                            <div className="flex items-center gap-2">
                               <Avatar className="h-4 w-4">
                                 <AvatarImage src={result.authorAvatar} />
                                 <AvatarFallback className="text-xs">
-                                  {result.author.charAt(0)}
+                                  {result.author[0]}
                                 </AvatarFallback>
                               </Avatar>
-                              <span className="truncate max-w-[120px]">{result.author}</span>
+                              <span className="truncate">{result.author}</span>
                             </div>
                           )}
-                          
                           {result.company && (
                             <div className="flex items-center gap-1">
                               <Briefcase className="h-3 w-3" />
-                              <span className="truncate max-w-[100px]">{result.company}</span>
+                              <span className="truncate">{result.company}</span>
                             </div>
                           )}
-                          
                           {result.location && (
                             <div className="flex items-center gap-1">
                               <MapPin className="h-3 w-3" />
-                              <span className="truncate max-w-[100px]">{result.location}</span>
+                              <span className="truncate">{result.location}</span>
                             </div>
                           )}
-                          
                           {result.timestamp && (
                             <div className="flex items-center gap-1">
                               <Clock className="h-3 w-3" />
-                              <span>{formatDistanceToNow(new Date(result.timestamp), { addSuffix: true })}</span>
+                              <span>{result.timestamp}</span>
                             </div>
                           )}
                         </div>
@@ -515,40 +558,41 @@ export function GlobalSearch() {
               </div>
             ) : (
               <div className="p-4">
-                {/* Recent Searches */}
                 {recentSearches.length > 0 && (
                   <div className="mb-6">
                     <h4 className="text-xs font-semibold text-gray-700 mb-3 flex items-center gap-2">
-                      <Clock className="h-3 w-3" />
-                      Recent Searches
+                      <Clock className="h-3 w-3" /> Recent Searches
                     </h4>
                     <div className="space-y-2">
-                      {recentSearches.map((search, index) => (
+                      {recentSearches.slice(0, 5).map((search, index) => (
                         <button
                           key={index}
-                          onClick={() => setQuery(search)}
-                          className="flex items-center gap-2 w-full p-2 text-sm text-gray-600 hover:bg-gray-50 rounded-lg transition-colors"
+                          onClick={() => {
+                            setQuery(search);
+                            handleSearchSubmit(new Event('submit') as any);
+                          }}
+                          className="w-full text-left p-2 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2 text-sm text-gray-600"
                         >
                           <Search className="h-3 w-3" />
-                          <span className="truncate">{search}</span>
+                          {search}
                         </button>
                       ))}
                     </div>
                   </div>
                 )}
-
-                {/* Popular Searches */}
                 <div>
                   <h4 className="text-xs font-semibold text-gray-700 mb-3 flex items-center gap-2">
-                    <TrendingUp className="h-3 w-3" />
-                    Popular Searches
+                    <TrendingUp className="h-3 w-3" /> Popular Searches
                   </h4>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="grid grid-cols-2 gap-2">
                     {popularSearches.map((search, index) => (
                       <button
                         key={index}
-                        onClick={() => setQuery(search)}
-                        className="px-3 py-1.5 bg-gradient-to-r from-primary/10 to-primary/5 hover:from-primary/20 hover:to-primary/10 text-xs text-primary font-medium rounded-full transition-all duration-200"
+                        onClick={() => {
+                          setQuery(search);
+                          handleSearchSubmit(new Event('submit') as any);
+                        }}
+                        className="p-2 rounded-lg bg-gradient-to-r from-blue-50 to-purple-50 hover:from-blue-100 hover:to-purple-100 transition-all duration-200 text-sm text-gray-700 font-medium"
                       >
                         {search}
                       </button>

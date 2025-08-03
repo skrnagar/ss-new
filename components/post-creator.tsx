@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/contexts/auth-context";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabase";
-import { FileText, Image, Paperclip, Video, X, Sparkles } from "lucide-react";
+import { FileText, Image, Paperclip, Video, X, Sparkles, Smile } from "lucide-react";
 import { InlineLoader } from "@/components/ui/logo-loder";
 import { useRouter } from "next/navigation";
 import type * as React from "react";
@@ -17,6 +17,8 @@ import debounce from "lodash.debounce";
 import imageCompression from "browser-image-compression";
 import { UserMentionSuggestions } from "@/components/user-mention-suggestions";
 import { LinkPreview } from "@/components/link-preview";
+import data from '@emoji-mart/data'
+import Picker from '@emoji-mart/react'
 
 // Define Profile type based on what's in auth context
 type Profile = {
@@ -77,6 +79,7 @@ export function PostCreator({ isDialog = false, onSuccess, onOptimisticPost }: P
   const [showLinkPreview, setShowLinkPreview] = useState(false);
   const [removedLinkPreview, setRemovedLinkPreview] = useState(false);
   const [linkPreviewData, setLinkPreviewData] = useState<any>(null);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const { toast } = useToast();
   const router = useRouter();
 
@@ -100,6 +103,20 @@ export function PostCreator({ isDialog = false, onSuccess, onOptimisticPost }: P
       setIsSubmitting(false);
     };
   }, []);
+
+  // Close emoji picker when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (showEmojiPicker && !event.target) {
+        setShowEmojiPicker(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showEmojiPicker]);
 
   // Handle user mention detection
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -173,6 +190,23 @@ export function PostCreator({ isDialog = false, onSuccess, onOptimisticPost }: P
 
   const handleLinkPreviewData = (data: any) => {
     setLinkPreviewData(data);
+  };
+
+  const handleEmojiSelect = (emoji: any) => {
+    const textarea = document.querySelector('textarea[name="content"]') as HTMLTextAreaElement;
+    if (textarea) {
+      const cursorPosition = textarea.selectionStart || 0;
+      const newContent = inputContent.slice(0, cursorPosition) + emoji.native + inputContent.slice(cursorPosition);
+      setInputContent(newContent);
+      setShowEmojiPicker(false);
+      
+      // Set cursor position after emoji
+      setTimeout(() => {
+        const newPosition = cursorPosition + emoji.native.length;
+        textarea.setSelectionRange(newPosition, newPosition);
+        textarea.focus();
+      }, 0);
+    }
   };
 
   // Compress image before upload
@@ -451,6 +485,13 @@ export function PostCreator({ isDialog = false, onSuccess, onOptimisticPost }: P
             >
               #
             </button>
+            <button
+              type="button"
+              onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+              className="px-3 py-1 text-sm bg-white border border-gray-300 rounded hover:bg-gray-50 transition-colors"
+            >
+              <Smile className="h-4 w-4" />
+            </button>
           </div>
           
           <Textarea
@@ -458,7 +499,39 @@ export function PostCreator({ isDialog = false, onSuccess, onOptimisticPost }: P
             value={inputContent}
             onChange={handleInputChange}
             className="min-h-[140px] md:min-h-[250px] resize-none text-sm md:text-base border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-gray-400 leading-relaxed"
+            name="content"
+            style={{ fontSize: '16px' }} // Prevents zoom on iOS - must be 16px or larger
           />
+          
+          {/* Emoji Picker */}
+          {showEmojiPicker && (
+            <div className="absolute top-full left-0 mt-2 z-50 max-h-80 overflow-hidden">
+              <div className="bg-white rounded-lg shadow-2xl border border-gray-200 relative">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowEmojiPicker(false)}
+                  className="absolute top-2 right-2 h-6 w-6 p-0 z-10 bg-white/80 hover:bg-white"
+                >
+                  <X className="h-3 w-3" />
+                </Button>
+                <Picker
+                  data={data}
+                  onEmojiSelect={handleEmojiSelect}
+                  theme="light"
+                  set="native"
+                  previewPosition="none"
+                  skinTonePosition="none"
+                  maxFrequentRows={0}
+                  maxHistory={0}
+                  maxHeight={300}
+                  maxWidth={350}
+                />
+              </div>
+            </div>
+          )}
+          
           {/* Character Counter */}
           <div className="absolute bottom-2 right-2 text-xs text-gray-400">
             {inputContent.length}/500
