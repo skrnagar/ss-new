@@ -21,9 +21,25 @@ export function LogoLoader({
   duration = 2000,
 }: LogoLoaderProps) {
   const [isVisible, setIsVisible] = useState(false);
+  const [animationPhase, setAnimationPhase] = useState(0); // 0: initial, 1: building, 2: final
 
   useEffect(() => {
     setIsVisible(true);
+    
+    // Phase 1: Start building animation (0.5s)
+    const timer1 = setTimeout(() => {
+      setAnimationPhase(1);
+    }, 500);
+    
+    // Phase 2: Complete logo (1.5s total)
+    const timer2 = setTimeout(() => {
+      setAnimationPhase(2);
+    }, 1500);
+
+    return () => {
+      clearTimeout(timer1);
+      clearTimeout(timer2);
+    };
   }, []);
 
   const sizeClasses = {
@@ -40,7 +56,7 @@ export function LogoLoader({
       xmlns="http://www.w3.org/2000/svg"
       className={cn(
         "w-full h-full transition-all duration-700 ease-in-out",
-        variant === "glitch" && "animate-glitch",
+        variant === "glitch" && animationPhase === 2 && "animate-glitch",
         variant === "line" && "animate-line-draw",
         variant === "bounce" && "animate-bounce",
         variant === "fade" && "animate-pulse"
@@ -76,7 +92,7 @@ export function LogoLoader({
         </filter>
       </defs>
 
-      {/* 3D Base Block */}
+      {/* 3D Base Block - appears in phase 1 */}
       <rect
         x="15"
         y="15"
@@ -85,10 +101,11 @@ export function LogoLoader({
         rx="8"
         fill="url(#blueGradient)"
         filter="url(#shadow3D)"
-        opacity="0.1"
+        opacity={animationPhase >= 1 ? "0.1" : "0"}
+        className="transition-opacity duration-500 ease-in-out"
       />
 
-      {/* Main 3D S Shape - Blue */}
+      {/* Main 3D S Shape - Blue - builds in phase 1 */}
       <g filter="url(#glow)">
         {/* Primary S curve - Blue */}
         <path
@@ -96,41 +113,87 @@ export function LogoLoader({
           fill="url(#blueGradient)"
           stroke="#1E40AF"
           strokeWidth="0.5"
+          opacity={animationPhase >= 1 ? "1" : "0"}
+          className="transition-opacity duration-500 ease-in-out"
         />
         
-        {/* Secondary S curve - White */}
+        {/* Secondary S curve - White - appears in phase 2 */}
         <path
           d="M25 40 Q35 35 45 40 Q55 45 65 40 Q75 35 85 40 L85 45 Q75 50 65 45 Q55 40 45 45 Q35 50 25 45 Z"
           fill="url(#whiteGradient)"
           stroke="#E2E8F0"
           strokeWidth="0.5"
+          opacity={animationPhase >= 2 ? "1" : "0"}
+          className="transition-opacity duration-500 ease-in-out"
         />
         
-        {/* Connecting 3D blocks */}
-        <rect x="30" y="25" width="8" height="8" rx="2" fill="url(#blueGradient)" opacity="0.8"/>
-        <rect x="62" y="25" width="8" height="8" rx="2" fill="url(#blueGradient)" opacity="0.8"/>
-        <rect x="30" y="47" width="8" height="8" rx="2" fill="url(#whiteGradient)" opacity="0.8"/>
-        <rect x="62" y="47" width="8" height="8" rx="2" fill="url(#whiteGradient)" opacity="0.8"/>
+        {/* Connecting 3D blocks - appear in phase 2 */}
+        <rect 
+          x="30" y="25" width="8" height="8" rx="2" 
+          fill="url(#blueGradient)" 
+          opacity={animationPhase >= 2 ? "0.8" : "0"}
+          className="transition-opacity duration-300 ease-in-out"
+        />
+        <rect 
+          x="62" y="25" width="8" height="8" rx="2" 
+          fill="url(#blueGradient)" 
+          opacity={animationPhase >= 2 ? "0.8" : "0"}
+          className="transition-opacity duration-300 ease-in-out"
+        />
+        <rect 
+          x="30" y="47" width="8" height="8" rx="2" 
+          fill="url(#whiteGradient)" 
+          opacity={animationPhase >= 2 ? "0.8" : "0"}
+          className="transition-opacity duration-300 ease-in-out"
+        />
+        <rect 
+          x="62" y="47" width="8" height="8" rx="2" 
+          fill="url(#whiteGradient)" 
+          opacity={animationPhase >= 2 ? "0.8" : "0"}
+          className="transition-opacity duration-300 ease-in-out"
+        />
         
-        {/* Center connecting block */}
-        <rect x="45" y="35" width="10" height="10" rx="2" fill="url(#blueGradient)" opacity="0.9"/>
+        {/* Center connecting block - appears in phase 2 */}
+        <rect 
+          x="45" y="35" width="10" height="10" rx="2" 
+          fill="url(#blueGradient)" 
+          opacity={animationPhase >= 2 ? "0.9" : "0"}
+          className="transition-opacity duration-300 ease-in-out"
+        />
       </g>
 
-      {/* 3D Highlights */}
+      {/* 3D Highlights - appear in phase 2 */}
       <path
         d="M25 30 Q35 25 45 30"
         fill="none"
         stroke="#FFFFFF"
         strokeWidth="1"
-        opacity="0.6"
+        opacity={animationPhase >= 2 ? "0.6" : "0"}
+        className="transition-opacity duration-300 ease-in-out"
       />
       <path
         d="M25 40 Q35 35 45 40"
         fill="none"
         stroke="#FFFFFF"
         strokeWidth="1"
-        opacity="0.6"
+        opacity={animationPhase >= 2 ? "0.6" : "0"}
+        className="transition-opacity duration-300 ease-in-out"
       />
+
+      {/* Initial loading animation - simple dots in phase 0 */}
+      {animationPhase === 0 && (
+        <g>
+          <circle cx="30" cy="40" r="3" fill="#2563EB" className="animate-pulse">
+            <animate attributeName="opacity" values="1;0.3;1" dur="1s" repeatCount="indefinite" />
+          </circle>
+          <circle cx="50" cy="40" r="3" fill="#2563EB" className="animate-pulse">
+            <animate attributeName="opacity" values="1;0.3;1" dur="1s" repeatCount="indefinite" begin="0.2s" />
+          </circle>
+          <circle cx="70" cy="40" r="3" fill="#2563EB" className="animate-pulse">
+            <animate attributeName="opacity" values="1;0.3;1" dur="1s" repeatCount="indefinite" begin="0.4s" />
+          </circle>
+        </g>
+      )}
     </svg>
   );
 
@@ -144,7 +207,9 @@ export function LogoLoader({
           variant === "rotate" && "animate-spin",
           variant === "pulse" && "animate-pulse",
           "transition-all duration-500 ease-in-out",
-          isVisible ? "opacity-100 scale-100" : "opacity-0 scale-95"
+          isVisible ? "opacity-100 scale-100" : "opacity-0 scale-95",
+          animationPhase === 1 && "animate-logo-build",
+          animationPhase === 2 && "animate-logo-fade-in"
         )}>
           {logoSVG}
         </div>
@@ -154,10 +219,11 @@ export function LogoLoader({
       {showText && (
         <div className={cn(
           "mt-4 text-center transition-all duration-500 ease-in-out",
-          isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"
+          isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2",
+          animationPhase === 2 && "animate-logo-fade-in"
         )}>
           <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
-            {text}
+            {animationPhase === 0 ? "Loading..." : animationPhase === 1 ? "Building..." : text}
           </p>
         </div>
       )}
@@ -169,7 +235,7 @@ export function LogoLoader({
 export function FullScreenLoader({
   variant = "glitch",
   text = "Loading Safety Shaper...",
-  duration = 3000,
+  duration = 2000,
 }: Omit<LogoLoaderProps, "size" | "showText">) {
   return (
     <div className="fixed inset-0 bg-gradient-to-br from-blue-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 z-50 flex items-center justify-center">
