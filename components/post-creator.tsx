@@ -457,7 +457,7 @@ export function PostCreator({ isDialog = false, onSuccess, onOptimisticPost }: P
             placeholder={`What's on your mind, ${activeProfile?.full_name?.split(" ")[0] || "User"}?`}
             value={inputContent}
             onChange={handleInputChange}
-            className="min-h-[140px] md:min-h-[250px] resize-none text-sm md:text-base border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-gray-400 leading-relaxed"
+            className="min-h-[140px] md:min-h-[250px] resize-none text-base md:text-lg border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-gray-400 leading-relaxed"
           />
           {/* Character Counter */}
           <div className="absolute bottom-2 right-2 text-xs text-gray-400">
@@ -607,7 +607,7 @@ export function PostCreator({ isDialog = false, onSuccess, onOptimisticPost }: P
             size="lg"
             onClick={handleSubmit}
             disabled={isSubmitting || isCompressing || !inputContent.trim()}
-            className="w-full h-14 rounded-xl bg-primary hover:bg-primary/90 text-white font-semibold text-base shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full h-14 rounded-xl bg-primary hover:bg-primary/90 text-white font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
           >
                             {isSubmitting || isCompressing ? (
                   <>

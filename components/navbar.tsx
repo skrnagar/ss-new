@@ -43,7 +43,6 @@ import { useRouter } from "next/navigation";
 import { memo, useCallback, useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { NotificationDropdown } from "@/components/notification-dropdown";
-import { GlobalSearch } from "@/components/global-search";
 
 const getInitials = (name: string): string => {
   if (!name) return "U";
@@ -178,8 +177,8 @@ function MessageBadge() {
 }
 
 const MobileHeader = ({ user, profile, handleSignOut }: any) => (
-  <div className="flex items-center justify-between w-full gap-2">
-    <Link href="/" className="flex items-center flex-shrink-0" prefetch={true}>
+  <div className="flex items-center justify-between w-full">
+    <Link href="/" className="flex items-center" prefetch={true}>
       <Image
         src="/safetyshaper_logo.png"
         alt="Safety Shaper Logo"
@@ -189,14 +188,7 @@ const MobileHeader = ({ user, profile, handleSignOut }: any) => (
         priority
       />
     </Link>
-    
-    {/* Search bar in the middle */}
-    <div className="flex-1 min-w-0">
-      <GlobalSearch />
-    </div>
-    
-    {/* User menu and notifications */}
-    <div className="flex items-center gap-1 flex-shrink-0">
+    <div className="flex items-center gap-1 flex-1 justify-end">
       <NotificationDropdown userId={user?.id} />
       <UserMenu user={user} profile={profile} handleSignOut={handleSignOut} isMobile={true} />
     </div>
@@ -245,7 +237,14 @@ const DesktopHeader = ({ user, profile, handleSignOut }: any) => (
     </div>
 
     <div className="flex items-center gap-2">
-      <GlobalSearch />
+      <div className="relative">
+        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+        <Input
+          type="search"
+          placeholder="Search..."
+          className="w-[250px] pl-8 rounded-md bg-muted/70"
+        />
+      </div>
 
       <NavigationMenu>
         <NavigationMenuList>

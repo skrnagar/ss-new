@@ -62,7 +62,7 @@ const ArticleCard = ({ article, index }: { article: any; index: number }) => (
           <h2 className="text-lg sm:text-xl lg:text-2xl font-bold leading-tight group-hover:text-primary transition-colors duration-200 line-clamp-2">
             {article.title}
           </h2>
-          <p className="text-gray-600 leading-relaxed line-clamp-3 text-sm lg:text-sm">
+          <p className="text-gray-600 leading-relaxed line-clamp-3 text-sm lg:text-base">
             {article.excerpt || article.content?.replace(/<[^>]*>/g, "").substring(0, 200)}
           </p>
         </div>
@@ -131,7 +131,7 @@ export default function ArticlesPage() {
               <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
                 Discover Articles
               </h1>
-              <p className="text-gray-600 mt-2 text-sm sm:text-sm">
+              <p className="text-gray-600 mt-2 text-sm sm:text-base">
                 Discover expert insights, best practices, and industry trends in ESG and EHS management
               </p>
             </div>
@@ -218,7 +218,7 @@ export default function ArticlesPage() {
                       <Search className="h-6 w-6 sm:h-8 sm:w-8 text-gray-400" />
                     </div>
                     <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">No articles found</h3>
-                    <p className="text-sm sm:text-sm text-gray-600">Try adjusting your search or browse our featured content.</p>
+                    <p className="text-sm sm:text-base text-gray-600">Try adjusting your search or browse our featured content.</p>
                   </div>
                 )}
               </div>

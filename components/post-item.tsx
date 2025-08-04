@@ -547,12 +547,16 @@ const PostItem = memo(function PostItem({ post, currentUser, onPostDeleted, onPo
           <div className="flex items-start gap-4">
             <ProfileLink profile={post.profile}>
               <Avatar className="h-12 w-12">
-                <AvatarImage src={post.profile?.avatar_url} alt={post.profile?.full_name} />
-                <AvatarFallback>{getInitials(post.profile?.full_name || "User")}</AvatarFallback>
+                <div className="h-full w-full rounded-full p-0.5 bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500">
+                  <div className="h-full w-full rounded-full bg-white p-0.5">
+                    <AvatarImage src={post.profile?.avatar_url} alt={post.profile?.full_name} className="object-cover rounded-full" />
+                    <AvatarFallback className="rounded-full">{getInitials(post.profile?.full_name || "User")}</AvatarFallback>
+                  </div>
+                </div>
               </Avatar>
             </ProfileLink>
             <div>
-              <ProfileLink profile={post.profile} className="font-semibold text-base text-gray-900 hover:underline">
+              <ProfileLink profile={post.profile} className="font-semibold text-lg text-gray-900 hover:underline">
                 {post.profile?.full_name || "Anonymous User"}
               </ProfileLink>
               <p className="text-sm text-muted-foreground font-medium">
@@ -626,7 +630,7 @@ const PostItem = memo(function PostItem({ post, currentUser, onPostDeleted, onPo
           ) : (
             post.content && (
               <div>
-                <p className="whitespace-pre-line text-sm text-gray-800 leading-relaxed">
+                <p className="whitespace-pre-line text-base text-gray-800 leading-relaxed">
                   {formatTextWithLinks(displayContent, (username) => {
                     // Handle user mention click - could add analytics or notifications here
                     console.log(`User mentioned: ${username}`);
@@ -918,8 +922,12 @@ const PostItem = memo(function PostItem({ post, currentUser, onPostDeleted, onPo
           {/* Comment form */}
           <form onSubmit={handleCommentSubmit} className="flex items-start gap-3">
             <Avatar className="h-8 w-8 flex-shrink-0">
-              <AvatarImage src={currentUser?.avatar_url} alt={currentUser?.full_name} />
-              <AvatarFallback>{getInitials(currentUser?.full_name || "User")}</AvatarFallback>
+              <div className="h-full w-full rounded-full p-0.5 bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500">
+                <div className="h-full w-full rounded-full bg-white p-0.5">
+                  <AvatarImage src={currentUser?.avatar_url} alt={currentUser?.full_name} className="object-cover rounded-full" />
+                  <AvatarFallback className="rounded-full">{getInitials(currentUser?.full_name || "User")}</AvatarFallback>
+                </div>
+              </div>
             </Avatar>
             <div className="flex-1 relative">
               <Textarea
@@ -973,16 +981,21 @@ const PostItem = memo(function PostItem({ post, currentUser, onPostDeleted, onPo
                       style={{ animationDelay: `${index * 50}ms` }}
                     >
                       <Avatar className="h-8 w-8 flex-shrink-0">
-                        <AvatarImage
-                          src={
-                            comment.profiles?.avatar_url ||
-                            `https://ui-avatars.com/api/?name=${encodeURIComponent(comment.profiles?.full_name || "User")}&size=40&background=random`
-                          }
-                          alt={comment.profiles?.full_name}
-                        />
-                        <AvatarFallback className="bg-gradient-to-br from-primary/20 to-primary/10 text-primary font-semibold">
-                          {getInitials(comment.profiles?.full_name || "User")}
-                        </AvatarFallback>
+                        <div className="h-full w-full rounded-full p-0.5 bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500">
+                          <div className="h-full w-full rounded-full bg-white p-0.5">
+                            <AvatarImage
+                              src={
+                                comment.profiles?.avatar_url ||
+                                `https://ui-avatars.com/api/?name=${encodeURIComponent(comment.profiles?.full_name || "User")}&size=40&background=random`
+                              }
+                              alt={comment.profiles?.full_name}
+                              className="object-cover rounded-full"
+                            />
+                            <AvatarFallback className="rounded-full bg-gradient-to-br from-primary/20 to-primary/10 text-primary font-semibold">
+                              {getInitials(comment.profiles?.full_name || "User")}
+                            </AvatarFallback>
+                          </div>
+                        </div>
                       </Avatar>
                       <div className="flex-1 min-w-0">
                         <div className="bg-white rounded-xl p-3 shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-200">
@@ -1063,7 +1076,7 @@ const PostItem = memo(function PostItem({ post, currentUser, onPostDeleted, onPo
             style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}
           >
             <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-xl pointer-events-auto">
-              <h3 className="text-base font-semibold mb-2">Delete Post</h3>
+              <h3 className="text-lg font-semibold mb-2">Delete Post</h3>
               <p className="text-sm text-gray-600 mb-6">
                 Are you sure you want to delete this post? This action cannot be undone and will also remove all likes and comments associated with this post.
               </p>
