@@ -75,7 +75,7 @@ const NotificationItem = React.memo(function NotificationItem({ n, onRead }: { n
     <Link
       key={n.id}
       href={n.link || "/network/followers"}
-      className={`flex items-center gap-4 px-6 py-5 transition hover:bg-muted/60 ${getNotificationStyle(n.type, n.read)} rounded-none sm:px-6 sm:py-5 px-3 py-4 text-base`}
+      className={`flex items-center gap-4 px-6 py-5 transition hover:bg-muted/60 ${getNotificationStyle(n.type, n.read)} rounded-none sm:px-6 sm:py-5 px-3 py-4 text-sm`}
       style={{ textDecoration: "none" }}
       aria-label={n.content}
       tabIndex={0}
@@ -88,7 +88,7 @@ const NotificationItem = React.memo(function NotificationItem({ n, onRead }: { n
     >
       {notificationIcon(n.type)}
       <div className="flex-1 min-w-0">
-        <div className="text-base leading-tight line-clamp-2">{n.content}</div>
+        <div className="text-sm leading-tight line-clamp-2">{n.content}</div>
         <div className="text-xs text-muted-foreground mt-2">{formatTime(n.created_at)}</div>
       </div>
       <ArrowRight className="h-5 w-5 text-muted-foreground mt-1" />
@@ -162,7 +162,7 @@ export function NotificationDropdown({ userId }: { userId: string }) {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         {notifications.length === 0 ? (
-          <div className="p-8 text-center text-muted-foreground text-lg sm:p-8 p-4 text-base">No notifications</div>
+          <div className="p-8 text-center text-muted-foreground text-lg sm:p-8 p-4 text-sm">No notifications</div>
         ) : (
           <div className="divide-y">
             {paginated.map((n: any) => (
@@ -177,7 +177,7 @@ export function NotificationDropdown({ userId }: { userId: string }) {
         )}
         <DropdownMenuSeparator />
         <div className="flex justify-center p-4 sm:p-4 p-2">
-          <Link href="/network/followers" className="text-primary font-semibold flex items-center gap-2 text-base hover:underline">
+          <Link href="/network/followers" className="text-primary font-semibold flex items-center gap-2 text-sm hover:underline">
             View all notifications <ArrowRight className="h-5 w-5" />
           </Link>
         </div>
