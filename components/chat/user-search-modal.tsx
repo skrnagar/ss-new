@@ -177,7 +177,7 @@ export function UserSearchModal({ isOpen, onClose, onStartConversation }: UserSe
                         </AvatarFallback>
                       </Avatar>
                       <div>
-                        <div className="font-semibold text-sm text-gray-900 dark:text-white group-hover:text-blue-600">
+                        <div className="font-semibold text-base text-gray-900 dark:text-white group-hover:text-blue-600">
                           {profile.full_name}
                         </div>
                         <div className="text-sm text-gray-500 dark:text-gray-300 line-clamp-1">
