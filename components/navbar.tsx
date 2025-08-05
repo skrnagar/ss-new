@@ -24,6 +24,8 @@ import {
 import { useAuth } from "@/contexts/auth-context";
 import { useMobile } from "@/hooks/use-mobile";
 import { useToast } from "@/hooks/use-toast";
+import { GlobalSearch } from "@/components/global-search";
+import { MobileSearch } from "@/components/mobile-search";
 import {
   Bell,
   Briefcase,
@@ -177,18 +179,21 @@ function MessageBadge() {
 }
 
 const MobileHeader = ({ user, profile, handleSignOut }: any) => (
-  <div className="flex items-center justify-between w-full">
-    <Link href="/" className="flex items-center" prefetch={true}>
+  <div className="flex items-center justify-between w-full gap-3 px-4 py-2">
+    <Link href="/" className="flex items-center flex-shrink-0" prefetch={true}>
       <Image
         src="/safetyshaper_logo.png"
         alt="Safety Shaper Logo"
-        width={65}
-        height={30}
-        className="h-8 w-auto"
+        width={60}
+        height={28}
+        className="h-7 w-auto"
         priority
       />
     </Link>
-    <div className="flex items-center gap-1 flex-1 justify-end">
+    <div className="flex-1 min-w-0 max-w-[200px] sm:max-w-[240px] mx-2">
+      <MobileSearch />
+    </div>
+    <div className="flex items-center gap-2 flex-shrink-0">
       <NotificationDropdown userId={user?.id} />
       <UserMenu user={user} profile={profile} handleSignOut={handleSignOut} isMobile={true} />
     </div>
@@ -237,14 +242,7 @@ const DesktopHeader = ({ user, profile, handleSignOut }: any) => (
     </div>
 
     <div className="flex items-center gap-2">
-      <div className="relative">
-        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-        <Input
-          type="search"
-          placeholder="Search..."
-          className="w-[250px] pl-8 rounded-md bg-muted/70"
-        />
-      </div>
+      <GlobalSearch />
 
       <NavigationMenu>
         <NavigationMenuList>
@@ -277,7 +275,7 @@ const DesktopHeader = ({ user, profile, handleSignOut }: any) => (
                     href="/network/professionals"
                     className="flex items-center gap-2 p-2 rounded-md hover:bg-muted"
                   >
-                    <Search className="h-4 w-4 text-primary" />
+                    <Users className="h-4 w-4 text-primary" />
                     <div>
                       <div className="font-medium">Explore People</div>
                       <p className="text-xs text-muted-foreground">
