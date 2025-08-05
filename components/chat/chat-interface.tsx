@@ -217,6 +217,15 @@ export function ChatInterface({ onBack, showBackButton = false, className = "" }
                 conversationId={selectedConversation}
                 otherUser={selectedUser}
                 currentUserId={user.id}
+                onMessageSent={() => {
+                  // Refresh conversations when a message is sent
+                  console.log('Message sent, refreshing conversations...');
+                  
+                  // Trigger conversation list refresh
+                  if (typeof window !== 'undefined') {
+                    window.dispatchEvent(new CustomEvent('refreshConversations'));
+                  }
+                }}
               />
             </div>
           </div>

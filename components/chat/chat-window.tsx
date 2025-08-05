@@ -33,9 +33,10 @@ interface ChatWindowProps {
   conversationId: string;
   otherUser: Profile;
   currentUserId: string;
+  onMessageSent?: () => void;
 }
 
-export function ChatWindow({ conversationId, otherUser, currentUserId }: ChatWindowProps) {
+export function ChatWindow({ conversationId, otherUser, currentUserId, onMessageSent }: ChatWindowProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -197,6 +198,11 @@ export function ChatWindow({ conversationId, otherUser, currentUserId }: ChatWin
           new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
         );
       });
+      
+      // Call onMessageSent callback if provided
+      if (onMessageSent) {
+        onMessageSent();
+      }
     }
     setIsLoading(false);
   };
