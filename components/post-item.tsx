@@ -566,9 +566,15 @@ const PostItem = memo(function PostItem({ post, currentUser, onPostDeleted, onPo
               <div className="flex items-center text-xs text-muted-foreground mt-1">
                 <Clock className="h-3 w-3 mr-1" />
                 <span>{formatDate(post.created_at)}</span>
-                {post.updated_at && post.updated_at !== post.created_at && (
-                  <span className="ml-1 text-gray-400">(edited)</span>
-                )}
+                {post.updated_at && (() => {
+                  const createdTime = new Date(post.created_at).getTime();
+                  const updatedTime = new Date(post.updated_at).getTime();
+                  const diffInSeconds = Math.abs(updatedTime - createdTime) / 1000;
+                  // Only show "edited" if updated more than 10 seconds after creation
+                  return diffInSeconds > 10 && (
+                    <span className="ml-1 text-gray-400">(edited)</span>
+                  );
+                })()}
               </div>
             </div>
           </div>
