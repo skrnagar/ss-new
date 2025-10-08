@@ -3,7 +3,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
@@ -160,6 +159,7 @@ export function GlobalSearch({ className, placeholder = "Search people, articles
   const [showResults, setShowResults] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
+  const [searchTimeout, setSearchTimeout] = useState<NodeJS.Timeout | null>(null);
   const { toast } = useToast();
   const router = useRouter();
   const searchRef = useRef<HTMLDivElement>(null);
@@ -169,30 +169,16 @@ export function GlobalSearch({ className, placeholder = "Search people, articles
   useEffect(() => {
     const saved = localStorage.getItem("recentSearches");
     if (saved) {
-      setRecentSearches(JSON.parse(saved));
+      try {
+        setRecentSearches(JSON.parse(saved));
+      } catch (error) {
+        console.error("Error parsing recent searches:", error);
+        setRecentSearches([]);
+      }
     }
   }, []);
 
-  // Save recent search
-  const saveRecentSearch = useCallback((searchTerm: string) => {
-    const updated = [searchTerm, ...recentSearches.filter(s => s !== searchTerm)].slice(0, 5);
-    setRecentSearches(updated);
-    localStorage.setItem("recentSearches", JSON.stringify(updated));
-  }, [recentSearches]);
-
-  // Get trending searches
-  const getTrendingSearches = useCallback((): SearchSuggestion[] => {
-    return [
-      { text: "ESG professionals", type: "trending", icon: "👥" },
-      { text: "Safety regulations", type: "trending", icon: "📋" },
-      { text: "Environmental compliance", type: "suggestion", icon: "🏢" },
-      { text: "Upcoming events", type: "suggestion", icon: "📅" },
-      { text: "Risk management", type: "trending", icon: "⚠️" },
-      { text: "Sustainability", type: "suggestion", icon: "🌱" },
-    ];
-  }, []);
-
-  // Close results when clicking outside
+  // Click outside to close results
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
@@ -205,184 +191,182 @@ export function GlobalSearch({ className, placeholder = "Search people, articles
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Enhanced search with better categorization
-  const debouncedSearch = useCallback(
-    async (searchQuery: string) => {
-      if (!searchQuery.trim()) {
-        setResults([]);
-        setIsLoading(false);
-        return;
-      }
-
-      setIsLoading(true);
+  // Save recent search with better error handling
+  const saveRecentSearch = useCallback((searchTerm: string) => {
+    if (!searchTerm.trim()) return;
+    
+    setRecentSearches(prev => {
+      const updated = [searchTerm, ...prev.filter(s => s !== searchTerm)].slice(0, 5);
       try {
-        const searchTerm = `%${searchQuery}%`;
-        const results: SearchResult[] = [];
+        localStorage.setItem("recentSearches", JSON.stringify(updated));
+      } catch (error) {
+        console.error("Error saving recent searches:", error);
+      }
+      return updated;
+    });
+  }, []);
 
-        // Search users/profiles (top priority)
-        const { data: users, error: usersError } = await supabase
+  // Get trending searches with enhanced data
+  const getTrendingSearches = useCallback((): SearchSuggestion[] => {
+    return [
+      { text: "ESG professionals", type: "trending", icon: "👥", count: 156 },
+      { text: "Safety regulations", type: "trending", icon: "📋", count: 89 },
+      { text: "Environmental compliance", type: "suggestion", icon: "🏢" },
+      { text: "Upcoming events", type: "suggestion", icon: "📅" },
+      { text: "Risk management", type: "trending", icon: "⚠️", count: 234 },
+      { text: "Sustainability", type: "suggestion", icon: "🌱" },
+    ];
+  }, []);
+
+  // Optimized search with better performance
+  const performSearch = useCallback(async (searchQuery: string) => {
+    if (!searchQuery.trim()) {
+      setResults([]);
+      setIsLoading(false);
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const searchTerm = `%${searchQuery}%`;
+      
+      // Use Promise.allSettled for parallel execution and better error handling
+      const [usersResult, articlesResult, postsResult] = await Promise.allSettled([
+        supabase
           .from("profiles")
           .select("id, full_name, username, headline, company, location, avatar_url, created_at")
           .or(`full_name.ilike.${searchTerm},username.ilike.${searchTerm},headline.ilike.${searchTerm},company.ilike.${searchTerm}`)
           .order("created_at", { ascending: false })
-          .limit(4);
-
-        if (usersError) {
-          console.error("Error searching users:", usersError);
-        } else if (users) {
-          users.forEach((user) => {
-            results.push({
-              id: user.id,
-              type: "user",
-              title: user.full_name || user.username || "Unknown User",
-              content: user.headline || user.company,
-              author: user.full_name || user.username,
-              authorAvatar: user.avatar_url,
-              timestamp: user.created_at,
-              url: `/profile/${user.username}`,
-              metadata: {
-                location: user.location,
-                company: user.company,
-              },
-            });
-          });
-        }
-
-        // Search articles
-        const { data: articles, error: articlesError } = await supabase
+          .limit(4),
+        supabase
           .from("articles")
           .select(`
-            id,
-            title,
-            excerpt,
-            views,
-            created_at,
-            profiles!inner (
-              full_name,
-              avatar_url
-            )
+            id, title, excerpt, views, created_at,
+            profiles!inner (full_name, avatar_url)
           `)
           .or(`title.ilike.${searchTerm},excerpt.ilike.${searchTerm}`)
           .eq("published", true)
           .order("views", { ascending: false })
-          .limit(4);
-
-        if (articlesError) {
-          console.error("Error searching articles:", articlesError);
-        } else if (articles) {
-          articles.forEach((article) => {
-            // Handle profiles field properly - it might be an array or object
-            const author = Array.isArray(article.profiles) ? article.profiles[0] : article.profiles;
-            
-            results.push({
-              id: article.id,
-              type: "article",
-              title: article.title,
-              content: article.excerpt,
-              author: author?.full_name || "Unknown Author",
-              authorAvatar: author?.avatar_url,
-              timestamp: article.created_at,
-              url: `/articles/${article.id}`,
-              metadata: {
-                views: article.views,
-              },
-            });
-          });
-        }
-
-        // Search posts
-        const { data: posts, error: postsError } = await supabase
+          .limit(4),
+        supabase
           .from("posts")
           .select(`
-            id,
-            content,
-            created_at,
-            profiles!inner (
-              full_name,
-              avatar_url
-            )
+            id, content, created_at,
+            profiles!inner (full_name, avatar_url)
           `)
           .ilike("content", searchTerm)
           .order("created_at", { ascending: false })
-          .limit(4);
+          .limit(4)
+      ]);
 
-        if (postsError) {
-          console.error("Error searching posts:", postsError);
-        } else if (posts) {
-          posts.forEach((post) => {
-            // Handle profiles field properly - it might be an array or object
-            const author = Array.isArray(post.profiles) ? post.profiles[0] : post.profiles;
-            
-            results.push({
-              id: post.id,
-              type: "post",
-              title: post.content.substring(0, 50) + (post.content.length > 50 ? "..." : ""),
-              content: post.content,
-              author: author?.full_name || "Anonymous",
-              authorAvatar: author?.avatar_url,
-              timestamp: post.created_at,
-              url: `/posts/${post.id}`,
-            });
-          });
-        }
+      const results: SearchResult[] = [];
 
-        // Search events
-        const { data: events, error: eventsError } = await supabase
-          .from("events")
-          .select(`
-            id,
-            title,
-            description,
-            created_at,
-            profiles!inner (
-              full_name,
-              avatar_url
-            )
-          `)
-          .or(`title.ilike.${searchTerm},description.ilike.${searchTerm}`)
-          .order("created_at", { ascending: false })
-          .limit(3);
-
-        if (eventsError) {
-          console.error("Error searching events:", eventsError);
-        } else if (events) {
-          events.forEach((event) => {
-            // Handle profiles field properly - it might be an array or object
-            const author = Array.isArray(event.profiles) ? event.profiles[0] : event.profiles;
-            
-            results.push({
-              id: event.id,
-              type: "event",
-              title: event.title,
-              content: event.description,
-              author: author?.full_name || "Unknown Author",
-              authorAvatar: author?.avatar_url,
-              timestamp: event.created_at,
-              url: `/events/${event.id}`,
-            });
-          });
-        }
-
-        setResults(results);
-      } catch (error) {
-        console.error("Search error:", error);
-        toast({
-          title: "Search Error",
-          description: "Failed to perform search. Please try again.",
-        });
-      } finally {
-        setIsLoading(false);
+      // Process users
+      if (usersResult.status === "fulfilled" && usersResult.value.data) {
+        results.push(...usersResult.value.data.map(user => ({
+          id: user.id,
+          type: "user" as const,
+          title: user.full_name || user.username || "Unknown User",
+          content: user.headline || user.company,
+          author: user.full_name || user.username,
+          authorAvatar: user.avatar_url,
+          timestamp: user.created_at,
+          url: `/profile/${user.username}`,
+          metadata: {
+            location: user.location,
+            company: user.company,
+          },
+        })));
       }
-    },
-    [toast]
-  );
 
+      // Process articles
+      if (articlesResult.status === "fulfilled" && articlesResult.value.data) {
+        results.push(...articlesResult.value.data.map(article => {
+          const author = Array.isArray(article.profiles) ? article.profiles[0] : article.profiles;
+          return {
+            id: article.id,
+            type: "article" as const,
+            title: article.title,
+            content: article.excerpt,
+            author: author?.full_name || "Unknown Author",
+            authorAvatar: author?.avatar_url,
+            timestamp: article.created_at,
+            url: `/articles/${article.id}`,
+            metadata: {
+              views: article.views,
+            },
+          };
+        }));
+      }
+
+      // Process posts
+      if (postsResult.status === "fulfilled" && postsResult.value.data) {
+        results.push(...postsResult.value.data.map(post => {
+          const author = Array.isArray(post.profiles) ? post.profiles[0] : post.profiles;
+          const cleanContent = post.content
+            .replace(/<[^>]*>/g, '')
+            .replace(/\s+/g, ' ')
+            .trim();
+          
+          return {
+            id: post.id,
+            type: "post" as const,
+            title: cleanContent.length > 60 ? cleanContent.substring(0, 60) + "..." : cleanContent,
+            content: cleanContent,
+            author: author?.full_name || "Anonymous",
+            authorAvatar: author?.avatar_url,
+            timestamp: post.created_at,
+            url: `/posts/${post.id}`,
+          };
+        }));
+      }
+
+      setResults(results);
+    } catch (error) {
+      console.error("Search error:", error);
+      toast({
+        title: "Search Error",
+        description: "Failed to perform search. Please try again.",
+        variant: "destructive",
+      });
+      setResults([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [toast]);
+
+  // Debounced search with proper memoization
+  const debouncedSearch = useCallback((searchQuery: string) => {
+    // Clear existing timeout
+    if (searchTimeout) {
+      clearTimeout(searchTimeout);
+    }
+
+    // Set new timeout
+    const timeout = setTimeout(() => {
+      performSearch(searchQuery);
+    }, 300);
+
+    setSearchTimeout(timeout);
+  }, [performSearch, searchTimeout]);
+
+  // Cleanup timeout on unmount
   useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      debouncedSearch(query);
-    }, 200);
+    return () => {
+      if (searchTimeout) {
+        clearTimeout(searchTimeout);
+      }
+    };
+  }, [searchTimeout]);
 
-    return () => clearTimeout(timeoutId);
+  // Trigger search when query changes
+  useEffect(() => {
+    if (query.trim()) {
+      debouncedSearch(query);
+    } else {
+      setResults([]);
+      setIsLoading(false);
+    }
   }, [query, debouncedSearch]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -543,7 +527,7 @@ export function GlobalSearch({ className, placeholder = "Search people, articles
           "absolute top-full left-0 right-0 z-50 bg-background/95 backdrop-blur-md border border-border rounded-lg shadow-lg mt-1",
           isMobile ? "w-full" : "w-[400px] lg:w-[500px]"
         )}>
-          <ScrollArea className="max-h-[60vh] overflow-y-auto">
+          <div className="max-h-[60vh] overflow-y-auto">
             <div className="p-3">
               {isLoading ? (
                 <div className="flex items-center justify-center py-8">
@@ -668,7 +652,7 @@ export function GlobalSearch({ className, placeholder = "Search people, articles
                 </div>
               )}
             </div>
-          </ScrollArea>
+          </div>
         </div>
       )}
     </div>

@@ -48,6 +48,7 @@ export function ChatWindow({ conversationId, otherUser, currentUserId, onMessage
   const { toast } = useToast();
   const typingChannelRef = useRef<any>(null);
   const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const messagesChannelRef = useRef<any>(null);
 
   // Typing indicator: broadcast when typing
   useEffect(() => {
@@ -115,35 +116,53 @@ export function ChatWindow({ conversationId, otherUser, currentUserId, onMessage
     // Initial fetch
     fetchMessages();
 
-    // Use the same simple approach as chat-list.tsx that's working
-    const channelName = `messages_changes_${conversationId}_${currentUserId}`;
-    console.log('Setting up subscription for channel:', channelName);
+    // Set up real-time subscription with proper configuration
+    const channelName = `messages:${conversationId}`;
     
-    const subscription = supabase
-      .channel(channelName)
+    const channel = supabase
+      .channel(channelName, {
+        config: {
+          broadcast: { self: false },
+        },
+      })
       .on(
         "postgres_changes",
         {
-          event: "*", // Listen to all events (INSERT, UPDATE, DELETE)
+          event: "INSERT",
           schema: "public",
           table: "messages",
+          filter: `conversation_id=eq.${conversationId}`,
         },
         () => {
-          console.log('Message change detected in chat window, refetching...');
+          fetchMessages();
+        }
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "messages",
+          filter: `conversation_id=eq.${conversationId}`,
+        },
+        () => {
           fetchMessages();
         }
       )
       .subscribe();
 
-    // Fallback: Set up polling as backup (every 1 second)
+    messagesChannelRef.current = channel;
+
+    // Fallback polling as backup
     pollingIntervalRef.current = setInterval(() => {
-      console.log('Polling for new messages in chat window...');
       fetchMessages();
-    }, 1000);
+    }, 5000); // Poll every 5 seconds as backup
 
     return () => {
-      console.log('Cleaning up chat window subscription for channel:', channelName);
-      subscription.unsubscribe();
+      if (messagesChannelRef.current) {
+        supabase.removeChannel(messagesChannelRef.current);
+        messagesChannelRef.current = null;
+      }
       if (pollingIntervalRef.current) {
         clearInterval(pollingIntervalRef.current);
         pollingIntervalRef.current = null;

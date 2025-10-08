@@ -79,7 +79,7 @@ export function ChatList({ initialUserId }: ChatListProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { session } = useAuth();
-  const { conversations, loading, error } = useConversations();
+  const { conversations, loading, error, refreshConversations, updateKey } = useConversations();
   const user = session?.user;
   const { toast } = useToast();
 
@@ -224,7 +224,7 @@ export function ChatList({ initialUserId }: ChatListProps) {
             <div className="p-2">
               {filteredConversations.map((conversation, index) => (
                 <div
-                  key={conversation.id}
+                  key={`${conversation.id}-${updateKey}`}
                   className={cn(
                     "group relative mb-2 rounded-xl transition-all duration-200 cursor-pointer overflow-hidden",
                     "hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50",
@@ -377,6 +377,7 @@ export function ChatList({ initialUserId }: ChatListProps) {
                 conversationId={selectedConversation}
                 otherUser={otherUser as { id: string; full_name: string; avatar_url: string }}
                 currentUserId={user?.id || ""}
+                onMessageSent={refreshConversations}
               />
             </div>
           </>
@@ -447,6 +448,7 @@ export function ChatList({ initialUserId }: ChatListProps) {
               conversationId={selectedConversation}
               otherUser={otherUser as { id: string; full_name: string; avatar_url: string }}
               currentUserId={user?.id || ""}
+              onMessageSent={refreshConversations}
             />
           </div>
         </div>

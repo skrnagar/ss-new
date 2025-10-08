@@ -3,12 +3,11 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabase";
-import { Search, X, Clock, User, FileText, Calendar, ArrowRight, Users, MessageCircle, Building, Eye, TrendingUp, ArrowLeft, Sparkles } from "lucide-react";
+import { Search, X, Clock, User, FileText, Calendar, ArrowRight, Users, MessageCircle, Building, Eye, TrendingUp, ArrowLeft, Sparkles, MapPin } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
@@ -70,15 +69,15 @@ const SearchResultItem = ({ result, onClose }: SearchResultProps) => {
   const getTypeBadge = (type: string) => {
     switch (type) {
       case "post":
-        return <Badge variant="outline" className="text-xs">Post</Badge>;
+        return <Badge variant="outline" className="text-xs bg-purple-50 text-purple-700 border-purple-200">Post</Badge>;
       case "user":
-        return <Badge variant="secondary" className="text-xs">Profile</Badge>;
+        return <Badge variant="secondary" className="text-xs bg-green-50 text-green-700">Profile</Badge>;
       case "article":
-        return <Badge variant="outline" className="text-xs">Article</Badge>;
+        return <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200">Article</Badge>;
       case "event":
-        return <Badge variant="outline" className="text-xs">Event</Badge>;
+        return <Badge variant="outline" className="text-xs bg-orange-50 text-orange-700 border-orange-200">Event</Badge>;
       case "company":
-        return <Badge variant="outline" className="text-xs">Company</Badge>;
+        return <Badge variant="outline" className="text-xs bg-gray-50 text-gray-700 border-gray-200">Company</Badge>;
       default:
         return <Badge variant="outline" className="text-xs">Result</Badge>;
     }
@@ -93,59 +92,65 @@ const SearchResultItem = ({ result, onClose }: SearchResultProps) => {
 
   return (
     <Link href={result.url} onClick={onClose}>
-      <div className="flex items-start gap-3 p-3 hover:bg-accent/50 rounded-lg transition-all duration-200 cursor-pointer group border border-transparent hover:border-border">
+      <div className="flex items-start gap-3 p-4 hover:bg-accent/30 rounded-xl transition-all duration-200 cursor-pointer group border border-transparent hover:border-border/50 hover:shadow-sm">
         <div className="flex-shrink-0">
           {result.type === "user" && result.authorAvatar ? (
-            <Avatar className="h-10 w-10">
+            <Avatar className="h-12 w-12 ring-2 ring-primary/10 group-hover:ring-primary/30 transition-all">
               <AvatarImage src={result.authorAvatar} alt={result.author} />
-              <AvatarFallback className="bg-gradient-to-br from-blue-400 to-purple-500 text-white">
+              <AvatarFallback className="bg-gradient-to-br from-primary/10 to-primary/20 text-primary font-semibold">
                 {result.author?.charAt(0)}
               </AvatarFallback>
             </Avatar>
           ) : (
-            <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-blue-50 to-purple-50 flex items-center justify-center border">
+            <div className="h-12 w-12 rounded-full bg-gradient-to-br from-primary/10 to-primary/20 flex items-center justify-center ring-2 ring-primary/10 group-hover:ring-primary/30 transition-all">
               {getTypeIcon(result.type)}
             </div>
           )}
         </div>
-        
+
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1">
+          <div className="flex items-start justify-between gap-2 mb-2">
+            <div className="flex-1 min-w-0">
+              <h4 className="font-semibold text-sm group-hover:text-primary transition-colors truncate">
+                {result.title}
+              </h4>
+              {result.author && (
+                <p className="text-xs text-muted-foreground mt-1">
+                  by {result.author}
+                </p>
+              )}
+            </div>
             {getTypeBadge(result.type)}
-            <h4 className="font-medium text-sm text-foreground truncate group-hover:text-primary transition-colors">
-              {result.title}
-            </h4>
           </div>
-          
+
           {result.content && (
-            <p className="text-sm text-muted-foreground mb-2 line-clamp-2">
+            <p className="text-xs text-muted-foreground line-clamp-2 mb-2">
               {formatContent(result.content)}
             </p>
           )}
-          
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4 text-xs text-muted-foreground">
-              {result.author && (
+
+          {result.metadata && (
+            <div className="flex items-center gap-3 text-xs text-muted-foreground">
+              {result.metadata.location && (
                 <div className="flex items-center gap-1">
-                  <User className="h-3 w-3" />
-                  <span>{result.author}</span>
+                  <MapPin className="h-3 w-3" />
+                  <span>{result.metadata.location}</span>
                 </div>
               )}
-              {result.timestamp && (
+              {result.metadata.company && (
                 <div className="flex items-center gap-1">
-                  <Clock className="h-3 w-3" />
-                  <span>{formatDistanceToNow(new Date(result.timestamp), { addSuffix: true })}</span>
+                  <Building className="h-3 w-3" />
+                  <span>{result.metadata.company}</span>
                 </div>
               )}
-              {result.metadata?.views && (
+              {result.metadata.views && (
                 <div className="flex items-center gap-1">
                   <Eye className="h-3 w-3" />
                   <span>{result.metadata.views} views</span>
                 </div>
               )}
             </div>
-            <ArrowRight className="h-3 w-3 text-muted-foreground group-hover:text-primary transition-colors" />
-          </div>
+          )}
         </div>
       </div>
     </Link>
@@ -158,6 +163,7 @@ export function MobileSearch() {
   const [isLoading, setIsLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
+  const [searchTimeout, setSearchTimeout] = useState<NodeJS.Timeout | null>(null);
   const { toast } = useToast();
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -166,208 +172,206 @@ export function MobileSearch() {
   useEffect(() => {
     const saved = localStorage.getItem("recentSearches");
     if (saved) {
-      setRecentSearches(JSON.parse(saved));
+      try {
+        setRecentSearches(JSON.parse(saved));
+      } catch (error) {
+        console.error("Error parsing recent searches:", error);
+        setRecentSearches([]);
+      }
     }
   }, []);
 
-  // Save recent search
-  const saveRecentSearch = useCallback((searchTerm: string) => {
-    const updated = [searchTerm, ...recentSearches.filter(s => s !== searchTerm)].slice(0, 5);
-    setRecentSearches(updated);
-    localStorage.setItem("recentSearches", JSON.stringify(updated));
-  }, [recentSearches]);
+  // Focus input when dialog opens
+  useEffect(() => {
+    if (isOpen && inputRef.current) {
+      // Small delay to ensure dialog is fully rendered
+      setTimeout(() => {
+        inputRef.current?.focus();
+        // Also set cursor to end of text
+        if (inputRef.current && query) {
+          inputRef.current.setSelectionRange(query.length, query.length);
+        }
+      }, 150);
+    }
+  }, [isOpen, query]);
 
-  // Get trending searches
+  // Save recent search with debouncing
+  const saveRecentSearch = useCallback((searchTerm: string) => {
+    if (!searchTerm.trim()) return;
+    
+    setRecentSearches(prev => {
+      const updated = [searchTerm, ...prev.filter(s => s !== searchTerm)].slice(0, 5);
+      try {
+        localStorage.setItem("recentSearches", JSON.stringify(updated));
+      } catch (error) {
+        console.error("Error saving recent searches:", error);
+      }
+      return updated;
+    });
+  }, []);
+
+  // Get trending searches with caching
   const getTrendingSearches = useCallback((): SearchSuggestion[] => {
     return [
-      { text: "ESG professionals", type: "trending", icon: "👥" },
-      { text: "Safety regulations", type: "trending", icon: "📋" },
+      { text: "ESG professionals", type: "trending", icon: "👥", count: 156 },
+      { text: "Safety regulations", type: "trending", icon: "📋", count: 89 },
       { text: "Environmental compliance", type: "suggestion", icon: "🏢" },
       { text: "Upcoming events", type: "suggestion", icon: "📅" },
-      { text: "Risk management", type: "trending", icon: "⚠️" },
+      { text: "Risk management", type: "trending", icon: "⚠️", count: 234 },
       { text: "Sustainability", type: "suggestion", icon: "🌱" },
     ];
   }, []);
 
-  // Enhanced search with better categorization
-  const debouncedSearch = useCallback(
-    async (searchQuery: string) => {
-      if (!searchQuery.trim()) {
-        setResults([]);
-        setIsLoading(false);
-        return;
-      }
+  // Optimized search with better performance
+  const performSearch = useCallback(async (searchQuery: string) => {
+    if (!searchQuery.trim()) {
+      setResults([]);
+      setIsLoading(false);
+      return;
+    }
 
-      setIsLoading(true);
-      try {
-        const searchTerm = `%${searchQuery}%`;
-        const results: SearchResult[] = [];
-
-        // Search users/profiles (top priority)
-        const { data: users, error: usersError } = await supabase
+    setIsLoading(true);
+    try {
+      const searchTerm = `%${searchQuery}%`;
+      
+      // Use Promise.allSettled for parallel execution and better error handling
+      const [usersResult, articlesResult, postsResult] = await Promise.allSettled([
+        supabase
           .from("profiles")
           .select("id, full_name, username, headline, company, location, avatar_url, created_at")
           .or(`full_name.ilike.${searchTerm},username.ilike.${searchTerm},headline.ilike.${searchTerm},company.ilike.${searchTerm}`)
           .order("created_at", { ascending: false })
-          .limit(4);
-
-        if (usersError) {
-          console.error("Error searching users:", usersError);
-        } else if (users) {
-          users.forEach((user) => {
-            results.push({
-              id: user.id,
-              type: "user",
-              title: user.full_name || user.username || "Unknown User",
-              content: user.headline || user.company,
-              author: user.full_name || user.username,
-              authorAvatar: user.avatar_url,
-              timestamp: user.created_at,
-              url: `/profile/${user.username}`,
-              metadata: {
-                location: user.location,
-                company: user.company,
-              },
-            });
-          });
-        }
-
-        // Search articles
-        const { data: articles, error: articlesError } = await supabase
+          .limit(4),
+        supabase
           .from("articles")
           .select(`
-            id,
-            title,
-            excerpt,
-            views,
-            created_at,
-            profiles!inner (
-              full_name,
-              avatar_url
-            )
+            id, title, excerpt, views, created_at,
+            profiles!inner (full_name, avatar_url)
           `)
           .or(`title.ilike.${searchTerm},excerpt.ilike.${searchTerm}`)
           .eq("published", true)
           .order("views", { ascending: false })
-          .limit(4);
-
-        if (articlesError) {
-          console.error("Error searching articles:", articlesError);
-        } else if (articles) {
-          articles.forEach((article) => {
-            // Handle profiles field properly - it might be an array or object
-            const author = Array.isArray(article.profiles) ? article.profiles[0] : article.profiles;
-            
-            results.push({
-              id: article.id,
-              type: "article",
-              title: article.title,
-              content: article.excerpt,
-              author: author?.full_name || "Unknown Author",
-              authorAvatar: author?.avatar_url,
-              timestamp: article.created_at,
-              url: `/articles/${article.id}`,
-              metadata: {
-                views: article.views,
-              },
-            });
-          });
-        }
-
-        // Search posts
-        const { data: posts, error: postsError } = await supabase
+          .limit(4),
+        supabase
           .from("posts")
           .select(`
-            id,
-            content,
-            created_at,
-            profiles!inner (
-              full_name,
-              avatar_url
-            )
+            id, content, created_at,
+            profiles!inner (full_name, avatar_url)
           `)
           .ilike("content", searchTerm)
           .order("created_at", { ascending: false })
-          .limit(4);
+          .limit(4)
+      ]);
 
-        if (postsError) {
-          console.error("Error searching posts:", postsError);
-        } else if (posts) {
-          posts.forEach((post) => {
-            // Handle profiles field properly - it might be an array or object
-            const author = Array.isArray(post.profiles) ? post.profiles[0] : post.profiles;
-            
-            results.push({
-              id: post.id,
-              type: "post",
-              title: post.content.substring(0, 50) + (post.content.length > 50 ? "..." : ""),
-              content: post.content,
-              author: author?.full_name || "Anonymous",
-              authorAvatar: author?.avatar_url,
-              timestamp: post.created_at,
-              url: `/posts/${post.id}`,
-            });
-          });
-        }
+      const results: SearchResult[] = [];
 
-        // Search events
-        const { data: events, error: eventsError } = await supabase
-          .from("events")
-          .select(`
-            id,
-            title,
-            description,
-            created_at,
-            profiles!inner (
-              full_name,
-              avatar_url
-            )
-          `)
-          .or(`title.ilike.${searchTerm},description.ilike.${searchTerm}`)
-          .order("created_at", { ascending: false })
-          .limit(3);
-
-        if (eventsError) {
-          console.error("Error searching events:", eventsError);
-        } else if (events) {
-          events.forEach((event) => {
-            // Handle profiles field properly - it might be an array or object
-            const author = Array.isArray(event.profiles) ? event.profiles[0] : event.profiles;
-            
-            results.push({
-              id: event.id,
-              type: "event",
-              title: event.title,
-              content: event.description,
-              author: author?.full_name || "Unknown Author",
-              authorAvatar: author?.avatar_url,
-              timestamp: event.created_at,
-              url: `/events/${event.id}`,
-            });
-          });
-        }
-
-        setResults(results);
-      } catch (error) {
-        console.error("Search error:", error);
-        toast({
-          title: "Search Error",
-          description: "Failed to perform search. Please try again.",
-        });
-      } finally {
-        setIsLoading(false);
+      // Process users
+      if (usersResult.status === "fulfilled" && usersResult.value.data) {
+        results.push(...usersResult.value.data.map(user => ({
+          id: user.id,
+          type: "user" as const,
+          title: user.full_name || user.username || "Unknown User",
+          content: user.headline || user.company,
+          author: user.full_name || user.username,
+          authorAvatar: user.avatar_url,
+          timestamp: user.created_at,
+          url: `/profile/${user.username}`,
+          metadata: {
+            location: user.location,
+            company: user.company,
+          },
+        })));
       }
-    },
-    [toast]
-  );
 
+      // Process articles
+      if (articlesResult.status === "fulfilled" && articlesResult.value.data) {
+        results.push(...articlesResult.value.data.map(article => {
+          const author = Array.isArray(article.profiles) ? article.profiles[0] : article.profiles;
+          return {
+            id: article.id,
+            type: "article" as const,
+            title: article.title,
+            content: article.excerpt,
+            author: author?.full_name || "Unknown Author",
+            authorAvatar: author?.avatar_url,
+            timestamp: article.created_at,
+            url: `/articles/${article.id}`,
+            metadata: {
+              views: article.views,
+            },
+          };
+        }));
+      }
+
+      // Process posts
+      if (postsResult.status === "fulfilled" && postsResult.value.data) {
+        results.push(...postsResult.value.data.map(post => {
+          const author = Array.isArray(post.profiles) ? post.profiles[0] : post.profiles;
+          const cleanContent = post.content
+            .replace(/<[^>]*>/g, '')
+            .replace(/\s+/g, ' ')
+            .trim();
+          
+          return {
+            id: post.id,
+            type: "post" as const,
+            title: cleanContent.length > 60 ? cleanContent.substring(0, 60) + "..." : cleanContent,
+            content: cleanContent,
+            author: author?.full_name || "Anonymous",
+            authorAvatar: author?.avatar_url,
+            timestamp: post.created_at,
+            url: `/posts/${post.id}`,
+          };
+        }));
+      }
+
+      setResults(results);
+    } catch (error) {
+      console.error("Search error:", error);
+      toast({
+        title: "Search Error",
+        description: "Failed to perform search. Please try again.",
+        variant: "destructive",
+      });
+      setResults([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [toast]);
+
+  // Debounced search with proper memoization
+  const debouncedSearch = useCallback((searchQuery: string) => {
+    // Clear existing timeout
+    if (searchTimeout) {
+      clearTimeout(searchTimeout);
+    }
+
+    // Set new timeout
+    const timeout = setTimeout(() => {
+      performSearch(searchQuery);
+    }, 300);
+
+    setSearchTimeout(timeout);
+  }, [performSearch]); // Removed searchTimeout from dependencies
+
+  // Cleanup timeout on unmount
   useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      debouncedSearch(query);
-    }, 200);
+    return () => {
+      if (searchTimeout) {
+        clearTimeout(searchTimeout);
+      }
+    };
+  }, [searchTimeout]);
 
-    return () => clearTimeout(timeoutId);
-  }, [query, debouncedSearch]);
+  // Trigger search when query changes
+  useEffect(() => {
+    if (query.trim()) {
+      debouncedSearch(query);
+    } else {
+      setResults([]);
+      setIsLoading(false);
+    }
+  }, [query]); // Removed debouncedSearch from dependencies to prevent infinite loops
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -473,9 +477,9 @@ export function MobileSearch() {
 
   return (
     <>
-      <div className="relative w-full">
+      {/* Main Search Input - Trigger */}
+      <div className="relative w-full group">
         <Input
-          ref={inputRef}
           type="text"
           value={query}
           onChange={handleInputChange}
@@ -483,7 +487,7 @@ export function MobileSearch() {
           onClick={handleInputClick}
           onKeyDown={handleKeyDown}
           placeholder="Search people, articles, posts..."
-          className="w-full pl-3 pr-10 bg-background/50 backdrop-blur-sm border-border/50 hover:bg-background/80 transition-all duration-200"
+          className="w-full pl-3 pr-10 bg-background/60 backdrop-blur-md border-border/40 hover:bg-background/80 focus:bg-background/90 transition-all duration-300 group-hover:border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/20"
           style={{ fontSize: '14px' }}
         />
         {query && (
@@ -491,7 +495,7 @@ export function MobileSearch() {
             variant="ghost"
             size="sm"
             onClick={handleClearSearch}
-            className="absolute right-2 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0 hover:bg-accent"
+            className="absolute right-2 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0 hover:bg-accent/50 transition-all duration-200 opacity-0 group-hover:opacity-100"
           >
             <X className="h-3 w-3" />
           </Button>
@@ -500,38 +504,47 @@ export function MobileSearch() {
           variant="ghost"
           size="sm"
           onClick={handleSearchIconClick}
-          className="absolute right-2 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0 hover:bg-accent"
+          className="absolute right-2 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0 hover:bg-accent/50 transition-all duration-200"
         >
           <Search className="h-3 w-3" />
         </Button>
       </div>
 
+      {/* Enhanced Search Dialog */}
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent className="fixed inset-0 w-full h-full max-w-none p-0 m-0 rounded-none border-0 bg-transparent">
-          <div className="absolute inset-0 bg-background/80 backdrop-blur-md" />
-          <div className="relative w-full h-full flex flex-col bg-background/95 backdrop-blur-sm">
-            {/* Header */}
-            <div className="flex-shrink-0 p-4 border-b border-border/50 bg-background/80 backdrop-blur-sm">
+          <div className="absolute inset-0 bg-background/90 backdrop-blur-xl" />
+          <div className="relative w-full h-full flex flex-col bg-gradient-to-br from-background/95 via-background/90 to-background/95 backdrop-blur-sm">
+            {/* Modern Header */}
+            <div className="flex-shrink-0 p-4 border-b border-border/30 bg-background/80 backdrop-blur-md shadow-sm">
               <div className="flex items-center gap-3">
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => setIsOpen(false)}
-                  className="p-2 h-10 w-10 rounded-full hover:bg-accent/50 transition-colors"
+                  className="p-2 h-10 w-10 rounded-full hover:bg-accent/50 transition-all duration-200 hover:scale-105"
                 >
                   <ArrowLeft className="h-5 w-5" />
                 </Button>
                 <div className="flex-1 relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <div className="flex-1 py-3 px-10 text-sm text-muted-foreground bg-background/50 backdrop-blur-sm rounded-lg border border-border/50 min-h-[44px] flex items-center">
-                    {query ? `Searching for "${query}"...` : "Type to search people, articles, posts..."}
-                  </div>
+                  <Input
+                    ref={inputRef}
+                    type="text"
+                    value={query}
+                    onChange={handleInputChange}
+                    onKeyDown={handleKeyDown}
+                    placeholder="Type to search people, articles, posts..."
+                    className="w-full pl-10 pr-10 bg-background/60 backdrop-blur-md border-border/40 hover:bg-background/80 focus:bg-background/90 transition-all duration-300 focus:border-primary focus:ring-2 focus:ring-primary/20"
+                    style={{ fontSize: '14px' }}
+                    autoFocus
+                  />
                   {query && (
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={handleClearSearch}
-                      className="absolute right-1 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0 hover:bg-accent/50"
+                      className="absolute right-1 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0 hover:bg-accent/50 transition-all duration-200"
                     >
                       <X className="h-4 w-4" />
                     </Button>
@@ -540,109 +553,130 @@ export function MobileSearch() {
               </div>
             </div>
 
-            {/* Content */}
+            {/* Enhanced Content Area */}
             <div className="flex-1 overflow-hidden">
-              <ScrollArea className="h-full">
-                <div className="p-4 space-y-4">
+              <div className="h-full overflow-y-auto">
+                <div className="p-4 space-y-6">
                   {isLoading ? (
-                    <div className="flex items-center justify-center py-12">
-                      <div className="flex items-center gap-3">
-                        <div className="animate-spin rounded-full h-6 w-6 border-2 border-primary border-t-transparent"></div>
-                        <span className="text-sm text-muted-foreground">Searching...</span>
+                    <div className="flex items-center justify-center py-16">
+                      <div className="flex flex-col items-center gap-4">
+                        <div className="relative">
+                          <div className="animate-spin rounded-full h-8 w-8 border-3 border-primary/20 border-t-primary"></div>
+                          <div className="absolute inset-0 rounded-full border-2 border-primary/10 animate-pulse"></div>
+                        </div>
+                        <div className="text-center">
+                          <p className="text-sm font-medium text-muted-foreground">Searching...</p>
+                          <p className="text-xs text-muted-foreground/70 mt-1">Finding the best results for you</p>
+                        </div>
                       </div>
                     </div>
                   ) : results.length > 0 ? (
-                    <div className="space-y-4">
+                    <div className="space-y-6">
                       {Object.entries(groupedResults).map(([type, typeResults]) => (
-                        <div key={type} className="space-y-3">
+                        <div key={type} className="space-y-3 animate-in slide-in-from-bottom-2 duration-300">
                           <div className="flex items-center gap-2 px-2 py-1">
-                            {getTypeIcon(type)}
-                            <h3 className="text-sm font-medium text-muted-foreground">
+                            <div className="p-1 rounded-md bg-primary/10">
+                              {getTypeIcon(type)}
+                            </div>
+                            <h3 className="text-sm font-semibold text-muted-foreground">
                               {getTypeLabel(type)} ({typeResults.length})
                             </h3>
                           </div>
                           <div className="space-y-2">
-                            {typeResults.map((result) => (
-                              <SearchResultItem
+                            {typeResults.map((result, index) => (
+                              <div
                                 key={`${result.type}-${result.id}`}
-                                result={result}
-                                onClose={handleCloseResults}
-                              />
+                                className="animate-in slide-in-from-bottom-2 duration-300"
+                                style={{ animationDelay: `${index * 50}ms` }}
+                              >
+                                <SearchResultItem
+                                  result={result}
+                                  onClose={handleCloseResults}
+                                />
+                              </div>
                             ))}
                           </div>
                         </div>
                       ))}
                       
-                      {/* View All Results Link */}
+                      {/* Enhanced View All Results Link */}
                       {query.trim() && (
-                        <div className="pt-4 border-t border-border/50">
+                        <div className="pt-6 border-t border-border/30 animate-in slide-in-from-bottom-2 duration-300">
                           <Link 
                             href={`/search?q=${encodeURIComponent(query)}`}
                             onClick={handleCloseResults}
-                            className="flex items-center justify-center gap-2 p-3 text-sm text-primary hover:bg-accent/50 rounded-lg transition-colors"
+                            className="flex items-center justify-center gap-3 p-4 text-sm font-medium text-primary hover:bg-primary/5 rounded-xl transition-all duration-200 hover:scale-[1.02] border border-primary/20 hover:border-primary/40"
                           >
                             <span>View all results for "{query}"</span>
-                            <ArrowRight className="h-3 w-3" />
+                            <ArrowRight className="h-4 w-4" />
                           </Link>
                         </div>
                       )}
                     </div>
                   ) : query.length > 0 ? (
-                    <div className="text-center py-12">
-                      <div className="flex flex-col items-center gap-3">
-                        <div className="h-12 w-12 rounded-full bg-muted/50 flex items-center justify-center">
-                          <Search className="h-6 w-6 text-muted-foreground" />
+                    <div className="text-center py-16 animate-in slide-in-from-bottom-2 duration-300">
+                      <div className="flex flex-col items-center gap-4">
+                        <div className="h-16 w-16 rounded-full bg-muted/50 flex items-center justify-center">
+                          <Search className="h-8 w-8 text-muted-foreground" />
                         </div>
                         <div>
-                          <p className="text-sm font-medium text-muted-foreground">No results found</p>
-                          <p className="text-xs text-muted-foreground mt-1">Try different keywords</p>
+                          <p className="text-base font-medium text-muted-foreground">No results found</p>
+                          <p className="text-sm text-muted-foreground/70 mt-1">Try different keywords or check your spelling</p>
                         </div>
                       </div>
                     </div>
                   ) : (
-                    <div className="space-y-6">
-                      {/* Recent Searches */}
+                    <div className="space-y-8 animate-in slide-in-from-bottom-2 duration-300">
+                      {/* Enhanced Recent Searches */}
                       {recentSearches.length > 0 && (
-                        <div className="space-y-3">
+                        <div className="space-y-4">
                           <div className="flex items-center gap-2 px-2 py-1">
-                            <Clock className="h-4 w-4 text-muted-foreground" />
-                            <h3 className="text-sm font-medium text-muted-foreground">Recent Searches</h3>
+                            <div className="p-1 rounded-md bg-blue-500/10">
+                              <Clock className="h-4 w-4 text-blue-500" />
+                            </div>
+                            <h3 className="text-sm font-semibold text-muted-foreground">Recent Searches</h3>
                           </div>
-                          <div className="space-y-1">
+                          <div className="space-y-2">
                             {recentSearches.map((searchTerm, index) => (
                               <button
                                 key={searchTerm}
                                 onClick={() => handleRecentSearchClick(searchTerm)}
-                                className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-accent/50 transition-colors text-left"
+                                className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-accent/50 transition-all duration-200 text-left group hover:scale-[1.02]"
+                                style={{ animationDelay: `${index * 100}ms` }}
                               >
-                                <Clock className="h-4 w-4 text-muted-foreground" />
-                                <span className="text-sm">{searchTerm}</span>
+                                <Clock className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                                <span className="text-sm group-hover:text-primary transition-colors">{searchTerm}</span>
                               </button>
                             ))}
                           </div>
                         </div>
                       )}
 
-                      {/* Trending Searches */}
-                      <div className="space-y-3">
+                      {/* Enhanced Trending Searches */}
+                      <div className="space-y-4">
                         <div className="flex items-center gap-2 px-2 py-1">
-                          <TrendingUp className="h-4 w-4 text-muted-foreground" />
-                          <h3 className="text-sm font-medium text-muted-foreground">Trending Searches</h3>
+                          <div className="p-1 rounded-md bg-orange-500/10">
+                            <TrendingUp className="h-4 w-4 text-orange-500" />
+                          </div>
+                          <h3 className="text-sm font-semibold text-muted-foreground">Trending Searches</h3>
                         </div>
-                        <div className="space-y-1">
+                        <div className="space-y-2">
                           {trendingSearches.map((suggestion, index) => (
                             <button
                               key={suggestion.text}
                               onClick={() => handleTrendingClick(suggestion)}
-                              className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-accent/50 transition-colors text-left"
+                              className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-accent/50 transition-all duration-200 text-left group hover:scale-[1.02]"
+                              style={{ animationDelay: `${index * 100}ms` }}
                             >
-                              <span className="text-lg">{suggestion.icon}</span>
-                              <span className="text-sm">{suggestion.text}</span>
+                              <span className="text-lg group-hover:scale-110 transition-transform">{suggestion.icon}</span>
+                              <span className="text-sm group-hover:text-primary transition-colors">{suggestion.text}</span>
                               {suggestion.type === "trending" && (
                                 <div className="flex items-center gap-1 ml-auto">
                                   <Sparkles className="h-3 w-3 text-orange-500" />
                                   {suggestion.count && (
-                                    <span className="text-xs text-muted-foreground">{suggestion.count}</span>
+                                    <span className="text-xs text-muted-foreground bg-orange-100 text-orange-700 px-2 py-1 rounded-full">
+                                      {suggestion.count}
+                                    </span>
                                   )}
                                 </div>
                               )}
@@ -651,23 +685,23 @@ export function MobileSearch() {
                         </div>
                       </div>
 
-                      {/* Quick Actions */}
-                      <div className="pt-4 border-t border-border/50">
+                      {/* Enhanced Quick Actions */}
+                      <div className="pt-6 border-t border-border/30">
                         <div className="grid grid-cols-2 gap-3">
                           <Link 
                             href="/search"
                             onClick={handleCloseResults}
-                            className="flex items-center justify-center gap-2 p-3 text-sm text-primary hover:bg-accent/50 rounded-lg transition-colors"
+                            className="flex items-center justify-center gap-2 p-4 text-sm font-medium text-primary hover:bg-primary/5 rounded-xl transition-all duration-200 hover:scale-[1.02] border border-primary/20 hover:border-primary/40"
                           >
-                            <Search className="h-3 w-3" />
+                            <Search className="h-4 w-4" />
                             <span>Advanced Search</span>
                           </Link>
                           <Link 
                             href="/articles"
                             onClick={handleCloseResults}
-                            className="flex items-center justify-center gap-2 p-3 text-sm text-primary hover:bg-accent/50 rounded-lg transition-colors"
+                            className="flex items-center justify-center gap-2 p-4 text-sm font-medium text-primary hover:bg-primary/5 rounded-xl transition-all duration-200 hover:scale-[1.02] border border-primary/20 hover:border-primary/40"
                           >
-                            <FileText className="h-3 w-3" />
+                            <FileText className="h-4 w-4" />
                             <span>Browse Articles</span>
                           </Link>
                         </div>
@@ -675,7 +709,7 @@ export function MobileSearch() {
                     </div>
                   )}
                 </div>
-              </ScrollArea>
+              </div>
             </div>
           </div>
         </DialogContent>

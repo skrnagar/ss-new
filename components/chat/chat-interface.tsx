@@ -44,7 +44,7 @@ export function ChatInterface({ onBack, showBackButton = false, className = "" }
   const [searchQuery, setSearchQuery] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { session, isLoading } = useAuth();
-  const { conversations, loading, error } = useConversations();
+  const { conversations, loading, error, refreshConversations, updateKey } = useConversations();
   const user = session?.user;
 
   // Conversations are now managed by the context
@@ -217,15 +217,7 @@ export function ChatInterface({ onBack, showBackButton = false, className = "" }
                 conversationId={selectedConversation}
                 otherUser={selectedUser}
                 currentUserId={user.id}
-                onMessageSent={() => {
-                  // Refresh conversations when a message is sent
-                  console.log('Message sent, refreshing conversations...');
-                  
-                  // Trigger conversation list refresh
-                  if (typeof window !== 'undefined') {
-                    window.dispatchEvent(new CustomEvent('refreshConversations'));
-                  }
-                }}
+                onMessageSent={refreshConversations}
               />
             </div>
           </div>
@@ -290,7 +282,7 @@ export function ChatInterface({ onBack, showBackButton = false, className = "" }
 
                     return (
                       <div
-                        key={conversation.id}
+                        key={`${conversation.id}-${updateKey}`}
                         onClick={() => {
                           setSelectedConversation(conversation.id);
                           setSelectedUser(participant);
