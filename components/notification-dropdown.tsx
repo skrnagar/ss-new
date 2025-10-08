@@ -109,7 +109,11 @@ export function NotificationDropdown({ userId }: { userId: string }) {
     if (!userId) return;
 
     const channel = supabase
-      .channel(`notifications_${userId}`)
+      .channel(`notifications_${userId}`, {
+        config: {
+          broadcast: { self: false },
+        },
+      })
       .on(
         "postgres_changes",
         {

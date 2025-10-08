@@ -139,12 +139,20 @@ function MessageBadge() {
   useEffect(() => {
     if (!user?.id) return;
     let ignore = false;
+    
     async function fetchUnread() {
-      if (!user?.id) return;
+      if (!user?.id || ignore) return;
+      
       const { data, error } = await supabase
         .from("conversation_participants")
         .select(`conversation:conversations!inner(id, messages(seen, sender_id))`)
         .eq("profile_id", user.id);
+      
+      if (error) {
+        console.error('Error fetching unread count:', error);
+        return;
+      }
+      
       if (!ignore && data) {
         let count = 0;
         data.forEach((item: any) => {
@@ -154,12 +162,29 @@ function MessageBadge() {
         setUnreadCount(count);
       }
     }
+    
     fetchUnread();
-    // Optionally, subscribe to real-time updates
+    
+    // Set up real-time subscription with proper configuration
     const channel = supabase
-      .channel('messages_badge')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, fetchUnread)
+      .channel(`messages_badge_${user.id}`, {
+        config: {
+          broadcast: { self: false },
+        },
+      })
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'messages',
+        },
+        () => {
+          fetchUnread();
+        }
+      )
       .subscribe();
+    
     return () => {
       ignore = true;
       supabase.removeChannel(channel);

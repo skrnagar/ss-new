@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -69,13 +69,7 @@ export default function SearchPage() {
   const [sortBy, setSortBy] = useState("relevance");
   const [filterType, setFilterType] = useState("all");
 
-  useEffect(() => {
-    if (query) {
-      performSearch(query);
-    }
-  }, [query, sortBy, filterType]);
-
-  const performSearch = async (searchQuery: string) => {
+  const performSearch = useCallback(async (searchQuery: string) => {
     if (!searchQuery.trim()) {
       setResults([]);
       return;
@@ -84,114 +78,121 @@ export default function SearchPage() {
     setIsLoading(true);
     try {
       const searchTerm = `%${searchQuery}%`;
+      
+      // Use Promise.allSettled for parallel execution and better error handling
+      const [profilesResult, articlesResult, postsResult] = await Promise.allSettled([
+        // Search profiles
+        filterType === "all" || filterType === "profiles" 
+          ? supabase
+              .from("profiles")
+              .select("id, full_name, username, headline, company, location, avatar_url, created_at")
+              .or(`full_name.ilike.${searchTerm},username.ilike.${searchTerm},headline.ilike.${searchTerm},company.ilike.${searchTerm}`)
+              .limit(20)
+          : Promise.resolve({ data: null }),
+        
+        // Search articles
+        filterType === "all" || filterType === "articles"
+          ? supabase
+              .from("articles")
+              .select(`
+                id, title, excerpt, views, created_at, read_time,
+                author:profiles!articles_author_id_fkey(full_name, avatar_url)
+              `)
+              .or(`title.ilike.${searchTerm},excerpt.ilike.${searchTerm}`)
+              .eq("published", true)
+              .limit(20)
+          : Promise.resolve({ data: null }),
+        
+        // Search posts
+        filterType === "all" || filterType === "posts"
+          ? supabase
+              .from("posts")
+              .select(`
+                id, content, created_at,
+                author:profiles!posts_user_id_fkey(full_name, avatar_url)
+              `)
+              .ilike("content", searchTerm)
+              .limit(20)
+          : Promise.resolve({ data: null })
+      ]);
+
       let allResults: SearchResult[] = [];
 
-      // Search profiles
-      if (filterType === "all" || filterType === "profiles") {
-        const { data: profiles } = await supabase
-          .from("profiles")
-          .select("id, full_name, username, headline, company, location, avatar_url, created_at")
-          .or(`full_name.ilike.${searchTerm},username.ilike.${searchTerm},headline.ilike.${searchTerm},company.ilike.${searchTerm}`)
-          .limit(20);
+      // Process profiles
+      if (profilesResult.status === "fulfilled" && profilesResult.value.data) {
+        allResults.push(...profilesResult.value.data.map(profile => ({
+          id: profile.id,
+          type: "profile" as const,
+          title: profile.full_name || profile.username || "Unknown User",
+          subtitle: profile.headline,
+          description: profile.company,
+          avatar: profile.avatar_url,
+          url: `/profile/${profile.username}`,
+          metadata: {
+            location: profile.location,
+            company: profile.company,
+            date: new Date(profile.created_at).toLocaleDateString(),
+          },
+        })));
+      }
 
-        if (profiles) {
-          allResults.push(...profiles.map(profile => ({
-            id: profile.id,
-            type: "profile" as const,
-            title: profile.full_name || profile.username || "Unknown User",
-            subtitle: profile.headline,
-            description: profile.company,
-            avatar: profile.avatar_url,
-            url: `/profile/${profile.username}`,
+      // Process articles
+      if (articlesResult.status === "fulfilled" && articlesResult.value.data) {
+        allResults.push(...articlesResult.value.data.map(article => {
+          // Handle author field properly - it might be an array or object
+          const author = Array.isArray(article.author) ? article.author[0] : article.author;
+          
+          return {
+            id: article.id,
+            type: "article" as const,
+            title: article.title,
+            subtitle: author?.full_name || "Unknown Author",
+            description: article.excerpt,
+            avatar: author?.avatar_url,
+            url: `/articles/${article.id}`,
             metadata: {
-              location: profile.location,
-              company: profile.company,
-              date: new Date(profile.created_at).toLocaleDateString(),
+              date: new Date(article.created_at).toLocaleDateString(),
+              views: article.views,
             },
-          })));
-        }
+          };
+        }));
       }
 
-      // Search articles
-      if (filterType === "all" || filterType === "articles") {
-        const { data: articles } = await supabase
-          .from("articles")
-          .select(`
-            id, title, excerpt, views, created_at, read_time,
-            author:profiles!articles_author_id_fkey(full_name, avatar_url)
-          `)
-          .or(`title.ilike.${searchTerm},excerpt.ilike.${searchTerm}`)
-          .eq("published", true)
-          .limit(20);
+      // Process posts
+      if (postsResult.status === "fulfilled" && postsResult.value.data) {
+        allResults.push(...postsResult.value.data.map(post => {
+          // Handle author field properly - it might be an array or object
+          const author = Array.isArray(post.author) ? post.author[0] : post.author;
+          
+          // Clean and format post content
+          const cleanContent = post.content
+            .replace(/<[^>]*>/g, '') // Remove HTML tags
+            .replace(/\s+/g, ' ') // Normalize whitespace
+            .trim();
+          
+          // Create a better title from content
+          const title = cleanContent.length > 60 
+            ? cleanContent.substring(0, 60) + "..." 
+            : cleanContent;
+          
+          // Create description from remaining content
+          const description = cleanContent.length > 60 
+            ? cleanContent.substring(60, 160) + (cleanContent.length > 160 ? "..." : "")
+            : "";
 
-        if (articles) {
-          allResults.push(...articles.map(article => {
-            // Handle author field properly - it might be an array or object
-            const author = Array.isArray(article.author) ? article.author[0] : article.author;
-            
-            return {
-              id: article.id,
-              type: "article" as const,
-              title: article.title,
-              subtitle: author?.full_name || "Unknown Author",
-              description: article.excerpt,
-              avatar: author?.avatar_url,
-              url: `/articles/${article.id}`,
-              metadata: {
-                date: new Date(article.created_at).toLocaleDateString(),
-                views: article.views,
-              },
-            };
-          }));
-        }
-      }
-
-      // Search posts
-      if (filterType === "all" || filterType === "posts") {
-        const { data: posts } = await supabase
-          .from("posts")
-          .select(`
-            id, content, created_at,
-            author:profiles!posts_user_id_fkey(full_name, avatar_url)
-          `)
-          .ilike("content", searchTerm)
-          .limit(20);
-
-        if (posts) {
-          allResults.push(...posts.map(post => {
-            // Handle author field properly - it might be an array or object
-            const author = Array.isArray(post.author) ? post.author[0] : post.author;
-            
-            // Clean and format post content
-            const cleanContent = post.content
-              .replace(/<[^>]*>/g, '') // Remove HTML tags
-              .replace(/\s+/g, ' ') // Normalize whitespace
-              .trim();
-            
-            // Create a better title from content
-            const title = cleanContent.length > 60 
-              ? cleanContent.substring(0, 60) + "..." 
-              : cleanContent;
-            
-            // Create description from remaining content
-            const description = cleanContent.length > 60 
-              ? cleanContent.substring(60, 160) + (cleanContent.length > 160 ? "..." : "")
-              : "";
-
-            return {
-              id: post.id,
-              type: "post" as const,
-              title: title,
-              subtitle: author?.full_name || "Anonymous",
-              description: description,
-              avatar: author?.avatar_url,
-              url: `/posts/${post.id}`,
-              metadata: {
-                date: new Date(post.created_at).toLocaleDateString(),
-              },
-            };
-          }));
-        }
+          return {
+            id: post.id,
+            type: "post" as const,
+            title: title,
+            subtitle: author?.full_name || "Anonymous",
+            description: description,
+            avatar: author?.avatar_url,
+            url: `/posts/${post.id}`,
+            metadata: {
+              date: new Date(post.created_at).toLocaleDateString(),
+            },
+          };
+        }));
       }
 
       // Sort results
@@ -203,7 +204,16 @@ export default function SearchPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [filterType, sortBy]);
+
+  useEffect(() => {
+    if (query) {
+      performSearch(query);
+    } else {
+      setResults([]);
+      setIsLoading(false);
+    }
+  }, [query, sortBy, filterType, performSearch]);
 
   const sortResults = (results: SearchResult[], sortBy: string) => {
     switch (sortBy) {

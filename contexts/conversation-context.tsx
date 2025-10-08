@@ -12,10 +12,12 @@ interface Conversation {
     avatar_url: string;
   }>;
   last_message?: {
+    id: string;
     content: string;
     created_at: string;
     seen: boolean;
-  };
+    sender_id: string;
+  } | null;
   unreadCount?: number;
 }
 
@@ -25,6 +27,7 @@ interface ConversationContextType {
   error: string | null;
   fetchConversations: () => Promise<void>;
   refreshConversations: () => void;
+  updateKey: number;
 }
 
 const ConversationContext = createContext<ConversationContextType | undefined>(undefined);
@@ -33,6 +36,7 @@ export function ConversationProvider({ children }: { children: React.ReactNode }
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [updateKey, setUpdateKey] = useState(0); // Force re-render key
   const { session } = useAuth();
   const user = session?.user;
 
@@ -43,65 +47,93 @@ export function ConversationProvider({ children }: { children: React.ReactNode }
     setError(null);
     
     try {
-      const { data, error } = await supabase
+      // First, get all conversation IDs for this user
+      const { data: userConversations, error: convError } = await supabase
         .from("conversation_participants")
+        .select("conversation_id")
+        .eq("profile_id", user.id);
+
+      if (convError) throw convError;
+      if (!userConversations || userConversations.length === 0) {
+        setConversations([]);
+        return;
+      }
+
+      const conversationIds = userConversations.map(c => c.conversation_id);
+
+      // Get conversation details with participants
+      const { data: conversationData, error: detailsError } = await supabase
+        .from("conversations")
         .select(`
-          conversation:conversations!inner (
-            id,
-            messages (
+          id,
+          conversation_participants!inner (
+            profiles!inner (
               id,
-              content,
-              created_at,
-              seen,
-              sender_id
-            ),
-            conversation_participants!inner (
-              profiles!inner (
-                id,
-                full_name,
-                avatar_url
-              )
+              full_name,
+              avatar_url
             )
           )
         `)
-        .eq("profile_id", user.id)
-        .order("created_at", { ascending: false });
+        .in('id', conversationIds);
 
-      if (error) throw error;
-      if (!data) return;
+      if (detailsError) throw detailsError;
+      if (!conversationData) return;
 
-      // Process conversations
-      let formattedConversations = (data as any[]).map((item) => {
-        const messages = item.conversation?.messages || [];
-        // Find the latest message (by created_at)
-        const latestMessage = messages.reduce((latest: any, msg: any) => {
-          if (!latest) return msg;
-          return new Date(msg.created_at) > new Date(latest.created_at) ? msg : latest;
-        }, null);
-        const unreadCount = messages.filter((msg: any) => !msg.seen && msg.sender_id !== user?.id).length;
-        return {
-          id: item.conversation?.id || item.id,
-          participants:
-            item.conversation?.conversation_participants
-              ?.map((p: any) => p.profiles)
-              ?.filter((p: any) => p.id !== user?.id) || [],
-          last_message: latestMessage,
-          unreadCount,
-        };
-      });
+      // For each conversation, get the latest message and unread count
+      const formattedConversations = await Promise.all(
+        conversationData.map(async (conv: any) => {
+          // Get latest message for this conversation
+          // Using maybeSingle() instead of single() to handle empty results gracefully
+          const { data: latestMsg, error: msgError } = await supabase
+            .from("messages")
+            .select("id, content, created_at, seen, sender_id")
+            .eq("conversation_id", conv.id)
+            .order("created_at", { ascending: false })
+            .limit(1)
+            .maybeSingle(); // ✅ Returns null if no rows, doesn't throw error
 
-      // Sort conversations by latest message created_at descending
-      formattedConversations = formattedConversations.sort((a, b) => {
+          if (msgError) {
+            // Silently handle error - conversation might be empty
+          }
+
+          // Count unread messages
+          const { count: unreadCount, error: countError } = await supabase
+            .from("messages")
+            .select("*", { count: 'exact', head: true })
+            .eq("conversation_id", conv.id)
+            .eq("seen", false)
+            .neq("sender_id", user.id);
+
+          if (countError) {
+            // Silently handle count error
+          }
+
+          // Filter out current user from participants
+          const participants = conv.conversation_participants
+            .map((p: any) => p.profiles)
+            .filter((p: any) => p.id !== user.id);
+
+          return {
+            id: conv.id,
+            participants,
+            last_message: latestMsg || null,
+            unreadCount: unreadCount || 0,
+          };
+        })
+      );
+
+      // Sort conversations by latest message time
+      const sortedConversations = formattedConversations.sort((a, b) => {
         const aTime = a.last_message?.created_at ? new Date(a.last_message.created_at).getTime() : 0;
         const bTime = b.last_message?.created_at ? new Date(b.last_message.created_at).getTime() : 0;
         return bTime - aTime;
       });
 
-      const uniqueConversations = Array.from(
-        new Map(formattedConversations.map((conv) => [conv.id, conv])).values()
-      );
-
-      setConversations(uniqueConversations);
+      // Create a completely new array to ensure React detects the change
+      setConversations([...sortedConversations]);
+      
+      // Force re-render by updating key
+      setUpdateKey(prev => prev + 1);
     } catch (err: any) {
       console.error('Error fetching conversations:', err);
       setError(err?.message || 'Failed to fetch conversations');
@@ -119,7 +151,7 @@ export function ConversationProvider({ children }: { children: React.ReactNode }
     if (!user?.id) return;
 
     const channel = supabase
-      .channel(`conversations_${user.id}`)
+      .channel(`conversation_list_${user.id}`)
       .on(
         "postgres_changes",
         {
@@ -144,7 +176,13 @@ export function ConversationProvider({ children }: { children: React.ReactNode }
       )
       .subscribe();
 
+    // Polling backup - every 5 seconds
+    const pollingInterval = setInterval(() => {
+      fetchConversations();
+    }, 5000);
+
     return () => {
+      clearInterval(pollingInterval);
       supabase.removeChannel(channel);
     };
   }, [user?.id, fetchConversations]);
@@ -160,6 +198,7 @@ export function ConversationProvider({ children }: { children: React.ReactNode }
     error,
     fetchConversations,
     refreshConversations,
+    updateKey, // Include update key to trigger consumer re-renders
   };
 
   return (
