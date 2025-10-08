@@ -19,6 +19,7 @@ export function MobileNav() {
   const pathname = usePathname();
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [pendingConnectionsCount, setPendingConnectionsCount] = useState(0);
   const { session } = useAuth();
   const user = session?.user;
 
@@ -77,6 +78,54 @@ export function MobileNav() {
     };
   }, [user?.id]);
 
+  // Fetch pending connection requests
+  useEffect(() => {
+    if (!user?.id) return;
+    let ignore = false;
+    
+    async function fetchPendingConnections() {
+      if (!user?.id || ignore) return;
+      
+      const { count, error } = await supabase
+        .from("connections")
+        .select("*", { count: 'exact', head: true })
+        .eq("connected_user_id", user.id)
+        .eq("status", "pending");
+      
+      if (error) {
+        console.error('Error fetching pending connections:', error);
+        return;
+      }
+      
+      if (!ignore) {
+        setPendingConnectionsCount(count || 0);
+      }
+    }
+    
+    fetchPendingConnections();
+    
+    // Set up real-time subscription for connection changes
+    const channel = supabase
+      .channel(`mobile_connections_badge_${user.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'connections',
+        },
+        () => {
+          fetchPendingConnections();
+        }
+      )
+      .subscribe();
+    
+    return () => {
+      ignore = true;
+      supabase.removeChannel(channel);
+    };
+  }, [user?.id]);
+
   const handleMessagesClick = (e: React.MouseEvent) => {
     e.preventDefault();
     setIsChatOpen(true);
@@ -88,6 +137,7 @@ export function MobileNav() {
         <ul className="flex justify-around p-2">
           {navItems.map((item) => {
             const isActive = pathname === item.href;
+            const isNetwork = item.href === "/network";
             return (
               <li key={item.href}>
                 <Link
@@ -96,7 +146,14 @@ export function MobileNav() {
                     isActive ? "text-primary" : "text-gray-500"
                   } hover:text-primary transition-colors`}
                 >
-                  <item.icon className="w-5 h-5 mb-1" />
+                  <div className="relative">
+                    <item.icon className="w-5 h-5 mb-1" />
+                    {isNetwork && pendingConnectionsCount > 0 && (
+                      <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white rounded-full text-xs px-1.5 py-0.5 flex items-center justify-center min-w-[20px] min-h-[20px]">
+                        {pendingConnectionsCount}
+                      </span>
+                    )}
+                  </div>
                   <span className="text-xs">{item.label}</span>
                 </Link>
               </li>
