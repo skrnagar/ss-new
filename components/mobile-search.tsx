@@ -163,7 +163,7 @@ export function MobileSearch() {
   const [isLoading, setIsLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
-  const [searchTimeout, setSearchTimeout] = useState<NodeJS.Timeout | null>(null);
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const { toast } = useToast();
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -339,39 +339,34 @@ export function MobileSearch() {
     }
   }, [toast]);
 
-  // Debounced search with proper memoization
-  const debouncedSearch = useCallback((searchQuery: string) => {
-    // Clear existing timeout
-    if (searchTimeout) {
-      clearTimeout(searchTimeout);
-    }
-
-    // Set new timeout
-    const timeout = setTimeout(() => {
-      performSearch(searchQuery);
-    }, 300);
-
-    setSearchTimeout(timeout);
-  }, [performSearch]); // Removed searchTimeout from dependencies
-
   // Cleanup timeout on unmount
   useEffect(() => {
     return () => {
-      if (searchTimeout) {
-        clearTimeout(searchTimeout);
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
       }
     };
-  }, [searchTimeout]);
+  }, []);
 
   // Trigger search when query changes
   useEffect(() => {
-    if (query.trim()) {
-      debouncedSearch(query);
+    // Clear existing timeout
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+
+    if (query.trim().length > 0) {
+      setIsLoading(true);
+      
+      // Set new timeout
+      searchTimeoutRef.current = setTimeout(() => {
+        performSearch(query);
+      }, 300);
     } else {
       setResults([]);
       setIsLoading(false);
     }
-  }, [query]); // Removed debouncedSearch from dependencies to prevent infinite loops
+  }, [query, performSearch]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
