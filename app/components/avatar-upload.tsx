@@ -50,7 +50,7 @@ export function AvatarUpload({
         className={`h-34 w-34 shadow-lg bg-white transition-transform duration-200 ${isOwnProfile ? "cursor-pointer hover:scale-105 hover:shadow-2xl" : ""}`}
         onClick={handleAvatarClick}
       >
-        <div className="h-24 w-full rounded-full p-1 bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500">
+        <div className="">
           <div className="h-full w-full rounded-full bg-white p-1">
             <AvatarImage src={avatarUrl || "/placeholder-user.jpg"} alt={name} className="object-cover rounded-full" />
             <AvatarFallback className="rounded-full">{getInitials(name)}</AvatarFallback>

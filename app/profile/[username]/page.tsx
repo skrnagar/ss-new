@@ -5,6 +5,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Separator } from "@/components/ui/separator";
 import { UserActivity } from "@/components/user-activity";
 import { BioDisplay } from "@/components/bio-display";
+import { ExperienceSection } from "@/components/experience-section";
+import { EducationSection } from "@/components/education-section";
 import { createLegacyClient } from "@/lib/supabase-server";
 import { Briefcase, Calendar, Edit, MapPin, MessageSquare, User, UserPlus, Linkedin, Twitter, Globe, BadgeCheck, Users, FileText } from "lucide-react";
 import Link from "next/link";
@@ -252,6 +254,18 @@ export default async function ProfilePage({ params }: { params: { username: stri
                 <BioDisplay bio={profile.bio} isOwnProfile={isOwnProfile} />
               </CardContent>
             </Card>
+
+            {/* Experience Section */}
+            <div className="client-only-component" suppressHydrationWarning>
+              {/* @ts-ignore */}
+              <ExperienceSection userId={profile.id} isOwnProfile={isOwnProfile} />
+            </div>
+
+            {/* Education Section */}
+            <div className="client-only-component" suppressHydrationWarning>
+              {/* @ts-ignore */}
+              <EducationSection userId={profile.id} isOwnProfile={isOwnProfile} />
+            </div>
 
             {/* Activity Section */}
             <Card>
