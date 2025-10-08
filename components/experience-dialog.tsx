@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
+import { CompanySelector } from "@/components/company-selector";
 import { supabase } from "@/lib/supabase";
 import { useToast } from "@/hooks/use-toast";
 
@@ -36,6 +37,7 @@ export function ExperienceDialog({ isOpen, onClose, experience, userId }: Experi
   const [formData, setFormData] = useState({
     title: "",
     company: "",
+    company_id: null as string | null,
     employment_type: "",
     location: "",
     start_date: "",
@@ -50,6 +52,7 @@ export function ExperienceDialog({ isOpen, onClose, experience, userId }: Experi
       setFormData({
         title: experience.title || "",
         company: experience.company || "",
+        company_id: (experience as any).company_id || null,
         employment_type: experience.employment_type || "",
         location: experience.location || "",
         start_date: experience.start_date ? experience.start_date.substring(0, 7) : "",
@@ -62,6 +65,7 @@ export function ExperienceDialog({ isOpen, onClose, experience, userId }: Experi
       setFormData({
         title: "",
         company: "",
+        company_id: null,
         employment_type: "",
         location: "",
         start_date: "",
@@ -85,6 +89,7 @@ export function ExperienceDialog({ isOpen, onClose, experience, userId }: Experi
       user_id: userId,
       title: formData.title,
       company: formData.company,
+      company_id: formData.company_id,
       employment_type: formData.employment_type || null,
       location: formData.location || null,
       start_date: formData.start_date ? `${formData.start_date}-01` : null,
@@ -144,16 +149,16 @@ export function ExperienceDialog({ isOpen, onClose, experience, userId }: Experi
             />
           </div>
 
-          <div>
-            <Label htmlFor="company">Company *</Label>
-            <Input
-              id="company"
-              value={formData.company}
-              onChange={(e) => setFormData({ ...formData, company: e.target.value })}
-              placeholder="e.g. ABC Corporation"
-              required
-            />
-          </div>
+          <CompanySelector
+            value={formData.company}
+            companyId={formData.company_id}
+            onChange={(name, companyId) =>
+              setFormData({ ...formData, company: name, company_id: companyId ?? null })
+            }
+            label="Company"
+            placeholder="e.g. ABC Corporation"
+            required
+          />
 
           <div>
             <Label htmlFor="employment_type">Employment Type</Label>

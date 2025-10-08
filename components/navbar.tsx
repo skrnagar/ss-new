@@ -29,6 +29,7 @@ import { MobileSearch } from "@/components/mobile-search";
 import {
   Bell,
   Briefcase,
+  Building,
   Calendar,
   LogOut,
   MessageCircle,
@@ -89,6 +90,12 @@ const UserMenu = ({ user, profile, handleSignOut, isMobile }: any) => (
           <Link href="/settings" className="cursor-pointer">
             <Settings className="mr-2 h-4 w-4" />
             <span>Settings</span>
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link href="/companies/create" className="cursor-pointer">
+            <Building className="mr-2 h-4 w-4" />
+            <span>Create Company Page</span>
           </Link>
         </DropdownMenuItem>
         {!isMobile && (
@@ -203,6 +210,72 @@ function MessageBadge() {
   );
 }
 
+function ConnectionRequestBadge() {
+  const { session } = useAuth();
+  const user = session?.user;
+  const [pendingCount, setPendingCount] = useState(0);
+
+  useEffect(() => {
+    if (!user?.id) return;
+    let ignore = false;
+    
+    async function fetchPendingRequests() {
+      if (!user?.id || ignore) return;
+      
+      const { count, error } = await supabase
+        .from("connections")
+        .select("*", { count: 'exact', head: true })
+        .eq("connected_user_id", user.id)
+        .eq("status", "pending");
+      
+      if (error) {
+        console.error('Error fetching pending connections:', error);
+        return;
+      }
+      
+      if (!ignore) {
+        setPendingCount(count || 0);
+      }
+    }
+    
+    fetchPendingRequests();
+    
+    // Set up real-time subscription for connection changes
+    const channel = supabase
+      .channel(`connections_badge_${user.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'connections',
+        },
+        () => {
+          fetchPendingRequests();
+        }
+      )
+      .subscribe();
+    
+    return () => {
+      ignore = true;
+      supabase.removeChannel(channel);
+    };
+  }, [user?.id]);
+
+  if (pendingCount === 0) {
+    return <Users className="h-5 w-5" />;
+  }
+
+  return (
+    <span className="relative">
+      <Users className="h-5 w-5" />
+      <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white rounded-full text-xs px-1.5 py-0.5 flex items-center justify-center min-w-[20px] min-h-[20px]">
+        {pendingCount > 99 ? "99+" : pendingCount}
+      </span>
+    </span>
+  );
+}
+
 const MobileHeader = ({ user, profile, handleSignOut }: any) => (
   <div className="flex items-center justify-between w-full gap-3 px-4 py-2">
     <Link href="/" className="flex items-center flex-shrink-0" prefetch={true}>
@@ -262,6 +335,11 @@ const DesktopHeader = ({ user, profile, handleSignOut }: any) => (
               <NavigationMenuLink className={navigationMenuTriggerStyle()}>Articles</NavigationMenuLink>
             </Link>
           </NavigationMenuItem>
+          <NavigationMenuItem>
+            <Link href="/companies" legacyBehavior passHref>
+              <NavigationMenuLink className={navigationMenuTriggerStyle()}>Companies</NavigationMenuLink>
+            </Link>
+          </NavigationMenuItem>
         </NavigationMenuList>
       </NavigationMenu>
     </div>
@@ -273,7 +351,7 @@ const DesktopHeader = ({ user, profile, handleSignOut }: any) => (
         <NavigationMenuList>
           <NavigationMenuItem>
             <NavigationMenuTrigger>
-              <Users className="h-5 w-5" />
+              <ConnectionRequestBadge />
             </NavigationMenuTrigger>
             <NavigationMenuContent>
               <div className="w-[300px] p-4">
