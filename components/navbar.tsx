@@ -252,11 +252,11 @@ const DesktopHeader = ({ user, profile, handleSignOut }: any) => (
               </NavigationMenuLink>
             </Link>
           </NavigationMenuItem>
-          <NavigationMenuItem>
+          {/* <NavigationMenuItem>
             <Link href="/learning" legacyBehavior passHref>
               <NavigationMenuLink className={navigationMenuTriggerStyle()}>Learning</NavigationMenuLink>
             </Link>
-          </NavigationMenuItem>
+          </NavigationMenuItem> */}
           <NavigationMenuItem>
             <Link href="/articles" legacyBehavior passHref>
               <NavigationMenuLink className={navigationMenuTriggerStyle()}>Articles</NavigationMenuLink>
@@ -296,18 +296,7 @@ const DesktopHeader = ({ user, profile, handleSignOut }: any) => (
                       </p>
                     </div>
                   </Link>
-                  <Link
-                    href="/network/professionals"
-                    className="flex items-center gap-2 p-2 rounded-md hover:bg-muted"
-                  >
-                    <Users className="h-4 w-4 text-primary" />
-                    <div>
-                      <div className="font-medium">Explore People</div>
-                      <p className="text-xs text-muted-foreground">
-                        Find ESG & EHS professionals
-                      </p>
-                    </div>
-                  </Link>
+                  
                   <Link
                     href="/groups"
                     className="flex items-center gap-2 p-2 rounded-md hover:bg-muted"
