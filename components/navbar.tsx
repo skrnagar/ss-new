@@ -432,7 +432,8 @@ export const Navbar = memo(function Navbar() {
   const handleSignOut = useCallback(async () => {
     await supabase.auth.signOut();
     toast({ title: "Signed out successfully" });
-    router.push("/");
+    router.push("/auth/login");
+    router.refresh(); // Force refresh to update header
   }, [router, toast]);
 
   return (

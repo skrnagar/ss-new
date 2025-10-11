@@ -67,13 +67,59 @@ export default function FeedPage() {
   const fetchPosts = async (pageNum = 1) => {
     const from = (pageNum - 1) * POSTS_PER_PAGE;
     const to = from + POSTS_PER_PAGE - 1;
-    const { data, error } = await supabase
+    
+    // Fetch regular posts
+    const { data: regularPosts, error: postsError } = await supabase
       .from("posts")
       .select("*, profile:profiles(*)")
       .order("created_at", { ascending: false })
       .range(from, to);
-    if (error) throw error;
-    return data;
+    
+    if (postsError) throw postsError;
+    
+    // Fetch company posts from followed companies
+    let companyPosts: any[] = [];
+    if (user?.id) {
+      // Get companies user follows
+      const { data: followedCompanies } = await supabase
+        .from("company_followers")
+        .select("company_id")
+        .eq("user_id", user.id);
+      
+      if (followedCompanies && followedCompanies.length > 0) {
+        const companyIds = followedCompanies.map(f => f.company_id);
+        
+        // Fetch posts from these companies
+        const { data: companyPostsData } = await supabase
+          .from("company_posts")
+          .select(`
+            *,
+            company:companies!inner(id, name, logo_url, slug),
+            profile:profiles!posted_by(id, username, full_name, avatar_url)
+          `)
+          .in("company_id", companyIds)
+          .order("created_at", { ascending: false })
+          .limit(5);
+        
+        if (companyPostsData) {
+          // Transform company posts to match post format
+          companyPosts = companyPostsData.map(cp => ({
+            ...cp,
+            is_company_post: true,
+            user_id: cp.posted_by,
+            // Map nested company data
+            company_info: cp.company,
+          }));
+        }
+      }
+    }
+    
+    // Merge and sort all posts by created_at
+    const allPosts = [...(regularPosts || []), ...companyPosts].sort(
+      (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    );
+    
+    return allPosts;
   };
 
   const fetchEvents = async () => {

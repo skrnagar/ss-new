@@ -86,11 +86,15 @@ export default function LoginPage() {
 
       toast({
         title: "Login successful",
-        description: "Redirecting to your dashboard...",
+        description: "Welcome back!",
       });
 
-      // Redirect to feed page after successful login
-      router.push("/feed");
+      // Use replace to go directly to feed without adding to history
+      // This prevents users from going back to login page after logging in
+      router.replace("/feed");
+      
+      // Refresh to ensure header updates
+      window.location.href = "/feed";
     } catch (_error) {
       toast({
         title: "An error occurred",
@@ -133,8 +137,8 @@ export default function LoginPage() {
       // If email verification is not required, redirect to profile setup
       if (!data.session) return;
 
-      // Redirect to profile setup immediately using router
-      router.push("/profile/setup");
+      // Redirect to profile setup using replace
+      router.replace("/profile/setup");
     } catch (_error) {
       toast({
         title: "An error occurred",

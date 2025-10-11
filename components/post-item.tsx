@@ -536,47 +536,78 @@ const PostItem = memo(function PostItem({ post, currentUser, onPostDeleted, onPo
     }
   };
 
-  if (!post?.profile) {
+  if (!post?.profile && !(post as any)?.is_company_post) {
     return null; // Don't render anything while loading
   }
+
+  const isCompanyPost = (post as any)?.is_company_post;
+  const companyInfo = (post as any)?.company_info;
 
   return (
     <Card className="mb-6 bg-white shadow-sm rounded-xl transition-shadow hover:shadow-md border border-gray-200">
       <CardContent className="pt-6 pb-2 px-6">
         <div className="flex justify-between items-start mb-4">
           <div className="flex items-start gap-4">
-            <ProfileLink profile={post.profile}>
-              <Avatar className="h-12 w-12">
-                <div className="h-full w-full rounded-full p-0.5 bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500">
-                  <div className="h-full w-full rounded-full bg-white p-0.5">
-                    <AvatarImage src={post.profile?.avatar_url} alt={post.profile?.full_name} className="object-cover rounded-full" />
-                    <AvatarFallback className="rounded-full">{getInitials(post.profile?.full_name || "User")}</AvatarFallback>
+            {isCompanyPost && companyInfo ? (
+              <>
+                <Link href={`/companies/${companyInfo.slug}`}>
+                  <Avatar className="h-12 w-12 rounded-lg">
+                    <AvatarImage src={companyInfo.logo_url} alt={companyInfo.name} />
+                    <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white rounded-lg">
+                      {companyInfo.name.charAt(0)}
+                    </AvatarFallback>
+                  </Avatar>
+                </Link>
+                <div>
+                  <Link href={`/companies/${companyInfo.slug}`} className="font-semibold text-lg text-gray-900 hover:underline">
+                    {companyInfo.name}
+                  </Link>
+                  <p className="text-sm text-muted-foreground font-medium">
+                    Company Update
+                    {post.profile && <span className="ml-1">• Posted by {post.profile.full_name}</span>}
+                  </p>
+                  <div className="flex items-center text-xs text-muted-foreground mt-1">
+                    <Clock className="h-3 w-3 mr-1" />
+                    <span>{formatDate(post.created_at)}</span>
                   </div>
                 </div>
-              </Avatar>
-            </ProfileLink>
-            <div>
-              <ProfileLink profile={post.profile} className="font-semibold text-lg text-gray-900 hover:underline">
-                {post.profile?.full_name || "Anonymous User"}
-              </ProfileLink>
-              <p className="text-sm text-muted-foreground font-medium">
-                {post.profile?.headline || post.profile?.position}
-                {post.profile?.company && <span className="ml-1">@ {post.profile?.company}</span>}
-              </p>
-              <div className="flex items-center text-xs text-muted-foreground mt-1">
-                <Clock className="h-3 w-3 mr-1" />
-                <span>{formatDate(post.created_at)}</span>
-                {post.updated_at && (() => {
-                  const createdTime = new Date(post.created_at).getTime();
-                  const updatedTime = new Date(post.updated_at).getTime();
-                  const diffInSeconds = Math.abs(updatedTime - createdTime) / 1000;
-                  // Only show "edited" if updated more than 10 seconds after creation
-                  return diffInSeconds > 10 && (
-                    <span className="ml-1 text-gray-400">(edited)</span>
-                  );
-                })()}
-              </div>
-            </div>
+              </>
+            ) : post.profile ? (
+              <>
+                <ProfileLink profile={post.profile}>
+                  <Avatar className="h-12 w-12">
+                    <div className="h-full w-full rounded-full p-0.5 bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500">
+                      <div className="h-full w-full rounded-full bg-white p-0.5">
+                        <AvatarImage src={post.profile.avatar_url} alt={post.profile.full_name} className="object-cover rounded-full" />
+                        <AvatarFallback className="rounded-full">{getInitials(post.profile.full_name || "User")}</AvatarFallback>
+                      </div>
+                    </div>
+                  </Avatar>
+                </ProfileLink>
+                <div>
+                  <ProfileLink profile={post.profile} className="font-semibold text-lg text-gray-900 hover:underline">
+                    {post.profile.full_name || "Anonymous User"}
+                  </ProfileLink>
+                  <p className="text-sm text-muted-foreground font-medium">
+                    {post.profile.headline || post.profile.position}
+                    {post.profile.company && <span className="ml-1">@ {post.profile.company}</span>}
+                  </p>
+                  <div className="flex items-center text-xs text-muted-foreground mt-1">
+                    <Clock className="h-3 w-3 mr-1" />
+                    <span>{formatDate(post.created_at)}</span>
+                    {post.updated_at && (() => {
+                      const createdTime = new Date(post.created_at).getTime();
+                      const updatedTime = new Date(post.updated_at).getTime();
+                      const diffInSeconds = Math.abs(updatedTime - createdTime) / 1000;
+                      // Only show "edited" if updated more than 10 seconds after creation
+                      return diffInSeconds > 10 && (
+                        <span className="ml-1 text-gray-400">(edited)</span>
+                      );
+                    })()}
+                  </div>
+                </div>
+              </>
+            ) : null}
           </div>
           {isAuthor && !isEditing && (
             <DropdownMenu>
