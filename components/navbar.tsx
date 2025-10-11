@@ -318,13 +318,13 @@ const DesktopHeader = ({ user, profile, handleSignOut }: any) => (
               <NavigationMenuLink className={navigationMenuTriggerStyle()}>Home</NavigationMenuLink>
             </Link>
           </NavigationMenuItem>
-          <NavigationMenuItem>
+          {/* <NavigationMenuItem>
             <Link href="/knowledge" legacyBehavior passHref>
               <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                 Knowledge Hub
               </NavigationMenuLink>
             </Link>
-          </NavigationMenuItem>
+          </NavigationMenuItem> */}
           {/* <NavigationMenuItem>
             <Link href="/learning" legacyBehavior passHref>
               <NavigationMenuLink className={navigationMenuTriggerStyle()}>Learning</NavigationMenuLink>
