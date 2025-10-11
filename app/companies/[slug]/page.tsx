@@ -78,6 +78,15 @@ export default async function CompanyPage({ params }: { params: { slug: string }
     .eq("is_current", true)
     .limit(12);
 
+  // Fetch active jobs
+  const { data: jobs } = await supabase
+    .from("jobs")
+    .select("id, title, location, employment_type, workplace_type, created_at, applications_count")
+    .eq("company_id", company.id)
+    .eq("is_active", true)
+    .order("created_at", { ascending: false })
+    .limit(5);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
       <div className="container mx-auto px-4 py-8">
@@ -259,6 +268,85 @@ export default async function CompanyPage({ params }: { params: { slug: string }
 
           {/* Sidebar */}
           <div className="space-y-6">
+            {/* Jobs Section */}
+            {jobs && jobs.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <div className="flex justify-between items-center">
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Briefcase className="h-5 w-5 text-primary" />
+                      Open Positions
+                    </CardTitle>
+                    {isAdmin && (
+                      <Button variant="ghost" size="sm" asChild>
+                        <Link href="/jobs/post">
+                          <Plus className="h-4 w-4" />
+                        </Link>
+                      </Button>
+                    )}
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {jobs.map((job: any) => (
+                      <Link
+                        key={job.id}
+                        href={`/jobs/${job.id}`}
+                        className="block p-3 rounded-lg border hover:border-primary hover:shadow-md transition-all"
+                      >
+                        <h4 className="font-semibold text-sm text-gray-900 mb-1">
+                          {job.title}
+                        </h4>
+                        {job.location && (
+                          <div className="flex items-center gap-1 text-xs text-gray-600 mb-1">
+                            <MapPin className="h-3 w-3" />
+                            <span>{job.location}</span>
+                          </div>
+                        )}
+                        <div className="flex items-center gap-2 flex-wrap">
+                          {job.workplace_type && (
+                            <Badge variant="secondary" className="text-xs">
+                              {job.workplace_type}
+                            </Badge>
+                          )}
+                          {job.employment_type && (
+                            <Badge variant="outline" className="text-xs">
+                              {job.employment_type}
+                            </Badge>
+                          )}
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                  <Button variant="outline" size="sm" className="w-full mt-3" asChild>
+                    <Link href={`/jobs?company=${slug}`}>
+                      See all jobs
+                    </Link>
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Post a Job CTA for Admins */}
+            {isAdmin && (!jobs || jobs.length === 0) && (
+              <Card className="bg-gradient-to-br from-blue-50 to-purple-50">
+                <CardHeader>
+                  <CardTitle className="text-lg">Hiring?</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-gray-700 mb-4">
+                    Post jobs to attract qualified candidates
+                  </p>
+                  <Button asChild className="w-full">
+                    <Link href="/jobs/post">
+                      <Plus className="h-4 w-4 mr-2" />
+                      Post a Job
+                    </Link>
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+
             {/* Employees */}
             {employees && employees.length > 0 && (
               <Card>

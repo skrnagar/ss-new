@@ -39,6 +39,8 @@ import {
   User,
   Users,
   BookOpen,
+  FileText,
+  Plus,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -339,6 +341,61 @@ const DesktopHeader = ({ user, profile, handleSignOut }: any) => (
             <Link href="/companies" legacyBehavior passHref>
               <NavigationMenuLink className={navigationMenuTriggerStyle()}>Companies</NavigationMenuLink>
             </Link>
+          </NavigationMenuItem>
+          <NavigationMenuItem>
+            <NavigationMenuTrigger>
+              <Briefcase className="h-5 w-5" />
+            </NavigationMenuTrigger>
+            <NavigationMenuContent>
+              <div className="w-[300px] p-4">
+                <div className="mb-3 pb-2 border-b">
+                  <h4 className="font-medium mb-1">Jobs</h4>
+                  <p className="text-xs text-muted-foreground">
+                    Find opportunities in ESG & EHS
+                  </p>
+                </div>
+                <div className="grid gap-3">
+                  <Link
+                    href="/jobs"
+                    className="flex items-center gap-2 p-2 rounded-md hover:bg-muted"
+                  >
+                    <Search className="h-4 w-4 text-primary" />
+                    <div>
+                      <div className="font-medium">Browse Jobs</div>
+                      <p className="text-xs text-muted-foreground">
+                        Explore job opportunities
+                      </p>
+                    </div>
+                  </Link>
+                  
+                  <Link
+                    href="/jobs/my-jobs"
+                    className="flex items-center gap-2 p-2 rounded-md hover:bg-muted"
+                  >
+                    <FileText className="h-4 w-4 text-primary" />
+                    <div>
+                      <div className="font-medium">My Jobs</div>
+                      <p className="text-xs text-muted-foreground">
+                        Applications & posted jobs
+                      </p>
+                    </div>
+                  </Link>
+                  
+                  <Link
+                    href="/jobs/post"
+                    className="flex items-center gap-2 p-2 rounded-md hover:bg-muted"
+                  >
+                    <Plus className="h-4 w-4 text-primary" />
+                    <div>
+                      <div className="font-medium">Post a Job</div>
+                      <p className="text-xs text-muted-foreground">
+                        Hire qualified professionals
+                      </p>
+                    </div>
+                  </Link>
+                </div>
+              </div>
+            </NavigationMenuContent>
           </NavigationMenuItem>
         </NavigationMenuList>
       </NavigationMenu>
