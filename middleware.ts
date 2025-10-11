@@ -94,7 +94,8 @@ export async function middleware(request: NextRequest) {
     // Check if the user is accessing auth routes while already authenticated
     const isAuthRoute = authRoutes.some((route) => path === route || path.startsWith(`${route}/`));
 
-    if (isAuthRoute && isAuthenticated && request.nextUrl.pathname === "/") {
+    if (isAuthRoute && isAuthenticated) {
+      // Redirect authenticated users trying to access auth pages to feed
       return NextResponse.redirect(new URL("/feed", request.url));
     }
 
