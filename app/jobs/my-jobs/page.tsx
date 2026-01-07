@@ -296,8 +296,28 @@ export default function MyJobsPage() {
                         </Badge>
                       </div>
                     </div>
-                    <div className="text-sm text-gray-500">
-                      Applied {formatDistanceToNow(new Date(application.applied_at), { addSuffix: true })}
+                    <div className="flex items-center justify-between pt-4 border-t">
+                      <div className="text-sm text-gray-500">
+                        Applied {formatDistanceToNow(new Date(application.applied_at), { addSuffix: true })}
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={async () => {
+                          if (confirm("Are you sure you want to withdraw this application?")) {
+                            const { error } = await supabase
+                              .from("job_applications")
+                              .delete()
+                              .eq("id", application.id);
+
+                            if (!error) {
+                              fetchApplications();
+                            }
+                          }
+                        }}
+                      >
+                        Withdraw
+                      </Button>
                     </div>
                   </CardContent>
                 </Card>
@@ -373,9 +393,17 @@ export default function MyJobsPage() {
                         </div>
                       </div>
                     </div>
-                    <div className="flex gap-2 pt-4 border-t">
+                    <div className="flex flex-wrap gap-2 pt-4 border-t">
                       <Button variant="outline" size="sm" asChild>
-                        <Link href={`/jobs/${job.id}`}>View</Link>
+                        <Link href={`/jobs/${job.id}`}>View Job</Link>
+                      </Button>
+                      <Button variant="default" size="sm" asChild>
+                        <Link href={`/jobs/${job.id}/applications`}>
+                          Applications ({job.applications_count})
+                        </Link>
+                      </Button>
+                      <Button variant="outline" size="sm" asChild>
+                        <Link href={`/jobs/${job.id}/analytics`}>Analytics</Link>
                       </Button>
                       <Button
                         variant="outline"

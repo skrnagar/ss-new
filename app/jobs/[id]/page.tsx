@@ -15,7 +15,8 @@ import {
   ArrowLeft,
   Bookmark,
   Share2,
-  Eye
+  Eye,
+  FileText
 } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -33,13 +34,13 @@ export default async function JobDetailPage({ params }: { params: { id: string }
     data: { session },
   } = await supabase.auth.getSession();
 
-  // Fetch job details
+  // Fetch job details with poster info
   const { data: job, error } = await supabase
     .from("jobs")
     .select(`
       *,
       companies(id, name, slug, logo_url, employee_count, industry),
-      profiles:posted_by(id, username, full_name, avatar_url)
+      poster:profiles!posted_by(id, username, full_name, avatar_url, headline)
     `)
     .eq("id", id)
     .single();
@@ -50,6 +51,7 @@ export default async function JobDetailPage({ params }: { params: { id: string }
 
   // Check if user has applied
   let hasApplied = false;
+  let isJobPoster = false;
   if (session?.user?.id) {
     const { data: application } = await supabase
       .from("job_applications")
@@ -59,7 +61,16 @@ export default async function JobDetailPage({ params }: { params: { id: string }
       .single();
 
     hasApplied = !!application;
+    isJobPoster = job.posted_by === session.user.id;
   }
+
+  // Fetch similar jobs
+  const { data: similarJobs } = await supabase
+    .from("jobs")
+    .select("id, title, company_name, location, employment_type, created_at")
+    .eq("is_active", true)
+    .neq("id", id)
+    .limit(3);
 
   // Format salary
   const formatSalary = () => {
@@ -161,7 +172,7 @@ export default async function JobDetailPage({ params }: { params: { id: string }
 
                 {/* Action Buttons */}
                 <div className="flex gap-3 mb-6">
-                  {session && (
+                  {session && !isJobPoster && (
                     <div suppressHydrationWarning className="client-only-component flex gap-3 flex-1">
                       {/* @ts-ignore */}
                       <JobApplyButton
@@ -175,6 +186,14 @@ export default async function JobDetailPage({ params }: { params: { id: string }
                         userId={session.user.id}
                       />
                     </div>
+                  )}
+                  {isJobPoster && (
+                    <Button asChild className="flex-1">
+                      <Link href={`/jobs/${job.id}/applications`}>
+                        <FileText className="h-4 w-4 mr-2" />
+                        View Applications ({job.applications_count})
+                      </Link>
+                    </Button>
                   )}
                   <Button variant="outline" size="sm">
                     <Share2 className="h-4 w-4 mr-2" />
@@ -272,6 +291,39 @@ export default async function JobDetailPage({ params }: { params: { id: string }
               </CardContent>
             </Card>
 
+            {/* Posted By */}
+            {job.poster && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Posted By</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Link 
+                    href={`/profile/${job.poster.username || job.poster.id}`} 
+                    className="block hover:bg-gray-50 rounded-lg p-3 -m-3 transition-colors"
+                  >
+                    <div className="flex items-center gap-3 mb-2">
+                      <Avatar className="h-12 w-12">
+                        <AvatarImage src={job.poster.avatar_url} />
+                        <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white">
+                          {job.poster.full_name?.charAt(0) || 'U'}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-gray-900 hover:text-primary truncate">
+                          {job.poster.full_name || 'Recruiter'}
+                        </p>
+                        {job.poster.headline && (
+                          <p className="text-sm text-gray-600 truncate">{job.poster.headline}</p>
+                        )}
+                      </div>
+                    </div>
+                    <p className="text-xs text-gray-500">Hiring Manager</p>
+                  </Link>
+                </CardContent>
+              </Card>
+            )}
+
             {/* Company Info */}
             {job.companies && (
               <Card>
@@ -306,6 +358,35 @@ export default async function JobDetailPage({ params }: { params: { id: string }
                       View Company Page
                     </Link>
                   </Button>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Similar Jobs */}
+            {similarJobs && similarJobs.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Similar Jobs</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {similarJobs.map((simJob: any) => (
+                    <Link
+                      key={simJob.id}
+                      href={`/jobs/${simJob.id}`}
+                      className="block p-3 rounded-lg border hover:border-primary hover:shadow-sm transition-all"
+                    >
+                      <h4 className="font-semibold text-sm text-gray-900 mb-1 hover:text-primary">
+                        {simJob.title}
+                      </h4>
+                      <p className="text-xs text-gray-600 mb-1">{simJob.company_name}</p>
+                      {simJob.location && (
+                        <div className="flex items-center gap-1 text-xs text-gray-500">
+                          <MapPin className="h-3 w-3" />
+                          <span>{simJob.location}</span>
+                        </div>
+                      )}
+                    </Link>
+                  ))}
                 </CardContent>
               </Card>
             )}

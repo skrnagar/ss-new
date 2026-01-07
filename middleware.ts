@@ -1,6 +1,7 @@
 import { createMiddlewareClient } from "@supabase/auth-helpers-nextjs";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { getAdminSessionFromRequest } from "@/lib/admin-auth";
 
 // List of routes that require authentication
 const protectedRoutes = [
@@ -27,6 +28,35 @@ export async function middleware(request: NextRequest) {
   // Create a response to modify
   const res = NextResponse.next();
 
+  const url = new URL(request.url);
+  const path = url.pathname;
+
+  // Handle admin routes separately - skip Supabase auth entirely
+  // All admin routes are under /admin/
+  if (path.startsWith("/admin") || path.startsWith("/api/admin/")) {
+    // Allow login page, setup page, and API routes to pass through
+    if (
+      path === "/admin/login" ||
+      path === "/admin/setup" ||
+      path.startsWith("/api/admin/auth/login") ||
+      path.startsWith("/api/admin/debug") ||
+      path.startsWith("/api/admin/create-user")
+    ) {
+      return res;
+    }
+
+    // Check admin authentication for other admin routes
+    const session = await getAdminSessionFromRequest(request);
+    if (!session || !session.admin_user || !session.admin_user.is_active) {
+      // Only redirect if it's not already the login page
+      if (path !== "/admin/login") {
+        return NextResponse.redirect(new URL("/admin/login", request.url));
+      }
+    }
+
+    return res;
+  }
+
   // Create a Supabase client specifically for the middleware
   const supabase = createMiddlewareClient({ req: request, res });
 
@@ -37,14 +67,11 @@ export async function middleware(request: NextRequest) {
     } = await supabase.auth.getSession();
     const isAuthenticated = !!session;
 
-    const url = new URL(request.url);
-    const path = url.pathname;
-
     // Skip middleware for static assets and system paths - faster early returns
     if (
       path.startsWith("/auth/callback") ||
       path.includes("/_next") ||
-      path.includes("/api/") ||
+      path.includes("/api/admin/") || // Skip admin API routes (already handled above)
       path.startsWith("/_vercel") ||
       path.endsWith(".svg") ||
       path.endsWith(".jpg") ||
