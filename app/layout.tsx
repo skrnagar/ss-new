@@ -6,33 +6,12 @@ import { ConversationProvider } from "@/contexts/conversation-context";
 import type { Metadata } from "next";
 import dynamic from "next/dynamic";
 import { Manrope, Poppins } from "next/font/google";
-import { Home, Users, PlusSquare, BookOpen, GraduationCap } from "lucide-react";
-import Link from "next/link";
 import { Suspense } from "react";
 import AuthRedirector from "./components/auth-redirector";
 import { MobileNav } from "@/components/mobile-nav";
 import { Analytics } from "@vercel/analytics/react";
 import { ChatPanel } from "@/components/chat-panel";
-
-// Dynamically import Navbar with Suspense
-const Navbar = dynamic(
-  () => import("@/components/navbar").then((mod) => ({ default: mod.Navbar })),
-  {
-    ssr: true,
-    loading: () => (
-      <header className="sticky top-0 z-40 border-b bg-background">
-        <div className="container flex h-16 items-center justify-between py-4">
-          <div className="flex items-center gap-4">
-            <div className="mr-2 h-9 w-9 bg-muted rounded-md animate-pulse"></div>
-          </div>
-          <div className="flex items-center gap-4">
-            <div className="w-32 h-8 bg-muted rounded-md animate-pulse"></div>
-          </div>
-        </div>
-      </header>
-    ),
-  }
-);
+import { ConditionalNavbar } from "@/components/conditional-navbar";
 
 // Configure the Poppins font
 const poppins = Poppins({
@@ -86,22 +65,7 @@ export default function RootLayout({
           <ConversationProvider>
             <AuthRedirector />
             <div className="flex flex-col min-h-screen">
-            <Suspense
-              fallback={
-                <header className="sticky top-0 z-40 border-b bg-background">
-                  <div className="container flex h-16 items-center justify-between py-4">
-                    <div className="flex items-center gap-4">
-                      <div className="mr-2 h-9 w-9 bg-muted rounded-md animate-pulse"></div>
-                    </div>
-                    <div className="flex items-center gap-4">
-                      <div className="w-32 h-8 bg-muted rounded-md animate-pulse"></div>
-                    </div>
-                  </div>
-                </header>
-              }
-            >
-              <Navbar />
-            </Suspense>
+            <ConditionalNavbar />
             <div className="pb-16 md:pb-0">
               <main className="flex-grow">{children}</main>
               <ConditionalFooter />

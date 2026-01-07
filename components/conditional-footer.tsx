@@ -6,6 +6,11 @@ import { Footer } from "@/components/footer";
 export function ConditionalFooter() {
   const pathname = usePathname();
 
+  // Don't show footer on admin routes
+  if (pathname?.startsWith("/admin")) {
+    return null;
+  }
+
   // Pages where footer should be displayed
   const footerPages = [
     "/", // Home page
