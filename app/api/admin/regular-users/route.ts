@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getCurrentAdmin } from "@/lib/admin-auth";
 import { createAdminClient } from "@/lib/supabase-admin";
 
+// GET - Fetch all regular users (profiles)
 export async function GET(request: NextRequest) {
   try {
     const admin = await getCurrentAdmin();
@@ -12,22 +13,18 @@ export async function GET(request: NextRequest) {
     // Use admin client to bypass RLS
     const supabase = createAdminClient();
 
-    const { data: companies, error } = await supabase
-      .from("companies")
+    const { data: users, error } = await supabase
+      .from("profiles")
       .select("*")
       .order("created_at", { ascending: false });
 
     if (error) {
-      throw error;
+      return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    return NextResponse.json({ companies: companies || [] });
+    return NextResponse.json({ users: users || [] });
   } catch (error: any) {
-    console.error("Error fetching companies:", error);
-    return NextResponse.json(
-      { error: "An error occurred while fetching companies" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
 

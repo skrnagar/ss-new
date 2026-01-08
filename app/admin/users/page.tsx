@@ -67,7 +67,7 @@ export default function UsersManagementPage() {
 
   const fetchUsers = async () => {
     try {
-      const response = await fetch("/api/admin/users");
+      const response = await fetch("/api/admin/regular-users");
       if (response.ok) {
         const data = await response.json();
         setUsers(data.users || []);

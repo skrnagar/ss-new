@@ -116,22 +116,6 @@ export default function AdminLoginPage() {
             </form>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-center space-y-2">
-              <p className="text-sm text-muted-foreground">
-                Don't have an admin account?
-              </p>
-              <Button
-                variant="outline"
-                onClick={() => router.push("/admin/setup")}
-                className="w-full"
-              >
-                Create Admin User
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
         <div className="text-center">
           <p className="text-sm text-muted-foreground">
             Safety Shaper Admin Panel

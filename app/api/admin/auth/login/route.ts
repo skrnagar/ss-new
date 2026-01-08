@@ -21,6 +21,21 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: result.error }, { status: 401 });
     }
 
+    // Check if admin is approved
+    // If is_approved is null/undefined, treat super_admin as approved (for existing users)
+    if (!result.admin) {
+      return NextResponse.json({ error: "Login failed" }, { status: 401 });
+    }
+    
+    const isApproved = result.admin.is_approved ?? (result.admin.role === "super_admin");
+    
+    if (!isApproved) {
+      return NextResponse.json(
+        { error: "Your account is pending approval from a super admin" },
+        { status: 403 }
+      );
+    }
+
     console.log("Login successful for:", email);
     return NextResponse.json({
       success: true,
