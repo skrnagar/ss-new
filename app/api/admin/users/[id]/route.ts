@@ -3,6 +3,143 @@ import { getCurrentAdmin } from "@/lib/admin-auth";
 import { createAdminClient } from "@/lib/supabase-admin";
 import { logAdminActivity } from "@/lib/admin-auth";
 
+export const dynamic = 'force-dynamic';
+
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const admin = await getCurrentAdmin();
+    if (!admin) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const supabase = createAdminClient();
+    const userId = params.id;
+
+    // Fetch comprehensive user data in parallel
+    const [
+      profileResult,
+      postsResult,
+      commentsResult,
+      likesResult,
+      connectionsResult,
+      messagesResult,
+      jobsResult,
+      articlesResult,
+      eventsResult,
+      followsResult,
+      companyFollowersResult,
+    ] = await Promise.all([
+      // User profile
+      supabase.from("profiles").select("*").eq("id", userId).single(),
+      
+      // User posts
+      supabase.from("posts").select("id, content, created_at, likes_count, comments_count").eq("user_id", userId).order("created_at", { ascending: false }).limit(20),
+      
+      // User comments
+      supabase.from("comments").select("id, content, created_at, post_id").eq("user_id", userId).order("created_at", { ascending: false }).limit(20),
+      
+      // User likes
+      supabase.from("likes").select("id, created_at, post_id").eq("user_id", userId).order("created_at", { ascending: false }).limit(20),
+      
+      // Connections
+      supabase.from("connections").select("id, created_at, connected_user_id").or(`user_id.eq.${userId},connected_user_id.eq.${userId}`),
+      
+      // Messages sent/received
+      supabase.from("messages").select("id, content, created_at, sender_id, receiver_id").or(`sender_id.eq.${userId},receiver_id.eq.${userId}`).order("created_at", { ascending: false }).limit(20),
+      
+      // Job applications
+      supabase.from("job_applications").select("id, status, applied_at, job_id").eq("user_id", userId).order("applied_at", { ascending: false }).limit(20),
+      
+      // Articles authored
+      supabase.from("articles").select("id, title, created_at, published_at, views").eq("author_id", userId).order("created_at", { ascending: false }).limit(20),
+      
+      // Events created
+      supabase.from("events").select("id, title, start_date, created_at").eq("user_id", userId).order("created_at", { ascending: false }).limit(20),
+      
+      // Follows (following/followers)
+      supabase.from("follows").select("id, created_at, follower_id, following_id").or(`follower_id.eq.${userId},following_id.eq.${userId}`),
+      
+      // Company followers
+      supabase.from("company_followers").select("id, created_at, company_id").eq("user_id", userId),
+    ]);
+
+    // Get counts
+    const [
+      postsCount,
+      commentsCount,
+      likesCount,
+      connectionsCount,
+      messagesCount,
+      jobsCount,
+      articlesCount,
+      eventsCount,
+      followingCount,
+      followersCount,
+    ] = await Promise.all([
+      supabase.from("posts").select("id", { count: "exact", head: true }).eq("user_id", userId),
+      supabase.from("comments").select("id", { count: "exact", head: true }).eq("user_id", userId),
+      supabase.from("likes").select("id", { count: "exact", head: true }).eq("user_id", userId),
+      supabase.from("connections").select("id", { count: "exact", head: true }).or(`user_id.eq.${userId},connected_user_id.eq.${userId}`),
+      supabase.from("messages").select("id", { count: "exact", head: true }).or(`sender_id.eq.${userId},receiver_id.eq.${userId}`),
+      supabase.from("job_applications").select("id", { count: "exact", head: true }).eq("user_id", userId),
+      supabase.from("articles").select("id", { count: "exact", head: true }).eq("author_id", userId),
+      supabase.from("events").select("id", { count: "exact", head: true }).eq("user_id", userId),
+      supabase.from("follows").select("id", { count: "exact", head: true }).eq("follower_id", userId),
+      supabase.from("follows").select("id", { count: "exact", head: true }).eq("following_id", userId),
+    ]);
+
+    const profile = profileResult.data;
+    if (!profile) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
+    // Calculate engagement metrics
+    const totalEngagement = (postsCount.count || 0) + (commentsCount.count || 0) + (likesCount.count || 0);
+    const engagementRate = (postsCount.count || 0) > 0 
+      ? (((commentsCount.count || 0) + (likesCount.count || 0)) / (postsCount.count || 0)).toFixed(2)
+      : "0";
+
+    return NextResponse.json({
+      profile,
+      stats: {
+        posts: postsCount.count || 0,
+        comments: commentsCount.count || 0,
+        likes: likesCount.count || 0,
+        connections: connectionsCount.count || 0,
+        messages: messagesCount.count || 0,
+        jobApplications: jobsCount.count || 0,
+        articles: articlesCount.count || 0,
+        events: eventsCount.count || 0,
+        following: followingCount.count || 0,
+        followers: followersCount.count || 0,
+        totalEngagement,
+        engagementRate: Number(engagementRate),
+      },
+      activity: {
+        posts: postsResult.data || [],
+        comments: commentsResult.data || [],
+        likes: likesResult.data || [],
+        connections: connectionsResult.data || [],
+        messages: messagesResult.data || [],
+        jobApplications: jobsResult.data || [],
+        articles: articlesResult.data || [],
+        events: eventsResult.data || [],
+        follows: followsResult.data || [],
+        companyFollowers: companyFollowersResult.data || [],
+      },
+    });
+  } catch (error: any) {
+    console.error("Error fetching user details:", error);
+    return NextResponse.json(
+      { error: "An error occurred while fetching user details", details: error.message },
+      { status: 500 }
+    );
+  }
+}
+
 export async function DELETE(
   request: NextRequest,
   { params }: { params: { id: string } }
