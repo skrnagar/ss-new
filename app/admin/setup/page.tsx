@@ -11,9 +11,9 @@ import { Shield, Loader2, CheckCircle2, XCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export default function AdminSetupPage() {
-  const [email, setEmail] = useState("admin@example.com");
-  const [password, setPassword] = useState("admin123");
-  const [fullName, setFullName] = useState("Administrator");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [fullName, setFullName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [setupStatus, setSetupStatus] = useState<{
     checked: boolean;
@@ -66,19 +66,15 @@ export default function AdminSetupPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        console.error("Setup error response:", data);
         throw new Error(data.error || "Failed to create admin user");
       }
-
-      console.log("Admin user created successfully:", data);
 
       if (data.success) {
         toast({
           title: "Success!",
-          description: `Admin user ${data.message}. You can now login with email: ${email}`,
+          description: "Admin user created. Please wait for super admin approval before logging in.",
         });
 
-        // Redirect to login after a short delay
         setTimeout(() => {
           router.push("/admin/login");
         }, 2000);
@@ -86,10 +82,9 @@ export default function AdminSetupPage() {
         throw new Error(data.error || "Failed to create admin user");
       }
     } catch (error: any) {
-      console.error("Setup error:", error);
       toast({
         title: "Error",
-        description: error.message || "Failed to create admin user. Check console for details.",
+        description: error.message || "Failed to create admin user.",
         variant: "destructive",
       });
     } finally {
@@ -110,7 +105,7 @@ export default function AdminSetupPage() {
             <div>
               <CardTitle className="text-2xl font-bold">Admin Setup</CardTitle>
               <CardDescription className="mt-2">
-                Create your first admin user to access the admin dashboard
+                Create a new admin account (requires super admin approval)
               </CardDescription>
             </div>
           </CardHeader>
@@ -138,29 +133,6 @@ export default function AdminSetupPage() {
                       </AlertDescription>
                     </div>
                   </Alert>
-                  {setupStatus.tablesExist && (
-                    <Alert
-                      variant={setupStatus.hasUsers ? "default" : "destructive"}
-                    >
-                      <div className="flex items-center gap-2">
-                        {setupStatus.hasUsers ? (
-                          <CheckCircle2 className="h-4 w-4" />
-                        ) : (
-                          <XCircle className="h-4 w-4" />
-                        )}
-                        <AlertDescription>
-                          {setupStatus.hasUsers
-                            ? "Admin users found"
-                            : "No admin users found. Create one below."}
-                        </AlertDescription>
-                      </div>
-                    </Alert>
-                  )}
-                  {setupStatus.error && (
-                    <Alert variant="destructive">
-                      <AlertDescription>{setupStatus.error}</AlertDescription>
-                    </Alert>
-                  )}
                 </div>
               )}
             </div>
@@ -206,6 +178,11 @@ export default function AdminSetupPage() {
                   className="h-11"
                 />
               </div>
+              <Alert>
+                <AlertDescription>
+                  <strong>Note:</strong> Your account will need to be approved by a super admin before you can access the dashboard.
+                </AlertDescription>
+              </Alert>
               <Button
                 type="submit"
                 className="w-full h-11"
@@ -238,12 +215,11 @@ export default function AdminSetupPage() {
           </CardContent>
         </Card>
         <div className="text-center">
-          <p className="text-sm text-muted-foreground">
-            Safety Shaper Admin Panel Setup
-          </p>
+          <Button variant="link" onClick={() => router.push("/admin/login")}>
+            Back to Login
+          </Button>
         </div>
       </div>
     </div>
   );
 }
-

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getCurrentAdmin } from "@/lib/admin-auth";
-import { createClient } from "@/lib/supabase-server";
+import { createAdminClient } from "@/lib/supabase-admin";
 import { logAdminActivity } from "@/lib/admin-auth";
 
 export async function DELETE(
@@ -13,7 +13,8 @@ export async function DELETE(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const supabase = createClient();
+    // Use admin client to bypass RLS
+    const supabase = createAdminClient();
     const postId = params.id;
 
     const { error } = await supabase.from("posts").delete().eq("id", postId);

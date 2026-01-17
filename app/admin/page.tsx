@@ -11,8 +11,15 @@ import {
   TrendingUp,
   Activity,
   MessageSquare,
+  Shield,
+  AlertCircle,
 } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from "recharts";
+import { useAdmin } from "@/contexts/admin-context";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
 
 interface DashboardStats {
   totalUsers: number;
@@ -29,6 +36,8 @@ interface DashboardStats {
 export default function AdminDashboardPage() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const { admin } = useAdmin();
+  const isSuperAdmin = admin?.role === "super_admin";
 
   useEffect(() => {
     fetchDashboardStats();
@@ -106,10 +115,32 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-        <p className="text-muted-foreground">Overview of your platform</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+          <p className="text-muted-foreground">
+            {isSuperAdmin ? "Super Admin - Full platform overview" : "Admin - Platform overview"}
+          </p>
+        </div>
+        {isSuperAdmin && (
+          <Badge variant="default" className="gap-2">
+            <Shield className="h-4 w-4" />
+            Super Admin
+          </Badge>
+        )}
       </div>
+
+      {isSuperAdmin && (
+        <Alert>
+          <Shield className="h-4 w-4" />
+          <AlertDescription>
+            You have super admin privileges. You can manage admin users and approve new admin accounts.
+            <Button variant="link" asChild className="ml-2 p-0 h-auto">
+              <Link href="/admin/admin-users">Manage Admin Users</Link>
+            </Button>
+          </AlertDescription>
+        </Alert>
+      )}
 
       {/* Stats Grid */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">

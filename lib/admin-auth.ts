@@ -100,6 +100,16 @@ export async function getAdminSession(token?: string) {
       return null;
     }
 
+    // Check if admin user is approved and active
+    // If is_approved is null/undefined, treat super_admin as approved (for existing users)
+    if (session.admin_user) {
+      const isApproved = session.admin_user.is_approved ?? (session.admin_user.role === "super_admin");
+      
+      if (!isApproved || !session.admin_user.is_active) {
+        return null;
+      }
+    }
+
     return session;
   } catch (error) {
     console.error("Error getting admin session:", error);
@@ -132,6 +142,14 @@ export async function getAdminSessionFromRequest(request: NextRequest) {
       return null;
     }
 
+    // Check if admin user is approved and active
+    // If is_approved is null/undefined, treat super_admin as approved (for existing users)
+    const isApproved = session.admin_user?.is_approved ?? (session.admin_user?.role === "super_admin");
+    
+    if (session.admin_user && (!isApproved || !session.admin_user.is_active)) {
+      return null;
+    }
+
     return session;
   } catch (error) {
     return null;
@@ -146,8 +164,11 @@ export async function getCurrentAdmin() {
       return null;
     }
 
-    // Check if admin is active
-    if (!session.admin_user.is_active) {
+    // Check if admin is active and approved
+    // If is_approved is null/undefined, treat super_admin as approved (for existing users)
+    const isApproved = session.admin_user.is_approved ?? (session.admin_user.role === "super_admin");
+    
+    if (!session.admin_user.is_active || !isApproved) {
       return null;
     }
 
@@ -264,6 +285,7 @@ export async function authenticateAdmin(email: string, password: string) {
         email: adminUser.email,
         full_name: adminUser.full_name,
         role: adminUser.role,
+        is_approved: adminUser.is_approved,
       },
       token: session.token,
     };

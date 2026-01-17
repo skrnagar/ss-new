@@ -19,6 +19,7 @@ import {
 
 const navigation = [
   { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
+  { name: "Admin Users", href: "/admin/admin-users", icon: Users, superAdminOnly: true },
   { name: "Users", href: "/admin/users", icon: Users },
   { name: "Posts", href: "/admin/posts", icon: FileText },
   { name: "Jobs", href: "/admin/jobs", icon: Briefcase },

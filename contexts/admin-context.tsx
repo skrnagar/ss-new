@@ -8,6 +8,7 @@ type AdminUser = {
   email: string;
   full_name: string;
   role: string;
+  is_approved?: boolean;
 };
 
 type AdminContextType = {

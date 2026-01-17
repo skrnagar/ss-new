@@ -97,8 +97,9 @@ export async function POST(request: NextRequest) {
             email: email.toLowerCase(),
             password_hash: passwordHash,
             full_name: fullName,
-            role: "super_admin",
+            role: "admin",
             is_active: true,
+            is_approved: false, // New admins need approval
           })
           .select()
           .single();

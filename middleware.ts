@@ -47,7 +47,10 @@ export async function middleware(request: NextRequest) {
 
     // Check admin authentication for other admin routes
     const session = await getAdminSessionFromRequest(request);
-    if (!session || !session.admin_user || !session.admin_user.is_active) {
+    // If is_approved is null/undefined, treat super_admin as approved (for existing users)
+    const isApproved = session?.admin_user?.is_approved ?? (session?.admin_user?.role === "super_admin");
+    
+    if (!session || !session.admin_user || !session.admin_user.is_active || !isApproved) {
       // Only redirect if it's not already the login page
       if (path !== "/admin/login") {
         return NextResponse.redirect(new URL("/admin/login", request.url));
