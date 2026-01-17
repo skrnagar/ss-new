@@ -2,7 +2,7 @@
 
 import { AdminProvider } from "@/contexts/admin-context";
 import { AdminSidebar } from "@/components/admin/admin-sidebar";
-import { AdminHeader } from "@/components/admin/admin-header";
+import { AdminGlobalHeader } from "@/components/admin/admin-global-header";
 import { useAdmin } from "@/contexts/admin-context";
 import { useRouter, usePathname } from "next/navigation";
 import { useEffect } from "react";
@@ -63,10 +63,10 @@ function AdminDashboardContent({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-screen bg-background">
-      <AdminHeader />
+      <AdminGlobalHeader />
       <div className="flex">
         <AdminSidebar />
-        <main className="flex-1 lg:ml-64 p-6">
+        <main className="flex-1 lg:ml-64 p-6 pt-6">
           {children}
         </main>
       </div>
