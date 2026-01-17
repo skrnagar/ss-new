@@ -94,20 +94,28 @@ export default function UsersManagementPage() {
       });
 
       if (response.ok) {
+        const data = await response.json();
         toast({
           title: "Success",
-          description: "User deleted successfully",
+          description: data.message || "User and all related data deleted successfully",
         });
         fetchUsers();
         setIsDeleteDialogOpen(false);
         setSelectedUser(null);
       } else {
-        throw new Error("Failed to delete user");
+        const errorData = await response.json().catch(() => ({}));
+        const errorMessage = errorData.details || errorData.error || "Failed to delete user";
+        
+        toast({
+          title: errorData.code === "FOREIGN_KEY_CONSTRAINT" ? "Cannot Delete User" : "Error",
+          description: errorMessage,
+          variant: "destructive",
+        });
       }
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "Error",
-        description: "Failed to delete user",
+        description: error.message || "Failed to delete user. Please try again.",
         variant: "destructive",
       });
     }
