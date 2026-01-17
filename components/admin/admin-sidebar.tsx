@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { useAdmin } from "@/contexts/admin-context";
 import {
   LayoutDashboard,
   Users,
@@ -34,6 +35,7 @@ const navigation = [
 
 export function AdminSidebar() {
   const pathname = usePathname();
+  const { admin } = useAdmin();
 
   return (
     <aside className="fixed left-0 top-16 z-40 h-[calc(100vh-4rem)] w-64 border-r bg-card">
