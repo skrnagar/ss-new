@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,20 +12,128 @@ import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 
 export default function SettingsPage() {
-  const { admin } = useAdmin();
+  const { admin, refreshAdmin } = useAdmin();
   const { toast } = useToast();
-  const [isSaving, setIsSaving] = useState(false);
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
+  const [isSavingPassword, setIsSavingPassword] = useState(false);
+  const [fullName, setFullName] = useState("");
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
-  const handleSave = async () => {
-    setIsSaving(true);
-    // Simulate save
-    setTimeout(() => {
+  useEffect(() => {
+    if (admin?.full_name) {
+      setFullName(admin.full_name);
+    }
+  }, [admin]);
+
+  const handleSaveProfile = async () => {
+    if (!fullName.trim()) {
       toast({
-        title: "Settings saved",
-        description: "Your settings have been updated successfully",
+        title: "Error",
+        description: "Full name is required",
+        variant: "destructive",
       });
-      setIsSaving(false);
-    }, 1000);
+      return;
+    }
+
+    setIsSavingProfile(true);
+    try {
+      const response = await fetch("/api/admin/settings", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ full_name: fullName.trim() }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        toast({
+          title: "Success",
+          description: data.message || "Profile updated successfully",
+        });
+        // Refresh admin context
+        await refreshAdmin();
+      } else {
+        throw new Error(data.error || "Failed to update profile");
+      }
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update profile",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSavingProfile(false);
+    }
+  };
+
+  const handleSavePassword = async () => {
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      toast({
+        title: "Error",
+        description: "All password fields are required",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      toast({
+        title: "Error",
+        description: "New password and confirm password do not match",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (newPassword.length < 8) {
+      toast({
+        title: "Error",
+        description: "New password must be at least 8 characters long",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSavingPassword(true);
+    try {
+      const response = await fetch("/api/admin/settings", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          currentPassword,
+          newPassword,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        toast({
+          title: "Success",
+          description: data.message || "Password updated successfully",
+        });
+        // Clear password fields
+        setCurrentPassword("");
+        setNewPassword("");
+        setConfirmPassword("");
+      } else {
+        throw new Error(data.error || "Failed to update password");
+      }
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update password",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSavingPassword(false);
+    }
   };
 
   return (
@@ -49,10 +157,24 @@ export default function SettingsPage() {
             <Label htmlFor="fullName">Full Name</Label>
             <Input
               id="fullName"
-              defaultValue={admin?.full_name || ""}
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
               placeholder="Your full name"
             />
           </div>
+          <Button onClick={handleSaveProfile} disabled={isSavingProfile}>
+            {isSavingProfile ? (
+              <>
+                <Save className="mr-2 h-4 w-4 animate-spin" />
+                Saving...
+              </>
+            ) : (
+              <>
+                <Save className="mr-2 h-4 w-4" />
+                Save Profile
+              </>
+            )}
+          </Button>
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Input
@@ -90,18 +212,36 @@ export default function SettingsPage() {
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="currentPassword">Current Password</Label>
-            <Input id="currentPassword" type="password" placeholder="Enter current password" />
+            <Input 
+              id="currentPassword" 
+              type="password" 
+              value={currentPassword}
+              onChange={(e) => setCurrentPassword(e.target.value)}
+              placeholder="Enter current password" 
+            />
           </div>
           <div className="space-y-2">
             <Label htmlFor="newPassword">New Password</Label>
-            <Input id="newPassword" type="password" placeholder="Enter new password" />
+            <Input 
+              id="newPassword" 
+              type="password" 
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              placeholder="Enter new password (min. 8 characters)" 
+            />
           </div>
           <div className="space-y-2">
             <Label htmlFor="confirmPassword">Confirm New Password</Label>
-            <Input id="confirmPassword" type="password" placeholder="Confirm new password" />
+            <Input 
+              id="confirmPassword" 
+              type="password" 
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              placeholder="Confirm new password" 
+            />
           </div>
-          <Button onClick={handleSave} disabled={isSaving}>
-            {isSaving ? (
+          <Button onClick={handleSavePassword} disabled={isSavingPassword}>
+            {isSavingPassword ? (
               <>
                 <Save className="mr-2 h-4 w-4 animate-spin" />
                 Saving...

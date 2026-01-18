@@ -132,12 +132,6 @@ export default function CompaniesManagementPage() {
           <h1 className="text-3xl font-bold tracking-tight">Companies Management</h1>
           <p className="text-muted-foreground">Manage all company pages</p>
         </div>
-        <Button asChild>
-          <Link href="/companies/create">
-            <Plus className="mr-2 h-4 w-4" />
-            Add Company
-          </Link>
-        </Button>
       </div>
 
       <Card>
