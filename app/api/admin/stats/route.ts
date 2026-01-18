@@ -61,14 +61,42 @@ export async function GET(request: NextRequest) {
       .gte("created_at", previousPeriodStart.toISOString())
       .lt("created_at", periodStart.toISOString());
 
-    // Get active users today
+    // Get active users today - users who have any activity today (posts, comments, likes, messages)
     const todayStart = new Date();
     todayStart.setHours(0, 0, 0, 0);
-    const { data: activeUsersTodayData } = await supabase
+    const todayEnd = new Date();
+    todayEnd.setHours(23, 59, 59, 999);
+
+    // Get unique user IDs from all activity types today
+    const [postsToday, commentsToday, likesToday, messagesToday] = await Promise.all([
+      supabase.from("posts").select("user_id").gte("created_at", todayStart.toISOString()).lt("created_at", todayEnd.toISOString()),
+      supabase.from("comments").select("user_id").gte("created_at", todayStart.toISOString()).lt("created_at", todayEnd.toISOString()),
+      supabase.from("likes").select("user_id").gte("created_at", todayStart.toISOString()).lt("created_at", todayEnd.toISOString()),
+      supabase.from("messages").select("sender_id, receiver_id").gte("created_at", todayStart.toISOString()).lt("created_at", todayEnd.toISOString()),
+    ]);
+
+    // Collect all unique user IDs from today's activity
+    const activeUserIds = new Set<string>();
+    
+    postsToday.data?.forEach((post: any) => activeUserIds.add(post.user_id));
+    commentsToday.data?.forEach((comment: any) => activeUserIds.add(comment.user_id));
+    likesToday.data?.forEach((like: any) => activeUserIds.add(like.user_id));
+    // Include both sender and receiver for messages (both are active)
+    messagesToday.data?.forEach((message: any) => {
+      if (message.sender_id) activeUserIds.add(message.sender_id);
+      if (message.receiver_id) activeUserIds.add(message.receiver_id);
+    });
+
+    // Also include users who registered today
+    const { data: newUsersToday } = await supabase
       .from("profiles")
       .select("id")
-      .gte("last_seen", todayStart.toISOString())
-      .limit(1000);
+      .gte("created_at", todayStart.toISOString())
+      .lt("created_at", todayEnd.toISOString());
+
+    newUsersToday?.forEach((user: any) => activeUserIds.add(user.id));
+
+    const activeUsersToday = activeUserIds.size;
 
     // Get post activity data
     const { data: recentPosts } = await supabase
@@ -156,7 +184,7 @@ export async function GET(request: NextRequest) {
       totalArticles: articlesResult.count || 0,
       totalMessages: messagesResult.count || 0,
       totalEvents: eventsResult.count || 0,
-      activeUsersToday: activeUsersTodayData?.length || 0,
+      activeUsersToday: activeUsersToday,
       recentActivity: activityResult.data || [],
       userGrowth,
       postActivity,

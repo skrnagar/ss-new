@@ -58,19 +58,37 @@ interface DashboardStats {
   pendingApprovals?: number;
 }
 
+interface AnalyticsData {
+  summary: {
+    totalLikes: number;
+    totalComments: number;
+    engagementRate: number;
+    avgLikesPerPost: number;
+    avgCommentsPerPost: number;
+    totalConnections: number;
+    totalFollows: number;
+  };
+  dailyEngagement: Array<{ date: string; likes: number; comments: number; total: number }>;
+}
+
 const COLORS = ['#3b82f6', '#10b981', '#8b5cf6', '#f97316', '#ec4899', '#6366f1'];
 
 export default function AdminDashboardPage() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [timeRange, setTimeRange] = useState<"7d" | "30d" | "90d">("7d");
+  const [timeRange, setTimeRange] = useState<"7d" | "30d" | "90d">("30d");
   const { admin } = useAdmin();
   const isSuperAdmin = admin?.role === "super_admin";
 
   useEffect(() => {
     fetchDashboardStats();
+    fetchAnalytics();
     // Refresh stats every 5 minutes
-    const interval = setInterval(fetchDashboardStats, 5 * 60 * 1000);
+    const interval = setInterval(() => {
+      fetchDashboardStats();
+      fetchAnalytics();
+    }, 5 * 60 * 1000);
     return () => clearInterval(interval);
   }, [timeRange]);
 
@@ -85,6 +103,21 @@ export default function AdminDashboardPage() {
       console.error("Error fetching stats:", error);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const fetchAnalytics = async () => {
+    try {
+      const response = await fetch(`/api/admin/analytics?range=${timeRange}`);
+      if (response.ok) {
+        const data = await response.json();
+        setAnalytics({
+          summary: data.summary || {},
+          dailyEngagement: data.dailyEngagement || [],
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching analytics:", error);
     }
   };
 
@@ -208,10 +241,6 @@ export default function AdminDashboardPage() {
                 <DropdownMenuItem onClick={() => setTimeRange("90d")}>Last 90 days</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-            <Button variant="outline" size="sm" className="gap-2">
-              <Download className="h-4 w-4" />
-              Export Report
-            </Button>
             {isSuperAdmin && (
               <Badge variant="default" className="gap-2 px-3 py-1.5">
                 <Shield className="h-3.5 w-3.5" />
@@ -329,6 +358,89 @@ export default function AdminDashboardPage() {
           );
         })}
       </div>
+
+      {/* Analytics Metrics Section */}
+      {analytics && (
+        <>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <Card className="border-2 hover:shadow-lg transition-shadow">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-muted-foreground">Engagement Rate</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold">{analytics.summary.engagementRate?.toFixed(1) || 0}%</div>
+                <p className="text-xs text-muted-foreground mt-1">Likes + Comments per post</p>
+              </CardContent>
+            </Card>
+            <Card className="border-2 hover:shadow-lg transition-shadow">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-muted-foreground">Total Likes</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold">{analytics.summary.totalLikes?.toLocaleString() || 0}</div>
+                <p className="text-xs text-muted-foreground mt-1">All-time likes</p>
+              </CardContent>
+            </Card>
+            <Card className="border-2 hover:shadow-lg transition-shadow">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-muted-foreground">Total Comments</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold">{analytics.summary.totalComments?.toLocaleString() || 0}</div>
+                <p className="text-xs text-muted-foreground mt-1">All-time comments</p>
+              </CardContent>
+            </Card>
+            <Card className="border-2 hover:shadow-lg transition-shadow">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-muted-foreground">Avg. Engagement</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold">
+                  {((analytics.summary.avgLikesPerPost || 0) + (analytics.summary.avgCommentsPerPost || 0)).toFixed(1)}
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">Per post average</p>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Engagement Chart */}
+          {analytics.dailyEngagement && analytics.dailyEngagement.length > 0 && (
+            <Card className="border-2 hover:shadow-lg transition-shadow">
+              <CardHeader className="flex flex-row items-center justify-between pb-3">
+                <div className="space-y-0.5">
+                  <CardTitle className="text-lg">Daily Engagement</CardTitle>
+                  <CardDescription className="text-xs">Likes and comments over time</CardDescription>
+                </div>
+                <Button variant="ghost" size="sm" asChild className="h-8 text-xs gap-1">
+                  <Link href="/admin/analytics">
+                    View Analytics <ArrowUpRight className="h-3 w-3" />
+                  </Link>
+                </Button>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <LineChart data={analytics.dailyEngagement}>
+                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted opacity-50" />
+                    <XAxis dataKey="date" tick={{ fontSize: 12 }} className="text-muted-foreground" />
+                    <YAxis tick={{ fontSize: 12 }} className="text-muted-foreground" />
+                    <Tooltip 
+                      contentStyle={{ 
+                        backgroundColor: 'hsl(var(--card))', 
+                        border: '1px solid hsl(var(--border))',
+                        borderRadius: '0.5rem',
+                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                      }} 
+                    />
+                    <Legend />
+                    <Line type="monotone" dataKey="likes" stroke="#ef4444" strokeWidth={2} name="Likes" />
+                    <Line type="monotone" dataKey="comments" stroke="#3b82f6" strokeWidth={2} name="Comments" />
+                  </LineChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+          )}
+        </>
+      )}
 
       {/* Enhanced Charts Section */}
       <div className="grid gap-4 md:grid-cols-2">
@@ -465,11 +577,18 @@ export default function AdminDashboardPage() {
               <CardTitle className="text-lg">Recent Activity</CardTitle>
               <CardDescription className="text-xs">Latest platform activities</CardDescription>
             </div>
-            <Button variant="ghost" size="sm" asChild className="h-8 text-xs gap-1">
-              <Link href="/admin/activity">
-                View all <ArrowUpRight className="h-3 w-3" />
-              </Link>
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button variant="ghost" size="sm" asChild className="h-8 text-xs gap-1">
+                <Link href="/admin/analytics">
+                  Analytics <ArrowUpRight className="h-3 w-3" />
+                </Link>
+              </Button>
+              <Button variant="ghost" size="sm" asChild className="h-8 text-xs gap-1">
+                <Link href="/admin/activity">
+                  View all <ArrowUpRight className="h-3 w-3" />
+                </Link>
+              </Button>
+            </div>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
