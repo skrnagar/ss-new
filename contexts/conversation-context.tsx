@@ -146,6 +146,21 @@ export function ConversationProvider({ children }: { children: React.ReactNode }
     fetchConversations();
   }, [fetchConversations]);
 
+  const debounceRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  const scheduleRefetch = useCallback(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      debounceRef.current = null;
+      fetchConversations();
+    }, 350);
+  }, [fetchConversations]);
+
+  useEffect(() => {
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, []);
+
   // Subscribe to real-time updates
   useEffect(() => {
     if (!user?.id) return;
@@ -160,7 +175,7 @@ export function ConversationProvider({ children }: { children: React.ReactNode }
           table: "messages",
         },
         () => {
-          fetchConversations();
+          scheduleRefetch();
         }
       )
       .on(
@@ -171,23 +186,16 @@ export function ConversationProvider({ children }: { children: React.ReactNode }
           table: "conversation_participants",
         },
         () => {
-          fetchConversations();
+          scheduleRefetch();
         }
       )
       .subscribe();
 
-    // Polling backup - every 5 seconds
-    const pollingInterval = setInterval(() => {
-      fetchConversations();
-    }, 5000);
-
     return () => {
-      clearInterval(pollingInterval);
       supabase.removeChannel(channel);
     };
-  }, [user?.id, fetchConversations]);
+  }, [user?.id, scheduleRefetch]);
 
-  // Initial fetch
   useEffect(() => {
     fetchConversations();
   }, [fetchConversations]);

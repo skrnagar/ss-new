@@ -15,6 +15,7 @@ interface Experience {
   id: string;
   title: string;
   company: string;
+  company_logo_url?: string | null;
   employment_type?: string;
   location?: string;
   start_date: string;
@@ -45,8 +46,10 @@ export function ExperienceDialog({ isOpen, onClose, experience, userId }: Experi
     is_current: false,
     description: "",
     skills: "",
+    company_logo_url: "",
   });
 
+  const [logoUploading, setLogoUploading] = useState(false);
   useEffect(() => {
     if (experience) {
       setFormData({
@@ -60,6 +63,7 @@ export function ExperienceDialog({ isOpen, onClose, experience, userId }: Experi
         is_current: experience.is_current || false,
         description: experience.description || "",
         skills: experience.skills?.join(", ") || "",
+        company_logo_url: experience.company_logo_url || "",
       });
     } else {
       setFormData({
@@ -73,6 +77,7 @@ export function ExperienceDialog({ isOpen, onClose, experience, userId }: Experi
         is_current: false,
         description: "",
         skills: "",
+        company_logo_url: "",
       });
     }
   }, [experience, isOpen]);
@@ -97,6 +102,7 @@ export function ExperienceDialog({ isOpen, onClose, experience, userId }: Experi
       is_current: formData.is_current,
       description: formData.description || null,
       skills: skillsArray.length > 0 ? skillsArray : null,
+      company_logo_url: formData.company_logo_url.trim() || null,
     };
 
     let error;
@@ -159,6 +165,47 @@ export function ExperienceDialog({ isOpen, onClose, experience, userId }: Experi
             placeholder="e.g. ABC Corporation"
             required
           />
+
+          <div className="space-y-2">
+            <Label htmlFor="company_logo_url">Company logo</Label>
+            <Input
+              id="company_logo_url"
+              value={formData.company_logo_url}
+              onChange={(e) =>
+                setFormData({ ...formData, company_logo_url: e.target.value })
+              }
+              placeholder="Image URL (or upload below)"
+            />
+            <input
+              type="file"
+              accept="image/*"
+              className="text-sm w-full"
+              disabled={logoUploading}
+              onChange={async (e) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+                setLogoUploading(true);
+                try {
+                  const path = `company-logos/${userId}/${Date.now()}-${file.name.replace(/[^a-z0-9.]/gi, "_")}`;
+                  const { error: upErr } = await supabase.storage
+                    .from("post-images")
+                    .upload(path, file, { upsert: true, contentType: file.type });
+                  if (upErr) throw upErr;
+                  const {
+                    data: { publicUrl },
+                  } = supabase.storage.from("post-images").getPublicUrl(path);
+                  setFormData((f) => ({ ...f, company_logo_url: publicUrl }));
+                  toast({ title: "Logo uploaded" });
+                } catch (err: unknown) {
+                  const msg = err instanceof Error ? err.message : "Upload failed";
+                  toast({ title: "Logo upload failed", description: msg, variant: "destructive" });
+                } finally {
+                  setLogoUploading(false);
+                  e.target.value = "";
+                }
+              }}
+            />
+          </div>
 
           <div>
             <Label htmlFor="employment_type">Employment Type</Label>

@@ -37,10 +37,17 @@ import {
   Settings,
   Shield,
   User,
+  ClipboardCheck,
   Users,
   BookOpen,
   FileText,
   Plus,
+  LayoutDashboard,
+  Bot,
+  GraduationCap,
+  BarChart2,
+  Leaf,
+  Scale,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -62,14 +69,16 @@ const getInitials = (name: string): string => {
 const UserMenu = ({ user, profile, handleSignOut, isMobile }: any) => (
   <DropdownMenu>
     <DropdownMenuTrigger asChild>
-      <Button variant="ghost" className="relative h-8 w-8 rounded-full p-0">
-        <Avatar className="h-8 w-8">
-          <div className="h-full w-full rounded-full p-0.5 bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500">
-            <div className="h-full w-full rounded-full bg-white p-0.5">
-              <AvatarImage src={profile?.avatar_url || ""} alt={profile?.full_name || "User"} className="object-cover rounded-full" />
-              <AvatarFallback className="rounded-full">{getInitials(profile?.full_name || "")}</AvatarFallback>
-            </div>
-          </div>
+      <Button variant="ghost" className="relative h-10 w-10 shrink-0 rounded-full p-0">
+        <Avatar className="h-10 w-10 ring-2 ring-border">
+          <AvatarImage
+            src={profile?.avatar_url || undefined}
+            alt={profile?.full_name || "User"}
+            className="object-cover"
+          />
+          <AvatarFallback className="text-xs font-semibold">
+            {getInitials(profile?.full_name || "")}
+          </AvatarFallback>
         </Avatar>
       </Button>
     </DropdownMenuTrigger>
@@ -110,6 +119,30 @@ const UserMenu = ({ user, profile, handleSignOut, isMobile }: any) => (
         )}
         {isMobile && (
           <>
+            <DropdownMenuItem asChild>
+              <Link href="/safety-assistant" className="cursor-pointer">
+                <Bot className="mr-2 h-4 w-4" />
+                <span>Safety Assistant</span>
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link href="/insights" className="cursor-pointer">
+                <LayoutDashboard className="mr-2 h-4 w-4" />
+                <span>Insights</span>
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link href="/learn" className="cursor-pointer">
+                <GraduationCap className="mr-2 h-4 w-4" />
+                <span>Training</span>
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link href="/compliance" className="cursor-pointer">
+                <Shield className="mr-2 h-4 w-4" />
+                <span>Compliance</span>
+              </Link>
+            </DropdownMenuItem>
             <DropdownMenuItem asChild>
               <Link href="/articles" className="cursor-pointer">
                 <BookOpen className="mr-2 h-4 w-4" />
@@ -152,23 +185,39 @@ function MessageBadge() {
     async function fetchUnread() {
       if (!user?.id || ignore) return;
       
-      const { data, error } = await supabase
+      // First, get all conversation IDs for this user
+      const { data: userConversations, error: convError } = await supabase
         .from("conversation_participants")
-        .select(`conversation:conversations!inner(id, messages(seen, sender_id))`)
+        .select("conversation_id")
         .eq("profile_id", user.id);
       
-      if (error) {
-        console.error('Error fetching unread count:', error);
+      if (convError) {
+        console.error('Error fetching conversations:', convError);
         return;
       }
       
-      if (!ignore && data) {
-        let count = 0;
-        data.forEach((item: any) => {
-          const messages = item.conversation?.messages || [];
-          count += messages.filter((m: any) => !m.seen && m.sender_id !== user.id).length;
-        });
-        setUnreadCount(count);
+      if (!userConversations || userConversations.length === 0) {
+        if (!ignore) setUnreadCount(0);
+        return;
+      }
+      
+      const conversationIds = userConversations.map(c => c.conversation_id);
+      
+      // Count unread messages directly
+      const { count, error: countError } = await supabase
+        .from("messages")
+        .select("*", { count: 'exact', head: true })
+        .in("conversation_id", conversationIds)
+        .eq("seen", false)
+        .neq("sender_id", user.id);
+      
+      if (countError) {
+        console.error('Error counting unread messages:', countError);
+        return;
+      }
+      
+      if (!ignore) {
+        setUnreadCount(count || 0);
       }
     }
     
@@ -284,9 +333,9 @@ const MobileHeader = ({ user, profile, handleSignOut }: any) => (
       <Image
         src="/safetyshaper_logo.png"
         alt="Safety Shaper Logo"
-        width={60}
-        height={28}
-        className="h-7 w-auto"
+        width={150}
+        height={42}
+        className="h-9 w-auto max-h-9 object-contain object-left"
         priority
       />
     </Link>
@@ -307,9 +356,9 @@ const DesktopHeader = ({ user, profile, handleSignOut }: any) => (
         <Image
           src="/safetyshaper_logo.png"
           alt="Safety Shaper Logo"
-          width={65}
-          height={30}
-          className="mr-2 h-8 w-auto"
+          width={160}
+          height={44}
+          className="mr-2 h-10 w-auto max-h-10 object-contain object-left"
           priority
         />
       </Link>
@@ -320,13 +369,13 @@ const DesktopHeader = ({ user, profile, handleSignOut }: any) => (
               <NavigationMenuLink className={navigationMenuTriggerStyle()}>Home</NavigationMenuLink>
             </Link>
           </NavigationMenuItem>
-          {/* <NavigationMenuItem>
+          <NavigationMenuItem>
             <Link href="/knowledge" legacyBehavior passHref>
               <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                 Knowledge Hub
               </NavigationMenuLink>
             </Link>
-          </NavigationMenuItem> */}
+          </NavigationMenuItem>
           {/* <NavigationMenuItem>
             <Link href="/learning" legacyBehavior passHref>
               <NavigationMenuLink className={navigationMenuTriggerStyle()}>Learning</NavigationMenuLink>
@@ -364,6 +413,19 @@ const DesktopHeader = ({ user, profile, handleSignOut }: any) => (
                   </p>
                 </div>
                 <div className="grid gap-3">
+                  <Link
+                    href="/talent"
+                    className="flex items-center gap-2 p-2 rounded-md hover:bg-muted"
+                  >
+                    <Briefcase className="h-4 w-4 text-primary" />
+                    <div>
+                      <div className="font-medium">Talent search</div>
+                      <p className="text-xs text-muted-foreground">
+                        Find candidates by skills &amp; visibility
+                      </p>
+                    </div>
+                  </Link>
+
                   <Link
                     href="/network"
                     className="flex items-center gap-2 p-2 rounded-md hover:bg-muted"
@@ -424,6 +486,19 @@ const DesktopHeader = ({ user, profile, handleSignOut }: any) => (
                 </div>
                 <div className="grid gap-3">
                   <Link
+                    href="/jobs/ehs-safety"
+                    className="flex items-center gap-2 p-2 rounded-md hover:bg-muted"
+                  >
+                    <Shield className="h-4 w-4 text-primary" />
+                    <div>
+                      <div className="font-medium">EHS / Safety jobs</div>
+                      <p className="text-xs text-muted-foreground">
+                        Focused listings for safety &amp; compliance roles
+                      </p>
+                    </div>
+                  </Link>
+
+                  <Link
                     href="/jobs"
                     className="flex items-center gap-2 p-2 rounded-md hover:bg-muted"
                   >
@@ -467,6 +542,166 @@ const DesktopHeader = ({ user, profile, handleSignOut }: any) => (
           </NavigationMenuItem>
         </NavigationMenuList>
       </NavigationMenu>
+
+      <NavigationMenu>
+        <NavigationMenuList>
+          <NavigationMenuItem>
+            <NavigationMenuTrigger>
+              <ClipboardCheck className="h-5 w-5" />
+            </NavigationMenuTrigger>
+            <NavigationMenuContent>
+              <div className="w-[300px] p-4">
+                <div className="mb-3 pb-2 border-b">
+                  <h4 className="font-medium mb-1">Audits</h4>
+                  <p className="text-xs text-muted-foreground">Verified auditors, bookings &amp; evidence</p>
+                </div>
+                <div className="grid gap-3">
+                  <Link
+                    href="/audits"
+                    className="flex items-center gap-2 p-2 rounded-md hover:bg-muted"
+                  >
+                    <ClipboardCheck className="h-4 w-4 text-primary" />
+                    <div>
+                      <div className="font-medium">Overview</div>
+                      <p className="text-xs text-muted-foreground">How digital audits work</p>
+                    </div>
+                  </Link>
+                  <Link
+                    href="/audits/find"
+                    className="flex items-center gap-2 p-2 rounded-md hover:bg-muted"
+                  >
+                    <Shield className="h-4 w-4 text-primary" />
+                    <div>
+                      <div className="font-medium">Find auditors</div>
+                      <p className="text-xs text-muted-foreground">Map + nearby search</p>
+                    </div>
+                  </Link>
+                  <Link
+                    href="/audits/my-bookings"
+                    className="flex items-center gap-2 p-2 rounded-md hover:bg-muted"
+                  >
+                    <Calendar className="h-4 w-4 text-primary" />
+                    <div>
+                      <div className="font-medium">My audit bookings</div>
+                    </div>
+                  </Link>
+                </div>
+              </div>
+            </NavigationMenuContent>
+          </NavigationMenuItem>
+        </NavigationMenuList>
+      </NavigationMenu>
+
+      <NavigationMenu>
+        <NavigationMenuList>
+          <NavigationMenuItem>
+            <NavigationMenuTrigger>
+              <LayoutDashboard className="h-5 w-5" />
+            </NavigationMenuTrigger>
+            <NavigationMenuContent>
+              <div className="w-[300px] p-4">
+                <div className="mb-3 pb-2 border-b">
+                  <h4 className="font-medium mb-1">Insights</h4>
+                  <p className="text-xs text-muted-foreground">Dashboards, ESG, and compliance</p>
+                </div>
+                <div className="grid gap-3">
+                  <Link
+                    href="/insights"
+                    className="flex items-center gap-2 p-2 rounded-md hover:bg-muted"
+                  >
+                    <LayoutDashboard className="h-4 w-4 text-primary" />
+                    <div>
+                      <div className="font-medium">Overview</div>
+                      <p className="text-xs text-muted-foreground">Hub for analytics areas</p>
+                    </div>
+                  </Link>
+                  <Link
+                    href="/insights/operations"
+                    className="flex items-center gap-2 p-2 rounded-md hover:bg-muted"
+                  >
+                    <BarChart2 className="h-4 w-4 text-primary" />
+                    <div>
+                      <div className="font-medium">Operations</div>
+                      <p className="text-xs text-muted-foreground">KPIs and incident trends</p>
+                    </div>
+                  </Link>
+                  <Link
+                    href="/insights/esg"
+                    className="flex items-center gap-2 p-2 rounded-md hover:bg-muted"
+                  >
+                    <Leaf className="h-4 w-4 text-primary" />
+                    <div>
+                      <div className="font-medium">ESG metrics</div>
+                      <p className="text-xs text-muted-foreground">Monthly ESG data entry</p>
+                    </div>
+                  </Link>
+                  <Link
+                    href="/safety-assistant"
+                    className="flex items-center gap-2 p-2 rounded-md hover:bg-muted"
+                  >
+                    <Bot className="h-4 w-4 text-primary" />
+                    <div>
+                      <div className="font-medium">Safety Assistant</div>
+                      <p className="text-xs text-muted-foreground">AI Q&amp;A for EHS &amp; ESG</p>
+                    </div>
+                  </Link>
+                  <Link
+                    href="/compliance"
+                    className="flex items-center gap-2 p-2 rounded-md hover:bg-muted"
+                  >
+                    <Scale className="h-4 w-4 text-primary" />
+                    <div>
+                      <div className="font-medium">Compliance tracker</div>
+                      <p className="text-xs text-muted-foreground">Obligations and evidence</p>
+                    </div>
+                  </Link>
+                </div>
+              </div>
+            </NavigationMenuContent>
+          </NavigationMenuItem>
+        </NavigationMenuList>
+      </NavigationMenu>
+
+      <NavigationMenu>
+        <NavigationMenuList>
+          <NavigationMenuItem>
+            <NavigationMenuTrigger>
+              <GraduationCap className="h-5 w-5" />
+            </NavigationMenuTrigger>
+            <NavigationMenuContent>
+              <div className="w-[300px] p-4">
+                <div className="mb-3 pb-2 border-b">
+                  <h4 className="font-medium mb-1">Training</h4>
+                  <p className="text-xs text-muted-foreground">Courses, quizzes, and certificates</p>
+                </div>
+                <div className="grid gap-3">
+                  <Link
+                    href="/learn"
+                    className="flex items-center gap-2 p-2 rounded-md hover:bg-muted"
+                  >
+                    <GraduationCap className="h-4 w-4 text-primary" />
+                    <div>
+                      <div className="font-medium">Training hub</div>
+                      <p className="text-xs text-muted-foreground">LMS overview</p>
+                    </div>
+                  </Link>
+                  <Link
+                    href="/learn/courses"
+                    className="flex items-center gap-2 p-2 rounded-md hover:bg-muted"
+                  >
+                    <BookOpen className="h-4 w-4 text-primary" />
+                    <div>
+                      <div className="font-medium">Course catalog</div>
+                      <p className="text-xs text-muted-foreground">Published courses</p>
+                    </div>
+                  </Link>
+                </div>
+              </div>
+            </NavigationMenuContent>
+          </NavigationMenuItem>
+        </NavigationMenuList>
+      </NavigationMenu>
+
       <Button variant="ghost" size="icon" asChild>
         <Link href="/messages">
           <MessageBadge />
@@ -488,8 +723,8 @@ export const Navbar = memo(function Navbar() {
   const handleSignOut = useCallback(async () => {
     await supabase.auth.signOut();
     toast({ title: "Signed out successfully" });
-    router.push("/auth/login");
-    router.refresh(); // Force refresh to update header
+    router.replace("/auth/login");
+    router.refresh();
   }, [router, toast]);
 
   return (
@@ -507,9 +742,9 @@ export const Navbar = memo(function Navbar() {
               <Image
                 src="/safetyshaper_logo.png"
                 alt="Safety Shaper Logo"
-                width={65}
-                height={30}
-                className="mr-2 h-8 w-auto"
+                width={160}
+                height={44}
+                className="mr-2 h-10 w-auto max-h-10 object-contain object-left"
                 priority
               />
             </Link>

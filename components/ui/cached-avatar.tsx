@@ -2,6 +2,7 @@
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAvatarCache } from "@/hooks/use-avatar-cache";
+import { useOnlinePresence } from "@/contexts/online-presence-context";
 import { cn } from "@/lib/utils";
 
 interface CachedAvatarProps {
@@ -36,6 +37,8 @@ export function CachedAvatar({
   className 
 }: CachedAvatarProps) {
   const { cachedAvatar, initials } = useAvatarCache(userId, avatarUrl, fullName);
+  const { isUserOnline } = useOnlinePresence();
+  const online = userId ? isUserOnline(userId) : false;
 
   return (
     <div className="relative">
@@ -52,8 +55,14 @@ export function CachedAvatar({
           {initials}
         </AvatarFallback>
       </Avatar>
-      {showOnlineStatus && (
-        <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white shadow-sm"></div>
+      {showOnlineStatus && userId && (
+        <div
+          className={cn(
+            "absolute -bottom-1 -right-1 w-3 h-3 rounded-full border-2 border-white shadow-sm",
+            online ? "bg-green-500" : "bg-gray-400"
+          )}
+          title={online ? "Online" : "Offline"}
+        />
       )}
     </div>
   );

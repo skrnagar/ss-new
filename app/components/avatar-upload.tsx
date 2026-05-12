@@ -1,11 +1,8 @@
 "use client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/lib/supabase";
-import { useRouter } from "next/navigation";
-import { useRef, useState } from "react";
+import { cn } from "@/lib/utils";
+import { useState } from "react";
 import { ProfilePhotoModal } from "./profile-photo-modal";
 
 interface AvatarUploadProps {
@@ -24,8 +21,6 @@ export function AvatarUpload({
   onAvatarChange,
 }: AvatarUploadProps) {
   const [modalOpen, setModalOpen] = useState(false);
-  const { toast } = useToast();
-  const router = useRouter();
 
   // Get initials for avatar fallback
   const getInitials = (name: string) => {
@@ -47,15 +42,19 @@ export function AvatarUpload({
   return (
     <>
       <Avatar
-        className={`h-34 w-34 shadow-lg bg-white transition-transform duration-200 ${isOwnProfile ? "cursor-pointer hover:scale-105 hover:shadow-2xl" : ""}`}
+        className={cn(
+          "h-28 w-28 shrink-0 shadow-lg sm:h-32 sm:w-32",
+          isOwnProfile &&
+            "cursor-pointer transition-transform hover:scale-[1.02] hover:shadow-xl"
+        )}
         onClick={handleAvatarClick}
       >
-        <div className="">
-          <div className="h-full w-full rounded-full bg-white p-1">
-            <AvatarImage src={avatarUrl || "/placeholder-user.jpg"} alt={name} className="object-cover rounded-full" />
-            <AvatarFallback className="rounded-full">{getInitials(name)}</AvatarFallback>
-          </div>
-        </div>
+        <AvatarImage
+          src={avatarUrl || undefined}
+          alt={name}
+          className="object-cover"
+        />
+        <AvatarFallback className="text-lg font-semibold">{getInitials(name)}</AvatarFallback>
       </Avatar>
 
       {/* Profile Photo Modal */}

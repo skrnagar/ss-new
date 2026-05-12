@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/auth-context";
 import { useConversations } from "@/contexts/conversation-context";
-import { useToast } from "@/hooks/use-toast";
+import { useOnlinePresence } from "@/contexts/online-presence-context";
+import { CachedAvatar } from "@/components/ui/cached-avatar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -65,13 +66,8 @@ interface SupabaseConversationParticipantRow {
   id: string;
 }
 
-function isProfile(user: any): user is { id: string; full_name: string; avatar_url: string } {
-  return (
-    user &&
-    typeof user.id === 'string' &&
-    typeof user.full_name === 'string' &&
-    typeof user.avatar_url === 'string'
-  );
+function isProfile(user: any): user is { id: string; full_name: string; avatar_url?: string | null } {
+  return Boolean(user && typeof user.id === "string" && typeof user.full_name === "string");
 }
 
 export function ChatList({ initialUserId }: ChatListProps) {
@@ -81,7 +77,7 @@ export function ChatList({ initialUserId }: ChatListProps) {
   const { session } = useAuth();
   const { conversations, loading, error, refreshConversations, updateKey } = useConversations();
   const user = session?.user;
-  const { toast } = useToast();
+  const { isUserOnline } = useOnlinePresence();
 
   useEffect(() => {
     if (!user || !initialUserId) return;
@@ -151,17 +147,6 @@ export function ChatList({ initialUserId }: ChatListProps) {
   const otherUser = selectedConversation
     ? conversations.find((c) => c.id === selectedConversation)?.participants[0]
     : null;
-
-  const validSelectedConversation = typeof selectedConversation === 'string' && selectedConversation ? selectedConversation : '';
-  const validOtherUser = otherUser && typeof otherUser.id === 'string' && otherUser.full_name && otherUser.avatar_url ? otherUser : null;
-
-  const isValidChat =
-    typeof selectedConversation === 'string' &&
-    !!selectedConversation &&
-    otherUser &&
-    typeof otherUser.id === 'string' &&
-    otherUser.full_name &&
-    otherUser.avatar_url;
 
   const formatTime = (dateString: string) => {
     const date = new Date(dateString);
@@ -236,16 +221,13 @@ export function ChatList({ initialUserId }: ChatListProps) {
                 >
                   <div className="p-4">
                     <div className="flex items-center space-x-3">
-                      <div className="relative">
-                        <Avatar className="h-12 w-12 ring-2 ring-white shadow-sm">
-                          <AvatarImage src={conversation.participants[0]?.avatar_url} />
-                          <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white font-semibold">
-                            {conversation.participants[0]?.full_name?.[0]}
-                          </AvatarFallback>
-                        </Avatar>
-                        {/* Online indicator */}
-                        <div className="absolute -bottom-1 -right-1 h-4 w-4 bg-green-500 rounded-full border-2 border-white shadow-sm"></div>
-                      </div>
+                      <CachedAvatar
+                        userId={conversation.participants[0]?.id || ""}
+                        avatarUrl={conversation.participants[0]?.avatar_url}
+                        fullName={conversation.participants[0]?.full_name}
+                        size="lg"
+                        showOnlineStatus
+                      />
                       
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between mb-1">
@@ -323,12 +305,13 @@ export function ChatList({ initialUserId }: ChatListProps) {
         </ScrollArea>
       </div>
 
-      {/* Section 2: Chat Window */}
-      <div className={cn(
-        "flex-1 h-full min-h-0 flex flex-col w-full",
-        (selectedConversation && isProfile(otherUser)) ? 'flex' : 'hidden',
-        "lg:flex relative"
-      )}>
+      {/* Section 2: Chat Window — desktop inline; mobile uses full-screen panel below */}
+      <div
+        className={cn(
+          "flex-1 h-full min-h-0 flex flex-col w-full relative",
+          selectedConversation && isProfile(otherUser) ? "hidden lg:flex" : "flex"
+        )}
+      >
         {selectedConversation && isProfile(otherUser) ? (
           <>
             {/* Chat Header */}
@@ -345,16 +328,23 @@ export function ChatList({ initialUserId }: ChatListProps) {
                   <ArrowLeft className="h-5 w-5" />
                 </Button>
                 <Avatar className="h-10 w-10 ring-2 ring-white shadow-sm">
-                  <AvatarImage src={otherUser.avatar_url} />
+                  <AvatarImage src={otherUser.avatar_url || undefined} />
                   <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white font-semibold">
-                    {otherUser.full_name[0]}
+                    {otherUser.full_name?.[0] ?? "?"}
                   </AvatarFallback>
                 </Avatar>
                 <div>
                   <h3 className="font-semibold text-gray-900">{otherUser.full_name}</h3>
                   <div className="flex items-center space-x-1">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <p className="text-sm text-gray-500">Active now</p>
+                    <div
+                      className={cn(
+                        "w-2 h-2 rounded-full",
+                        isUserOnline(otherUser.id) ? "bg-green-500" : "bg-gray-400"
+                      )}
+                    />
+                    <p className="text-sm text-gray-500">
+                      {isUserOnline(otherUser.id) ? "Active now" : "Offline"}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -419,16 +409,23 @@ export function ChatList({ initialUserId }: ChatListProps) {
                 <ArrowLeft className="h-5 w-5" />
               </Button>
               <Avatar className="h-10 w-10 ring-2 ring-white shadow-sm">
-                <AvatarImage src={otherUser?.avatar_url} />
+                <AvatarImage src={otherUser?.avatar_url || undefined} />
                 <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white font-semibold">
-                  {otherUser?.full_name?.[0]}
+                  {otherUser?.full_name?.[0] ?? "?"}
                 </AvatarFallback>
               </Avatar>
               <div>
                 <h3 className="font-semibold text-gray-900">{otherUser?.full_name}</h3>
                 <div className="flex items-center space-x-1">
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  <p className="text-sm text-gray-500">Active now</p>
+                  <div
+                    className={cn(
+                      "w-2 h-2 rounded-full",
+                      otherUser?.id && isUserOnline(otherUser.id) ? "bg-green-500" : "bg-gray-400"
+                    )}
+                  />
+                  <p className="text-sm text-gray-500">
+                    {otherUser?.id && isUserOnline(otherUser.id) ? "Active now" : "Offline"}
+                  </p>
                 </div>
               </div>
             </div>

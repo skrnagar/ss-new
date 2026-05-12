@@ -18,12 +18,13 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabase";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import * as React from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
 const profileEditSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
+  full_name: z.string().min(2, "Full name must be at least 2 characters"),
   username: z
     .string()
     .min(3, "Username must be at least 3 characters")
@@ -38,6 +39,8 @@ const profileEditSchema = z.object({
   location: z.string().min(2, "Location must be at least 2 characters"),
   phone: z.string().optional(),
   website: z.string().url("Please enter a valid URL").optional().or(z.literal("")),
+  professional_role: z.enum(["job_seeker", "recruiter", "auditor"]),
+  auditor_services_summary: z.string().max(4000).optional().or(z.literal("")),
 });
 
 export default function ProfileEditPage() {
@@ -52,7 +55,7 @@ export default function ProfileEditPage() {
   const form = useForm<z.infer<typeof profileEditSchema>>({
     resolver: zodResolver(profileEditSchema),
     defaultValues: {
-      name: "",
+      full_name: "",
       username: "",
       headline: "",
       bio: "",
@@ -61,8 +64,14 @@ export default function ProfileEditPage() {
       location: "",
       phone: "",
       website: "",
+      professional_role: "job_seeker" as "job_seeker" | "recruiter" | "auditor",
+      auditor_services_summary: "",
     },
   });
+
+  const professionalRole = form.watch("professional_role");
+  const fullNameWatch = form.watch("full_name");
+  const [geoLoading, setGeoLoading] = React.useState(false);
 
   React.useEffect(() => {
     async function getProfileData() {
@@ -101,7 +110,10 @@ export default function ProfileEditPage() {
 
         // Set form values
         form.reset({
-          name: profileData.name || user?.user_metadata?.name || "",
+          full_name:
+            profileData.full_name ||
+            (user?.user_metadata?.name as string | undefined) ||
+            "",
           username: profileData.username || "",
           headline: profileData.headline || "",
           bio: profileData.bio || "",
@@ -110,6 +122,8 @@ export default function ProfileEditPage() {
           location: profileData.location || "",
           phone: profileData.phone || "",
           website: profileData.website || "",
+          professional_role: (profileData.professional_role as "job_seeker" | "recruiter" | "auditor") || "job_seeker",
+          auditor_services_summary: profileData.auditor_services_summary || "",
         });
       } catch (error) {
         console.error("Error loading profile:", error);
@@ -132,13 +146,24 @@ export default function ProfileEditPage() {
     try {
       // Check if username is already taken (if changed)
       if (values.username !== profile.username) {
-        const { data: existingUser, error: usernameCheckError } = await supabase
+        const { data: taken, error: usernameErr } = await supabase
           .from("profiles")
-          .select("username")
+          .select("id")
           .eq("username", values.username)
-          .single();
+          .neq("id", user.id)
+          .maybeSingle();
 
-        if (existingUser) {
+        if (usernameErr) {
+          toast({
+            title: "Could not verify username",
+            description: usernameErr.message,
+            variant: "destructive",
+          });
+          setLoading(false);
+          return;
+        }
+
+        if (taken) {
           form.setError("username", {
             type: "manual",
             message: "This username is already taken",
@@ -152,7 +177,7 @@ export default function ProfileEditPage() {
       const { error } = await supabase
         .from("profiles")
         .update({
-          name: values.name,
+          full_name: values.full_name,
           username: values.username,
           headline: values.headline,
           bio: values.bio,
@@ -161,6 +186,11 @@ export default function ProfileEditPage() {
           location: values.location,
           phone: values.phone || null,
           website: values.website || null,
+          professional_role: values.professional_role,
+          auditor_services_summary:
+            values.professional_role === "auditor" && values.auditor_services_summary
+              ? values.auditor_services_summary
+              : null,
           avatar_url: avatarUrl,
           updated_at: new Date().toISOString(),
         })
@@ -195,6 +225,41 @@ export default function ProfileEditPage() {
   const handleAvatarClick = () => {
     fileInputRef.current?.click();
   };
+
+  async function pinLocationOnMap() {
+    const loc = form.getValues("location")?.trim();
+    if (!loc) {
+      toast({ title: "Add a location first", variant: "destructive" });
+      return;
+    }
+    if (!user?.id) return;
+    setGeoLoading(true);
+    try {
+      const res = await fetch(`/api/maps/geocode?address=${encodeURIComponent(loc)}`);
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || data.hint || "Geocode failed");
+      }
+      const { error } = await supabase
+        .from("profiles")
+        .update({
+          latitude: data.lat,
+          longitude: data.lng,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", user.id);
+      if (error) throw error;
+      toast({
+        title: "Map coordinates saved",
+        description: data.formatted_address || "You can appear on the auditor map search.",
+      });
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : "Could not geocode";
+      toast({ title: "Geocoding failed", description: msg, variant: "destructive" });
+    } finally {
+      setGeoLoading(false);
+    }
+  }
 
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -271,13 +336,18 @@ export default function ProfileEditPage() {
               accept="image/*"
               onChange={handleFileChange}
             />
-            <Avatar className="h-24 w-24 cursor-pointer" onClick={handleAvatarClick}>
-              <div className="h-full w-full rounded-full p-1 bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500">
-                <div className="h-full w-full rounded-full bg-white p-1">
-                  <AvatarImage src={profile?.avatar_url || ""} alt={profile?.full_name || "User"} className="object-cover rounded-full" />
-                  <AvatarFallback className="rounded-full">{getInitials(profile?.full_name || "")}</AvatarFallback>
-                </div>
-              </div>
+            <Avatar
+              className="h-24 w-24 cursor-pointer shadow-md ring-4 ring-background"
+              onClick={handleAvatarClick}
+            >
+              <AvatarImage
+                src={avatarUrl || profile?.avatar_url || undefined}
+                alt={fullNameWatch || profile?.full_name || "User"}
+                className="object-cover"
+              />
+              <AvatarFallback className="text-xl font-semibold">
+                {getInitials(fullNameWatch || profile?.full_name || "")}
+              </AvatarFallback>
             </Avatar>
             <Button variant="outline" size="sm" onClick={handleAvatarClick}>
               Change Photo
@@ -288,7 +358,7 @@ export default function ProfileEditPage() {
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <FormField
                 control={form.control}
-                name="name"
+                name="full_name"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Full Name</FormLabel>
@@ -310,7 +380,8 @@ export default function ProfileEditPage() {
                       <Input {...field} />
                     </FormControl>
                     <FormDescription>
-                      Your profile URL: safetyshaper.com/profile/{field.value || "username"}
+                      Your profile URL: {typeof window !== "undefined" ? window.location.host : "yoursite.com"}
+                      /profile/{field.value || "username"}
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -392,10 +463,68 @@ export default function ProfileEditPage() {
                     <FormControl>
                       <Input placeholder="San Francisco, CA" {...field} />
                     </FormControl>
+                    <FormDescription className="flex flex-col gap-2">
+                      <span>Used for auditor “near me” search after you pin coordinates.</span>
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        size="sm"
+                        className="w-fit"
+                        disabled={geoLoading}
+                        onClick={() => void pinLocationOnMap()}
+                      >
+                        {geoLoading ? "Geocoding…" : "Save map pin from this address"}
+                      </Button>
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
               />
+
+              <FormField
+                control={form.control}
+                name="professional_role"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Primary professional type</FormLabel>
+                    <FormControl>
+                      <select
+                        className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm h-10"
+                        value={field.value}
+                        onChange={field.onChange}
+                      >
+                        <option value="job_seeker">Job seeker</option>
+                        <option value="recruiter">Recruiter / hiring</option>
+                        <option value="auditor">Independent auditor / consultant</option>
+                      </select>
+                    </FormControl>
+                    <FormDescription>
+                      Auditors can request platform verification and accept digital audit bookings.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {professionalRole === "auditor" && (
+                <FormField
+                  control={form.control}
+                  name="auditor_services_summary"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Audit services (shown on your profile)</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="ISO 45001 audits, site inspections, gap analysis…"
+                          className="min-h-24"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
 
               <FormField
                 control={form.control}
@@ -424,6 +553,14 @@ export default function ProfileEditPage() {
                   </FormItem>
                 )}
               />
+
+              <p className="text-sm text-muted-foreground border-t pt-4">
+                Security, two-factor authentication, and job-alert emails:{" "}
+                <Link href="/settings" className="text-primary font-medium underline underline-offset-2">
+                  Account settings
+                </Link>
+                .
+              </p>
 
               <div className="flex gap-2 pt-4">
                 <Button type="submit" disabled={loading}>

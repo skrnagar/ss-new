@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { MessageSquare, ArrowLeft, Users, Search, Plus, X, Phone, Video } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
 import { useConversations } from "@/contexts/conversation-context";
+import { useOnlinePresence } from "@/contexts/online-presence-context";
 import Link from "next/link";
 import { ChatWindow } from "@/components/chat/chat-window";
 import { UserSearchModal } from "@/components/chat/user-search-modal";
@@ -45,6 +46,7 @@ export function ChatInterface({ onBack, showBackButton = false, className = "" }
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { session, isLoading } = useAuth();
   const { conversations, loading, error, refreshConversations, updateKey } = useConversations();
+  const { isUserOnline } = useOnlinePresence();
   const user = session?.user;
 
   // Conversations are now managed by the context
@@ -80,9 +82,10 @@ export function ChatInterface({ onBack, showBackButton = false, className = "" }
             .eq("id", userId)
             .single();
           
-          if (userData) {
+      if (userData) {
             setSelectedUser(userData);
           }
+          refreshConversations();
           return;
         }
       }
@@ -114,6 +117,7 @@ export function ChatInterface({ onBack, showBackButton = false, className = "" }
       if (userData) {
         setSelectedUser(userData);
       }
+      refreshConversations();
     } catch (error) {
       console.error("Error starting conversation:", error);
     }
@@ -196,8 +200,14 @@ export function ChatInterface({ onBack, showBackButton = false, className = "" }
                 <div>
                   <h3 className="font-semibold text-gray-900">{selectedUser.full_name}</h3>
                   <div className="flex items-center space-x-1">
-                    <div className="w-2 h-2 bg-green-500 rounded-full shadow-sm"></div>
-                    <p className="text-sm text-gray-500">Active now</p>
+                    <div
+                      className={`w-2 h-2 rounded-full ${
+                        isUserOnline(selectedUser.id) ? "bg-green-500" : "bg-gray-400"
+                      }`}
+                    />
+                    <p className="text-sm text-gray-500">
+                      {isUserOnline(selectedUser.id) ? "Active now" : "Offline"}
+                    </p>
                   </div>
                 </div>
               </div>

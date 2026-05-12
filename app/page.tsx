@@ -2,7 +2,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { createLegacyClient } from "@/lib/supabase-server";
 import {
   Award,
   BarChart,
@@ -16,20 +15,11 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { AuthButtons } from "./components/auth-buttons";
 import { HeroAuthButtons } from "./components/hero-auth-buttons";
 
-export default async function Home() {
-  // Check if user is authenticated and redirect to feed
-  const supabase = createLegacyClient();
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
-
-  if (session) {
-    redirect("/feed");
-  }
+export default function Home() {
+  // Logged-in users are sent to /feed (or /profile/setup) in middleware — no duplicate session read here.
   return (
     <div className="flex flex-col min-h-screen">
       {/* Hero Section */}

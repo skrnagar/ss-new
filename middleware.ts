@@ -19,6 +19,7 @@ const protectedRoutes = [
   "/chat",
   "/posts/create",
   "/articles/create",
+  "/settings",
 ];
 
 // Routes that should redirect to feed if already authenticated
@@ -48,8 +49,9 @@ export async function middleware(request: NextRequest) {
     // Check admin authentication for other admin routes
     const session = await getAdminSessionFromRequest(request);
     // If is_approved is null/undefined, treat super_admin as approved (for existing users)
-    const isApproved = session?.admin_user?.is_approved ?? (session?.admin_user?.role === "super_admin");
-    
+    const isApproved =
+      session?.admin_user?.is_approved ?? session?.admin_user?.role === "super_admin";
+
     if (!session || !session.admin_user || !session.admin_user.is_active || !isApproved) {
       // Only redirect if it's not already the login page
       if (path !== "/admin/login") {
@@ -100,29 +102,27 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(redirectUrl);
     }
 
-    // Special handling for chat-related routes
-    if ((path.startsWith("/chat") || path.startsWith("/messages")) && !isAuthenticated) {
-      const redirectUrl = new URL("/auth/login", request.url);
-      redirectUrl.searchParams.set("redirectUrl", url.pathname);
-      return NextResponse.redirect(redirectUrl);
-    }
+    // Check if the user is accessing auth routes while already authenticated
+    const isAuthRoute = authRoutes.some((route) => path === route || path.startsWith(`${route}/`));
 
-    // New logic: Check for profile completeness if the user is authenticated
-    if (isAuthenticated && path !== "/profile/setup" && !path.startsWith("/api/")) {
+    // Profile gate: only hit DB for routes that need an onboarded profile (faster on public pages)
+    const isProfileSetupPath = path === "/profile/setup" || path.startsWith("/profile/setup/");
+    const requiresProfileRow =
+      isProtectedRoute ||
+      isAuthRoute ||
+      (path.startsWith("/profile") && !isProfileSetupPath);
+
+    if (isAuthenticated && requiresProfileRow && !path.startsWith("/api/")) {
       const { data: profile } = await supabase
         .from("profiles")
         .select("username")
         .eq("id", session.user.id)
-        .single();
+        .maybeSingle();
 
-      // If profile is missing or username is not set, redirect to setup
-      if (!profile || !profile.username) {
+      if (!profile?.username) {
         return NextResponse.redirect(new URL("/profile/setup", request.url));
       }
     }
-
-    // Check if the user is accessing auth routes while already authenticated
-    const isAuthRoute = authRoutes.some((route) => path === route || path.startsWith(`${route}/`));
 
     if (isAuthRoute && isAuthenticated) {
       // Redirect authenticated users trying to access auth pages to feed

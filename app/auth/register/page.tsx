@@ -24,7 +24,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowLeft, Lock, Mail, User } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 import { useForm } from "react-hook-form";
@@ -62,7 +61,7 @@ function RegisterFormContent() {
       title: "Registration successful",
       description: "Please check your email to verify your account.",
     });
-    setTimeout(() => router.push("/auth/login"), 1500);
+    setTimeout(() => router.replace("/auth/login"), 1500);
   }
 
   return (

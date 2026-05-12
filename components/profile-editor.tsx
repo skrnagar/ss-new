@@ -8,7 +8,7 @@ import { supabase } from "@/lib/supabase";
 import { useState } from "react";
 
 export function ProfileEditor({ profile, onUpdate }: { profile: any; onUpdate: () => void }) {
-  const [name, setName] = useState(profile.name || "");
+  const [username, setUsername] = useState(profile.username || "");
   const [fullName, setFullName] = useState(profile.full_name || "");
   const [bio, setBio] = useState(profile.bio || "");
   const [position, setPosition] = useState(profile.position || "");
@@ -64,7 +64,7 @@ export function ProfileEditor({ profile, onUpdate }: { profile: any; onUpdate: (
       const { error: updateError } = await supabase
         .from("profiles")
         .update({
-          name,
+          username,
           full_name: fullName,
           bio,
           position,
@@ -103,8 +103,8 @@ export function ProfileEditor({ profile, onUpdate }: { profile: any; onUpdate: (
       <div>
         <label className="block text-sm font-medium mb-1">Username</label>
         <Input
-          value={name}
-          onChange={(e) => setName(e.target.value)}
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
           placeholder="Your username"
           required
         />

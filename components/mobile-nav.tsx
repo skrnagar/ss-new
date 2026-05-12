@@ -30,23 +30,39 @@ export function MobileNav() {
     async function fetchUnread() {
       if (!user?.id || ignore) return;
       
-      const { data, error } = await supabase
+      // First, get all conversation IDs for this user
+      const { data: userConversations, error: convError } = await supabase
         .from("conversation_participants")
-        .select(`conversation:conversations!inner(id, messages(seen, sender_id))`)
+        .select("conversation_id")
         .eq("profile_id", user.id);
       
-      if (error) {
-        console.error('Error fetching mobile unread count:', error);
+      if (convError) {
+        console.error('Error fetching conversations:', convError);
         return;
       }
       
-      if (!ignore && data) {
-        let count = 0;
-        data.forEach((item: any) => {
-          const messages = item.conversation?.messages || [];
-          count += messages.filter((m: any) => !m.seen && m.sender_id !== user.id).length;
-        });
-        setUnreadCount(count);
+      if (!userConversations || userConversations.length === 0) {
+        if (!ignore) setUnreadCount(0);
+        return;
+      }
+      
+      const conversationIds = userConversations.map(c => c.conversation_id);
+      
+      // Count unread messages directly
+      const { count, error: countError } = await supabase
+        .from("messages")
+        .select("*", { count: 'exact', head: true })
+        .in("conversation_id", conversationIds)
+        .eq("seen", false)
+        .neq("sender_id", user.id);
+      
+      if (countError) {
+        console.error('Error counting unread messages:', countError);
+        return;
+      }
+      
+      if (!ignore) {
+        setUnreadCount(count || 0);
       }
     }
     
