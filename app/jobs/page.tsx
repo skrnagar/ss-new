@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
+import { JobAlertsPanel } from "@/components/jobs/job-alerts-panel";
 
 interface Job {
   id: string;
@@ -158,7 +159,12 @@ export default function JobsPage() {
                 <Briefcase className="h-8 w-8 text-primary" />
                 Jobs
               </h1>
-              <p className="text-gray-600 mt-1">Find your next opportunity in ESG & EHS</p>
+              <p className="text-gray-600 mt-1">
+                Find your next opportunity in ESG &amp; EHS —{" "}
+                <Link href="/jobs/ehs-safety" className="text-primary font-medium hover:underline">
+                  browse EHS / Safety roles
+                </Link>
+              </p>
             </div>
             {session && (
               <Button asChild>
@@ -357,6 +363,8 @@ export default function JobsPage() {
 
           {/* Sidebar */}
           <div className="space-y-6">
+            <JobAlertsPanel />
+
             {/* Quick Filters */}
             <Card>
               <CardHeader>

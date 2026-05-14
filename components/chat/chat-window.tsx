@@ -25,7 +25,7 @@ interface Message {
 
 interface Profile {
   id: string;
-  avatar_url: string;
+  avatar_url: string | null;
   full_name: string;
 }
 
@@ -50,35 +50,42 @@ export function ChatWindow({ conversationId, otherUser, currentUserId, onMessage
   const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const messagesChannelRef = useRef<any>(null);
 
+  const typingReadyRef = useRef(false);
+
   // Typing indicator: broadcast when typing
   useEffect(() => {
     if (!conversationId) return;
-    // Subscribe to typing events
+    typingReadyRef.current = false;
     const channel = supabase.channel(`typing:${conversationId}`);
     typingChannelRef.current = channel;
-    channel.on('broadcast', { event: 'typing' }, (payload) => {
-      if (payload.payload.userId !== currentUserId) {
+    channel.on("broadcast", { event: "typing" }, (payload) => {
+      const uid = (payload as { payload?: { userId?: string } }).payload?.userId;
+      if (uid && uid !== currentUserId) {
         setOtherTyping(true);
         if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
         typingTimeoutRef.current = setTimeout(() => setOtherTyping(false), 2000);
       }
     });
-    channel.subscribe();
+    channel.subscribe((status) => {
+      typingReadyRef.current = status === "SUBSCRIBED";
+    });
     return () => {
-      channel.unsubscribe();
+      typingReadyRef.current = false;
+      void channel.unsubscribe();
+      if (typingChannelRef.current === channel) typingChannelRef.current = null;
       if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
     };
   }, [conversationId, currentUserId]);
 
   // Broadcast typing event
   const handleTyping = () => {
-    if (typingChannelRef.current) {
-      typingChannelRef.current.send({
-        type: 'broadcast',
-        event: 'typing',
-        payload: { userId: currentUserId },
-      });
-    }
+    const ch = typingChannelRef.current;
+    if (!ch || !typingReadyRef.current) return;
+    void ch.send({
+      type: "broadcast",
+      event: "typing",
+      payload: { userId: currentUserId },
+    });
   };
 
   // Use useCallback to memoize fetchMessages
@@ -104,9 +111,22 @@ export function ChatWindow({ conversationId, otherUser, currentUserId, onMessage
     setMessages(sortedMessages);
     scrollToBottom();
 
-    const unseenMessages = sortedMessages.filter((msg) => !msg.seen && msg.sender_id !== currentUserId);
-    if (unseenMessages?.length) {
-      await Promise.all(unseenMessages.map((msg) => markAsRead(msg.id)));
+    const unseenIds = sortedMessages
+      .filter((msg) => !msg.seen && msg.sender_id !== currentUserId)
+      .map((msg) => msg.id);
+    if (unseenIds.length > 0) {
+      const seenAt = new Date().toISOString();
+      const { error: readErr } = await supabase
+        .from("messages")
+        .update({ seen: true, seen_at: seenAt })
+        .in("id", unseenIds);
+      if (!readErr) {
+        setMessages((prev) =>
+          prev.map((m) =>
+            unseenIds.includes(m.id) ? { ...m, seen: true, seen_at: seenAt } : m
+          )
+        );
+      }
     }
   }, [conversationId, currentUserId, toast]);
 
@@ -156,7 +176,7 @@ export function ChatWindow({ conversationId, otherUser, currentUserId, onMessage
     // Fallback polling as backup
     pollingIntervalRef.current = setInterval(() => {
       fetchMessages();
-    }, 5000); // Poll every 5 seconds as backup
+    }, 15000);
 
     return () => {
       if (messagesChannelRef.current) {
@@ -171,20 +191,31 @@ export function ChatWindow({ conversationId, otherUser, currentUserId, onMessage
   }, [conversationId, currentUserId, fetchMessages]);
 
   const scrollToBottom = () => {
-    if (scrollAreaRef.current) {
-      // Scroll only within the chat window, not the entire page
-      scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
-    }
+    // Use setTimeout to ensure DOM is updated before scrolling
+    setTimeout(() => {
+      // Try to find the viewport element inside ScrollArea
+      if (scrollAreaRef.current) {
+        const viewport = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
+        if (viewport) {
+          viewport.scrollTop = viewport.scrollHeight;
+        }
+      }
+      // Also scroll scrollRef (the div at the bottom) as backup
+      if (scrollRef.current) {
+        scrollRef.current.scrollIntoView({ behavior: 'auto' });
+      }
+    }, 50);
   };
 
   const sendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newMessage.trim() || isLoading) return;
+    if (!newMessage.trim() || isLoading || !otherUser?.id) return;
     setIsLoading(true);
     
     const messageToSend = {
       conversation_id: conversationId,
       sender_id: currentUserId,
+      receiver_id: otherUser.id, // Add receiver_id - required by database schema
       content: newMessage.trim(),
       created_at: new Date().toISOString(),
       seen: false,
@@ -224,13 +255,6 @@ export function ChatWindow({ conversationId, otherUser, currentUserId, onMessage
       }
     }
     setIsLoading(false);
-  };
-
-  const markAsRead = async (messageId: string) => {
-    await supabase
-      .from("messages")
-      .update({ seen: true, seen_at: new Date().toISOString() })
-      .eq("id", messageId);
   };
 
   const formatMessageTime = (dateString: string) => {
@@ -313,9 +337,9 @@ export function ChatWindow({ conversationId, otherUser, currentUserId, onMessage
                         {showAvatar && (
                           <div className="flex-shrink-0">
                             <Avatar className="h-8 w-8">
-                              <AvatarImage src={otherUser.avatar_url} />
+                              <AvatarImage src={otherUser.avatar_url ?? undefined} />
                               <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white text-xs">
-                                {otherUser.full_name[0]}
+                                {otherUser.full_name?.[0] ?? "?"}
                               </AvatarFallback>
                             </Avatar>
                           </div>
@@ -393,9 +417,9 @@ export function ChatWindow({ conversationId, otherUser, currentUserId, onMessage
             {otherTyping && (
               <div className="flex items-end space-x-2">
                 <Avatar className="h-8 w-8">
-                  <AvatarImage src={otherUser.avatar_url} />
+                  <AvatarImage src={otherUser.avatar_url ?? undefined} />
                   <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white text-xs">
-                    {otherUser.full_name[0]}
+                    {otherUser.full_name?.[0] ?? "?"}
                   </AvatarFallback>
                 </Avatar>
                 <div className="bg-white border border-gray-200 rounded-2xl rounded-bl-md px-4 py-2 shadow-sm">

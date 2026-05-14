@@ -3,12 +3,14 @@ import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
 import type { NextRequest } from "next/server";
+import { safeRedirectPath } from "@/lib/safe-redirect-path";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url);
   const code = requestUrl.searchParams.get("code");
+  const nextPath = safeRedirectPath(requestUrl.searchParams.get("next"));
 
   if (code) {
     const supabase = createRouteHandlerClient({ cookies });
@@ -23,11 +25,14 @@ export async function GET(request: NextRequest) {
         .from("profiles")
         .select("username")
         .eq("id", user.id)
-        .single();
+        .maybeSingle();
 
       // If the user has a profile with a username, redirect to the feed.
       // Otherwise, redirect to the profile setup page.
       if (profile?.username) {
+        if (nextPath) {
+          return NextResponse.redirect(new URL(nextPath, request.url));
+        }
         return NextResponse.redirect(new URL("/feed", request.url));
       }
       return NextResponse.redirect(new URL("/profile/setup", request.url));

@@ -5,7 +5,7 @@ import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
-import { Bell, UserPlus, UserCheck, UserMinus, ArrowRight, Heart, MessageSquare } from "lucide-react";
+import { Bell, UserPlus, UserCheck, UserMinus, ArrowRight, Heart, MessageSquare, Briefcase } from "lucide-react";
 
 const notificationIcon = (type: string) => {
   switch (type) {
@@ -21,6 +21,8 @@ const notificationIcon = (type: string) => {
       return <Heart className="h-5 w-5 text-red-500 mr-3" />;
     case "post_comment":
       return <MessageSquare className="h-5 w-5 text-blue-500 mr-3" />;
+    case "job_alert":
+      return <Briefcase className="h-5 w-5 text-amber-600 mr-3" />;
     default:
       return <Bell className="h-5 w-5 text-gray-400 mr-3" />;
   }
@@ -51,6 +53,8 @@ const NotificationItem = React.memo(function NotificationItem({ n, onRead }: { n
         return "bg-blue-50 border-l-4 border-blue-500 font-semibold";
       case "connection_accepted":
         return "bg-green-50 border-l-4 border-green-500 font-semibold";
+      case "job_alert":
+        return "bg-amber-50 border-l-4 border-amber-500 font-semibold";
       default:
         return "bg-blue-50 border-l-4 border-blue-500 font-semibold";
     }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -59,7 +59,7 @@ interface SearchResult {
   };
 }
 
-export default function SearchPage() {
+function SearchPageContent() {
   const searchParams = useSearchParams();
   const query = searchParams.get("q") || "";
   
@@ -591,6 +591,20 @@ function SearchResultCard({ result }: { result: SearchResult }) {
         </div>
       </CardContent>
     </Card>
+  );
+}
+
+export default function SearchPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="container flex min-h-[40vh] items-center justify-center py-12">
+          <p className="text-sm text-muted-foreground">Loading search…</p>
+        </div>
+      }
+    >
+      <SearchPageContent />
+    </Suspense>
   );
 }
 

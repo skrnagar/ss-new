@@ -49,6 +49,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
+import { Switch } from "@/components/ui/switch";
 import Link from "next/link";
 
 interface User {
@@ -63,6 +64,9 @@ interface User {
   location: string;
   bio: string;
   created_at: string;
+  verified?: boolean | null;
+  professional_role?: string | null;
+  auditor_verification_status?: string | null;
 }
 
 interface UserDetails {
@@ -172,6 +176,28 @@ export default function UsersManagementPage() {
     fetchUserDetails(user.id);
   };
 
+  const handleSetVerified = async (user: User, verified: boolean) => {
+    try {
+      const response = await fetch(`/api/admin/users/${user.id}/verification`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ verified }),
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to update verification");
+      }
+      setUsers((prev) => prev.map((u) => (u.id === user.id ? { ...u, verified } : u)));
+      toast({
+        title: verified ? "Profile verified" : "Verification removed",
+        description: `Updated badge for ${user.full_name || user.username}`,
+      });
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : "Update failed";
+      toast({ title: "Error", description: msg, variant: "destructive" });
+    }
+  };
+
   const handleDelete = async () => {
     if (!selectedUser) return;
 
@@ -192,7 +218,7 @@ export default function UsersManagementPage() {
       } else {
         const errorData = await response.json().catch(() => ({}));
         const errorMessage = errorData.details || errorData.error || "Failed to delete user";
-        
+
         toast({
           title: errorData.code === "FOREIGN_KEY_CONSTRAINT" ? "Cannot Delete User" : "Error",
           description: errorMessage,
@@ -205,6 +231,27 @@ export default function UsersManagementPage() {
         description: error.message || "Failed to delete user. Please try again.",
         variant: "destructive",
       });
+    }
+  };
+
+  const handleAuditorVerification = async (user: User, status: string) => {
+    try {
+      const response = await fetch(`/api/admin/users/${user.id}/auditor-verification`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status }),
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(data.error || "Update failed");
+      }
+      setUsers((prev) =>
+        prev.map((u) => (u.id === user.id ? { ...u, auditor_verification_status: status } : u))
+      );
+      toast({ title: "Auditor status updated", description: status });
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : "Update failed";
+      toast({ title: "Error", description: msg, variant: "destructive" });
     }
   };
 
@@ -266,6 +313,8 @@ export default function UsersManagementPage() {
                   <TableHead>Email</TableHead>
                   <TableHead>Company</TableHead>
                   <TableHead>Position</TableHead>
+                  <TableHead>Verified</TableHead>
+                  <TableHead>Auditor</TableHead>
                   <TableHead>Joined</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
@@ -273,7 +322,7 @@ export default function UsersManagementPage() {
               <TableBody>
                 {filteredUsers.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                    <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
                       No users found
                     </TableCell>
                   </TableRow>
@@ -306,6 +355,42 @@ export default function UsersManagementPage() {
                         )}
                       </TableCell>
                       <TableCell>{user.position || "N/A"}</TableCell>
+                      <TableCell>
+                        <div
+                          className="flex items-center gap-2"
+                          onClick={(e) => e.stopPropagation()}
+                          onKeyDown={(e) => e.stopPropagation()}
+                        >
+                          <Switch
+                            checked={user.verified === true}
+                            onCheckedChange={(v) => handleSetVerified(user, v)}
+                            aria-label={`Verified ${user.full_name || user.username}`}
+                          />
+                          {user.verified === true ? (
+                            <Badge variant="default" className="text-xs">
+                              On
+                            </Badge>
+                          ) : (
+                            <span className="text-xs text-muted-foreground">Off</span>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell className="min-w-[140px]">
+                        {user.professional_role === "auditor" ? (
+                          <select
+                            className="w-full text-xs rounded-md border border-input bg-background px-2 py-1.5"
+                            value={user.auditor_verification_status || "none"}
+                            onChange={(e) => void handleAuditorVerification(user, e.target.value)}
+                          >
+                            <option value="none">none</option>
+                            <option value="pending">pending</option>
+                            <option value="approved">approved</option>
+                            <option value="rejected">rejected</option>
+                          </select>
+                        ) : (
+                          <span className="text-xs text-muted-foreground">—</span>
+                        )}
+                      </TableCell>
                       <TableCell>
                         {new Date(user.created_at).toLocaleDateString()}
                       </TableCell>

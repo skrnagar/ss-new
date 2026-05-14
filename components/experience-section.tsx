@@ -8,11 +8,13 @@ import { Briefcase, Calendar, MapPin, Plus, Edit, Trash2 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { ExperienceDialog } from "./experience-dialog";
 import { format } from "date-fns";
+import Image from "next/image";
 
 interface Experience {
   id: string;
   title: string;
   company: string;
+  company_logo_url?: string | null;
   employment_type?: string;
   location?: string;
   start_date: string;
@@ -151,46 +153,68 @@ export function ExperienceSection({ userId, isOwnProfile }: ExperienceSectionPro
                       </Button>
                     </div>
                   )}
-                  
-                  <h4 className="font-semibold text-gray-900">{exp.title}</h4>
-                  <div className="flex items-center text-sm mb-1">
-                    <Briefcase className="h-4 w-4 text-muted-foreground mr-2" />
-                    <span className="text-gray-700">
-                      {exp.company}
-                      {exp.employment_type && ` • ${exp.employment_type}`}
-                    </span>
-                  </div>
-                  
-                  <div className="flex items-center text-sm text-muted-foreground mb-2">
-                    <Calendar className="h-4 w-4 mr-2" />
-                    <span>
-                      {formatDate(exp.start_date)} -{" "}
-                      {exp.is_current ? "Present" : exp.end_date ? formatDate(exp.end_date) : "Present"}
-                    </span>
-                  </div>
-                  
-                  {exp.location && (
-                    <div className="flex items-center text-sm text-muted-foreground mb-2">
-                      <MapPin className="h-4 w-4 mr-2" />
-                      <span>{exp.location}</span>
+
+                  <div className="flex gap-3">
+                    {exp.company_logo_url ? (
+                      <div className="relative h-12 w-12 rounded-md overflow-hidden bg-muted flex-shrink-0 border mt-0.5">
+                        <Image
+                          src={exp.company_logo_url}
+                          alt=""
+                          fill
+                          className="object-contain p-0.5"
+                          sizes="48px"
+                        />
+                      </div>
+                    ) : (
+                      <div className="h-12 w-12 rounded-md bg-primary/5 flex items-center justify-center flex-shrink-0 border border-primary/10">
+                        <Briefcase className="h-5 w-5 text-primary/60" />
+                      </div>
+                    )}
+                    <div className="min-w-0 flex-1">
+                      <h4 className="font-semibold text-gray-900">{exp.title}</h4>
+                      <div className="flex items-center text-sm mb-1">
+                        <span className="text-gray-700">
+                          {exp.company}
+                          {exp.employment_type && ` • ${exp.employment_type}`}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center text-sm text-muted-foreground mb-2">
+                        <Calendar className="h-4 w-4 mr-2 flex-shrink-0" />
+                        <span>
+                          {formatDate(exp.start_date)} -{" "}
+                          {exp.is_current
+                            ? "Present"
+                            : exp.end_date
+                              ? formatDate(exp.end_date)
+                              : "Present"}
+                        </span>
+                      </div>
+
+                      {exp.location && (
+                        <div className="flex items-center text-sm text-muted-foreground mb-2">
+                          <MapPin className="h-4 w-4 mr-2 flex-shrink-0" />
+                          <span>{exp.location}</span>
+                        </div>
+                      )}
+
+                      {exp.description && (
+                        <p className="text-sm text-gray-600 mb-3 whitespace-pre-line">
+                          {exp.description}
+                        </p>
+                      )}
+
+                      {exp.skills && exp.skills.length > 0 && (
+                        <div className="flex flex-wrap gap-2">
+                          {exp.skills.map((skill, index) => (
+                            <Badge key={index} variant="secondary" className="text-xs">
+                              {skill}
+                            </Badge>
+                          ))}
+                        </div>
+                      )}
                     </div>
-                  )}
-                  
-                  {exp.description && (
-                    <p className="text-sm text-gray-600 mb-3 whitespace-pre-line">
-                      {exp.description}
-                    </p>
-                  )}
-                  
-                  {exp.skills && exp.skills.length > 0 && (
-                    <div className="flex flex-wrap gap-2">
-                      {exp.skills.map((skill, index) => (
-                        <Badge key={index} variant="secondary" className="text-xs">
-                          {skill}
-                        </Badge>
-                      ))}
-                    </div>
-                  )}
+                  </div>
                 </div>
               ))}
             </div>

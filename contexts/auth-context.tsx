@@ -4,7 +4,6 @@ import { supabase } from "@/lib/supabase";
 import type { Session, User } from "@supabase/supabase-js";
 import { createContext, useContext, useEffect, useState, useCallback } from "react";
 import { clearAvatarCache } from "@/hooks/use-avatar-cache";
-import { FullScreenLoader } from "@/components/ui/logo-loder";
 
 type Profile = {
   id: string;
@@ -42,7 +41,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       const { data, error } = await supabase
         .from("profiles")
-        .select("id, username, full_name, avatar_url, headline, position, company")
+        .select("*")
         .eq("id", user.id)
         .single();
 
@@ -65,9 +64,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           data: { session: initialSession },
         } = await supabase.auth.getSession();
         setSession(initialSession);
-
-        if (initialSession) {
-          await fetchProfile(initialSession.user);
+        // Do not block the whole app on profile fetch — improves route transition time.
+        if (initialSession?.user) {
+          fetchProfile(initialSession.user);
         }
       } catch (error) {
         console.error("Error initializing auth:", error);
@@ -102,12 +101,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, [session, fetchProfile]);
 
   const value = { session, profile, isLoading, refreshProfile };
-
-  // Render a loading screen while the session is being fetched.
-  // This prevents the rest of the app from rendering prematurely.
-  if (isLoading) {
-    return <FullScreenLoader variant="glitch" text="Loading Safety Shaper..." />;
-  }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

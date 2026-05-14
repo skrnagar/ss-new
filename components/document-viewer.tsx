@@ -4,11 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, ArrowRight, Download, FileText } from "lucide-react";
 import { InlineLoader } from "@/components/ui/logo-loder";
-import { GlobalWorkerOptions, getDocument, version } from "pdfjs-dist";
-import "pdfjs-dist/web/pdf_viewer.css";
 import mammoth from "mammoth";
-
-GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${version}/pdf.worker.min.js`;
 
 interface DocumentViewerProps {
   url: string;
@@ -26,22 +22,37 @@ export function DocumentViewer({ url, type, filename }: DocumentViewerProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [zoom, setZoom] = useState(1);
 
-  // PDF rendering
+  // PDF rendering (dynamic import — pdfjs uses DOMMatrix, not available during SSR)
   useEffect(() => {
     if (type !== "pdf") return;
+    if (typeof window === "undefined") return;
+
+    let cancelled = false;
     setLoading(true);
     setError(null);
-    getDocument(url).promise
-      .then((pdfDoc: any) => {
+    setPdf(null);
+
+    void (async () => {
+      try {
+        const { getDocument, GlobalWorkerOptions, version } = await import("pdfjs-dist");
+        GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${version}/pdf.worker.min.js`;
+        const pdfDoc = await getDocument(url).promise;
+        if (cancelled) return;
         setPdf(pdfDoc);
         setPageCount(pdfDoc.numPages);
         setPageNum(1);
         setLoading(false);
-      })
-      .catch((err: any) => {
-        setError("Failed to load PDF");
-        setLoading(false);
-      });
+      } catch {
+        if (!cancelled) {
+          setError("Failed to load PDF");
+          setLoading(false);
+        }
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
   }, [url, type]);
 
   useEffect(() => {

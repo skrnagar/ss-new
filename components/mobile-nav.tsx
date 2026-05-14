@@ -9,10 +9,10 @@ import { useAuth } from "@/contexts/auth-context";
 import { supabase } from "@/lib/supabase";
 
 const navItems = [
-  { href: "/feed", icon: Home, label: "Home" },
-  { href: "/network", icon: Users, label: "Network" },
-  { href: "/posts/create", icon: PlusSquare, label: "Post" },
-  { href: "/knowledge", icon: BookOpen, label: "Knowledge" },
+  { href: "/feed", icon: Home, label: "Feed", match: (p: string) => p === "/feed" || p.startsWith("/feed/") },
+  { href: "/network", icon: Users, label: "Network", match: (p: string) => p.startsWith("/network") },
+  { href: "/posts/create", icon: PlusSquare, label: "Post", match: (p: string) => p.startsWith("/posts/create") },
+  { href: "/knowledge", icon: BookOpen, label: "Knowledge", match: (p: string) => p.startsWith("/knowledge") },
 ];
 
 export function MobileNav() {
@@ -30,23 +30,39 @@ export function MobileNav() {
     async function fetchUnread() {
       if (!user?.id || ignore) return;
       
-      const { data, error } = await supabase
+      // First, get all conversation IDs for this user
+      const { data: userConversations, error: convError } = await supabase
         .from("conversation_participants")
-        .select(`conversation:conversations!inner(id, messages(seen, sender_id))`)
+        .select("conversation_id")
         .eq("profile_id", user.id);
       
-      if (error) {
-        console.error('Error fetching mobile unread count:', error);
+      if (convError) {
+        console.error('Error fetching conversations:', convError);
         return;
       }
       
-      if (!ignore && data) {
-        let count = 0;
-        data.forEach((item: any) => {
-          const messages = item.conversation?.messages || [];
-          count += messages.filter((m: any) => !m.seen && m.sender_id !== user.id).length;
-        });
-        setUnreadCount(count);
+      if (!userConversations || userConversations.length === 0) {
+        if (!ignore) setUnreadCount(0);
+        return;
+      }
+      
+      const conversationIds = userConversations.map(c => c.conversation_id);
+      
+      // Count unread messages directly
+      const { count, error: countError } = await supabase
+        .from("messages")
+        .select("*", { count: 'exact', head: true })
+        .in("conversation_id", conversationIds)
+        .eq("seen", false)
+        .neq("sender_id", user.id);
+      
+      if (countError) {
+        console.error('Error counting unread messages:', countError);
+        return;
+      }
+      
+      if (!ignore) {
+        setUnreadCount(count || 0);
       }
     }
     
@@ -133,18 +149,18 @@ export function MobileNav() {
 
   return (
     <>
-      <nav className="bg-white fixed bottom-0 w-full border-t md:hidden">
-        <ul className="flex justify-around p-2">
+      <nav className="fixed bottom-0 left-0 right-0 z-40 border-t bg-white pb-[max(0.5rem,env(safe-area-inset-bottom,0px))] pt-1 md:hidden">
+        <ul className="flex justify-around gap-1 px-1">
           {navItems.map((item) => {
-            const isActive = pathname === item.href;
+            const isActive = item.match(pathname);
             const isNetwork = item.href === "/network";
             return (
               <li key={item.href}>
                 <Link
                   href={item.href}
-                  className={`flex flex-col items-center w-16 ${
+                  className={`flex min-h-[48px] min-w-[56px] flex-col items-center justify-center rounded-lg px-1 py-1 ${
                     isActive ? "text-primary" : "text-gray-500"
-                  } hover:text-primary transition-colors`}
+                  } hover:text-primary transition-colors active:scale-[0.98]`}
                 >
                   <div className="relative">
                     <item.icon className="w-5 h-5 mb-1" />
@@ -163,9 +179,9 @@ export function MobileNav() {
           <li>
             <button
               onClick={handleMessagesClick}
-              className={`flex flex-col items-center w-16 relative ${
+              className={`relative flex min-h-[48px] min-w-[56px] flex-col items-center justify-center rounded-lg px-1 py-1 ${
                 isChatOpen ? "text-primary" : "text-gray-500"
-              } hover:text-primary transition-colors`}
+              } hover:text-primary transition-colors active:scale-[0.98]`}
             >
               <div className="relative">
                 <MessageSquare className="w-5 h-5 mb-1" />

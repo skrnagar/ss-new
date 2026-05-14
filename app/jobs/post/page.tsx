@@ -35,6 +35,8 @@ export default function PostJobPage() {
     skills_required: "",
     benefits: "",
     application_deadline: "",
+    job_category: "general",
+    industry: "",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -76,6 +78,8 @@ export default function PostJobPage() {
         skills_required: skillsArray.length > 0 ? skillsArray : null,
         benefits: benefitsArray.length > 0 ? benefitsArray : null,
         application_deadline: formData.application_deadline || null,
+        job_category: formData.job_category || "general",
+        industry: formData.industry?.trim() ? formData.industry.trim() : null,
         is_active: true,
       };
 
@@ -86,6 +90,12 @@ export default function PostJobPage() {
         .single();
 
       if (error) throw error;
+
+      void fetch("/api/jobs/notify-subscribers", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ jobId: data.id }),
+      }).catch(() => {});
 
       toast({
         title: "Success!",
@@ -159,6 +169,36 @@ export default function PostJobPage() {
                     rows={8}
                     required
                   />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="job_category">Job focus / category</Label>
+                    <select
+                      id="job_category"
+                      value={formData.job_category}
+                      onChange={(e) => setFormData({ ...formData, job_category: e.target.value })}
+                      className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                    >
+                      <option value="general">General</option>
+                      <option value="ehs_safety">EHS / Safety</option>
+                      <option value="environmental">Environmental</option>
+                      <option value="compliance">Compliance / audit</option>
+                    </select>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Drives the EHS jobs hub and job alert matching.
+                    </p>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="industry">Sector / industry (optional)</Label>
+                    <Input
+                      id="industry"
+                      value={formData.industry}
+                      onChange={(e) => setFormData({ ...formData, industry: e.target.value })}
+                      placeholder="e.g. Chemical manufacturing"
+                    />
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
