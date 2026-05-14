@@ -146,7 +146,7 @@ export default async function ProfilePage({ params }: { params: { username: stri
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
-      <div className="container mx-auto px-4 py-8 max-w-6xl">
+      <div className="container mx-auto max-w-6xl px-3 py-6 sm:px-4 sm:py-8">
         <ProfessionalHeader
           profileId={profile.id}
           username={username}
@@ -166,10 +166,10 @@ export default async function ProfilePage({ params }: { params: { username: stri
           auditorVisible={profile.auditor_visible !== false}
         />
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="space-y-6">
-            <Card>
-              <CardContent className="p-6">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3 lg:gap-8">
+          <div className="space-y-4 sm:space-y-6">
+            <Card className="overflow-hidden shadow-sm">
+              <CardContent className="p-4 sm:p-6">
                 <div className="flex justify-center gap-3 mb-6">
                   {socialLinks.map((link, i) => (
                     <a
@@ -194,10 +194,10 @@ export default async function ProfilePage({ params }: { params: { username: stri
                   ))}
                 </div>
 
-                <div className="w-full flex gap-2 flex-wrap">
+                <div className="flex w-full min-h-[48px] flex-wrap gap-2">
                   {isOwnProfile ? (
                     <Button
-                      className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg"
+                      className="min-h-11 w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg"
                       asChild
                     >
                       <Link href="/profile/edit">
@@ -207,7 +207,7 @@ export default async function ProfilePage({ params }: { params: { username: stri
                     </Button>
                   ) : (
                     <>
-                      <Button className="flex-1 bg-primary hover:bg-primary/90 shadow-lg" asChild>
+                      <Button className="min-h-11 min-w-[7rem] flex-1 bg-primary hover:bg-primary/90 shadow-lg" asChild>
                         <Link href={`/messages?userId=${profile.id}`}>
                           <MessageSquare className="h-4 w-4 mr-2" />
                           Message
@@ -238,14 +238,14 @@ export default async function ProfilePage({ params }: { params: { username: stri
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader>
+            <Card className="overflow-hidden shadow-sm">
+              <CardHeader className="px-4 pb-2 pt-4 sm:px-6 sm:pt-6">
                 <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
                   <User className="h-5 w-5 text-primary" />
                   Details
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-3 px-4 pb-4 sm:space-y-4 sm:px-6 sm:pb-6">
                 {profile.company && (
                   <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
                     <div className="p-2 bg-primary/10 rounded-lg">
@@ -278,25 +278,25 @@ export default async function ProfilePage({ params }: { params: { username: stri
             </Card>
           </div>
 
-          <div className="lg:col-span-2 space-y-6">
-            <Card>
-              <CardHeader>
+          <div className="space-y-4 sm:space-y-6 lg:col-span-2">
+            <Card className="overflow-hidden shadow-sm">
+              <CardHeader className="px-4 pb-2 pt-4 sm:px-6 sm:pt-6">
                 <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
                   <FileText className="h-5 w-5 text-primary" />
                   About
                 </CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="px-4 pb-4 sm:px-6 sm:pb-6">
                 <BioDisplay bio={profile.bio} isOwnProfile={isOwnProfile} />
               </CardContent>
             </Card>
 
             {profile.professional_role === "auditor" && profile.auditor_services_summary && (
-              <Card>
-                <CardHeader>
+              <Card className="overflow-hidden shadow-sm">
+                <CardHeader className="px-4 pb-2 pt-4 sm:px-6 sm:pt-6">
                   <CardTitle className="text-lg font-semibold text-gray-900">Audit services</CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="px-4 pb-4 sm:px-6 sm:pb-6">
                   <p className="text-sm text-gray-700 whitespace-pre-wrap">{profile.auditor_services_summary}</p>
                 </CardContent>
               </Card>
@@ -338,14 +338,14 @@ export default async function ProfilePage({ params }: { params: { username: stri
               <AchievementsSection userId={profile.id} isOwnProfile={isOwnProfile} />
             </div>
 
-            <Card>
-              <CardHeader>
+            <Card className="overflow-hidden shadow-sm">
+              <CardHeader className="px-4 pb-2 pt-4 sm:px-6 sm:pt-6">
                 <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
                   <Users className="h-5 w-5 text-primary" />
                   Recent activity
                 </CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="px-4 pb-4 sm:px-6 sm:pb-6">
                 <div className="client-only-component" suppressHydrationWarning>
                   <UserActivity
                     userId={profile.id}

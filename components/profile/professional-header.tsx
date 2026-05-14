@@ -170,7 +170,7 @@ export function ProfessionalHeader({
   return (
     <div className="relative mb-6 rounded-xl border bg-card shadow-sm">
       {/* overflow-hidden only on the banner — outer overflow clips the overlapping avatar */}
-      <div className="relative h-40 sm:h-48 w-full overflow-hidden rounded-t-xl bg-gradient-to-r from-slate-700 via-slate-600 to-primary/80">
+      <div className="relative h-36 w-full overflow-hidden rounded-t-xl bg-gradient-to-r from-slate-700 via-slate-600 to-primary/80 sm:h-44 md:h-48">
         {coverUrl ? (
           <Image
             src={coverUrl}
@@ -194,7 +194,7 @@ export function ProfessionalHeader({
               type="button"
               size="sm"
               variant="secondary"
-              className="absolute bottom-3 right-3 gap-2 shadow-md"
+              className="absolute bottom-2 right-2 gap-2 shadow-md sm:bottom-3 sm:right-3"
               disabled={uploading}
               onClick={() => inputRef.current?.click()}
             >
@@ -205,8 +205,8 @@ export function ProfessionalHeader({
         )}
       </div>
 
-      <div className="relative rounded-b-xl bg-card px-6 pb-6 pt-0">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-end -mt-16 sm:-mt-20">
+      <div className="relative rounded-b-xl bg-card px-4 pb-6 pt-0 sm:px-6">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-end -mt-12 sm:-mt-16 md:-mt-20">
           <div className="mx-auto flex w-fit flex-shrink-0 sm:mx-0">
             <div className="rounded-full bg-background p-1 shadow-xl ring-4 ring-background">
               <AvatarUpload
@@ -260,7 +260,7 @@ export function ProfessionalHeader({
             )}
 
             {isOwnProfile && (
-              <div className="flex flex-col gap-3 mt-4 max-w-md mx-auto sm:mx-0">
+              <div className="mt-4 flex flex-col gap-3 rounded-lg border border-border/60 bg-muted/30 p-3 sm:p-4 max-w-md mx-auto sm:mx-0">
                 <div className="flex items-center justify-center sm:justify-start gap-2">
                   <Switch
                     id="profile-recruiter-visible"

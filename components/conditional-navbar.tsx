@@ -11,7 +11,7 @@ const Navbar = dynamic(
     ssr: true,
     loading: () => (
       <header className="sticky top-0 z-40 border-b bg-background">
-        <div className="container flex h-16 items-center justify-between py-4">
+        <div className="container flex min-h-14 items-center justify-between py-4">
           <div className="flex items-center gap-4">
             <div className="mr-2 h-9 w-9 bg-muted rounded-md animate-pulse"></div>
           </div>
@@ -36,7 +36,7 @@ export function ConditionalNavbar() {
     <Suspense
       fallback={
         <header className="sticky top-0 z-40 border-b bg-background">
-          <div className="container flex h-16 items-center justify-between py-4">
+          <div className="container flex min-h-14 items-center justify-between py-4">
             <div className="flex items-center gap-4">
               <div className="mr-2 h-9 w-9 bg-muted rounded-md animate-pulse"></div>
             </div>
