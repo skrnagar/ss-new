@@ -46,6 +46,20 @@ const registerSchema = z.object({
 });
 
 export default function LoginPage() {
+  return (
+    <React.Suspense
+      fallback={
+        <div className="container flex min-h-[60vh] items-center justify-center py-12">
+          <p className="text-sm text-muted-foreground">Loading sign-in…</p>
+        </div>
+      }
+    >
+      <LoginPageContent />
+    </React.Suspense>
+  );
+}
+
+function LoginPageContent() {
   const router = useRouter();
   const { toast } = useToast();
   const [loading, setLoading] = React.useState(false);

@@ -1,4 +1,5 @@
 import type React from "react";
+import { Suspense } from "react";
 import "./globals.css";
 import { ConditionalFooter } from "@/components/conditional-footer";
 import { AuthProvider } from "@/contexts/auth-context";
@@ -79,7 +80,9 @@ export default function RootLayout({
         <AuthProvider>
           <OnlinePresenceProvider>
             <ConversationProvider>
-            <AuthRedirector />
+            <Suspense fallback={null}>
+              <AuthRedirector />
+            </Suspense>
             <div className="flex flex-col min-h-screen">
               <ConditionalNavbar />
               <div className="pb-16 md:pb-0">
