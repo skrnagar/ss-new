@@ -19,6 +19,7 @@ export default function MessagesPage() {
 function MessagesPageContent() {
   const searchParams = useSearchParams();
   const userId = searchParams.get("userId");
+  const openComposer = searchParams.get("compose") === "1";
   const { profile } = useAuth();
 
   return (
@@ -27,7 +28,7 @@ function MessagesPageContent() {
         {/* Main Content: Unified Chat Box */}
         <div className="col-span-1 lg:col-span-9 h-full flex flex-col min-h-0">
           <div className="flex h-full bg-white border rounded-xl shadow overflow-hidden flex-col lg:flex-row">
-            <ChatList initialUserId={userId} />
+            <ChatList initialUserId={userId} initialOpenComposer={openComposer} />
           </div>
         </div>
         {/* Sidebar: Profile, Navigation, Suggestions on the right (outside the box) */}

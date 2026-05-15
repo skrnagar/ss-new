@@ -171,6 +171,11 @@ DROP POLICY IF EXISTS compliance_mutate_own ON public.compliance_items;
 CREATE POLICY compliance_mutate_own ON public.compliance_items
   FOR ALL TO authenticated USING (owner_id = auth.uid()) WITH CHECK (owner_id = auth.uid());
 
+-- Authenticated app users need table privileges (RLS still restricts rows).
+GRANT SELECT, INSERT, UPDATE ON public.incidents TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.esg_metric_entries TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.compliance_items TO authenticated;
+
 -- ---------------------------------------------------------------------------
 -- Seed: sample published course + quiz (optional demo)
 -- ---------------------------------------------------------------------------

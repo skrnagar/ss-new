@@ -49,7 +49,11 @@ export default function EsgDashboardPage() {
   const [unit, setUnit] = useState("tCO₂e");
 
   const load = useCallback(async () => {
-    if (!userId) return;
+    if (!userId) {
+      setRows([]);
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     try {
       const { data, error } = await supabase

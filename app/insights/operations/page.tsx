@@ -70,7 +70,11 @@ export default function OperationsDashboardPage() {
   } | null>(null);
 
   const load = useCallback(async () => {
-    if (!userId) return;
+    if (!userId) {
+      setIncidents([]);
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     try {
       const { data, error } = await supabase
