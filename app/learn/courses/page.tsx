@@ -1,9 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
+import { SchemaSetupCard } from "@/components/schema-setup-card";
 import { supabase } from "@/lib/supabase";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { isRelationMissing } from "@/lib/schema-utils";
+import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Clock, ArrowRight } from "lucide-react";
@@ -18,30 +20,32 @@ type Course = {
 
 export default function LearnCoursesPage() {
   const [courses, setCourses] = useState<Course[]>([]);
+  const [schemaSetupNeeded, setSchemaSetupNeeded] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
 
-  useEffect(() => {
-    let ignore = false;
-    async function load() {
-      setLoadError(null);
-      const { data, error } = await supabase
-        .from("lms_courses")
-        .select("id, slug, title, description, duration_minutes")
-        .eq("is_published", true)
-        .order("title");
-      if (ignore) return;
-      if (error) {
-        setCourses([]);
-        setLoadError(error.message);
+  const load = useCallback(async () => {
+    setLoadError(null);
+    setSchemaSetupNeeded(false);
+    const { data, error } = await supabase
+      .from("lms_courses")
+      .select("id, slug, title, description, duration_minutes")
+      .eq("is_published", true)
+      .order("title");
+    if (error) {
+      setCourses([]);
+      if (isRelationMissing(error, "lms_courses")) {
+        setSchemaSetupNeeded(true);
         return;
       }
-      setCourses((data as Course[]) || []);
+      setLoadError(error.message);
+      return;
     }
-    void load();
-    return () => {
-      ignore = true;
-    };
+    setCourses((data as Course[]) || []);
   }, []);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
 
   return (
     <div className="container max-w-3xl py-10 px-4">
@@ -52,20 +56,19 @@ export default function LearnCoursesPage() {
         / Courses
       </p>
       <h1 className="text-2xl font-bold mb-6">Courses</h1>
-      {loadError ? (
-        <p className="text-sm text-destructive">
-          Could not load courses: {loadError}. If the table is missing, run{" "}
-          <code className="rounded bg-muted px-1 text-foreground">lib/phase5-dashboards.sql</code> in the
-          Supabase SQL Editor.
-        </p>
+      {schemaSetupNeeded ? (
+        <SchemaSetupCard
+          title="Training courses need a one-time database setup"
+          description="The lms_courses table is not in your Supabase project yet."
+          scriptHint="lib/production/02-phase5-dashboards.sql"
+          onRefresh={load}
+        />
+      ) : loadError ? (
+        <p className="text-sm text-destructive">Could not load courses: {loadError}</p>
       ) : courses.length === 0 ? (
         <p className="text-sm text-muted-foreground">
-          No published courses yet. In the Supabase project for this app, open SQL Editor and run the full
-          script{" "}
-          <code className="rounded bg-muted px-1">lib/phase5-dashboards.sql</code> (creates LMS tables, RLS,
-          and seeds <strong>EHS Induction (starter)</strong>). If you ran an older version of the script,
-          run it again so catalog <code className="text-xs">SELECT</code> works for signed-out visitors,
-          then refresh this page.
+          No published courses yet. Run <code className="rounded bg-muted px-1">npm run db:bootstrap</code>{" "}
+          to seed demo courses, then refresh.
         </p>
       ) : (
         <ul className="space-y-4">
@@ -76,14 +79,12 @@ export default function LearnCoursesPage() {
                   <div>
                     <CardTitle className="text-lg">{c.title}</CardTitle>
                     <CardDescription className="mt-1">{c.description}</CardDescription>
-                    <div className="flex gap-2 mt-2">
-                      {c.duration_minutes != null && (
-                        <Badge variant="secondary" className="gap-1 font-normal">
-                          <Clock className="h-3 w-3" />
-                          ~{c.duration_minutes} min
-                        </Badge>
-                      )}
-                    </div>
+                    {c.duration_minutes != null && (
+                      <Badge variant="secondary" className="gap-1 font-normal mt-2">
+                        <Clock className="h-3 w-3" />
+                        ~{c.duration_minutes} min
+                      </Badge>
+                    )}
                   </div>
                   <Button asChild size="sm">
                     <Link href={`/learn/courses/${c.slug}`}>

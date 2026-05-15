@@ -55,8 +55,9 @@ export default function AuditsHubPage() {
                 For auditors
               </CardTitle>
               <CardDescription>
-                Set your profile role to <strong>auditor</strong>, request platform verification from your
-                profile after running <code className="text-xs">lib/phase4-audit.sql</code>.
+                Set your profile role to <strong>auditor</strong>, then request platform verification from
+                profile edit. Database setup: <code className="text-xs">npm run db:bootstrap</code> (includes{" "}
+                <code className="text-xs">lib/production/03-phase4-audit.sql</code>).
               </CardDescription>
             </CardHeader>
             <CardContent className="text-sm text-muted-foreground">

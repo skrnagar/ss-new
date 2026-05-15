@@ -1,5 +1,8 @@
 -- Knowledge Center schema (Safety Shaper / SafetyShaper project)
--- Run the WHOLE file once in: Supabase Dashboard → SQL Editor → New query → Run
+-- Prefer: npm run db:bootstrap  (applies lib/production/*.sql via service role)
+-- Or run lib/production/01-knowledge-tables.sql in Supabase SQL Editor.
+-- Storage object policies: run lib/production/01b-storage-policies.sql in Dashboard if uploads fail.
+-- Manual fallback: run the WHOLE file once in: Supabase Dashboard → SQL Editor → New query → Run
 --
 -- ERRORS YOU MIGHT SEE BEFORE RUNNING THIS:
 -- • POST .../rest/v1/knowledge_resources → 404 = table not in DB or PostgREST cache stale (this script fixes both).
