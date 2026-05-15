@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
+import { SchemaSetupCard } from "@/components/schema-setup-card";
 import {
   CATEGORIES,
   FILE_TYPES,
@@ -28,7 +29,6 @@ import {
   isKnowledgeResourcesSchemaMissing,
   labelForCategory,
   labelForIndustry,
-  getSupabaseSqlEditorUrl,
   timeAgo,
 } from "@/lib/knowledge-utils";
 import { supabase } from "@/lib/supabase";
@@ -50,59 +50,6 @@ import * as React from "react";
 
 type SortOption = "recent" | "popular" | "title";
 type DateFilter = "all" | "week" | "month" | "quarter";
-
-function KnowledgeSchemaSetupCard({ onRefresh }: { onRefresh: () => void }) {
-  const sqlEditorUrl = getSupabaseSqlEditorUrl();
-  return (
-    <Card className="border-amber-200 bg-amber-50/50 dark:bg-amber-950/20 dark:border-amber-800">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-lg text-amber-950 dark:text-amber-100">
-          <AlertTriangle className="h-5 w-5 shrink-0 text-amber-600" />
-          Knowledge Center needs a one-time database setup
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4 text-sm text-amber-950/90 dark:text-amber-100/90">
-        <p>
-          The{" "}
-          <code className="rounded bg-white/90 px-1.5 py-0.5 text-xs text-foreground dark:bg-black/30">
-            knowledge_resources
-          </code>{" "}
-          table (and related storage) is not in your Supabase project yet, so this page cannot load
-          resources.
-        </p>
-        <ol className="mx-auto max-w-xl list-decimal space-y-2 pl-5 text-left">
-          <li>
-            In the Supabase project linked to this app, open{" "}
-            <strong>SQL Editor</strong> → <strong>New query</strong>.
-          </li>
-          <li>
-            Paste and run the <strong>entire</strong> script from your repo:{" "}
-            <code className="break-all rounded bg-white/90 px-1.5 py-0.5 text-xs text-foreground dark:bg-black/30">
-              lib/knowledge-resources-schema.sql
-            </code>
-            <span className="block mt-1 text-xs opacity-90">
-              (Creates <code className="text-xs">knowledge_resources</code>, the{" "}
-              <code className="text-xs">knowledge-resources</code> storage bucket, and RLS policies.)
-            </span>
-          </li>
-          <li>Run the query, then use <strong>Refresh</strong> below.</li>
-        </ol>
-        <div className="flex flex-wrap items-center justify-center gap-2 pt-2">
-          {sqlEditorUrl ? (
-            <Button asChild size="sm">
-              <a href={sqlEditorUrl} target="_blank" rel="noopener noreferrer">
-                Open Supabase SQL Editor
-              </a>
-            </Button>
-          ) : null}
-          <Button type="button" variant="secondary" size="sm" onClick={() => void onRefresh()}>
-            I ran the script — refresh
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
 
 export default function KnowledgePage() {
   const { toast } = useToast();
@@ -501,7 +448,12 @@ export default function KnowledgePage() {
           </Card>
 
           {schemaSetupNeeded ? (
-            <KnowledgeSchemaSetupCard onRefresh={fetchResources} />
+            <SchemaSetupCard
+              title="Knowledge Center needs a one-time database setup"
+              description="The knowledge_resources table is not in your Supabase project yet, so resources cannot load."
+              scriptHint="lib/production/01-knowledge-tables.sql"
+              onRefresh={fetchResources}
+            />
           ) : errorState ? (
             <Card>
               <CardContent className="py-12 text-center space-y-3">
