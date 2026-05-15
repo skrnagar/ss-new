@@ -107,6 +107,12 @@ CREATE TABLE IF NOT EXISTS public.lms_certificates (
   UNIQUE (user_id, course_id)
 );
 
+-- Catalog reads use the anon key when logged out; enrollments/certificates stay authenticated-only.
+GRANT SELECT ON public.lms_courses TO anon, authenticated;
+GRANT SELECT ON public.lms_modules TO anon, authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.lms_enrollments TO authenticated;
+GRANT SELECT, INSERT ON public.lms_certificates TO authenticated;
+
 ALTER TABLE public.lms_courses ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.lms_modules ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.lms_enrollments ENABLE ROW LEVEL SECURITY;
@@ -114,11 +120,11 @@ ALTER TABLE public.lms_certificates ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS lms_courses_select_published ON public.lms_courses;
 CREATE POLICY lms_courses_select_published ON public.lms_courses
-  FOR SELECT TO authenticated USING (is_published = true);
+  FOR SELECT USING (is_published = true);
 
 DROP POLICY IF EXISTS lms_modules_select_published ON public.lms_modules;
 CREATE POLICY lms_modules_select_published ON public.lms_modules
-  FOR SELECT TO authenticated USING (
+  FOR SELECT USING (
     EXISTS (SELECT 1 FROM public.lms_courses c WHERE c.id = course_id AND c.is_published = true)
   );
 
@@ -164,6 +170,11 @@ CREATE POLICY compliance_select_own ON public.compliance_items
 DROP POLICY IF EXISTS compliance_mutate_own ON public.compliance_items;
 CREATE POLICY compliance_mutate_own ON public.compliance_items
   FOR ALL TO authenticated USING (owner_id = auth.uid()) WITH CHECK (owner_id = auth.uid());
+
+-- Authenticated app users need table privileges (RLS still restricts rows).
+GRANT SELECT, INSERT, UPDATE ON public.incidents TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.esg_metric_entries TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.compliance_items TO authenticated;
 
 -- ---------------------------------------------------------------------------
 -- Seed: sample published course + quiz (optional demo)

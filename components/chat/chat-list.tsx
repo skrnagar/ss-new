@@ -34,6 +34,8 @@ interface Conversation {
 
 interface ChatListProps {
   initialUserId?: string | null;
+  /** When true (e.g. from /messages/new → ?compose=1), open the user search modal once. */
+  initialOpenComposer?: boolean;
 }
 
 // Add types for Supabase responses
@@ -70,7 +72,7 @@ function isProfile(user: any): user is { id: string; full_name: string; avatar_u
   return Boolean(user && typeof user.id === "string" && typeof user.full_name === "string");
 }
 
-export function ChatList({ initialUserId }: ChatListProps) {
+export function ChatList({ initialUserId, initialOpenComposer }: ChatListProps) {
   const [selectedConversation, setSelectedConversation] = useState<string>('');
   const [searchQuery, setSearchQuery] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -83,6 +85,11 @@ export function ChatList({ initialUserId }: ChatListProps) {
     if (!user || !initialUserId) return;
     startNewConversation(initialUserId);
   }, [user?.id, initialUserId]);
+
+  useEffect(() => {
+    if (!initialOpenComposer) return;
+    setIsModalOpen(true);
+  }, [initialOpenComposer]);
 
   // Conversations are now managed by the context
 

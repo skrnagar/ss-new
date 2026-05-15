@@ -18,16 +18,24 @@ type Course = {
 
 export default function LearnCoursesPage() {
   const [courses, setCourses] = useState<Course[]>([]);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
     let ignore = false;
     async function load() {
-      const { data } = await supabase
+      setLoadError(null);
+      const { data, error } = await supabase
         .from("lms_courses")
         .select("id, slug, title, description, duration_minutes")
         .eq("is_published", true)
         .order("title");
-      if (!ignore) setCourses((data as Course[]) || []);
+      if (ignore) return;
+      if (error) {
+        setCourses([]);
+        setLoadError(error.message);
+        return;
+      }
+      setCourses((data as Course[]) || []);
     }
     void load();
     return () => {
@@ -44,9 +52,20 @@ export default function LearnCoursesPage() {
         / Courses
       </p>
       <h1 className="text-2xl font-bold mb-6">Courses</h1>
-      {courses.length === 0 ? (
+      {loadError ? (
+        <p className="text-sm text-destructive">
+          Could not load courses: {loadError}. If the table is missing, run{" "}
+          <code className="rounded bg-muted px-1 text-foreground">lib/phase5-dashboards.sql</code> in the
+          Supabase SQL Editor.
+        </p>
+      ) : courses.length === 0 ? (
         <p className="text-sm text-muted-foreground">
-          No published courses. Run <code className="rounded bg-muted px-1">lib/phase5-dashboards.sql</code>.
+          No published courses yet. In the Supabase project for this app, open SQL Editor and run the full
+          script{" "}
+          <code className="rounded bg-muted px-1">lib/phase5-dashboards.sql</code> (creates LMS tables, RLS,
+          and seeds <strong>EHS Induction (starter)</strong>). If you ran an older version of the script,
+          run it again so catalog <code className="text-xs">SELECT</code> works for signed-out visitors,
+          then refresh this page.
         </p>
       ) : (
         <ul className="space-y-4">

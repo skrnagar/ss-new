@@ -50,7 +50,12 @@ export default function LearnCourseDetailPage() {
   const [quizAnswers, setQuizAnswers] = useState<Record<string, Record<number, string>>>({});
 
   const load = useCallback(async () => {
-    const { data: c } = await supabase.from("lms_courses").select("id, slug, title, description").eq("slug", slug).maybeSingle();
+    const { data: c } = await supabase
+      .from("lms_courses")
+      .select("id, slug, title, description")
+      .eq("slug", slug)
+      .eq("is_published", true)
+      .maybeSingle();
     if (!c) {
       setCourse(null);
       return;
